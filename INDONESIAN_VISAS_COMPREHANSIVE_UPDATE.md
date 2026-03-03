@@ -1,6 +1,6 @@
 # 🌐 INDONESIAN VISAS COMPREHENSIVE SYSTEM UPDATE & KNOWLEDGE BASE
-**Timestamp:** 2026-02-28 03:52 WIB  
-**Version:** v2.6.0-COMPREHENSIVE  
+**Timestamp:** 2026-03-03 14:40 WIB  
+**Version:** v2.7.0-COMPREHENSIVE  
 **Status:** Production Mode Active  
 
 ---
@@ -170,3 +170,24 @@ Identified and fixed a bug in the `handle_new_user` SQL trigger where the missin
 
 ---
 **END OF COMPREHENSIVE REPORT**
+
+---
+
+## 9. RECENT MAJOR UPDATES (PHASES 18-20)
+
+### 9.1 Brand Evolution & Global Trademark Change
+- **Action:** Full transition from 'Registered' (®) to 'Pending' (™) status for PT Indonesian Visas Agency.
+- **Implementation:** Automated multi-byte character replacement across the entire filesystem, followed by manual auditing of legal disclaimers in the Footer and Checkout pages.
+
+### 9.2 Repository & Pipeline Migration
+- **New Origin:** `https://github.com/indonesianvisas101/IndonesianVisasFinal.git`
+- **Resolution:** Successfully recovered from a local Git object corruption that prevented commits to the previous repository. All recent work migrated and verified.
+
+### 9.3 About Page Professionalism Enhancement
+- **New Feature:** Added a 'Legal and Registered Company' trust badge to the Hero section.
+- **i18n:** Full support across all 15+ backend languages with dynamic translation loading.
+
+### 9.4 Full System Optimization
+- **LCP Optimization:** Globe rendering delayed until idle and restricted to desktop.
+- **Lazy Load:** 80% of landing page components transitioned to `next/dynamic` with skeleton loading.
+- **Accessibility:** 100% ARIA coverage for all interactive cards and form elements.

@@ -65,19 +65,19 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
 
                     {/* Network Links */}
                     <div className={styles.networkLinks}>
-                        <a href="https://balihelp.id" target="_blank" rel="noopener noreferrer">balihelp.id</a>
+                        <a href="https://balihelp.id" target="_blank" rel="noopener noreferrer" aria-label="Visit balihelp.id (opens in new tab)">balihelp.id</a>
                         <span className={styles.divider}>|</span>
-                        <a href="https://voabali.com" target="_blank" rel="noopener noreferrer">voabali.com</a>
+                        <a href="https://voabali.com" target="_blank" rel="noopener noreferrer" aria-label="Visit voabali.com (opens in new tab)">voabali.com</a>
                         <span className={styles.divider}>|</span>
-                        <a href="https://balivisas.agency" target="_blank" rel="noopener noreferrer">balivisas.agency</a>
+                        <a href="https://balivisas.agency" target="_blank" rel="noopener noreferrer" aria-label="Visit balivisas.agency (opens in new tab)">balivisas.agency</a>
                         <span className={styles.divider}>|</span>
-                        <a href="https://voajakarta.com" target="_blank" rel="noopener noreferrer">voajakarta.com</a>
+                        <a href="https://voajakarta.com" target="_blank" rel="noopener noreferrer" aria-label="Visit voajakarta.com (opens in new tab)">voajakarta.com</a>
                         <span className={styles.divider}>|</span>
-                        <a href="https://jakartavisas.agency" target="_blank" rel="noopener noreferrer">jakartavisas.agency</a>
+                        <a href="https://jakartavisas.agency" target="_blank" rel="noopener noreferrer" aria-label="Visit jakartavisas.agency (opens in new tab)">jakartavisas.agency</a>
                         <span className={styles.divider}>|</span>
-                        <a href="https://mybisnis.app" target="_blank" rel="noopener noreferrer">mybisnis.app</a>
+                        <a href="https://mybisnis.app" target="_blank" rel="noopener noreferrer" aria-label="Visit mybisnis.app (opens in new tab)">mybisnis.app</a>
                         <span className={styles.divider}>|</span>
-                        <a href="https://indodesign.website" target="_blank" rel="noopener noreferrer">indodesign.website</a>
+                        <a href="https://indodesign.website" target="_blank" rel="noopener noreferrer" aria-label="Visit indodesign.website (opens in new tab)">indodesign.website</a>
                     </div>
 
                     {/* Global Disclaimer */}

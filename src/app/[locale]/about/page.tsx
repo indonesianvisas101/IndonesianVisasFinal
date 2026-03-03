@@ -28,9 +28,15 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-60" />
                 <div className="container relative z-10 mx-auto px-4">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm mb-8 animate-fade-in-up">
-                            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                            <span className="text-sm font-bold mode-aware-text">{t.hero_since || "Since 2010"}</span>
+                        <div className="flex flex-wrap justify-center gap-4 mb-8 translate-y-0 animate-fade-in-up">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm transition-all hover:border-primary/30 group">
+                                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                <span className="text-sm font-bold mode-aware-text">{t.hero_since || "Since 2010"}</span>
+                            </div>
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/20 shadow-sm transition-all hover:bg-primary/10 group">
+                                <ShieldCheck size={16} className="text-primary" />
+                                <span className="text-sm font-bold text-primary">{t.hero_legal_badge || "Legal and Registered Company"}</span>
+                            </div>
                         </div>
                         <h1 className="text-5xl md:text-7xl font-extrabold mb-8 mode-aware-text tracking-tight animate-fade-in-up [animation-delay:200ms]">
                             {t.hero_title || "Your Trusted Partner in Indonesia"}

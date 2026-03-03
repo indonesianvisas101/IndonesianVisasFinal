@@ -1,0 +1,422 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-align: center;
+}
+
+.topRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.inputCard {
+    padding: 1rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.counterControl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.counterBtn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: #FFFFFF;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.counterBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.countDisplay {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.dateInputWrapper {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 0.25rem 0.5rem;
+}
+
+.dateIcon {
+    color: var(--primary);
+    margin-right: 0.5rem;
+}
+
+.dateInput {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.subHeading {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.searchWrapper {
+    position: relative;
+    max-width: 150px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.5rem 0.5rem 0.5rem 2rem;
+    border-radius: 99px;
+    border: 1px solid #E2E8F0;
+    font-size: 0.875rem;
+    outline: none;
+}
+
+/* Country Grid */
+.countryListContainer {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #F0F0F0;
+    border-radius: 12px;
+    padding: 0.5rem;
+    background: #FAFAFA;
+}
+
+.countryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.countryBtn {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.countryBtn:hover {
+    border-color: var(--primary);
+    background: #F8FAFC;
+    transform: translateY(-1px);
+}
+
+.countryBtn.selected {
+    border-color: var(--primary);
+    background: #F5F3FF;
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
+.flagImg {
+    width: 24px;
+    height: 18px;
+    border-radius: 4px;
+    margin-right: 12px;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.countryName {
+    flex: 1;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.checkIcon {
+    color: var(--primary);
+}
+
+/* Visa Selection */
+.visaSection {
+    background: #FAFAFA;
+    padding: 2rem;
+    border-radius: 16px;
+    margin-top: 2rem;
+    border: 1px solid #F1F5F9;
+}
+
+.visaGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.visaCard {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    /* Flex Sizing */
+    flex: 1 1 260px;
+    max-width: 320px;
+    width: 100%;
+    justify-content: space-between;
+    min-height: 160px;
+    text-align: center;
+    position: relative;
+}
+
+.visaCard:hover {
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transform: translateY(-4px);
+}
+
+.visaSelected {
+    border-color: var(--primary);
+    background: #F5F3FF;
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
+.visaHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.visaId {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--primary);
+    background: rgba(124, 58, 237, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.visaTitle {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary);
+    line-height: 1.3;
+}
+
+.visaDesc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    flex: 1;
+}
+
+.visaFooter {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 1rem;
+    gap: 0.75rem;
+}
+
+.visaPrice {
+    font-weight: 800;
+    color: #F59E0B;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.visaValidity {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: #F1F5F9;
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    display: inline-block; /* Ensure it centers nicely */
+}
+
+/* Custom Visa Input */
+.customVisaCard {
+    border-style: dashed;
+    justify-content: center;
+}
+
+.customVisaInput {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.checkboxSelected {
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    padding: 2px;
+    display: flex;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+}
+
+.customVisaInput:focus {
+    border-bottom-color: var(--accent);
+}
+
+.actionArea {
+    margin-top: 1rem;
+}
+
+.continueBtn {
+    width: 100%;
+}
+
+/* ===========================
+   DARK MODE FIX (SAFE PATCH)
+   =========================== */
+
+/* Container backgrounds */
+:global([data-theme="dark"]) .countryListContainer {
+    background: rgba(30, 41, 59, 0.3); /* Transparent Slate */
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+:global([data-theme="dark"]) .inputCard {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+:global([data-theme="dark"]) .label {
+    color: #cbd5e1;
+}
+
+:global([data-theme="dark"]) .visaSection {
+    background: transparent; /* Seamless blend */
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Country button */
+:global([data-theme="dark"]) .countryBtn {
+    background: rgba(30, 41, 59, 0.5); /* Glass-like Slate */
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+:global([data-theme="dark"]) .countryBtn:hover {
+    background: rgba(40, 50, 70, 0.7);
+    border-color: var(--primary);
+}
+
+/* Selected country */
+:global([data-theme="dark"]) .countryBtn.selected {
+    background: rgba(124, 58, 237, 0.2);
+}
+
+/* Country text */
+:global([data-theme="dark"]) .countryName {
+    color: #e5e7eb;
+}
+
+/* Search */
+:global([data-theme="dark"]) .searchInput {
+    background: rgba(30, 41, 59, 0.5);
+    color: #e5e7eb;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+:global([data-theme="dark"]) .searchInput::placeholder {
+    color: #94a3b8;
+}
+
+/* Date input */
+:global([data-theme="dark"]) .dateInputWrapper {
+    background: rgba(30, 41, 59, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+:global([data-theme="dark"]) .dateInput {
+    background: transparent;
+    color: #e5e7eb;
+}
+
+/* Flags visibility fix */
+:global([data-theme="dark"]) .flagImg {
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
+    filter: saturate(1.1) contrast(1.05);
+}
+
+/* Visa cards */
+:global([data-theme="dark"]) .visaCard {
+    background: rgba(30, 41, 59, 0.5); /* Matching Glass Style */
+    border-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+}
+
+:global([data-theme="dark"]) .visaDesc {
+    color: #cbd5e1;
+}
+
+:global([data-theme="dark"]) .visaValidity {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+}

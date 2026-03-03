@@ -1,0 +1,237 @@
+.section {
+    padding: 1rem 0;
+    /* lebih breathing space */
+}
+
+/* =========================
+   Heading & Intro
+   ========================= */
+
+.heading {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1.25rem;
+}
+
+.intro {
+    text-align: center;
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin: 0 auto 3.5rem;
+    /* lebih jarak ke grid */
+    line-height: 1.7;
+}
+
+/* =========================
+   Grid Layout
+   ========================= */
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    /* grid lebih lega */
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* =========================
+   Card
+   ========================= */
+
+.card {
+    padding: 2.5rem;
+    /* card terasa premium */
+    border-radius: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: block;
+    text-decoration: none;
+}
+
+[data-theme='dark'] .card {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   Icon
+   ========================= */
+
+.iconWrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(75, 0, 130, 0.1);
+    color: var(--primary);
+    margin-bottom: 1.75rem;
+}
+
+[data-theme='dark'] .iconWrapper {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* =========================
+   Text
+   ========================= */
+
+.cardTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.cardText {
+    color: #4B5563;
+    line-height: 1.7;
+}
+
+[data-theme='dark'] .cardText {
+    color: var(--text-secondary);
+}
+
+/* =========================
+   CTA Footer
+   ========================= */
+
+.servicesFooter {
+    margin-top: 2rem;
+    /* pisahkan jelas dari grid */
+    margin-bottom: 2rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.ctaBtn {
+    padding: 1rem 2.25rem;
+    font-size: 1.125rem;
+}
+
+/* =========================
+   Popular Mini Grid
+   ========================= */
+
+.popularSection {
+    margin-top: 5rem;
+    width: 100%;
+}
+
+.subHeading {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.miniGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.miniCard {
+    padding: 1.5rem;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .miniCard {
+    background: #1e1e1e;
+    border-color: #333333;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+.miniCard:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+}
+
+.miniCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.miniCardId {
+    background: rgba(75, 0, 130, 0.1);
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.miniCardTitle {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .miniCardTitle {
+    color: #fff;
+}
+
+.miniCardMeta {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+[data-theme='dark'] .miniCardMeta {
+    border-top-color: rgba(255,255,255,0.08);
+}
+
+.metaItem {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary);
+}
+
+.metaLabel {
+    opacity: 0.7;
+}
+
+.metaValue {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+[data-theme='dark'] .metaValue {
+    color: #eee;
+}

@@ -1,0 +1,299 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+/* =========================
+   ROOT THEME
+========================= */
+:root {
+  --primary: #4B0082;
+  --primary-dark: #1E005A;
+  --accent: #FFD700;
+
+  --bg-light: #FFFFFF;
+  --text-primary: #111827; /* Gray-900 (Deep Black) */
+  --text-secondary: #374151; /* Gray-700 (High Contrast) */
+
+  --background: var(--bg-light);
+  --foreground: var(--text-primary);
+
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
+
+  /* Chatwoot Fixes */
+  --woot-widget-z-index: 2147483647; /* Max Z-Index */
+}
+
+/* Chatwoot iframe override */
+.woot-widget-holder {
+  z-index: var(--woot-widget-z-index) !important;
+  background: transparent !important; /* Ensure transparent */
+  box-shadow: none !important; /* Remove shadow from holder */
+}
+
+.woot-widget-holder iframe {
+    box-shadow: 0 5px 40px rgba(0,0,0,0.16) !important;
+    border-radius: 16px; /* Optional: Nice rounded corners */
+}
+
+iframe.woot-widget-bubble {
+    z-index: var(--woot-widget-z-index) !important;
+}
+
+/* =========================
+   RESET (SAFE)
+========================= */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-light);
+  color: var(--text-primary);
+  font-family: Inter, sans-serif;
+}
+
+/* =========================
+   DARK MODE
+========================= */
+[data-theme='dark'], .dark {
+  --bg-light: #000000;
+  --text-primary: #F9FAFB;
+  --text-secondary: #D1D5DB;
+
+  --glass-bg: rgba(30, 41, 59, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+/* =========================
+   HEADER FIX (GLOBAL)
+========================= */
+header {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] header {
+  color: #FFFFFF;
+}
+
+[data-theme='dark'] header a {
+  color: #FFFFFF;
+}
+
+/* =========================
+   GLASS CARD (FIXED)
+========================= */
+/* =========================
+   GLASS CARD (SOLID VISIBILITY FIX)
+========================= */
+.glass-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb;
+  color: #1F2937;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .glass-card,
+.dark .glass-card {
+  background: #1e293b !important; /* Slate-800 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.glass-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* =========================
+   GLOBAL UI TOKENS
+========================= */
+:root {
+  --radius-card: 28px;
+  --radius-cta: 9999px;
+
+  --glass-light: rgba(255, 255, 255, 0.85);
+  --glass-dark: rgba(30, 41, 59, 0.7);
+
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-float: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+/* =========================
+   LIQUID GLASS CARD (FINAL)
+========================= */
+.liquid-card {
+  border-radius: var(--radius-card);
+  background: var(--glass-light);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .liquid-card {
+  background: var(--glass-dark);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.liquid-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.45) 0%,
+    rgba(255,255,255,0.08) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.liquid-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-float);
+}
+
+/* =========================
+   CTA BUTTON (GLOBAL)
+========================= */
+.cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--radius-cta);
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(75, 0, 130, 0.35);
+  transition: all 0.3s ease;
+}
+
+.cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(75, 0, 130, 0.45);
+}
+
+.cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--radius-cta);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+
+.cta-accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--radius-cta);
+  background: linear-gradient(135deg, #FFD700, #FDB931);
+  color: #4B0082;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.cta-accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(255, 215, 0, 0.45);
+}
+
+.container {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* =========================
+   USER DASHBOARD FIX
+========================= */
+html, body {
+  background-color: #ffffff !important;
+  color: #1F2937;
+}
+
+html.dark body, body.dark, [data-theme='dark'] body {
+  background-color: #0f172a !important; /* Slate-900 */
+  color: #ffffff;
+}
+
+/* =========================
+   CHATWOOT LIGHT MODE FIX
+========================= */
+.woot-widget-holder iframe {
+  color-scheme: light;
+}
+
+.woot-widget-holder iframe body {
+  color: #1F2937 !important;
+}
+
+.woot-widget-holder iframe .typing-indicator span {
+  background-color: #1F2937 !important;
+}
+
+/* =========================
+   FORCEFUL TEXT MODE FIX
+========================= */
+.mode-aware-text {
+  color: #000000 !important;
+}
+
+[data-theme='dark'] .mode-aware-text,
+.dark .mode-aware-text {
+  color: #ffffff !important;
+}
+
+.mode-aware-subtext {
+  color: #1F2937 !important; /* Gray-800 */
+}
+
+[data-theme='dark'] .mode-aware-subtext,
+.dark .mode-aware-subtext {
+  color: #D1D5DB !important; /* Gray-300 */
+}
+
+/* =========================
+   UTILITIES
+========================= */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* =========================
+   HIDE VERCEL TOOLBAR
+========================= */
+vercel-live-feedback,
+#vercel-toolbar,
+[data-vercel-toolbar] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}

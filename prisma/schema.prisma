@@ -1,0 +1,314 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Visa {
+  id           String   @id @default(cuid())
+  category     String
+  name         String
+  description  String
+  price        String
+  fee          String
+  validity     String
+  extendable   Boolean
+  requirements String
+  details      String   @default("{}")
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+}
+
+model User {
+  id               String            @id @db.Uuid
+  email            String            @unique
+  name             String?
+  whatsapp         String?
+  role             String            @default("user")
+  status           String            @default("active")
+  avatar           String?
+  address          String?
+  bio              String?
+  socials          String?
+  last_activity_at DateTime?
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  documents        Document[]
+  notifications    Notification[]
+  verification     Verification?
+  arrivalCards     ArrivalCard[]
+  conversations    Conversation[]
+  invoices         Invoice[]
+  payments         Payment[]
+  applications     VisaApplication[]
+
+  @@map("users")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  action     String
+  entityId   String?
+  entityType String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model VisaApplication {
+  id             String    @id @default(cuid())
+  userId         String?   @map("user_id") @db.Uuid
+  visaId         String
+  visaName       String?
+  status         String    @default("Pending")
+  verificationId String?
+  slug           String?   @unique @default(cuid())
+  guestName      String?
+  guestEmail     String?
+  paymentMethod  String?
+  customAmount   String?
+  documents      Json?
+  expiresAt      DateTime?
+  appliedAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("visa_applications")
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  userId    String   @db.Uuid
+  name      String
+  url       String
+  size      String   @default("0 KB")
+  type      String   @default("application/pdf")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String?  @db.Uuid
+  title      String
+  message    String
+  isRead     Boolean  @default(false)
+  type       String   @default("info")
+  actionLink String?
+  actionText String?
+  createdAt  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id             String    @id @default(cuid())
+  userId         String?   @unique @db.Uuid
+  fullName       String
+  passportNumber String
+  visaType       String
+  issuedDate     DateTime
+  status         String    @default("VALID")
+  expiresAt      DateTime?
+  slug           String    @unique
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CompanyService {
+  id          String   @id @default(cuid())
+  category    String
+  name        String
+  price       String
+  description String
+  features    String[] @default([])
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model Conversation {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  status          String    @default("open")
+  assignedAdminId String?   @map("assigned_admin_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages        Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationId String       @map("conversation_id") @db.Uuid
+  senderType     String
+  message        String
+  isRead         Boolean      @default(false) @map("is_read")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model Invoice {
+  id               String        @id @default(cuid())
+  userId           String?       @db.Uuid
+  applicationId    String?
+  amount           Decimal       @db.Decimal(10, 2)
+  currency         String        @default("IDR")
+  status           PaymentStatus @default(UNPAID)
+  paymentMethod    String?
+  paymentReference String?
+  adminNotes       String?
+  dueDate          DateTime?
+  paidAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  user             User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments         Payment[]
+
+  @@map("invoices")
+}
+
+model ArrivalCard {
+  id             String   @id @default(cuid())
+  userId         String?  @db.Uuid
+  passportNumber String
+  fullName       String
+  arrivalDate    DateTime
+  flightNumber   String?
+  status         String   @default("PENDING")
+  formData       Json
+  documentUrl    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User?    @relation(fields: [userId], references: [id])
+
+  @@map("arrival_cards")
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  orderId         String   @unique
+  transactionId   String?  @unique
+  invoiceId       String?
+  applicationId   String?  @map("application_id")
+  userId          String?  @db.Uuid
+  grossAmount     Decimal  @db.Decimal(10, 2)
+  currency        String   @default("IDR")
+  paymentType     String?
+  status          String   @default("PENDING")
+  snapToken       String?
+  snapRedirectUrl String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  invoice         Invoice? @relation(fields: [invoiceId], references: [id])
+  user            User?    @relation(fields: [userId], references: [id])
+
+  @@map("payments")
+}
+
+model AIChangeRequest {
+  id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId       String  @unique @map("request_id")
+  initiatedBy     String  @map("initiated_by") 
+  changeType      String  @map("change_type") 
+  pageCategory    String  @map("page_category") 
+  targetPage      String  @map("target_page")
+  proposedChanges Json    @map("proposed_changes")
+  riskScore       String? @map("risk_score") 
+  impactForecast  Json?   @map("impact_forecast")
+  modeStatus      String  @map("mode_status") 
+  currentState    String  @map("current_state") 
+  approvalId      String? @map("approval_id")
+  overrideFlag    Boolean @default(false) @map("override_flag")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @map("updated_at")
+
+  @@map("ai_change_requests")
+}
+
+model AIExecutionLog {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId          String   @map("request_id")
+  agentName          String   @map("agent_name")
+  actionType         String   @map("action_type")
+  snapshotBeforeId   String?  @map("snapshot_before_id")
+  snapshotAfterId    String?  @map("snapshot_after_id")
+  overrideFlag       Boolean  @default(false) @map("override_flag")
+  executionTimestamp DateTime @default(now()) @map("execution_timestamp")
+  status             String
+  notes              String?  @db.Text
+
+  @@map("ai_execution_logs")
+}
+
+model AIMasterMemory {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  memoryKey   String   @unique @map("memory_key")
+  memoryValue Json     @map("memory_value")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("ai_master_memory")
+}
+
+model AIRiskLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  scanType  String   @map("scan_type")
+  findings  Json
+  riskLevel String   @map("risk_level")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("ai_risk_logs")
+}
+
+model AISnapshot {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId    String   @map("request_id")
+  pagePath     String   @map("page_path")
+  snapshotData Json     @map("snapshot_data")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("ai_snapshots")
+}
+
+model AISystemState {
+  id                 String    @id @default("singleton")
+  mode               String    @default("normal")
+  lastRiskScan       DateTime? @map("last_risk_scan")
+  systemHealthStatus String    @default("healthy") @map("system_health_status")
+  updatedAt          DateTime  @default(now()) @map("updated_at")
+
+  @@map("ai_system_state")
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+// AI Seller conversation log — stores customer chats for AI Master visibility
+model ChatConversation {
+  id          String   @id @default(cuid())
+  sessionId   String   @unique @map("session_id")
+  messages    Json     // Array of {role, content, timestamp}
+  topic       String?  // Auto-detected topic (e.g. "B1 Visa Inquiry")
+  isMasterCmd Boolean  @default(false) @map("is_master_cmd")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("chat_conversations")
+}

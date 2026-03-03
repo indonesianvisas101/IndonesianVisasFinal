@@ -1,0 +1,131 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    /* Center Vertically */
+    justify-content: center;
+    /* Center Horizontally */
+}
+
+@keyframes popIn {
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.01);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.panel {
+    position: relative;
+    z-index: 2001;
+    width: 90%;
+    max-width: 800px;
+    height: auto;
+    max-height: 90vh;
+    margin: auto;
+    /* Centers in flex container overlay */
+    background: var(--bg-light);
+    box-shadow: 0 20px 60px rgba(74, 71, 71, 0.3);
+    display: flex;
+    flex-direction: column;
+    border-radius: 24px;
+    transform: scale(0.9);
+    animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+
+:global([data-theme='dark']) .panel {
+    background: #06122fff; /* Slate 900 */
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Header override no longer needed as header will be transparent */
+
+/* Mobile: Bottom Sheet style override if needed, but side panel is standard for complex forms */
+@media (max-width: 768px) {
+    .panel {
+        transform: translateY(100%);
+        animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+}
+
+.header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* background removed to transparently inherit panel color */
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.closeBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+    padding: 0.5rem;
+}
+
+.closeBtn:hover {
+    color: var(--primary);
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+    /* background removed to transparently inherit panel color */
+}
+
+.stepContainer {
+    padding: 2rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}

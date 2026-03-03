@@ -1,0 +1,307 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, rgba(75, 0, 130, 0.95), #000000);
+}
+
+.scrolled {
+    background: linear-gradient(135deg, rgba(75, 0, 130, 0.95), #000000);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 0.75rem 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #e0e0e0;
+    text-decoration: none;
+    z-index: 1002;
+}
+
+.logoText {
+    display: block;
+}
+
+.logoIcon {
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tablet and Mobile: Show Icon, Hide Text */
+@media (max-width: 1024px) {
+    .logoText {
+        display: none;
+    }
+    
+    .logoIcon {
+        display: flex;
+    }
+}
+
+.desktopMenu {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.navLink {
+    color: #e0e0e0;
+    font-weight: 500;
+    transition: opacity 0.2s;
+    position: relative;
+}
+
+.navLink:hover {
+    opacity: 0.8;
+}
+
+.navLink::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 50%;
+    background-color: var(--accent);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.navLink:hover::after {
+    width: 100%;
+}
+
+.actionButtons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    /* Space between buttons */
+}
+
+/* Base button styles for consistency */
+.authBtn,
+.contactBtn {
+    padding: 0.6rem 1.5rem;
+    /* Identical padding */
+    border-radius: 99px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    /* Fixed height for exact match */
+}
+
+/* Specific Styles */
+.authBtn {
+    background: transparent;
+    border: 1px solid #e0e0e0;
+    color: #e0e0e0;
+}
+
+.authBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.contactBtn {
+    background: var(--accent);
+    color: var(--primary);
+    /* Text color for contrast on yellow */
+    border: 1px solid var(--accent);
+}
+
+.contactBtn:hover {
+    background: #ffdb0f;
+    border-color: #ffdb0f;
+    transform: translateY(-1px);
+}
+
+.iconButton {
+    background: transparent;
+    border: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.themeBtn {
+    background: transparent;
+    border: none;
+    color: #e0e0e0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.themeBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(15deg);
+    color: #ffffff;
+}
+
+/* Mobile override for authBtn if needed */
+@media (max-width: 768px) {
+    .authBtn {
+        border-color: var(--primary);
+        color: var(--primary);
+        width: 100%;
+        justify-content: center;
+        display: flex;
+    }
+
+    .authBtn:hover {
+        background: var(--primary-light);
+        color: var(--white);
+    }
+}
+
+.iconButton:hover {
+    color: var(--accent);
+}
+
+.mobileToggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    z-index: 1002;
+}
+
+.closeMenuBtn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: none;
+    /* Only show in mobile menu context */
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .mobileToggle {
+        display: block;
+    }
+
+    .desktopMenu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background: var(--white);
+        flex-direction: column;
+        padding: 5rem 2rem;
+        gap: 1.5rem;
+        transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: -10px 0 30px rgba(144, 144, 144, 0.45);
+        align-items: flex-start;
+        z-index: 1001;
+    }
+
+    .desktopMenu.mobileOpen {
+        right: 0;
+    }
+
+    .desktopMenu .closeMenuBtn {
+        display: block;
+    }
+
+    .navLink {
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        width: 100%;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .navLink::after {
+        display: none;
+    }
+
+    .contactBtn {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .actionButtons {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+        margin-top: auto;
+    }
+
+    .iconButton {
+        color: var(--text-primary);
+        justify-content: flex-start;
+        padding: 0.5rem 0;
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(107, 107, 107, 0.5);
+        z-index: 1000;
+        backdrop-filter: blur(4px);
+    }
+
+    .mobileDivider {
+        height: 1px;
+        width: 100%;
+        background: #f0f0f0;
+        margin: 1rem 0;
+    }
+
+    /* FORCE ICON COLORS IN MOBILE DRAWER */
+    .themeBtn,
+    .iconButton {
+        color: #0f172a !important; /* Force Black (Slate-900) */
+        border-color: rgba(0,0,0,0.1); /* Subtle border for visibility */
+    }
+
+    /* DARK MODE OVERRIDE FOR MOBILE */
+    :global(.dark) .themeBtn,
+    :global(.dark) .iconButton {
+        color: #ffffff !important; /* Force White */
+        border-color: rgba(255,255,255,0.2);
+    }
+}

@@ -1,0 +1,199 @@
+.section {
+    padding: 6rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Force cleaner glass look in light mode */
+/* Force cleaner glass look in light mode - REMOVED for Global Liquid Style */
+
+.heading {
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-theme='dark'] .heading {
+    background: linear-gradient(135deg, #fff 0%, #ccc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.intro {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 4rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 3rem;
+}
+
+@media (max-width: 968px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.infoCard {
+    padding: 2.5rem;
+    height: fit-content;
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--primary);
+}
+
+[data-theme='dark'] .cardTitle {
+    color: var(--text-primary);
+}
+
+.infoList {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.infoItem {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(75, 0, 130, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+[data-theme='dark'] .icon {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent);
+}
+
+.label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.link {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color 0.2s;
+}
+
+.link:hover {
+    color: var(--primary);
+}
+
+.formCard {
+    padding: 3rem;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.input,
+.textarea {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.5);
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+[data-theme='dark'] .input,
+[data-theme='dark'] .textarea {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.input:focus,
+.textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.1);
+}
+
+[data-theme='dark'] .input:focus,
+[data-theme='dark'] .textarea:focus {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.submitBtn {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.infoCard,
+.formCard {
+    border-radius: 24px;
+    /* Rounded per request */
+}
+
+/* Ensure social icons don't wrap unexpectedly */
+.socialLinksContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+}
+
+.socialLink {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+[data-theme='dark'] .socialLink {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.socialLink:hover {
+    transform: translateY(-3px);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .socialLink:hover {
+    background: rgba(255, 255, 255, 0.15);
+}

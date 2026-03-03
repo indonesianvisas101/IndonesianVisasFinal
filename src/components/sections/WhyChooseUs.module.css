@@ -1,0 +1,132 @@
+.section {
+    padding: 2rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.heading {
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-theme='dark'] .heading {
+    background: linear-gradient(135deg, #fff 0%, #ccc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem;
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    line-height: 1.6;
+}
+
+.featuresGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.featureCard {
+    padding: 2.5rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    /* Ensure variable usage for dark mode */
+    /* Explicit White for Light Mode - REMOVED for Glass */
+    border-radius: 24px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    /* Subtle border for definition */
+}
+
+.featureCard:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+[data-theme='dark'] .featureCard {
+    background: rgba(255, 255, 255, 0.05);
+    /* Soft Grey-white */
+}
+
+.featureTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.featureText {
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Reviews Scroll Container */
+.reviewsScrollContainer {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding: 1rem 0.5rem 2rem;
+    /* precise padding for shadow visibility */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.reviewsScrollContainer::-webkit-scrollbar {
+    height: 8px;
+}
+
+.reviewsScrollContainer::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.reviewsScrollContainer::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+.reviewItem {
+    flex: 0 0 300px;
+    /* Fixed width cards */
+    padding: 1.5rem;
+    background: var(--white);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+[data-theme='dark'] .reviewItem {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.reviewsFooter {
+    margin-top: 6rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+[data-theme='dark'] .reviewsFooter {
+    border-color: rgba(255, 255, 255, 0.1);
+}

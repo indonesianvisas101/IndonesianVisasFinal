@@ -1,0 +1,100 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.backBtn {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+    align-self: flex-start;
+    padding: 0;
+    margin-bottom: 0.5rem;
+}
+
+.backBtn:hover {
+    color: var(--primary);
+}
+
+.heading {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.input {
+    padding: 0.875rem 1rem;
+    border-radius: 99px;
+    /* Pill shape */
+    border: 2px solid #E2E8F0;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+}
+
+.errorInput {
+    border-color: #EF4444;
+}
+
+.errorText {
+    font-size: 0.75rem;
+    color: #EF4444;
+}
+
+.btnRow {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.skipBtn {
+    flex: 1;
+}
+
+.submitBtn {
+    flex: 2;
+    /* Larger main button */
+    width: 100%;
+}

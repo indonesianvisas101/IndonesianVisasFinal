@@ -1,0 +1,29 @@
+.section {
+    padding: 4rem 0;
+}
+
+.card {
+    padding: 3rem;
+    border-radius: 24px;
+    text-align: center;
+}
+
+.heading {
+    font-size: 2.5rem; /* Larger */
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.text {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 700px;
+    line-height: 1.6;
+    margin: 0 auto 2rem;
+}
+
+.btn {
+    min-width: 200px;
+}

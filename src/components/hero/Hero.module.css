@@ -1,0 +1,246 @@
+.hero {
+    padding: 5rem 0 4rem;
+    /* Increased top padding to clear fixed header safely */
+    background: radial-gradient(circle at 50% 50%, rgba(75, 0, 130, 0.05) 0%, rgba(255, 255, 255, 0) 70%), var(--bg-light);
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    /* Create new stacking context */
+}
+
+[data-theme='dark'] .hero {
+    background: radial-gradient(circle at 50% 50%, rgba(75, 0, 130, 0.15) 0%, rgba(2, 6, 23, 0) 70%), var(--bg-dark);
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: center;
+    position: relative;
+    z-index: 20;
+    /* High z-index to ensure text is above globe */
+    text-align: center;
+    /* Center text on mobile */
+}
+
+/* Tablet & Desktop */
+@media (min-width: 768px) {
+    .hero {
+        padding: 8rem 0 4rem;
+        min-height: 90vh;
+    }
+
+    .content {
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 4rem;
+        text-align: left;
+        /* Restore left align for desktop */
+    }
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .title {
+        font-size: 4.5rem;
+    }
+
+    .subtitle {
+        font-size: 2rem;
+    }
+}
+
+.description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 768px) {
+    .description {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+.statsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    /* Center on mobile */
+    margin-right: auto;
+    /* Center on mobile */
+}
+
+@media (min-width: 768px) {
+    .statsRow {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+.statItem {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s ease;
+}
+
+.statItem:hover {
+    transform: translateY(-3px);
+}
+
+.statNumber {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+}
+
+.statLabel {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.ctaBtn {
+    font-size: 1.125rem;
+    padding: 1rem 2.5rem;
+    box-shadow: 0 10px 30px rgba(75, 0, 130, 0.25);
+}
+
+/* Right Side - Process Card */
+.card {
+    padding: 2rem;
+    border-radius: 24px;
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.stepList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.stepItem {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1.5px solid rgba(247, 241, 241, 0.9);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.stepGlow {
+    border-color: transparent;
+    animation: glowBorder 6s ease-in-out infinite;
+    background: white;
+}
+
+@keyframes glowBorder {
+    0% {
+        border-color: rgba(251, 191, 36, 0.1);
+        box-shadow: 0 0 0px rgba(251, 191, 36, 0);
+    }
+    30%, 70% {
+        border-color: #fbbf24;
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.5), inset 0 0 10px rgba(251, 191, 36, 0.3);
+    }
+    100% {
+        border-color: rgba(251, 191, 36, 0.1);
+        box-shadow: 0 0 0px rgba(251, 191, 36, 0);
+    }
+}
+
+.stepItem:hover {
+    background: white;
+    transform: translateX(5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.stepCircle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: rgba(246, 241, 241, 0.11);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--primary);
+    border: 1px solid rgba(217, 212, 212, 0.25);
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.stepDone .stepCircle {
+    background: var(--accent);
+    color: var(--primary);
+    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+}
+
+.stepHeading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+}
+
+/* Dark Mode Overrides for Hero Elements */
+[data-theme='dark'] .statItem {
+    background: rgba(255, 255, 255, 0.01);
+    color: var(--text-primary);
+}
+
+[data-theme='dark'] .stepItem {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.11);
+}
+
+[data-theme='dark'] .stepItem:hover {
+    background: rgba(163, 159, 159, 0.17);
+}
+
+.stepDesc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}

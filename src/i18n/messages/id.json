@@ -1,0 +1,441 @@
+{
+    "common": {
+        "all_visas": "Semua Visa",
+        "custom_solution": "Solusi Kustom",
+        "custom_visa": "Visa Kustom",
+        "starting_from": "Mulai dari",
+        "contact_support": "Hubungi Dukungan",
+        "custom_visa_desc": "Tidak dapat menemukan visa yang tepat yang Anda butuhkan? Tim kami dapat membuat solusi khusus untuk persyaratan spesifik Anda.",
+        "contact_support_cta": "Hubungi Dukungan",
+        "validity": "Masa Berlaku",
+        "extendable": "Dapat Diperpanjang",
+        "yes": "Ya",
+        "no": "Tidak",
+        "apply_now": "Ajukan Sekarang",
+        "see_details": "Lihat detail"
+    },
+    "header": {
+        "home": "Beranda",
+        "services": "Layanan",
+        "about": "Tentang Kami",
+        "faq": "FAQ",
+        "dashboard": "Dashboard",
+        "login": "Masuk",
+        "contact": "Hubungi Kami"
+    },
+    "hero": {
+        "title": "VISA INDONESIA",
+        "subtitle": "Gerbang Anda menuju Indonesia",
+        "description": "Layanan visa profesional untuk wisatawan, bisnis, dan digital nomad.",
+        "cta_button": "Pilih Negara Anda",
+        "arrival_card": "Kartu Kedatangan",
+        "stats": {
+            "company": "Perusahaan Visa",
+            "processed": "Visa Diproses",
+            "success": "Tingkat Keberhasilan"
+        },
+        "steps": {
+            "title": "Proses Cepat 4-Langkah",
+            "step1": "Pilih Negara",
+            "step1_desc": "Pilih dari 97 negara yang memenuhi syarat",
+            "step2": "Pilih Jenis Visa",
+            "step2_desc": "Pilih visa yang sesuai dengan kebutuhan Anda",
+            "step3": "Unggah Dokumen",
+            "step3_desc": "Kirim paspor & dokumen yang diperlukan",
+            "step4": "Lakukan Pembayaran",
+            "step4_desc": "Selesaikan pembayaran melalui metode aman"
+        }
+    },
+    "apply_extend": {
+        "apply_title": "Ajukan Visa Baru",
+        "apply_desc": "Mulai aplikasi visa baru Anda. Cepat, aman, dan sepenuhnya online.",
+        "apply_cta": "Mulai Aplikasi",
+        "extend_title": "Perpanjang Visa Anda",
+        "extend_desc": "Perpanjang masa tinggal Anda di Indonesia dengan mudah. Kami menangani dokumentasi untuk Anda.",
+        "extend_cta": "Perpanjang Sekarang"
+    },
+    "services_preview": {
+        "title": "Layanan Kami",
+        "description": "Kami menawarkan solusi visa Indonesia komprehensif yang disesuaikan dengan kebutuhan Anda, baik Anda seorang turis, profesional bisnis, atau mencari tempat tinggal jangka panjang.",
+        "visit_title": "Visa Kunjungan / Wisata",
+        "visit_desc": "Pilihan masa tinggal jangka pendek termasuk Pembebasan Visa dan Visa on Arrival (VOA).",
+        "single_title": "Visa Sekali Masuk",
+        "single_desc": "Masa tinggal lebih lama (60-180 hari) untuk pariwisata, bisnis, pra-investasi, atau kunjungan sosial.",
+        "multiple_title": "Visa Beberapa Kali Masuk",
+        "multiple_desc": "Validitas 1, 2, atau 5 tahun untuk bisnis atau pariwisata. Masuk dan keluar dengan bebas.",
+        "kitas_title": "KITAS / KITAP",
+        "kitas_desc": "Izin tinggal Kerja, Investor, Keluarga, dan Pensiun (1-5 tahun).",
+        "popular_title": "Visa Paling Populer",
+        "view_all": "Lihat Semua Layanan Visa",
+        "category_label": "Kategori",
+        "validity_label": "Masa Berlaku",
+        "visas": {
+            "B1": {
+                "name": "B1 Visa Turis (VOA)",
+                "category": "Visa Kunjungan Saat Kedatangan",
+                "validity": "30 Hari"
+            },
+            "C1": {
+                "name": "C1 Visa Turis",
+                "category": "Visa Kunjungan Sekali Masuk",
+                "validity": "60 Hari"
+            },
+            "C2": {
+                "name": "C2 Visa Bisnis",
+                "category": "Visa Kunjungan Sekali Masuk",
+                "validity": "60 Hari"
+            },
+            "C12": {
+                "name": "C12 Visa Pra-Investasi",
+                "category": "Visa Kunjungan Sekali Masuk",
+                "validity": "60 / 180 Hari"
+            },
+            "D1": {
+                "name": "D1 Visa Turis (Multiple)",
+                "category": "Visa Kunjungan Beberapa Kali Masuk",
+                "validity": "1-3 Tahun"
+            },
+            "D2": {
+                "name": "D2 Visa Bisnis (Multiple)",
+                "category": "Visa Kunjungan Beberapa Kali Masuk",
+                "validity": "1-3 Tahun"
+            },
+            "D12": {
+                "name": "D12 Visa Pra-Investasi",
+                "category": "Visa Kunjungan Beberapa Kali Masuk",
+                "validity": "1-2 Tahun"
+            },
+            "E33G": {
+                "name": "E33G Visa Digital Nomad",
+                "category": "Visa Izin Tinggal Khusus",
+                "validity": "1 Tahun"
+            },
+            "E28A": {
+                "name": "E28A KITAS Investasi",
+                "category": "Visa Investor",
+                "validity": "1-2 Tahun"
+            }
+        }
+    },
+    "how_it_works": {
+        "title": "Cara Kerja",
+        "description": "Proses kami yang efisien membuat pengurusan visa Indonesia Anda menjadi mudah. Dengan pengalaman lebih dari 16 tahun, kami telah membantu ribuan pelancong dan bisnis mengamankan visa mereka dengan tingkat persetujuan 98%.",
+        "step1_title": "1. Isi Aplikasi",
+        "step1_desc": "Lengkapi formulir online sederhana kami dengan detail perjalanan Anda. Formulir cerdas kami memandu Anda melalui setiap langkah, memastikan Anda memberikan semua informasi yang diperlukan dengan benar.",
+        "step2_title": "2. Kami Proses",
+        "step2_desc": "Tim ahli kami meninjau dan mengirimkan aplikasi Anda. Kami menangani semua komunikasi dengan otoritas imigrasi dan terus mengabari Anda di setiap langkah.",
+        "step3_title": "3. Siap Bepergian",
+        "step3_desc": "Terima visa yang disetujui melalui email. Cetak atau simpan secara digital - Anda siap menjelajahi Indonesia! Kami juga memberikan dukungan pasca-persetujuan jika diperlukan."
+    },
+    "why_choose_us": {
+        "title": "Mengapa Memilih Kami?",
+        "description": "Kami adalah mitra tepercaya Anda dengan keahlian yang terbukti. Sejak 2010, kami telah menjadi penyedia layanan visa terkemuka di Indonesia, dipercaya oleh individu dan korporasi di seluruh dunia.",
+        "feature1_title": "Sangat Cepat",
+        "feature1_desc": "Pemrosesan ekspres tersedia - dapatkan visa Anda hanya dalam 1-4 jam",
+        "feature2_title": "100% Aman",
+        "feature2_desc": "Enkripsi setingkat bank melindungi informasi pribadi dan pembayaran Anda",
+        "feature3_title": "Persetujuan 99%",
+        "feature3_desc": "Tingkat kesuksesan terdepan di industri dengan ribuan klien yang puas",
+        "feature4_title": "Dukungan 24/7",
+        "feature4_desc": "Selalu tersedia melalui WhatsApp, email, atau telepon dalam berbagai bahasa"
+    },
+    "about_preview": {
+        "title": "Tentang Indonesia Visas",
+        "description": "Mitra tepercaya Anda untuk pemrosesan visa Indonesia yang lancar sejak 2010. Kami adalah bagian dari PT Indonesian Visas Agency™, yang berdedikasi untuk menjadikan perjalanan Indonesia Anda lancar dan bebas stres.",
+        "cta": "Pelajari Lebih Lanjut Tentang Kami"
+    },
+    "seo_about": {
+        "title": "Agen Visa Indonesia",
+        "description": "Mengoperasikan ekosistem layanan nasional yang terpadu untuk memfasilitasi pemrosesan imigrasi yang patuh dan efisien.",
+        "ecosystem_title": "Ekosistem Layanan Visa Indonesia",
+        "ecosystem_desc1": "IndonesianVisas.com adalah situs web otoritas pusat, yang dioperasikan oleh Agen Visa Indonesia. Kami menyediakan platform terpusat untuk fasilitasi visa di seluruh nusantara.",
+        "ecosystem_desc2": "Layanan kami didukung oleh jaringan aktif domain satelit—baik khusus negara maupun berbasis kota—untuk memastikan akses lokal dan saluran imigrasi yang dikelola secara efisien.",
+        "structure_title": "Struktur Pembentukan Layanan",
+        "platform_central": "Platform Otoritas Pusat • Informasi Global",
+        "platform_bali": "Fokus Wilayah Bali • Layanan Wisata & Bisnis",
+        "platform_jakarta": "Fokus Wilayah Jakarta • Layanan Korporat & Investor",
+        "country_services_title": "Layanan Berbasis Negara",
+        "country_services_desc": "Saluran khusus untuk pasar internasional tertentu. Klik untuk melihat semua 13 domain negara yang diverifikasi.",
+        "view_countries": "Lihat Domain Negara",
+        "city_services_title": "Layanan Berbasis Kota",
+        "city_services_desc": "Titik akses lokal untuk tujuan utama di Indonesia. Klik untuk melihat semua 16 domain kota yang diverifikasi.",
+        "view_cities": "Lihat Domain Kota",
+        "dialog_countries_title": "Layanan Visa Berbasis Negara",
+        "dialog_countries_desc": "Domain satelit resmi untuk wilayah internasional tertentu:",
+        "dialog_cities_title": "Layanan Berbasis Kota Indonesia",
+        "dialog_cities_desc": "Titik akses lokal resmi untuk wilayah di seluruh Indonesia:"
+    },
+    "faq_preview": {
+        "title": "Pertanyaan yang Sering Diajukan",
+        "view_all": "Lihat FAQ Lengkap",
+        "faqs": [
+            {
+                "q": "Berapa lama proses visa berlangsung?",
+                "a": "Pemrosesan standar: 3-5 hari kerja. Layanan ekspres: 1-4 jam (biaya tambahan berlaku). VOA dapat diperoleh saat kedatangan di bandara Indonesia untuk warga negara yang memenuhi syarat."
+            },
+            {
+                "q": "Dokumen apa yang saya butuhkan?",
+                "a": "Paspor yang berlaku (masa berlaku minimal 6 bulan), foto paspor terbaru, bukti akomodasi di Indonesia, tiket penerbangan pulang/lanjutan. Visa bisnis mungkin memerlukan dokumen tambahan seperti surat undangan."
+            },
+            {
+                "q": "Bisakah saya memperpanjang visa saya?",
+                "a": "Ya! Kami menawarkan layanan perpanjangan visa untuk sebagian besar jenis visa. VOA dapat diperpanjang satu kali selama 30 hari. Visa turis (B211A) dapat diperpanjang hingga 4 kali. Ajukan permohonan setidaknya 7 hari sebelum visa Anda berakhir."
+            },
+            {
+                "q": "Berapa biaya visa?",
+                "a": "Biaya bervariasi berdasarkan jenis visa. VOA: $20 USD. Visa Turis: mulai $40 USD. Visa bisnis: mulai $50-150 USD tergantung jenisnya. KITAS: mulai $500-1500 USD. Semua harga sudah termasuk biaya pemerintah dan biaya layanan kami."
+            },
+            {
+                "q": "Negara mana saja yang memenuhi syarat untuk visa Indonesia?",
+                "a": "Warga negara dari 97 negara memenuhi syarat untuk layanan VOA dan visa. Ini termasuk sebagian besar negara Eropa, Amerika, Asia, dan Oseania. Beberapa negara memerlukan perlakuan khusus atau dokumentasi tambahan."
+            }
+        ]
+    },
+    "google_reviews": {
+        "header": "Ulasan Google Maps",
+        "posted_on": "Diposting di Google",
+        "swipe_hint": "← Geser untuk melihat lebih banyak →"
+    },
+    "contact_section": {
+        "title": "Hubungi Kami",
+        "description": "Punya pertanyaan? Kami di sini untuk membantu! Tim kami tersedia 24/7 untuk membantu kebutuhan visa Anda.",
+        "info_title": "Informasi Kontak",
+        "email_label": "Email",
+        "whatsapp_label": "WhatsApp",
+        "office_label": "Kantor",
+        "office_address": "Jl. Tibung Sari 11C, Bali, Indonesia",
+        "follow_us": "Ikuti Kami",
+        "form_title": "Kirim Pesan",
+        "form_name": "Nama Anda",
+        "form_email": "Email",
+        "form_message": "Pesan",
+        "form_placeholder_name": "John Doe",
+        "form_placeholder_email": "john@contoh.com",
+        "form_placeholder_message": "Bagaimana kami bisa membantu Anda?",
+        "form_submit": "Kirim Pesan"
+    },
+    "footer": {
+        "brand_title": "Visa Indonesia",
+        "brand_tagline": "Gerbang hukum tepercaya Anda untuk tinggal dan bekerja di Indonesia.",
+        "operated_by": "Dioperasikan oleh",
+        "company_name": "PT Indonesian Visas Agency™",
+        "region": "Bali, Indonesia",
+        "services_title": "Layanan",
+        "apply_visa": "Ajukan Visa",
+        "visa_extension": "Perpanjangan Visa",
+        "pricing": "Harga",
+        "company_reg": "Pendaftaran Perusahaan",
+        "support_title": "Dukungan",
+        "verification": "Sistem Verifikasi",
+        "faq_help": "FAQ & Bantuan",
+        "whatsapp_contact": "Hubungi via WhatsApp",
+        "email_support": "Dukungan Email",
+        "legal_title": "Legal",
+        "privacy_policy": "Kebijakan Privasi",
+        "terms_conditions": "Syarat & Ketentuan",
+        "refund_policy": "Kebijakan Pengembalian Dana",
+        "affiliate_program": "Program Afiliasi",
+        "rights_reserved": "Seluruh hak cipta.",
+        "disclaimer": "Indonesian Visas menyediakan bantuan administratif. Persetujuan imigrasi akhir tetap menjadi wewenang pemerintah Indonesia."
+    },
+    "discount_card": {
+        "title": "Diskon Visa Khusus",
+        "feature1": "Diskon 20% untuk Aplikasi Grup (2+ orang)",
+        "feature2": "Diskon 5% untuk Aplikasi Visa Reguler",
+        "feature3": "Promosi KITAS Waktu Terbatas Tersedia"
+    },
+    "about_page": {
+        "hero_title": "Mitra Tepercaya Anda di Indonesia",
+        "hero_since": "Sejak 2010",
+        "hero_description": "Kami lebih dari sekadar agen visa. Kami adalah gerbang hukum Anda untuk tinggal, bekerja, dan berkembang di Indonesia. Dengan pengalaman dedikasi selama lebih dari 16 tahun, kami telah membantu lebih dari 10.000+ pelancong dan bisnis menavigasi peraturan.",
+        "stats": {
+            "years": "Tahun Pengalaman",
+            "processed": "Visa Diproses",
+            "success": "Tingkat Sukses",
+            "support": "Dukungan Tersedia"
+        },
+        "mission_title": "Misi Kami",
+        "mission_p1": "Untuk menyederhanakan birokrasi Indonesia bagi dunia. Kami percaya bahwa perbatasan tidak boleh menjadi penghalang bagi peluang atau eksplorasi.",
+        "mission_p2": "Dengan menggabungkan keahlian hukum dengan teknologi modern, kami memberikan layanan visa tercepat dan paling andal di nusantara.",
+        "bali_enterprises_title": "Bagian dari Ekosistem Bali Enterprises",
+        "bali_enterprises_subtitle": "Kantor Pusat Global",
+        "bali_enterprises_p1": "Indonesian Visas adalah anak perusahaan utama dari Bali Enterprises, gerbang utama untuk investasi internasional dan kemitraan strategis di Indonesia.",
+        "bali_enterprises_p2": "Kami menggabungkan standar tata kelola internasional dengan kekuatan eksekusi lokal yang mendalam, menghubungkan visi global dengan peluang Indonesia.",
+        "bali_enterprises_cta": "Jelajahi Ekosistem",
+        "reviews_title": "Apa yang mereka katakan Tentang Kami",
+        "reviews_based_on": "Berdasarkan 100+ ulasan",
+        "reviews_cta": "Ulas Kami di Google"
+    },
+    "services_page": {
+        "hero_title": "Paspor Anda menuju Surga",
+        "hero_subtitle": "Mitra Resmi Visa",
+        "hero_description": "Pemrosesan visa yang profesional, aman, dan dipercepat. Kami menangani birokrasi sehingga Anda dapat fokus pada perjalanan Anda.",
+        "hero_stats": {
+            "rate": "Tingkat Sukses",
+            "issued": "Visa Diterbitkan",
+            "support": "Dukungan Ahli"
+        },
+        "catalog_title": "Pilih Jenis Visa Anda",
+        "catalog_description": "Baik Anda berkunjung untuk pariwisata, bisnis, atau tinggal jangka panjang, kami memiliki pilihan yang tepat untuk Anda.",
+        "feature1_title": "Cakupan Seluruh Dunia",
+        "feature1_desc": "Bantuan juga tersedia untuk Bali, Jakarta, Surabaya, dan semua pos pemeriksaan imigrasi utama Indonesia.",
+        "feature2_title": "Pemrosesan Aman",
+        "feature2_desc": "Enkripsi tingkat bank untuk dokumen Anda dan kepatuhan penuh terhadap hukum imigrasi Indonesia.",
+        "feature3_title": "Opsi Jalur Cepat",
+        "feature3_desc": "Butuh mendesak? Jalur ekspres kami memastikan visa Anda diproses dalam waktu singkat untuk perjalanan mendadak.",
+        "process_title": "Proses 3 Langkah Sederhana",
+        "process_description": "Mendapatkan visa Indonesia Anda tidak pernah semudah ini.",
+        "step1_title": "Ajukan Secara Online",
+        "step1_desc": "Isi formulir aman kami yang disederhanakan dalam waktu kurang dari 5 menit.",
+        "step2_title": "Kami Proses",
+        "step2_desc": "Tim kami memverifikasi dokumen dan mengirimkan secara ketat ke Imigrasi.",
+        "step3_title": "Dapatkan Visa",
+        "step3_desc": "Terima e-Visa Anda yang telah disetujui langsung melalui email dan WhatsApp.",
+        "company_formation_title": "Mulai Perusahaan Anda di Indonesia",
+        "company_formation_label": "Layanan Baru",
+        "company_formation_desc": "Layanan Pendaftaran PT PMA lengkap termasuk NIB, NPWP, dan Kantor Virtual. Berinvestasi dengan aman dengan 100% Kepemilikan Asing.",
+        "company_formation_cta": "Cek Pendirian Perusahaan",
+        "ready_title": "Siap Memulai Perjalanan Anda?",
+        "ready_desc": "Bergabunglah dengan 10.000+ pelancong bahagia yang mempercayai kami dengan visa Indonesia mereka. Proses sederhana, harga transparan, hasil terjamin."
+    },
+    "faq_page": {
+        "hero_title": "Pertanyaan yang Sering Diajukan",
+        "hero_description": "Segala hal yang perlu Anda ketahui tentang visa, izin, dan peraturan Indonesia.",
+        "still_questions_title": "Masih punya pertanyaan?",
+        "still_questions_desc": "Tidak menemukan jawaban yang Anda cari? Tim kami siap membantu Anda secara langsung.",
+        "still_questions_cta": "Chat dengan Dukungan",
+        "categories": {
+            "general": "Pertanyaan Umum",
+            "process": "Proses & Waktu",
+            "payment": "Pembayaran & Biaya",
+            "problems": "Masalah Visa Umum",
+            "travel": "Perjalanan & Masuk",
+            "help": "Bantuan & Dukung"
+        },
+        "questions": {
+            "q1": "Berapa lama waktu pemrosesan visa?",
+            "a1": "Pemrosesan standar: 3-5 hari kerja. Layanan ekspres: 1-4 jam (biaya tambahan berlaku). VOA dapat diperoleh pada saat kedatangan di bandara Indonesia untuk kewarganegaraan yang memenuhi syarat.",
+            "q2": "Dokumen apa yang saya butuhkan?",
+            "a2": "Paspor yang masih berlaku (minimal 6 bulan), foto paspor terbaru, bukti akomodasi di Indonesia, tiket pesawat pulang/lanjutan. Visa bisnis mungkin memerlukan dokumen tambahan seperti surat undangan.",
+            "q3": "Apakah saya bisa memperpanjang visa saya?",
+            "a3": "Ya! Kami menawarkan layanan perpanjangan visa untuk sebagian besar jenis visa. VOA dapat diperpanjang satu kali selama 30 hari. Visa turis (B211A) dapat diperpanjang hingga 4 kali. Ajukan setidaknya 7 hari sebelum visa Anda berakhir.",
+            "q4": "Berapa biaya visa?",
+            "a4": "Biaya bervariasi menurut jenis visa. VOA: $20 USD. Visa Turis: mulai dari $40 USD. Visa bisnis: mulai dari $50-150 USD tergantung jenis. KITAS: mulai dari $500-1500 USD. Semua harga sudah termasuk biaya pemerintah dan biaya layanan kami.",
+            "q5": "Negara mana saja yang memenuhi syarat untuk visa Indonesia?",
+            "a5": "Warga negara dari 97 negara memenuhi syarat untuk VOA dan layanan visa. Ini mencakup sebagian besar negara Eropa, Amerika, Asia, dan Oseania.",
+            "q6": "Bagaimana jika visa saya ditolak?",
+            "a6": "Dalam peristiwa penolakan yang jarang terjadi, kami akan meninjau alasan yang diberikan oleh imigrasi dan menyarankan tindakan terbaik, yang mungkin termasuk pengajuan ulang dengan dokumentasi tambahan.",
+            "q7": "Bagaimana saya bisa menghubungi dukungan?",
+            "a7": "Tim dukungan kami tersedia 24/7 melalui WhatsApp, email, dan widget obrolan situs web kami. Kami di sini untuk membantu Anda di setiap langkah aplikasi Anda."
+        }
+    },
+    "pricing_page": {
+        "hero_title": "Harga Transparan",
+        "hero_description": "Kami percaya pada harga yang jujur dan di muka. Biaya di bawah ini sudah termasuk semua biaya pemerintah dan biaya layanan profesional kami.",
+        "custom_service_text": "Butuh layanan khusus?",
+        "custom_service_cta": "Hubungi Dukungan Agensi kami"
+    },
+    "company_formation_page": {
+        "hero_badge": "Layanan Perusahaan",
+        "hero_title": "Pendirian Perusahaan di Indonesia",
+        "hero_description": "Mulai bisnis Anda di Bali atau di mana saja di Indonesia dengan layanan pendaftaran lengkap kami. Dari PT PMA hingga PT Lokal, kami menyederhanakan legalitasnya.",
+        "order_button": "Amankan Paket",
+        "learn_more_balihelp": "Pelajari Lebih Lanjut di BaliHelp.id"
+    },
+    "privacy_policy_page": {
+        "title": "Privacy Policy",
+        "last_updated": "Last Updated: February 2026",
+        "intro_title": "1. Introduction & Acceptance",
+        "intro_p1": "Indonesian Visas, operating under PT Indonesian Visas Agency™ (referred to as 'we', 'us', or 'our'), is steadfast in its commitment to protecting your privacy and handling your data transparently. This comprehensive Privacy Policy governs your use of our platform (www.indonesianvisas.com), associated satellite domains, and outlines our practices regarding the collection, safeguarding, processing, and disclosure of personal data when you utilize our visa and immigration facilitation services.",
+        "data_collect_title": "2. Data We Collect",
+        "data_collect_p1": "To facilitate official immigration procedures in compliance with the Directorate General of Immigration of the Republic of Indonesia, we collect the following categories of personal and sensitive data:",
+        "data_collect_list": [
+            "Identity Credentials: Full legal name, date of birth, nationality, gender, and biometric passport data (e.g., Passport Number, Issue/Expiry Dates, Issuing Authority).",
+            "Contact Information: Primary email address, active WhatsApp/phone number, residential address, and emergency contact details.",
+            "Financial Data: Secure payment confirmations, billing addresses, and transaction histories (Note: Credit card numbers are processed by certified third-party gateways and are not stored on our servers).",
+            "Immigration History: Details of past Indonesian visas, overstays, deportations, or criminal records if required for specific visa categories (e.g., KITAS or Business Visas).",
+            "Supporting Documentation: Digital copies of passports, bank statements, flight itineraries, vaccination records, and sponsor letters."
+        ],
+        "data_use_title": "3. Utilization of Your Data",
+        "data_use_p1": "We strictly limit the use of your personal data to the following operational and legal necessities:",
+        "data_use_list": [
+            "Application Processing: Verifying eligibility and formally submitting your visa application to the Indonesian Immigration authorities via the official eVisa system.",
+            "Communication: Sending critical updates regarding your application status, approval notifications, or requests for additional documentation.",
+            "Legal Compliance: Adhering to anti-money laundering (AML), counter-terrorism financing (CTF) regulations, and internal record-keeping SOPs dictated by Indonesian corporate law.",
+            "Service Improvement: Aggregating anonymized analytical data to optimize our platform's user experience and regional service offerings."
+        ],
+        "data_protection_title": "4. Data Protection, Storage & Security",
+        "data_protection_p1": "We deploy enterprise-grade security architecture, including end-to-end encryption (TLS 1.3), secure socket layers, and strict access control protocols (RBAC) to prevent unauthorized access, data breaches, or accidental loss. Your personal data is stored on secure, geographically redundant servers. Data is retained only for the duration necessary to satisfy the purposes outlined herein, or as legally mandated by the Indonesian government (typically a minimum of 5 years for financial and immigration records).",
+        "rights_title": "5. Your Privacy Rights",
+        "rights_p1": "Subject to applicable Indonesian and international data protection laws (including GDPR parity principles where applicable), you possess the right to: (A) Request access to your personal data; (B) Request rectification of inaccurate data (provided the visa has not yet been submitted); (C) Request erasure of your data post-service completion (subject to mandatory legal retention periods); and (D) Withdraw consent for marketing communications at any time.",
+        "contact_title": "6. Data Controller Contact",
+        "contact_p1": "For any privacy-related inquiries, data subject requests, or to report a security vulnerability, please contact our Data Protection Officer (DPO) at:",
+        "contact_address": "PT Indonesian Visas Agency™\nJl. Tibung Sari No.11C, Padangsambian Kaja,\nDenpasar Barat, Denpasar, Bali 80117, Republic of Indonesia\nEmail: privacy@indonesianvisas.com\nSecondary Email: compliance@bali.Enterprises",
+        "ack_text": "Acknowledgment: By utilizing our platform and submitting your application, you explicitly consent to the collection, processing, and cross-border transfer of your personal data as stipulated in this Privacy Policy, our Terms & Conditions, and our Refund Policy."
+    },
+    "terms_conditions_page": {
+        "title": "Terms & Conditions",
+        "company_info_title": "1. Corporate Identity & Authority",
+        "company_info_p1": "Indonesian Visas is a premier immigration facilitation agency legally registered and operating under PT Indonesian Visas Agency™, a subsidiary of PT Bali Enterprises Indonesia. We function as a licensed administrative proxy between the applicant and the Directorate General of Immigration of the Republic of Indonesia. By utilizing www.indonesianvisas.com or any affiliated services, you agree to be bound by these comprehensive Terms & Conditions.",
+        "scope_title": "2. Scope of Services & Agency Role",
+        "scope_p1": "Our mandate includes the advisory, preparation, submission, and tracking of Indonesian visas (e.g., e-VOA, B211A, Multiple-Entry, KITAS/KITAP) and related corporate services. We operate strictly as an administrative facilitator. We are not an official government entity, and we do not possess the authority to issue visas, alter immigration laws, or guarantee entry into the Republic of Indonesia.",
+        "approval_title": "3. Visa Approval & Immigration Discretion",
+        "approval_p1": "The issuance of any visa or stay permit is at the absolute and sole discretion of the Indonesian Immigration authorities. PT Indonesian Visas Agency™ cannot guarantee application approval, processing timelines, or the final validity period granted. Immigration retains the right to request additional documentation, mandate interviews, or reject applications without providing justification. Our service fees are for the administrative processing and are entirely independent of the government's final decision.",
+        "obligations_title": "4. Client Representations & Warranties",
+        "obligations_p1": "The Client warrants that all information, declarations, and documents provided are authentic, accurate, and current. The Client acknowledges that submitting forged documents, providing false declarations, or concealing criminal history constitutes a severe violation of Indonesian law, which may result in immediate application rejection, blacklisting, or legal prosecution. The agency bears zero responsibility for consequences arising from Client misrepresentation.",
+        "payments_title": "5. Financial Terms",
+        "payments_p1": "All service fees, government levies, and associated taxes must be paid in full prior to the commencement of the application process. Prices are subject to change based on government regulatory updates or currency fluctuations. Overstay penalties, deportation costs, or subsequent legal fees incurred by the Client while in Indonesia are exclusively the Client's financial responsibility.",
+        "liability_title": "6. Limitation of Liability & Force Majeure",
+        "liability_p1": "In no event shall PT Indonesian Visas Agency™, its directors, or employees be held liable for any direct, indirect, incidental, or consequential damages resulting from visa rejections, delays, flight cancellations, deportation, or entry denial at the border. Furthermore, we are exempt from fulfilling obligations in cases of Force Majeure, including but not limited to global pandemics, natural disasters, sudden government regulatory changes, system outages at the Immigration department, or political unrest.",
+        "dispute_title": "7. Governing Law & Dispute Resolution",
+        "dispute_p1": "These Terms & Conditions shall be governed by and construed in accordance with the laws of the Republic of Indonesia. Any disputes arising out of or in connection with these terms shall first be attempted to be resolved through amicable negotiation. If unresolved, the dispute shall be submitted to the exclusive jurisdiction of the District Court of Denpasar, Bali.",
+        "ack_italic": "By engaging our services, remitting payment, or submitting documents, the Client irrevocably accepts these Terms & Conditions in their entirety."
+    },
+    "refund_policy_page": {
+        "title": "Refund & Cancellation Policy",
+        "denial_title": "1. Visa Rejection by Immigration",
+        "denial_p1": "While our agency maintains a 99% success rate, the final decision rests with the Indonesian Government. If an application is officially rejected by Immigration on grounds not related to client misrepresentation (e.g., forged documents, red notices, undisclosed criminal history), PT Indonesian Visas Agency™ may, at its sole discretion, issue a partial refund. This refund will exclude the non-refundable Mandatory Government Visa Fee and a 10% administrative processing fee. Rejections due to client fraud or negligence are strictly non-refundable.",
+        "force_majeure_title": "2. Regulatory Changes & Force Majeure",
+        "force_majeure_p1": "If the Indonesian Government unexpectedly changes immigration policies, closes borders, or suspends visa issuance protocols after an application has been paid for but before it is approved, we will hold the application in credit for future use. Refunds requested under Force Majeure conditions (e.g., pandemics, system outages) are subject to a 20% administrative deduction to cover incurred operational costs.",
+        "approved_title": "3. Approved Visas & Unused Permits",
+        "approved_p1": "Once an e-VISA, KITAS, or relevant permit has been officially issued and approved by Indonesian Immigration, the service is deemed 100% complete and fulfilled. Approved visas are strictly non-refundable and non-transferable under any circumstances, regardless of whether the applicant decides to utilize the visa, alter their travel dates, or cancel their trip to Indonesia.",
+        "submission_title": "4. Active Processing & Submission Status",
+        "submission_p1": "CRITICAL: Once our legal team has officially submitted your application into the Indonesian Immigration portal, the application enters an irreversible state. At this stage, government fees are paid and irrevocable. Therefore, if a client requests withdrawal, cancellation, or modification after submission but before approval, absolutely NO REFUND can be issued.",
+        "cancellation_title": "5. Pre-Processing Cancellation",
+        "cancellation_p1": "Clients may request a cancellation of their application only if our team has not yet begun processing the documents or submitted them to Immigration. In such pre-processing scenarios, a cancellation is eligible for a 70% refund of the total invoice value. The remaining 30% acts as a penalty for reserved operational bandwidth and initial consultation.",
+        "method_title": "6. Refund Disbursement & Timelines",
+        "method_p1": "All approved refunds will automatically be credited back to the original method of payment (e.g., the specific Credit Card or Bank Account used during checkout). Due to international banking clearing cycles and our internal auditing processes, please allow between 14 to 21 business days from the date of refund approval for the funds to reflect in your account. Cash refunds or cryptocurrency refunds are strictly prohibited.",
+        "exclusions_title": "7. Summary of Exact Exclusions",
+        "exclusions_p1": "No refunds will be granted for: (A) Typos or errors submitted by the client that result in an invalid visa; (B) Flight delays causing the client to miss their visa validity window; (C) Deportation or denial of entry at the airport by Immigration officers; (D) Change of mind after the document processing has commenced."
+    },
+    "verification_explained_page": {
+        "badge": "DOKUMENTASI SISTEM",
+        "title": "Sistem Verifikasi QR",
+        "description": "Penjelasan proses verifikasi digital untuk otoritas, mitra, dan petugas imigrasi.",
+        "how_works_title": "Cara Kerja",
+        "how_works_p1": "Sistem Verifikasi Visa Indonesia menyediakan metode instan dan anti-rusak untuk memvalidasi keaslian dokumen yang diterbitkan atau difasilitasi oleh agensi kami.",
+        "step1_title": "1. Pindai",
+        "step1_desc": "Pindai kode QR yang tercetak pada dokumen menggunakan kamera ponsel pintar apa pun.",
+        "step2_title": "2. Verifikasi",
+        "step2_desc": "Anda akan dialihkan ke URL aman yang dimulai dengan indonesianvisas.com/verify/.",
+        "step3_title": "3. Konfirmasi",
+        "step3_desc": "Bandingkan data digital di layar dengan dokumen fisik.",
+        "statuses_title": "Status Verifikasi",
+        "status_valid_title": "VALID (AKTIF)",
+        "status_valid_desc": "Dokumen tersebut asli, aktif, dan diakui oleh database internal kami. Pemegang dokumen dalam kondisi baik.",
+        "status_invalid_title": "DICABUT / TIDAK VALID",
+        "status_invalid_desc": "Dokumen tersebut telah dibatalkan, kadaluwarsa, atau tidak pernah diterbitkan. Jangan terima dokumen ini.",
+        "data_visibility_title": "Visibilitas Data",
+        "data_visibility_p1": "Untuk melindungi privasi, halaman verifikasi publik hanya menampilkan informasi penting yang diperlukan untuk mengonfirmasi identitas dan validitas dokumen:",
+        "data_list": [
+            "Nama Lengkap (Masking parsial mungkin berlaku dalam beberapa konteks)",
+            "Nomor Paspor",
+            "Jenis Visa",
+            "Tanggal Penerbitan"
+        ],
+        "privacy_note": "Catatan: Detail kontak pribadi yang sensitif dan riwayat pembayaran TIDAK dapat diakses melalui kode QR.",
+        "disclaimer_title": "PENAFIAN HUKUM",
+        "disclaimer_text": "Indonesian Visas menyediakan bantuan administratif dan layanan fasilitasi. Persetujuan imigrasi akhir, penolakan masuk, dan izin tinggal tetap menjadi wewenang tunggal Direktorat Jenderal Imigrasi Indonesia. Sistem verifikasi mengonfirmasi keaslian proses penerbitan agensi kami, bukan keputusan akhir pemerintah.",
+        "back_home": "Kembali ke Beranda"
+    }
+}

@@ -7,7 +7,7 @@ import Script from "next/script";
 import { ArrowLeft, CreditCard, Landmark, Smartphone, QrCode, Settings, CheckCircle, ShoppingCart, Send } from "lucide-react";
 
 const StepPayment = () => {
-    const { setStep, country, visaType, personalInfo, completedSteps, markStepComplete, resetApplication, closePanel, documents, visas, numPeople } = useApplication();
+    const { setStep, country, visaType, personalInfo, completedSteps, markStepComplete, resetApplication, closePanel, documents, visas, numPeople, travelers } = useApplication();
     const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -48,27 +48,37 @@ const StepPayment = () => {
             // 0. Upload Documents First
             const uploadedDocs: Record<string, string> = {};
 
-            // Collect all actual File objects
-            const uploadPromises = Object.entries(documents).map(async ([key, fileObj]) => {
-                // Next/React state might wrap File into standard objects or pass it raw
-                if (fileObj && fileObj.size > 0) {
-                    const formData = new FormData();
-                    formData.append('file', fileObj as File);
-                    formData.append('bucket', 'documents');
+            const docsArray = Array.isArray(documents) ? documents : [documents];
+            const uploadPromises: Promise<void>[] = [];
 
-                    try {
-                        const uploadRes = await fetch('/api/upload', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        if (uploadRes.ok) {
-                            const { url } = await uploadRes.json();
-                            uploadedDocs[key] = url;
-                        }
-                    } catch (e) {
-                        console.error("Failed to upload file:", key, e);
+            docsArray.forEach((docSet, index) => {
+                if (!docSet) return;
+                
+                Object.entries(docSet).forEach(([key, fileObj]) => {
+                    const typedFile = fileObj as File | null;
+                    if (typedFile && typedFile.size > 0) {
+                        const formData = new FormData();
+                        formData.append('file', typedFile);
+                        formData.append('bucket', 'documents');
+
+                        // Unique key per traveler
+                        const uniqueKey = index === 0 ? key : `Traveler_${index + 1}_${key}`;
+
+                        uploadPromises.push(
+                            fetch('/api/upload', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.url) {
+                                    uploadedDocs[uniqueKey] = data.url;
+                                }
+                            })
+                            .catch(e => console.error("Failed to upload file:", uniqueKey, e))
+                        );
                     }
-                }
+                });
             });
 
             await Promise.all(uploadPromises);
@@ -85,7 +95,10 @@ const StepPayment = () => {
                     guestEmail: personalInfo.email,
                     paymentMethod: selectedMethod,
                     customAmount: totalAmount.toString(),
-                    documents: uploadedDocs // Add the synced document urls here!
+                    documents: uploadedDocs, // Add the synced document urls here!
+                    adminNotes: travelers && travelers.length > 0 
+                        ? `Additional Travelers:\n${travelers.map(t => `- ${t.firstName} ${t.lastName} (Passport: ${t.passport}, DOB: ${t.dob})`).join('\n')}`
+                        : "No additional travelers."
                 })
             });
 
@@ -106,6 +119,9 @@ const StepPayment = () => {
                     ApplicantName: `${personalInfo.firstName} ${personalInfo.lastName}`,
                     ApplicantEmail: personalInfo.email,
                     ApplicantPhone: personalInfo.phone,
+                    AdditionalTravelers: travelers && travelers.length > 0 
+                        ? travelers.map(t => `${t.firstName} ${t.lastName} (Passport: ${t.passport})`).join(', ')
+                        : "None",
                     AttachedDocuments: Object.keys(uploadedDocs).length > 0 ? uploadedDocs : "None"
                 })
             }).catch(e => console.error("Formspree sync failed", e));

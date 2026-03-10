@@ -36,11 +36,18 @@ interface ApplicationState {
         dob: string; // New
     };
 
+    travelers: {
+        firstName: string;
+        lastName: string;
+        passport: string;
+        dob: string;
+    }[];
+
     documents: {
         passportPhoto: File | null;
         recentPhoto: File | null;
         proofOfAccommodation: File | null;
-    };
+    }[];
 
     paymentMethod: string | null;
     completedSteps: number[]; // New for Hero glow effect
@@ -79,6 +86,8 @@ interface ApplicationContextType extends ApplicationState {
     setStep: (step: number) => void;
     updateData: (key: keyof ApplicationState, value: any) => void;
     updatePersonalInfo: (key: keyof ApplicationState['personalInfo'], value: string) => void;
+    updateTraveler: (index: number, key: string, value: string) => void;
+    updateTravelerDocument: (index: number, type: 'passportPhoto'|'recentPhoto'|'proofOfAccommodation', file: File | null) => void;
     markStepComplete: (step: number) => void;
     resetApplication: () => void;
     // Documents
@@ -116,11 +125,12 @@ const defaultState: ApplicationState = {
         passport: "",
         dob: "",
     },
-    documents: {
+    travelers: [],
+    documents: [{
         passportPhoto: null,
         recentPhoto: null,
         proofOfAccommodation: null,
-    },
+    }],
     paymentMethod: null,
     completedSteps: [],
     // New: User Documents Storage (Mock Database)
@@ -213,6 +223,29 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
+    const updateTraveler = (index: number, key: string, value: string) => {
+        setState((prev) => {
+            const newTravelers = [...prev.travelers];
+            if (!newTravelers[index]) {
+                newTravelers[index] = { firstName: '', lastName: '', passport: '', dob: '' };
+            }
+            newTravelers[index] = { ...newTravelers[index], [key]: value };
+            return { ...prev, travelers: newTravelers };
+        });
+    };
+
+    const updateTravelerDocument = (index: number, type: 'passportPhoto'|'recentPhoto'|'proofOfAccommodation', file: File | null) => {
+        setState((prev) => {
+            const newDocs = [...(Array.isArray(prev.documents) ? prev.documents : [prev.documents])];
+            // Ensure the nested object exists
+            if (!newDocs[index]) {
+                newDocs[index] = { passportPhoto: null, recentPhoto: null, proofOfAccommodation: null };
+            }
+            newDocs[index] = { ...newDocs[index], [type]: file };
+            return { ...prev, documents: newDocs };
+        });
+    };
+
     const markStepComplete = (step: number) => {
         setState((prev) => {
             if (!prev.completedSteps.includes(step)) {
@@ -277,6 +310,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
             visaType: visaId,
             arrivalDate: "",
             personalInfo: defaultState.personalInfo,
+            travelers: [],
             documents: defaultState.documents,
             paymentMethod: null,
             completedSteps: [],
@@ -338,6 +372,8 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 setStep,
                 updateData,
                 updatePersonalInfo,
+                updateTraveler,
+                updateTravelerDocument,
                 markStepComplete,
                 resetApplication,
                 userDocuments: state.userDocuments,

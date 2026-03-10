@@ -7,7 +7,7 @@ import Image from "next/image";
 import styles from "./StepCountryVisa.module.css";
 import { COUNTRY_DATA } from "@/constants/countries";
 import { VisaType, POPULAR_VISA_IDS } from "@/constants/visas";
-import { Search, Users, Calendar, ArrowRight, CheckCircle, Flag, Info } from "lucide-react";
+import { Search, Users, Calendar, ArrowRight, CheckCircle, Flag, Info, AlertCircle } from "lucide-react";
 import { calculateVisaTotal } from "@/lib/utils";
 
 
@@ -152,28 +152,57 @@ const StepCountryVisa = () => {
                     </button>
                 </div>
 
-                {/* Special Country Warning */}
-                {COUNTRY_DATA.find(c => c.name === country)?.isSpecial && (
-                    <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl animate-fade-in">
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 bg-amber-100 text-amber-600 rounded-full shrink-0">
-                                <Info size={24} />
-                            </div>
-                            <div>
-                                <h4 className="text-lg font-bold text-amber-800 mb-2">Special Visa Requirements Apply</h4>
-                                <div className="text-amber-700 text-sm leading-relaxed space-y-2">
-                                    <p>Citizens of <strong>{country}</strong> are subject to <strong>Calling Visa</strong> regulations (Special Treatment).</p>
-                                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                                        <li>Additional processing time is required (approx. 2-3 months).</li>
-                                        <li>Must obtain approval from the Director General of Immigration.</li>
-                                        <li>A specialized clearing house process is involved.</li>
-                                    </ul>
-                                    <p className="mt-2 text-xs font-bold uppercase tracking-wider">Please contact our support team for specialized assistance.</p>
+                {/* Special Country Warning */
+                (() => {
+                    const c = COUNTRY_DATA.find(x => x.name === country);
+                    if (!c) return null;
+                    if (c.isSpecial) {
+                        return (
+                            <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl animate-fade-in">
+                                <div className="flex items-start gap-4">
+                                    <div className="p-2 bg-amber-100 text-amber-600 rounded-full shrink-0">
+                                        <Info size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-lg font-bold text-amber-800 mb-2">Special Visa Requirements Apply</h4>
+                                        <div className="text-amber-700 text-sm leading-relaxed space-y-2">
+                                            <p>Citizens of <strong>{country}</strong> are subject to <strong>Calling Visa</strong> regulations (Special Treatment).</p>
+                                            <ul className="list-disc pl-5 mt-2 space-y-1">
+                                                <li>Additional processing time is required (approx. 2-3 months).</li>
+                                                <li>Must obtain approval from the Director General of Immigration.</li>
+                                                <li>A specialized clearing house process is involved.</li>
+                                            </ul>
+                                            <p className="mt-2 text-xs font-bold uppercase tracking-wider">Please contact our support team for specialized assistance.</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                )}
+                        );
+                    }
+                    if (c.isUnregistered) {
+                        return (
+                            <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl animate-fade-in">
+                                <div className="flex items-start gap-4">
+                                    <div className="p-2 bg-red-100 text-red-600 rounded-full shrink-0">
+                                        <AlertCircle size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-lg font-bold text-red-800 mb-2">Unregistered / Special Treatment Country</h4>
+                                        <div className="text-red-700 text-sm leading-relaxed space-y-2">
+                                            <p>Citizens of <strong>{country}</strong> are currently categorized as Special Treatment in our system.</p>
+                                            <ul className="list-disc pl-5 mt-2 space-y-1">
+                                                <li>Your visa might require custom clearing or sponsorship.</li>
+                                                <li>Pricing and validity will be customized based on immigration policies.</li>
+                                            </ul>
+                                            <p className="mt-2 text-xs font-bold uppercase tracking-wider">Please proceed, and our agent will contact you shortly to verify your eligibility.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    }
+                    return null;
+                })()}
 
                 <div className={styles.visaGrid}>
                     {displayedVisas.map((visa) => (

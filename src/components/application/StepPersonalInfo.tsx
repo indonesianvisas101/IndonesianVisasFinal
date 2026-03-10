@@ -6,7 +6,7 @@ import styles from "./StepPersonalInfo.module.css";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const StepPersonalInfo = () => {
-    const { personalInfo, updatePersonalInfo, setStep, markStepComplete } = useApplication();
+    const { personalInfo, updatePersonalInfo, setStep, markStepComplete, numPeople, travelers, updateTraveler } = useApplication();
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const validate = () => {
@@ -25,6 +25,13 @@ const StepPersonalInfo = () => {
 
         if (!personalInfo.phone) newErrors.phone = "Phone is required";
         if (!personalInfo.passport) newErrors.passport = "Passport number is required";
+
+        for (let i = 0; i < numPeople - 1; i++) {
+            const t = travelers[i] || {};
+            if (!t.firstName) newErrors[`t_${i}_firstName`] = "Required";
+            if (!t.lastName) newErrors[`t_${i}_lastName`] = "Required";
+            if (!t.passport) newErrors[`t_${i}_passport`] = "Required";
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -55,6 +62,7 @@ const StepPersonalInfo = () => {
             <h3 className={styles.heading}>Step 2: Personal Information</h3>
 
             <form onSubmit={handleContinue} className={styles.form}>
+                {numPeople > 1 && <h4 className="font-bold text-lg mb-4 text-primary">Traveler 1 (Primary Contact)</h4>}
                 <div className={styles.row}>
                     <div className={styles.field}>
                         <label className={styles.label}>First Name</label>
@@ -121,6 +129,57 @@ const StepPersonalInfo = () => {
                         onChange={(e) => updatePersonalInfo("dob", e.target.value)}
                     />
                 </div>
+
+                {/* Additional Travelers */}
+                {Array.from({ length: Math.max(0, numPeople - 1) }).map((_, i) => {
+                    const t = travelers[i] || { firstName: "", lastName: "", passport: "", dob: "" };
+                    return (
+                        <div key={i} className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                            <h4 className="font-bold text-lg mb-4 text-primary">Traveler {i + 2}</h4>
+                            <div className={styles.row}>
+                                <div className={styles.field}>
+                                    <label className={styles.label}>First Name</label>
+                                    <input
+                                        type="text"
+                                        className={`${styles.input} ${errors[`t_${i}_firstName`] ? styles.errorInput : ""}`}
+                                        value={t.firstName || ""}
+                                        onChange={(e) => updateTraveler(i, "firstName", e.target.value)}
+                                    />
+                                    {errors[`t_${i}_firstName`] && <span className={styles.errorText}>{errors[`t_${i}_firstName`]}</span>}
+                                </div>
+                                <div className={styles.field}>
+                                    <label className={styles.label}>Last Name</label>
+                                    <input
+                                        type="text"
+                                        className={`${styles.input} ${errors[`t_${i}_lastName`] ? styles.errorInput : ""}`}
+                                        value={t.lastName || ""}
+                                        onChange={(e) => updateTraveler(i, "lastName", e.target.value)}
+                                    />
+                                    {errors[`t_${i}_lastName`] && <span className={styles.errorText}>{errors[`t_${i}_lastName`]}</span>}
+                                </div>
+                            </div>
+                            <div className={styles.field}>
+                                <label className={styles.label}>Passport Number</label>
+                                <input
+                                    type="text"
+                                    className={`${styles.input} ${errors[`t_${i}_passport`] ? styles.errorInput : ""}`}
+                                    value={t.passport || ""}
+                                    onChange={(e) => updateTraveler(i, "passport", e.target.value)}
+                                />
+                                {errors[`t_${i}_passport`] && <span className={styles.errorText}>{errors[`t_${i}_passport`]}</span>}
+                            </div>
+                            <div className={styles.field}>
+                                <label className={styles.label}>Date of Birth</label>
+                                <input
+                                    type="date"
+                                    className={styles.input}
+                                    value={t.dob || ""}
+                                    onChange={(e) => updateTraveler(i, "dob", e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    );
+                })}
 
                 <div className={styles.btnRow}>
                     <button type="button" onClick={handleSkip} className={`cta-secondary ${styles.skipBtn}`}>

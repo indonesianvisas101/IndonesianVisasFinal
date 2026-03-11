@@ -119,7 +119,7 @@ const StepCountryVisa = () => {
                 <div className={styles.countryGrid}>
                     {filterCountries().map((c) => (
                         <button
-                            key={c.code}
+                            key={`${c.code}-${c.name}`}
                             onClick={() => handleCountrySelect(c.name)}
                             className={`${styles.countryBtn} ${country === c.name ? styles.selected : ""}`}
                         >

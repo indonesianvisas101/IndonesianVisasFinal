@@ -21,7 +21,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Algeria",
-        "code": "AL",
+        "code": "DZ",
         "isUnregistered": true
     },
     {
@@ -31,12 +31,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Angola",
-        "code": "AN",
+        "code": "AO",
         "isUnregistered": true
     },
     {
         "name": "Antigua and Barbuda",
-        "code": "AN",
+        "code": "AG",
         "isUnregistered": true
     },
     {
@@ -66,7 +66,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Bahamas",
-        "code": "BA",
+        "code": "BS",
         "isUnregistered": true
     },
     {
@@ -76,12 +76,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Bangladesh",
-        "code": "BA",
+        "code": "BD",
         "isUnregistered": true
     },
     {
         "name": "Barbados",
-        "code": "BA",
+        "code": "BB",
         "isUnregistered": true
     },
     {
@@ -96,17 +96,17 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Belize",
-        "code": "BE",
+        "code": "BZ",
         "isUnregistered": true
     },
     {
         "name": "Benin",
-        "code": "BE",
+        "code": "BJ",
         "isUnregistered": true
     },
     {
         "name": "Bhutan",
-        "code": "BH",
+        "code": "BT",
         "isUnregistered": true
     },
     {
@@ -121,7 +121,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Botswana",
-        "code": "BO",
+        "code": "BW",
         "isUnregistered": true
     },
     {
@@ -141,17 +141,17 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Burkina Faso",
-        "code": "BU",
+        "code": "BF",
         "isUnregistered": true
     },
     {
         "name": "Burundi",
-        "code": "BU",
+        "code": "BI",
         "isUnregistered": true
     },
     {
         "name": "Cabo Verde",
-        "code": "CA",
+        "code": "CV",
         "isUnregistered": true
     },
     {
@@ -171,12 +171,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Central African Republic",
-        "code": "CE",
+        "code": "CF",
         "isUnregistered": true
     },
     {
         "name": "Chad",
-        "code": "CH",
+        "code": "TD",
         "isUnregistered": true
     },
     {
@@ -196,22 +196,22 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Comoros",
-        "code": "CO",
+        "code": "KM",
         "isUnregistered": true
     },
     {
         "name": "Congo (Brazzaville)",
-        "code": "CO",
+        "code": "CG",
         "isUnregistered": true
     },
     {
         "name": "Congo (Kinshasa)",
-        "code": "CO",
+        "code": "CD",
         "isUnregistered": true
     },
     {
         "name": "Costa Rica",
-        "code": "CO",
+        "code": "CR",
         "isUnregistered": true
     },
     {
@@ -246,7 +246,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Dominica",
-        "code": "DO",
+        "code": "DM",
         "isUnregistered": true
     },
     {
@@ -266,12 +266,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "El Salvador",
-        "code": "EL",
+        "code": "SV",
         "isUnregistered": true
     },
     {
         "name": "Equatorial Guinea",
-        "code": "EQ",
+        "code": "GQ",
         "isUnregistered": true
     },
     {
@@ -286,7 +286,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Eswatini",
-        "code": "ES",
+        "code": "SZ",
         "isUnregistered": true
     },
     {
@@ -296,7 +296,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Fiji",
-        "code": "FI",
+        "code": "FJ",
         "isUnregistered": true
     },
     {
@@ -316,7 +316,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Gambia",
-        "code": "GA",
+        "code": "GM",
         "isUnregistered": true
     },
     {
@@ -341,7 +341,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Grenada",
-        "code": "GR",
+        "code": "GD",
         "isUnregistered": true
     },
     {
@@ -356,22 +356,22 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Guinea-Bissau",
-        "code": "GU",
+        "code": "GW",
         "isUnregistered": true
     },
     {
         "name": "Guyana",
-        "code": "GU",
+        "code": "GY",
         "isUnregistered": true
     },
     {
         "name": "Haiti",
-        "code": "HA",
+        "code": "HT",
         "isUnregistered": true
     },
     {
         "name": "Honduras",
-        "code": "HO",
+        "code": "HN",
         "isUnregistered": true
     },
     {
@@ -401,7 +401,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Iraq",
-        "code": "IR",
+        "code": "IQ",
         "isUnregistered": true
     },
     {
@@ -421,12 +421,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Ivory Coast",
-        "code": "IV",
+        "code": "CI",
         "isUnregistered": true
     },
     {
         "name": "Jamaica",
-        "code": "JA",
+        "code": "JM",
         "isUnregistered": true
     },
     {
@@ -466,7 +466,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Kyrgyzstan",
-        "code": "KY",
+        "code": "KG",
         "isUnregistered": true
     },
     {
@@ -481,12 +481,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Lebanon",
-        "code": "LE",
+        "code": "LB",
         "isUnregistered": true
     },
     {
         "name": "Lesotho",
-        "code": "LE",
+        "code": "LS",
         "isUnregistered": true
     },
     {
@@ -496,7 +496,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Libya",
-        "code": "LI",
+        "code": "LY",
         "isUnregistered": true
     },
     {
@@ -516,12 +516,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Madagascar",
-        "code": "MA",
+        "code": "MG",
         "isUnregistered": true
     },
     {
         "name": "Malawi",
-        "code": "MA",
+        "code": "MW",
         "isUnregistered": true
     },
     {
@@ -536,7 +536,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Mali",
-        "code": "MA",
+        "code": "ML",
         "isUnregistered": true
     },
     {
@@ -546,12 +546,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Marshall Islands",
-        "code": "MA",
+        "code": "MH",
         "isUnregistered": true
     },
     {
         "name": "Mauritania",
-        "code": "MA",
+        "code": "MR",
         "isUnregistered": true
     },
     {
@@ -566,12 +566,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Micronesia",
-        "code": "MI",
+        "code": "FM",
         "isUnregistered": true
     },
     {
         "name": "Moldova",
-        "code": "MO",
+        "code": "MD",
         "isUnregistered": true
     },
     {
@@ -586,7 +586,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Montenegro",
-        "code": "MO",
+        "code": "ME",
         "isUnregistered": true
     },
     {
@@ -606,12 +606,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Nauru",
-        "code": "NA",
+        "code": "NR",
         "isUnregistered": true
     },
     {
         "name": "Nepal",
-        "code": "NE",
+        "code": "NP",
         "isUnregistered": true
     },
     {
@@ -631,7 +631,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Niger",
-        "code": "NI",
+        "code": "NE",
         "isUnregistered": true
     },
     {
@@ -646,7 +646,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "North Macedonia",
-        "code": "NO",
+        "code": "MK",
         "isUnregistered": true
     },
     {
@@ -661,12 +661,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Pakistan",
-        "code": "PA",
+        "code": "PK",
         "isUnregistered": true
     },
     {
         "name": "Palau",
-        "code": "PA",
+        "code": "PW",
         "isUnregistered": true
     },
     {
@@ -686,7 +686,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Paraguay",
-        "code": "PA",
+        "code": "PY",
         "isUnregistered": true
     },
     {
@@ -731,32 +731,32 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Saint Kitts and Nevis",
-        "code": "SA",
+        "code": "KN",
         "isUnregistered": true
     },
     {
         "name": "Saint Lucia",
-        "code": "SA",
+        "code": "LC",
         "isUnregistered": true
     },
     {
         "name": "Saint Vincent",
-        "code": "SA",
+        "code": "VC",
         "isUnregistered": true
     },
     {
         "name": "Samoa",
-        "code": "SA",
+        "code": "WS",
         "isUnregistered": true
     },
     {
         "name": "San Marino",
-        "code": "SA",
+        "code": "SM",
         "isUnregistered": true
     },
     {
         "name": "Sao Tome and Principe",
-        "code": "SA",
+        "code": "ST",
         "isUnregistered": true
     },
     {
@@ -766,7 +766,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Senegal",
-        "code": "SE",
+        "code": "SN",
         "isUnregistered": true
     },
     {
@@ -781,7 +781,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Sierra Leone",
-        "code": "SI",
+        "code": "SL",
         "isUnregistered": true
     },
     {
@@ -801,7 +801,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Solomon Islands",
-        "code": "SO",
+        "code": "SB",
         "isUnregistered": true
     },
     {
@@ -821,7 +821,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "South Sudan",
-        "code": "SO",
+        "code": "SS",
         "isUnregistered": true
     },
     {
@@ -831,12 +831,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Sri Lanka",
-        "code": "SR",
+        "code": "LK",
         "isUnregistered": true
     },
     {
         "name": "Sudan",
-        "code": "SU",
+        "code": "SD",
         "isUnregistered": true
     },
     {
@@ -866,7 +866,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Tajikistan",
-        "code": "TA",
+        "code": "TJ",
         "isUnregistered": true
     },
     {
@@ -886,7 +886,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Togo",
-        "code": "TO",
+        "code": "TG",
         "isUnregistered": true
     },
     {
@@ -896,7 +896,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Trinidad and Tobago",
-        "code": "TR",
+        "code": "TT",
         "isUnregistered": true
     },
     {
@@ -911,12 +911,12 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Turkmenistan",
-        "code": "TU",
+        "code": "TM",
         "isUnregistered": true
     },
     {
         "name": "Tuvalu",
-        "code": "TU",
+        "code": "TV",
         "isUnregistered": true
     },
     {
@@ -946,7 +946,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Uruguay",
-        "code": "UR",
+        "code": "UY",
         "isUnregistered": true
     },
     {
@@ -956,7 +956,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Vanuatu",
-        "code": "VA",
+        "code": "VU",
         "isUnregistered": true
     },
     {
@@ -981,7 +981,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Zambia",
-        "code": "ZA",
+        "code": "ZM",
         "isUnregistered": true
     },
     {

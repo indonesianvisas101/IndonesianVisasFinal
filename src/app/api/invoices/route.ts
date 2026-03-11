@@ -14,8 +14,14 @@ export async function GET(request: Request) {
         const params: any[] = [];
 
         if (!isAdmin && userId) {
-            whereClause = 'WHERE "user_id" = $1::uuid';
-            params.push(userId);
+            const userMatch = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+            if (userMatch?.email) {
+                whereClause = 'WHERE "user_id" = $1::uuid OR "guestEmail" = $2';
+                params.push(userId, userMatch.email);
+            } else {
+                whereClause = 'WHERE "user_id" = $1::uuid';
+                params.push(userId);
+            }
         }
 
         // We want Paid/Active items mostly for revenue, but let's return all and let frontend filter 'PAID' status.

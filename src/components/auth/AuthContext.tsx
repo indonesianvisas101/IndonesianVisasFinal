@@ -97,36 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
     }, []);
 
-    // INACTIVITY TIMER (5 Minutes)
-    useEffect(() => {
-        if (!user) return;
-
-        let timeout: NodeJS.Timeout;
-        const TIMEOUT_DURATION = 5 * 60 * 1000; // 5 Minutes
-
-        const resetTimer = () => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                console.log("Inactivity timeout: Logging out...");
-                logout();
-            }, TIMEOUT_DURATION);
-        };
-
-        // Events to track
-        const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-
-        // Initialize
-        resetTimer();
-
-        // Add listeners
-        events.forEach(event => window.addEventListener(event, resetTimer));
-
-        // Cleanup
-        return () => {
-            clearTimeout(timeout);
-            events.forEach(event => window.removeEventListener(event, resetTimer));
-        };
-    }, [user]); // Re-run if user logs in/out
+    // Removed the 5-minute auto-logout timer per user request (Web App persistence)
 
     const fetchProfile = async (userId: string, email: string, token?: string): Promise<UserProfile> => {
         try {

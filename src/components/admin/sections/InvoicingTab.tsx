@@ -71,7 +71,8 @@ export default function InvoicingTab() {
         guestName: "",
         guestEmail: "",
         visaName: "",
-        customAmount: ""
+        customAmount: "",
+        userId: ""
     });
 
     useEffect(() => {
@@ -168,11 +169,7 @@ export default function InvoicingTab() {
             });
 
             if (res.ok) {
-                setInvoices(invoices.map(inv =>
-                    inv.id === editingInvoice.id
-                        ? { ...inv, ...editFormData, status: editFormData.status, amount: editFormData.customAmount ? parseFloat(editFormData.customAmount) : inv.amount }
-                        : inv
-                ));
+                await fetchInvoices(); // Refresh to get populated user/invoice data
                 setOpenEditDialog(false);
                 setEditingInvoice(null);
                 alert("Invoice updated successfully");
@@ -195,7 +192,8 @@ export default function InvoicingTab() {
             guestName: inv.guestName || inv.user?.name || '',
             guestEmail: inv.guestEmail || inv.user?.email || '',
             visaName: inv.visaName || inv.visaId || '',
-            customAmount: inv.customAmount || linkedInvoice.amount || ''
+            customAmount: inv.customAmount || linkedInvoice.amount || '',
+            userId: inv.userId || inv.user_id || ''
         });
         setOpenEditDialog(true);
     };
@@ -600,6 +598,28 @@ export default function InvoicingTab() {
                             value={editFormData.adminNotes}
                             onChange={(e) => setEditFormData({ ...editFormData, adminNotes: e.target.value })}
                         />
+
+                        <Box sx={{ p: 2, bgcolor: 'primary.50', borderRadius: 2, border: '1px dashed primary.main' }}>
+                            <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
+                                Link / Re-assign to Registered User
+                            </Typography>
+                            <TextField
+                                select
+                                label="Registered User"
+                                fullWidth
+                                size="small"
+                                value={editFormData.userId}
+                                onChange={(e) => setEditFormData({ ...editFormData, userId: e.target.value })}
+                                helperText="Transfer this application to their dashboard"
+                            >
+                                <MenuItem value="">-- Unlink (Keep as Guest) --</MenuItem>
+                                {users.map(u => (
+                                    <MenuItem key={u.id} value={u.id}>
+                                        {u.name || u.email} ({u.email})
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Box>
 
                         {/* RENDER ATTACHED DOCUMENTS */}
                         {editingInvoice && editingInvoice.documents && Object.keys(editingInvoice.documents).length > 0 && (

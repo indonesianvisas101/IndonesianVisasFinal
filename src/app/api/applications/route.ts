@@ -301,6 +301,16 @@ export async function POST(request: Request) {
             }
         }
 
+        // --- 6.5 SEND USER IN-APP NOTIFICATION ---
+        if (finalUserId) {
+            try {
+                await prisma.$executeRawUnsafe(`
+                    INSERT INTO "Notification" ("id", "userId", "title", "message", "type", "actionLink", "actionText", "createdAt")
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8::timestamptz)
+                `, crypto.randomUUID(), finalUserId, "Application Received", `We received your application for ${visaName || visaId}. Please review your invoice.`, "info", `/invoice/${slug}`, "View Invoice", now);
+            } catch (err) { console.error("User in-app notification failed", err); }
+        }
+
         // --- 7. SEND ADMIN NOTIFICATION ---
         try {
             const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
@@ -359,7 +369,7 @@ export async function PATCH(request: Request) {
         if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const body = await request.json();
-        const { id, status, paymentReference, adminNotes, paymentStatus, guestName, guestEmail, visaName, customAmount } = body;
+        const { id, status, paymentReference, adminNotes, paymentStatus, guestName, guestEmail, visaName, customAmount, userId } = body;
 
         if (!id) return NextResponse.json({ error: "ID Required" }, { status: 400 });
 
@@ -370,6 +380,7 @@ export async function PATCH(request: Request) {
         if (guestEmail !== undefined) appUpdateData.guestEmail = guestEmail;
         if (visaName !== undefined) appUpdateData.visaName = visaName;
         if (customAmount !== undefined) appUpdateData.customAmount = String(customAmount).replace(/[^0-9.-]+/g, '');
+        if (userId !== undefined) appUpdateData.userId = userId ? userId : null;
 
         if (Object.keys(appUpdateData).length > 0) {
             await prisma.visaApplication.update({
@@ -404,6 +415,37 @@ export async function PATCH(request: Request) {
             id,
             { ...appUpdateData, paymentStatus, paymentReference, adminNotes }
         );
+
+        // 4. Send User In-App Notification if Status or PaymentStatus changed
+        if (status || paymentStatus) {
+            try {
+                // Find user associated with this application
+                const appRow: any[] = await prisma.$queryRawUnsafe(`SELECT "user_id", "visaName", "slug" FROM "visa_applications" WHERE id = $1`, id);
+                if (appRow.length > 0 && appRow[0].user_id) {
+                    const uId = appRow[0].user_id;
+                    const vName = appRow[0].visaName || "Visa";
+                    const slug = appRow[0].slug;
+                    
+                    let notifTitle = "Application Updated";
+                    let notifMsg = `Your application for ${vName} has been updated.`;
+                    
+                    if (status) {
+                        notifTitle = `Visa Status: ${status}`;
+                        notifMsg = `Your visa application status is now ${status}.`;
+                    } else if (paymentStatus) {
+                        notifTitle = `Payment Status: ${paymentStatus}`;
+                        notifMsg = `Your invoice payment status is now ${paymentStatus}.`;
+                    }
+                    
+                    await prisma.$executeRawUnsafe(`
+                        INSERT INTO "Notification" ("id", "userId", "title", "message", "type", "actionLink", "actionText", "createdAt")
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+                    `, crypto.randomUUID(), uId, notifTitle, notifMsg, "success", `/invoice/${slug}`, "View Details");
+                }
+            } catch (e) {
+                console.error("Failed to send update notification", e);
+            }
+        }
 
         return NextResponse.json({ success: true });
     } catch (error: any) {

@@ -31,6 +31,8 @@ interface VisaHistoryItem {
     status: string;
     appliedAt: string;
     expiresAt?: string;
+    slug?: string;
+    paymentStatus?: string;
 }
 
 const UserDashboard = () => {
@@ -86,7 +88,9 @@ const UserDashboard = () => {
                         visaName: h.visaName,
                         status: h.status,
                         appliedAt: new Date(h.appliedAt).toLocaleDateString(),
-                        expiresAt: h.expiresAt ? new Date(h.expiresAt).toLocaleDateString() : "-"
+                        expiresAt: h.expiresAt ? new Date(h.expiresAt).toLocaleDateString() : "-",
+                        slug: h.slug,
+                        paymentStatus: h.paymentStatus || 'UNPAID'
                     })));
                 }
 
@@ -1068,8 +1072,8 @@ const UserDashboard = () => {
                                         <tr className="border-b border-gray-200 dark:border-white/10">
                                             <th className="pb-3 text-sm font-bold text-inherit opacity-60">Visa Type</th>
                                             <th className="pb-3 text-sm font-bold text-inherit opacity-60">Date Applied</th>
-                                            <th className="pb-3 text-sm font-bold text-inherit opacity-60">Expiry</th>
                                             <th className="pb-3 text-sm font-bold text-inherit opacity-60">Status</th>
+                                            <th className="pb-3 text-sm font-bold text-inherit opacity-60 text-right">Invoice</th>
                                         </tr>
                                     </thead>
                                     <tbody className="text-sm">
@@ -1077,8 +1081,8 @@ const UserDashboard = () => {
                                             <tr className="border-b border-gray-100 dark:border-white/5">
                                                 <td className="py-4 font-bold text-inherit">{selectedVisa?.name || visaType}</td>
                                                 <td className="py-4 text-inherit opacity-80">{new Date().toLocaleDateString()}</td>
-                                                <td className="py-4 text-inherit opacity-80">-</td>
                                                 <td className="py-4"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-bold">In Progress</span></td>
+                                                <td className="py-4 text-right">-</td>
                                             </tr>
                                         )}
                                         {visaHistory.length === 0 && !hasApplication && (
@@ -1088,8 +1092,18 @@ const UserDashboard = () => {
                                             <tr key={i} className="border-b border-gray-100 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                                                 <td className="py-4 font-bold text-inherit">{h.visaName}</td>
                                                 <td className="py-4 text-inherit opacity-80">{h.appliedAt}</td>
-                                                <td className="py-4 text-inherit opacity-80">{h.expiresAt}</td>
-                                                <td className="py-4"><span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold">{h.status}</span></td>
+                                                <td className="py-4">
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${h.status === 'Active' || h.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                        {h.status}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 text-right">
+                                                    {h.slug ? (
+                                                        <a href={`/invoice/${h.slug}`} className={`font-bold focus:outline-none focus:underline hover:underline text-xs ${h.paymentStatus === 'PAID' ? 'text-green-600' : 'text-primary'}`} target="_blank" rel="noopener noreferrer">
+                                                            {h.paymentStatus === 'PAID' ? 'View Receipt' : 'Pay Invoice'}
+                                                        </a>
+                                                    ) : '-'}
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

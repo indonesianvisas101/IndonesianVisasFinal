@@ -6,7 +6,7 @@ import styles from "./StepPayment.module.css";
 import Script from "next/script";
 import { Chip, Divider, CircularProgress } from "@mui/material";
 import { ArrowLeft, CreditCard, Landmark, Smartphone, QrCode, Settings, CheckCircle, ShoppingCart, Send, Info, RefreshCcw } from "lucide-react";
-
+import { parseCurrency } from "@/lib/utils";
 // 10 Major Currencies for conversion
 const CURRENCIES = [
     { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp', icon: '🇮🇩', rate: 1 },
@@ -50,21 +50,27 @@ const StepPayment = () => {
     const currentVisa = visas.find(v => v.name === visaType);
     let totalAmount = 0;
     if (currentVisa) {
-        // Quick base price parser for Midtrans (very simplified)
-        let parsedPrice = 0;
+        let baseAmount = 0;
+        let feeAmount = 0;
+
         try {
-            if (typeof currentVisa.price === 'number') {
-                parsedPrice = currentVisa.price;
-            } else if (typeof currentVisa.price === 'object') {
-                parsedPrice = (currentVisa.price as any)[Object.keys(currentVisa.price)[0]] || 0;
+            if (typeof currentVisa.price === 'object' && currentVisa.price !== null) {
+                baseAmount = parseCurrency(String((currentVisa.price as any)[Object.keys(currentVisa.price)[0]] || "0"));
             } else {
-                const pObj = JSON.parse(currentVisa.price);
-                parsedPrice = pObj[Object.keys(pObj)[0]] || 0;
+                baseAmount = parseCurrency(String(currentVisa.price));
+            }
+
+            if (typeof currentVisa.fee === 'object' && currentVisa.fee !== null) {
+                feeAmount = parseCurrency(String((currentVisa.fee as any)[Object.keys(currentVisa.fee)[0]] || "0"));
+            } else {
+                feeAmount = parseCurrency(String(currentVisa.fee));
             }
         } catch {
-            parsedPrice = parseFloat(String(currentVisa.price).replace(/[^0-9.]/g, '')) || 0;
+            baseAmount = parseCurrency(String(currentVisa.price));
+            feeAmount = parseCurrency(String(currentVisa.fee));
         }
-        totalAmount = parsedPrice * numPeople;
+
+        totalAmount = (baseAmount + feeAmount) * numPeople;
     }
 
     const processCheckout = async () => {

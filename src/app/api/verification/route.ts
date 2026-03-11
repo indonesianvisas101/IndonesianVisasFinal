@@ -97,12 +97,6 @@ export async function POST(request: Request) {
 
         if (id) {
             // UPDATE
-            // SECTION 5 - VERIFICATION OVERRIDE LOGIC
-            await prisma.$executeRawUnsafe(`
-                INSERT INTO "ai_business_actions" ("action_type", "target_id", "initiated_by", "override_flag", "status")
-                VALUES ('VERIFICATION_OVERRIDE', $1, 'admin_or_master', true, 'EXECUTED')
-            `, id);
-
             console.log("Updating verification:", id, body);
             const updated = await prisma.verification.update({
                 where: { id },
@@ -110,19 +104,18 @@ export async function POST(request: Request) {
                     fullName,
                     passportNumber,
                     visaType,
-                    status: status || 'Active', // Default to Active/VALID consistency? Schema says VALID. Let's use what is passed.
-                    // If frontend sends 'Active', we save 'Active'.
+                    status: status || 'VALID',
                     issuedDate,
                     expiresAt,
                     updatedAt: now
                 }
             });
 
-            return NextResponse.json({ success: true, id: updated.id });
+            return NextResponse.json(updated);
         } else {
             // CREATE
-            // Ensure unique slug
-            const slug = crypto.randomUUID().substring(0, 8);
+            // Use provided slug or ensure unique
+            const slug = body.slug || crypto.randomUUID().substring(0, 8);
 
             console.log("Creating verification for:", userId);
 
@@ -132,14 +125,14 @@ export async function POST(request: Request) {
                     fullName,
                     passportNumber,
                     visaType,
-                    status: status || 'Active',
+                    status: status || 'VALID',
                     slug,
                     issuedDate,
                     expiresAt
                 }
             });
 
-            return NextResponse.json({ success: true, id: newVerification.id, slug: newVerification.slug });
+            return NextResponse.json(newVerification);
         }
 
     } catch (error) {

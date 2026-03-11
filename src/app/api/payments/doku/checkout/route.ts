@@ -95,7 +95,15 @@ export async function POST(req: Request) {
             body: jsonBody
         });
 
-        const dokuData = await dokuRes.json();
+        let dokuData;
+        const respText = await dokuRes.text();
+        try {
+            dokuData = JSON.parse(respText);
+        } catch (e) {
+            console.error("DOKU Returned Non-JSON:", respText);
+            return NextResponse.json({ error: `DOKU Gateway Error (${dokuRes.status}): Check Sandbox/Production ENV keys.` }, { status: dokuRes.status });
+        }
+
         console.log(`DOKU Response [${requestId}]:`, { status: dokuRes.status, data: dokuData });
 
         if (!dokuRes.ok) {
@@ -142,6 +150,6 @@ export async function POST(req: Request) {
 
     } catch (error: any) {
         console.error("DOKU Checkout Error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
     }
 }

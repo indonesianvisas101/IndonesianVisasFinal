@@ -199,31 +199,32 @@ const VisaDetailPage = async (props: PageProps) => {
         ...defaultDetails,
         ...staticDetails,
 
-        // Standard DB overrides
+        // Standard DB overrides (prioritize DB columns)
         id: dbVisa?.id || staticDetails?.id || id,
         badge: dbVisa?.name || staticDetails?.badge || 'Unknown Visa',
         type: dbVisa?.category || staticDetails?.type || 'Visa',
         intro: dbVisa?.description || staticDetails?.intro || '',
+        
         description: {
-            ...(staticDetails?.description || defaultDetails.description),
+            title: staticDetails?.description?.title || "Description",
             text: dbVisa?.description || staticDetails?.description?.text || ''
         },
+        
         period: {
-            ...(staticDetails?.period || defaultDetails.period),
+            title: staticDetails?.period?.title || "Period of Stay",
             text: dbVisa?.validity || staticDetails?.period?.text || ''
         },
+        
         requirements: {
-            ...(staticDetails?.requirements || defaultDetails.requirements),
+            title: staticDetails?.requirements?.title || "Requirements",
             items: dbVisa?.requirements || staticDetails?.requirements?.items || []
         },
-        pricing: staticDetails?.pricing || defaultDetails.pricing,
 
-        // CRITICAL: The "Limitless" override from Admin JSON
-        // If 'details' exists in DB, it overrides EVERYTHING matching its keys
+        // Deep merge from dbVisa.details if any specific section overrides exist
         ...(dbVisa?.details || {})
     };
 
-    // Use DB pricing if available, fallback to manual details
+    // Price Logic: Database is the source of truth for prices/fees
     const pricingOptions = dbVisa ? getPricingOptions(dbVisa) : (staticDetails?.pricing?.options || []);
 
     // If DB pricing generated valid options, use them. Otherwise use fallback.

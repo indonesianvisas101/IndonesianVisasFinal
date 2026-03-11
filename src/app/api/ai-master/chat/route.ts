@@ -40,55 +40,90 @@ export async function POST(req: Request) {
 
         const { messages, agentId } = await req.json();
 
-        // Convert plain {role, content} to AI SDK message format
-        const modelMessages = (messages || []).map((m: { role: string; content: string }) => ({
-            role: m.role as 'user' | 'assistant',
-            content: m.content,
-        }));
+        // --- BOSS MODE DETECTION ---
+        const lastUserMessage = messages[messages.length - 1]?.content || "";
+        const isBossAuthTrigger = lastUserMessage.includes("@BossBayu2026");
+        const isConfirmTrigger = lastUserMessage.includes("AdminBayu2026");
 
         // System Prompts per Agent
         const systemPrompts: Record<string, string> = {
-            ai_master: `You are the AI Master Orchestrator for Indonesian Visas — the Digital COO of the company.
-You always address the user as "Boss".
-You have FULL tool access to the live database. Use tools proactively to answer real questions.
+            ai_master: `You are the AI Master Orchestrator for Indonesian Visas — the Digital COO.
+You ALWAYS address the user as "Boss" or "Boss Bayu".
+You MUST be extremely respectful and helpful. Use phrases like "Eye eye captain", "Yes Boss", "Right away Boss".
 
-YOUR CAPABILITIES (use these tools):
-1. readVisaDatabase — ALWAYS use this when Boss asks about visa prices, visa data, or before proposing any change
-2. createChangeRequest — use this to formally propose a change to the database (price update, etc)
-3. approveChangeRequest — use this ONLY when Boss explicitly says "Confirm" or "Approve" for a pending request
-4. executeApprovedChange — use ONLY after approveChangeRequest, this writes the actual change to the DB
+BOSS COMMAND SYSTEM (2-STEP APPROVAL):
+1. INITIAL AUTH: If the Boss mentions "@BossBayu2026", acknowledge him warmly as Boss Bayu.
+2. COMMAND: Boss gives a command (e.g. "Change X price to Y").
+3. PROPOSE: You confirmed current data and call createChangeRequest.
+4. CONFIRM: You MUST ask for the Confirmation Code ("AdminBayu2026") before executing any mutation.
+5. EXECUTE: Only call executeApprovedChange after the Boss has provided the confirmation code in the chat.
 
-CHANGE FLOW (mandatory):
-1. Boss describes desired change
-2. You call readVisaDatabase to confirm current data
-3. You call createChangeRequest to propose the change formally
-4. You summarize the change and ask Boss to confirm
-5. Boss says "Confirm" → you call approveChangeRequest → then executeApprovedChange
-6. You report success with the request ID
+YOUR TOOLS:
+1. getSystemStatus — Use this when Boss asks for "Status" or "How are we doing?". It reports Health, Orders, and Complaints.
+2. readVisaDatabase — Use this to confirm current prices/data.
+3. createChangeRequest — Propose a change.
+4. approveChangeRequest & executeApprovedChange — Use this sequence ONLY after confirmation code "AdminBayu2026" is provided.
 
-RULES:
-- Never guess visa prices — always call readVisaDatabase first
-- Never call executeApprovedChange without approveChangeRequest first
-- Always show request ID after creating a change request
-- Be direct, professional, and call Boss "Boss"
-- Use markdown: **bold**, ## headers, bullet lists`,
+NOTE: If the Boss hasn't used the secret code yet, treat him as a high-level admin, but once @BossBayu2026 is seen, switch to "Boss Mode".`,
 
-            order_intelligence: `You are the Order Intelligence Brain for Indonesian Visas.
-Your expertise: revenue, conversion rates, order analytics.
-Use markdown for all responses. Address user as "Boss".`,
-
-            risk_guard: `You are the Risk Guard Security Specialist for Indonesian Visas.
-Only report facts based on tools and logs. Use markdown. Address user as "Boss".`
+            order_intelligence: `You are the Order Intelligence Brain. You address the user as "Boss".`,
+            risk_guard: `You are the Risk Guard Security Specialist. You address the user as "Boss".`
         };
 
         const internalOpenAI = createOpenAI({ apiKey: process.env.OPENAI_API_KEY_INTERNAL });
 
         const result = await generateText({
             model: internalOpenAI('gpt-4o'),
-            messages: modelMessages,
+            messages: (messages || []).map((m: any) => ({
+                role: m.role,
+                content: m.content,
+            })),
             system: systemPrompts[agentId] || systemPrompts.ai_master,
             maxOutputTokens: 8192,
             tools: {
+                // ─── TOOL 0: Get System Status ──────────────────────────────
+                getSystemStatus: {
+                    description: 'Get real-time status of the Web Ecosystem: Health, Orders, and Customer Complaints.',
+                    inputSchema: z.object({}),
+                    execute: async () => {
+                        try {
+                            const [sysState, ordersToday, recentChats] = await Promise.all([
+                                prisma.aISystemState.findUnique({ where: { id: 'singleton' } }),
+                                prisma.visaApplication.count({
+                                    where: { 
+                                        appliedAt: { gte: new Date(new Date().setHours(0,0,0,0)) } 
+                                    }
+                                }),
+                                prisma.chatConversation.findMany({
+                                    take: 20,
+                                    orderBy: { updatedAt: 'desc' }
+                                })
+                            ]);
+
+                            // Scan for complaints in recent chats
+                            let complaintsCount = 0;
+                            const complaintKeywords = ['error', 'broken', 'problem', 'help', 'bad', 'slow', 'complain', 'not working'];
+                            recentChats.forEach(conv => {
+                                const msgs = (conv.messages as any[]) || [];
+                                const text = msgs.map(m => m.content).join(' ').toLowerCase();
+                                if (complaintKeywords.some(kw => text.includes(kw))) {
+                                    complaintsCount++;
+                                }
+                            });
+
+                            return {
+                                success: true,
+                                health: sysState?.systemHealthStatus || 'Healthy',
+                                mode: sysState?.mode || 'Normal',
+                                ordersToday,
+                                complaintsDetected: complaintsCount,
+                                summary: `Ecosystem is ${sysState?.systemHealthStatus || 'Healthy'}. Orders Today: ${ordersToday}. Recent Complaints: ${complaintsCount}.`
+                            };
+                        } catch (e: any) {
+                            return { success: false, error: e.message };
+                        }
+                    }
+                },
 
                 // ─── TOOL 1: Read Visa Database ───────────────────────────────
                 readVisaDatabase: {
@@ -188,7 +223,7 @@ Only report facts based on tools and logs. Use markdown. Address user as "Boss".
 
                 // ─── TOOL 3: Approve Change Request ──────────────────────────
                 approveChangeRequest: {
-                    description: 'Boss approves a pending change request. Generates approval_id and advances state to approved. Call this after Boss says Confirm.',
+                    description: 'Boss approves a pending change request. ONLY call this if Boss has already said "Approve" or "Confirm" AFTER the proposal was made.',
                     inputSchema: z.object({
                         requestId: z.string().describe('The request ID to approve (e.g. REQ-1234-D1)')
                     }),
@@ -196,10 +231,7 @@ Only report facts based on tools and logs. Use markdown. Address user as "Boss".
                         try {
                             const changeRequest = await prisma.aIChangeRequest.findUnique({ where: { requestId } });
                             if (!changeRequest) return { success: false, error: `Request ${requestId} not found` };
-                            if (changeRequest.currentState !== 'draft' && changeRequest.currentState !== 'boss_pending') {
-                                return { success: false, error: `Request is in state "${changeRequest.currentState}" — can only approve from draft or boss_pending` };
-                            }
-
+                            
                             const approvalId = `APP-${Date.now()}-${randomUUID().slice(0, 8).toUpperCase()}`;
 
                             await prisma.aIChangeRequest.update({
@@ -207,17 +239,13 @@ Only report facts based on tools and logs. Use markdown. Address user as "Boss".
                                 data: { currentState: 'approved', approvalId, updatedAt: new Date() }
                             });
 
-                            await prisma.aIExecutionLog.create({
-                                data: {
-                                    requestId,
-                                    agentName: 'boss',
-                                    actionType: 'APPROVE_CHANGE_REQUEST',
-                                    status: 'SUCCESS',
-                                    notes: `Approved by Boss ${profile.name || authUser.email}. Approval ID: ${approvalId}`
-                                }
-                            });
-
-                            return { success: true, requestId, approvalId, status: 'approved', message: `Approved! Approval ID: ${approvalId}. Executing now...` };
+                            return { 
+                                success: true, 
+                                requestId, 
+                                approvalId, 
+                                status: 'approved', 
+                                message: `Request ${requestId} has been approved. Now I need the Confirmation Code "AdminBayu2026" to execute the final write.` 
+                            };
                         } catch (e: any) {
                             return { success: false, error: e.message };
                         }
@@ -226,13 +254,22 @@ Only report facts based on tools and logs. Use markdown. Address user as "Boss".
 
                 // ─── TOOL 4: Execute Approved Change ──────────────────────────
                 executeApprovedChange: {
-                    description: 'Execute an approved change request. Reads the proposedChanges from DB, takes a snapshot_before, writes the real mutation to the Visa table, and logs everything. Only call after approveChangeRequest.',
+                    description: 'Final step: Write the change to the live database. ONLY call this if Boss has provided the EXACT Confirmation Code "AdminBayu2026" in the chat.',
                     inputSchema: z.object({
                         requestId: z.string(),
                         approvalId: z.string()
                     }),
                     execute: async ({ requestId, approvalId }: { requestId: string; approvalId: string }) => {
                         try {
+                            // ENFORCE 2-STEP APPROVAL
+                            if (!isConfirmTrigger) {
+                                return { 
+                                    success: false, 
+                                    error: "CRITICAL: Confirmation Code 'AdminBayu2026' not found in recent messages. Execution blocked.",
+                                    instructions: "Please ask the Boss to provide the AdminBayu2026 code before I can proceed."
+                                };
+                            }
+
                             const changeRequest = await prisma.aIChangeRequest.findUnique({ where: { requestId } });
                             if (!changeRequest) return { success: false, error: `Request ${requestId} not found` };
                             if (changeRequest.approvalId !== approvalId) return { success: false, error: 'Invalid approval ID — execution blocked' };

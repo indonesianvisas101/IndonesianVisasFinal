@@ -36,13 +36,24 @@ export async function POST(req: Request) {
         const requestId = crypto.randomBytes(16).toString('hex');
         const timestamp = new Date().toISOString().split('.')[0] + 'Z';
 
+        // Sanitize phone number (remove all non-digit characters)
+        const rawPhone = customerDetails.phone || "";
+        const sanitizedPhone = rawPhone.replace(/\D/g, '');
+
+        // DOKU requires phone to be 5-16 digits
+        if (sanitizedPhone.length < 5 || sanitizedPhone.length > 16) {
+            return NextResponse.json({ 
+                error: `Phone number must be between 5 and 16 digits. Got: ${sanitizedPhone}` 
+            }, { status: 400 });
+        }
+
         // Prepare Request Body
         const requestBody = {
             order: {
                 amount: Math.round(Number(amount)),
                 invoice_number: invoiceId,
                 currency: "IDR",
-                callback_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.balihelp.id'}/thanks`,
+                callback_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com'}/thanks`,
                 line_items: [
                     {
                         name: "Visa / Corporate Service",
@@ -54,7 +65,7 @@ export async function POST(req: Request) {
             customer: {
                 name: customerDetails.name || `${customerDetails.first_name} ${customerDetails.last_name}`,
                 email: customerDetails.email,
-                phone: customerDetails.phone || ""
+                phone: sanitizedPhone
             }
         };
 

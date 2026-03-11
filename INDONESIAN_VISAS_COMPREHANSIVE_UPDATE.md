@@ -191,6 +191,18 @@ Identified and fixed a bug in the `handle_new_user` SQL trigger where the missin
 - **Production Mode**: Full support for DOKU production API with HMAC-SHA256 signature verification.
 - **Environment Security**: All Formspree IDs and Webhook secrets moved to SSR-compatible environment variables.
 
+### March 11th, 2026 - Final Hardening & Extreme Performance
+*   **Doku Payment Hardening**:
+    *   Implemented server-side phone number sanitization (digits only, 5-16 chars) to prevent API validation failures.
+    *   Unified production redirection to `indonesianvisas.com`.
+*   **UI Acceleration**:
+    *   Optimized `ApplicationPanel` by switching step components from dynamic to static imports, eliminating the interaction lag for "Select Your Country".
+    *   Reduced perceived latency in application flow transitions.
+*   **PageSpeed & SEO**:
+    *   Enabled `optimizeCss` in `next.config.ts` using `critters` for critical CSS inlining.
+    *   Audited render-blocking resources and maximized resource hints (`preconnect`/`dns-prefetch`).
+    *   Integrated final branding assets: `Favicon.webp`, `og-image.webp`, and `webapp.webp`.
+
 ### 10.4 Performance & SEO Gold
 - **Landing Page Speed**: Implementation of `next/dynamic` for heavy components and image optimization with `next/image`.
 - **Production Domain**: Unified all redirects and CTA links to `https://indonesianvisas.com`.

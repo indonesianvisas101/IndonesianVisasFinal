@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
 
   // Compiler Options
   experimental: {
-    optimizeCss: false, // Requires 'critters' dependency
+    optimizeCss: true, // Requires 'critters' dependency
     optimizePackageImports: [
       'lucide-react',
       'framer-motion',

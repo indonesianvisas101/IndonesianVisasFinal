@@ -5,12 +5,11 @@ import { X } from "lucide-react";
 import { useApplication } from "./ApplicationContext";
 import styles from "./ApplicationPanel.module.css";
 
-import dynamic from 'next/dynamic';
-const StepIndicator = dynamic(() => import("./StepIndicator"), { ssr: false });
-const StepCountryVisa = dynamic(() => import("./StepCountryVisa"), { ssr: false });
-const StepPersonalInfo = dynamic(() => import("./StepPersonalInfo"), { ssr: false });
-const StepDocuments = dynamic(() => import("./StepDocuments"), { ssr: false });
-const StepPayment = dynamic(() => import("./StepPayment"), { ssr: false });
+import StepIndicator from "./StepIndicator";
+import StepCountryVisa from "./StepCountryVisa";
+import StepPersonalInfo from "./StepPersonalInfo";
+import StepDocuments from "./StepDocuments";
+import StepPayment from "./StepPayment";
 
 
 const ApplicationPanel = () => {

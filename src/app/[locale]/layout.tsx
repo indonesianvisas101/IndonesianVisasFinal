@@ -100,8 +100,11 @@ export default async function LocaleLayout({
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" />
         <link rel="preconnect" href="https://flagcdn.com" />
+        <link rel="preconnect" href="https://api.doku.com" />
+        <link rel="preconnect" href="https://api-sandbox.doku.com" />
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
         <link rel="dns-prefetch" href="https://flagcdn.com" />
+        <link rel="dns-prefetch" href="https://api.resend.com" />
       </head>
       <body className={inter.className} suppressHydrationWarning>
 

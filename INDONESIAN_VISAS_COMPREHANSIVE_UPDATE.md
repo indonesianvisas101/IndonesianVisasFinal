@@ -173,21 +173,28 @@ Identified and fixed a bug in the `handle_new_user` SQL trigger where the missin
 
 ---
 
-## 9. RECENT MAJOR UPDATES (PHASES 18-20)
 
-### 9.1 Brand Evolution & Global Trademark Change
-- **Action:** Full transition from 'Registered' (®) to 'Pending' (™) status for PT Indonesian Visas Agency.
-- **Implementation:** Automated multi-byte character replacement across the entire filesystem, followed by manual auditing of legal disclaimers in the Footer and Checkout pages.
+---
 
-### 9.2 Repository & Pipeline Migration
-- **New Origin:** `https://github.com/indonesianvisas101/IndonesianVisasFinal.git`
-- **Resolution:** Successfully recovered from a local Git object corruption that prevented commits to the previous repository. All recent work migrated and verified.
+## 10. RECENT UPDATES (MARCH 11, 2026)
 
-### 9.3 About Page Professionalism Enhancement
-- **New Feature:** Added a 'Legal and Registered Company' trust badge to the Hero section.
-- **i18n:** Full support across all 15+ backend languages with dynamic translation loading.
+### 10.1 Transactional Email System (Resend Integration)
+- **Customer Notifications**: Automatic "Application Received" and "Payment Success" emails implemented via `resend`.
+- **Admin Alerts**: Immediate email notifications sent to `indonesianvisas@gmail.com` for every new order.
+- **Invoice Linking**: Direct link to dynamic PDF invoices included in all financial emails.
 
-### 9.4 Full System Optimization
-- **LCP Optimization:** Globe rendering delayed until idle and restricted to desktop.
-- **Lazy Load:** 80% of landing page components transitioned to `next/dynamic` with skeleton loading.
-- **Accessibility:** 100% ARIA coverage for all interactive cards and form elements.
+### 10.2 Admin Order Intelligence (Order Panel)
+- **Real-time Tracking**: New "Incoming Orders" section in Admin Dashboard for monitoring visa and company formation statuses.
+- **Enhanced UX**: Integrated filtering and direct link to customer invoices.
+
+### 10.3 DOKU (Jokul) Payment Refinement
+- **Production Mode**: Full support for DOKU production API with HMAC-SHA256 signature verification.
+- **Environment Security**: All Formspree IDs and Webhook secrets moved to SSR-compatible environment variables.
+
+### 10.4 Performance & SEO Gold
+- **Landing Page Speed**: Implementation of `next/dynamic` for heavy components and image optimization with `next/image`.
+- **Production Domain**: Unified all redirects and CTA links to `https://indonesianvisas.com`.
+- **Infrastructure**: Prepared for Cloudflare Pages global CDN distribution.
+
+---
+**END OF COMPREHENSIVE REPORT (Updated March 11)**

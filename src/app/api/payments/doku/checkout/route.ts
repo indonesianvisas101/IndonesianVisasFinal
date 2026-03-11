@@ -67,6 +67,8 @@ export async function POST(req: Request) {
         const signature = crypto.createHmac('sha256', secretKey).update(signaturePayload).digest('base64');
 
         // Call DOKU API
+        console.log(`DOKU Request [${requestId}]:`, { url: `${baseUrl}${targetPath}`, headers: { 'Client-Id': clientId, 'Request-Id': requestId }, body: requestBody });
+
         const dokuRes = await fetch(`${baseUrl}${targetPath}`, {
             method: 'POST',
             headers: {
@@ -80,10 +82,14 @@ export async function POST(req: Request) {
         });
 
         const dokuData = await dokuRes.json();
+        console.log(`DOKU Response [${requestId}]:`, { status: dokuRes.status, data: dokuData });
 
         if (!dokuRes.ok) {
             console.error("DOKU API Error:", dokuData);
-            return NextResponse.json({ error: dokuData.error?.message || "DOKU API Error" }, { status: dokuRes.status });
+            return NextResponse.json({ 
+                error: dokuData.error?.message || "DOKU API Error",
+                details: dokuData 
+            }, { status: dokuRes.status });
         }
 
         return NextResponse.json({ 

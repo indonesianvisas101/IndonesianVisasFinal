@@ -101,6 +101,9 @@ export const sendAdminOrderNotification = async (data: {
     try {
         const { orderType, applicantName, applicantEmail, visaType, amount, invoiceUrl, details } = data;
         
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+        const loginUrl = `${appUrl}/login`;
+
         let message = `
             <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #fcfcfc;">
                 <h2 style="color: #9155FD; border-bottom: 2px solid #9155FD; padding-bottom: 10px;">New Order Alert!</h2>
@@ -118,6 +121,10 @@ export const sendAdminOrderNotification = async (data: {
 
                 <div style="margin: 30px 0; text-align: center;">
                     <a href="${invoiceUrl}" style="background-color: #9155FD; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">View Order in Admin</a>
+                </div>
+
+                <div style="text-align: center; margin-top: 10px;">
+                    <a href="${loginUrl}" style="color: #666; font-size: 12px;">Login to Dashboard</a>
                 </div>
 
                 <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>

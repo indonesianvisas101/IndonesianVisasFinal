@@ -160,9 +160,9 @@ const StepPayment = () => {
                 setIsSuccess(true);
             }
 
-        } catch (error) {
-            console.error(error);
-            alert("Submission failed. Please try again.");
+        } catch (error: any) {
+            console.error("Payment Process Error:", error);
+            alert(`Submission failed: ${error.message || "Please try again."}`);
         } finally {
             setIsSubmitting(false);
         }

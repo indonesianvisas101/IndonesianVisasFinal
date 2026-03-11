@@ -102,9 +102,14 @@ export async function GET(request: Request) {
         const allUsers = await prisma.user.findMany({ select: { id: true, name: true, email: true } });
         const userMap = new Map(allUsers.map(u => [u.id, u]));
 
+        const appIds = applications.map(a => a.id);
+        const invoices = await prisma.invoice.findMany({ where: { applicationId: { in: appIds } } });
+        const invoiceMap = new Map(invoices.map(i => [i.applicationId, i]));
+
         const mappedApps = applications.map(app => {
             const uId = app.userId || app.user_id;
             const linkedUser = uId ? userMap.get(uId) : null;
+            const linkedInvoice = invoiceMap.get(app.id);
 
             return {
                 ...app,
@@ -116,6 +121,9 @@ export async function GET(request: Request) {
                 appliedAt: app.appliedAt || app.applied_at,
                 customAmount: app.customAmount,
                 status: app.status,
+                paymentReference: linkedInvoice?.paymentReference || "",
+                adminNotes: linkedInvoice?.adminNotes || "",
+                paymentStatus: linkedInvoice?.status || "",
 
                 user: linkedUser || {
                     name: app.guestName || "Guest",
@@ -338,14 +346,14 @@ export async function PATCH(request: Request) {
         }
 
         // 2. Update Linked Invoice (if exists)
-        if (paymentStatus || paymentReference || adminNotes) {
+        if (paymentStatus !== undefined || paymentReference !== undefined || adminNotes !== undefined) {
             // Find invoice
             const invoice = await prisma.invoice.findFirst({ where: { applicationId: id } });
             if (invoice) {
                 const dataToUpdate: any = {};
-                if (paymentStatus) dataToUpdate.status = paymentStatus; // UNPAID, PAID, REFUNDED
-                if (paymentReference) dataToUpdate.paymentReference = paymentReference;
-                if (adminNotes) dataToUpdate.adminNotes = adminNotes;
+                if (paymentStatus !== undefined) dataToUpdate.status = paymentStatus; // UNPAID, PAID, REFUNDED
+                if (paymentReference !== undefined) dataToUpdate.paymentReference = paymentReference;
+                if (adminNotes !== undefined) dataToUpdate.adminNotes = adminNotes;
 
                 await prisma.invoice.update({
                     where: { id: invoice.id },

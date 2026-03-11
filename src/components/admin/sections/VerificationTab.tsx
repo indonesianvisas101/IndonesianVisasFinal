@@ -62,6 +62,10 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
     // Selected Item for QR or Edit
     const [selectedItem, setSelectedItem] = useState<any>(null);
 
+    // Edit State
+    const [isEditing, setIsEditing] = useState(false);
+    const [editId, setEditId] = useState("");
+
     // Initial Fetch & Auto-Open from Props
     useEffect(() => {
         fetchVerifications();
@@ -135,11 +139,14 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
 
             const payload = {
                 ...formData,
+                ...(isEditing && { id: editId }),
                 userId: verificationMode === 'linked' ? selectedUserId : null
             };
 
+            const method = isEditing ? 'PUT' : 'POST';
+
             const res = await fetch('/api/verification', {
-                method: 'POST',
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -149,14 +156,20 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             const data = await res.json();
 
             if (res.ok) {
-                setVerifications([data, ...verifications]);
+                if (isEditing) {
+                    setVerifications(verifications.map(v => v.id === editId ? { ...v, ...data } : v));
+                    // Check if data itself has updated values, or manual merge
+                    fetchVerifications(); // Safer to just refetch updated item
+                } else {
+                    setVerifications([data, ...verifications]);
+                }
                 setOpenDialog(false);
                 resetForm();
             } else {
-                alert(data.error || "Failed to create");
+                alert(data.error || "Failed to save");
             }
         } catch (error) {
-            alert("Error creating verification");
+            alert("Error saving verification");
         }
     };
 
@@ -217,6 +230,28 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         });
         setSelectedUserId("");
         setVerificationMode('manual');
+        setIsEditing(false);
+        setEditId("");
+    };
+
+    const handleEdit = (item: any) => {
+        setFormData({
+            fullName: item.fullName || "",
+            passportNumber: item.passportNumber || "",
+            visaType: item.visaType || "",
+            issuedDate: item.issuedDate ? new Date(item.issuedDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            expiresAt: item.expiresAt ? new Date(item.expiresAt).toISOString().split('T')[0] : "",
+            slug: item.slug || ""
+        });
+        setEditId(item.id);
+        setIsEditing(true);
+        if (item.userId) {
+            setVerificationMode('linked');
+            setSelectedUserId(item.userId);
+        } else {
+            setVerificationMode('manual');
+        }
+        setOpenDialog(true);
     };
 
     const handleUserSelect = (userId: string) => {
@@ -327,6 +362,15 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                             >
                                                 <QrCodeIcon />
                                             </IconButton>
+                                            <IconButton
+                                                color="primary"
+                                                size="small"
+                                                title="Edit Data"
+                                                aria-label="Edit Verification Data"
+                                                onClick={() => handleEdit(item)}
+                                            >
+                                                <EditIcon />
+                                            </IconButton>
 
                                             {/* Quick Status Toggle */}
                                             {item.status === 'VALID' ? (
@@ -372,7 +416,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
 
             {/* CREATE DIALOG */}
             <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Create New Verification</DialogTitle>
+                <DialogTitle>{isEditing ? "Edit Verification Record" : "Create New Verification"}</DialogTitle>
                 <DialogContent>
                     <Stack spacing={3} sx={{ mt: 1 }}>
                         <Stack direction="row" spacing={2} justifyContent="center" mb={2}>
@@ -452,7 +496,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                    <Button variant="contained" onClick={handleCreate}>Create Record</Button>
+                    <Button variant="contained" onClick={handleCreate} disabled={!formData.fullName || !formData.passportNumber}>
+                        {isEditing ? "Update Record" : "Create Record"}
+                    </Button>
                 </DialogActions>
             </Dialog>
 

@@ -137,6 +137,7 @@ export default function OrderPanel() {
                             <TableCell>SERVICE</TableCell>
                             <TableCell>AMOUNT</TableCell>
                             <TableCell>STATUS</TableCell>
+                            <TableCell>DOCUMENTS</TableCell>
                             <TableCell align="right">ACTIONS</TableCell>
                         </TableRow>
                     </TableHead>
@@ -194,6 +195,24 @@ export default function OrderPanel() {
                                             color={isPaid ? 'success' : order.status === 'Rejected' ? 'error' : 'warning'}
                                             size="small"
                                         />
+                                    </TableCell>
+                                    <TableCell>
+                                        {order.documents && (
+                                            <Stack direction="row" spacing={1}>
+                                                {(typeof order.documents === 'string' ? JSON.parse(order.documents) : order.documents).map((doc: any, i: number) => (
+                                                    <IconButton 
+                                                        key={i} 
+                                                        size="small" 
+                                                        color="info" 
+                                                        href={doc.url || doc} 
+                                                        target="_blank"
+                                                        title={doc.name || `Doc ${i+1}`}
+                                                    >
+                                                        <OpenInNewIcon sx={{ fontSize: 16 }} />
+                                                    </IconButton>
+                                                ))}
+                                            </Stack>
+                                        )}
                                     </TableCell>
                                     <TableCell align="right">
                                         <Stack direction="row" spacing={1} justifyContent="flex-end">

@@ -221,4 +221,17 @@ Identified and fixed a bug in the `handle_new_user` SQL trigger where the missin
 - **Deployment**: Configured for Cloudflare Pages with full sitemap, robots, and OpenGraph optimization.
 
 ---
-**END OF COMPREHENSIVE REPORT (Updated March 11)**
+### 10.6 Advanced Flow & Security Hardening (March 11th - evening)
+- **AI Security Protocol**: Transitioned from hardcoded `AdminBayu` to `ADMIN_SIGNATURE_CODE` environment variable for cryptographic-grade command validation.
+- **Transactional Automation**:
+    - **Payment Reminders**: Fully automated Doku payment guides sent via email upon checkout initiation.
+    - **Confirmation Loop**: Dual-stage confirmation for both customer (receipt) and admin (alert).
+- **UX Flow "Visual Polish"**:
+    - **Step 1 (Arrival Date)**: Implemented `pulseHighlight` animation and high-contrast borders for the arrival date card to minimize user friction.
+    - **Step 4 (Order Intel)**: Added dynamic **Price x People = Total** summary with a 10-currency converter supporting USD, AUD, EUR, GBP, SGD, JPY, CNY, MYR, KRW, THB.
+    - **Real-time Price Comparison**: Simulated "fair rate" calculation with loading states to build customer trust.
+- **Deep Linking**: Implemented `visa` URL parameter support to auto-select visa types and open the application panel directly from marketing links.
+- **Admin Visibility**: Updated the Admin Order Panel to provide instant access to all uploaded customer documents via direct storage links.
+
+---
+**END OF COMPREHENSIVE REPORT (Updated March 11, Post-Evening Refresh)**

@@ -89,6 +89,53 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
     }
 };
 
+export const sendPaymentReminderEmail = async (to: string, data: {
+    applicantName: string;
+    visaType: string;
+    amount: string;
+    paymentUrl: string;
+}) => {
+    try {
+        const { applicantName, visaType, amount, paymentUrl } = data;
+        
+        let message = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h2 style="color: #FFB400;">Payment Instruction Needed</h2>
+                <p>Hello ${applicantName},</p>
+                <p>Thank you for your order for <strong>${visaType}</strong>.</p>
+                <p>To finalize your application, please complete the payment of <strong>${amount}</strong> using the link below:</p>
+                
+                <div style="margin: 30px 0; text-align: center;">
+                    <a href="${paymentUrl}" style="background-color: #FFB400; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">Finish Payment Now</a>
+                </div>
+
+                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p style="margin: 0;"><strong>Quick Guide:</strong><br/>
+                    1. Click the button above to open the secure DOKU payment page.<br/>
+                    2. Choose your preferred method (QRIS, Bank Transfer, or Credit Card).<br/>
+                    3. Once paid, our system will automatically notify our team to start your process.</p>
+                </div>
+                
+                <p style="color: #666; font-size: 14px;">This link will expire soon. If you have any trouble, please contact us on WhatsApp.</p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
+                <p style="font-size: 12px; color: #999;">PT Indonesian Visas Agency™<br/>Jl. Tibungsari No.11C, Bali, Indonesia</p>
+            </div>
+        `;
+
+        await resend.emails.send({
+            from: 'Indonesian Visas <contact@indonesianvisas.agency>',
+            to: [to],
+            subject: `Action Required: Complete Your Payment for ${visaType}`,
+            html: message,
+        });
+        
+        return { success: true };
+    } catch (error) {
+        console.error("Resend Reminder Email Error:", error);
+        return { success: false, error };
+    }
+};
+
 export const sendAdminOrderNotification = async (data: {
     orderType: string;
     applicantName: string;

@@ -205,6 +205,23 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         refreshVisas();
+
+        // Handle Deep Linking / Auto-selection from URL
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const visaParam = params.get('visa');
+            const openParam = params.get('open');
+
+            if (visaParam) {
+                console.log("[Context] Auto-selecting visa from URL:", visaParam);
+                selectVisa(visaParam);
+                if (openParam !== 'false') {
+                    openPanel();
+                }
+            } else if (openParam === 'true') {
+                openPanel();
+            }
+        }
     }, [refreshVisas]);
 
     const openPanel = () => setState((prev) => ({ ...prev, isPanelOpen: true }));

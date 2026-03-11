@@ -106,8 +106,37 @@ export async function POST(req: Request) {
             }, { status: dokuRes.status });
         }
 
+        const paymentUrl = dokuData.response.payment.url;
+
+        // NEW: Trigger Payment Reminder Email
+        try {
+            const { sendPaymentReminderEmail } = await import('@/lib/email');
+            
+            // Fetch application name/visa for the email
+            const invoice = await prisma.invoice.findUnique({
+                where: { id: invoiceId }
+            });
+
+            if (invoice?.applicationId) {
+                const application = await prisma.visaApplication.findUnique({
+                    where: { id: invoice.applicationId }
+                });
+
+                if (application) {
+                    await sendPaymentReminderEmail(customerDetails.email, {
+                        applicantName: customerDetails.name || `${customerDetails.first_name} ${customerDetails.last_name}`,
+                        visaType: application.visaName || 'Indonesian Visa',
+                        amount: `IDR ${Number(amount).toLocaleString('id-ID')}`,
+                        paymentUrl: paymentUrl
+                    });
+                }
+            }
+        } catch (e) {
+            console.error("[DOKU Checkout] Failed to send reminder email:", e);
+        }
+
         return NextResponse.json({ 
-            paymentUrl: dokuData.response.payment.url,
+            paymentUrl,
             orderId: requestId // Unique ID per payment attempt
         });
 

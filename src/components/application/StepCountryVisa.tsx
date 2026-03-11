@@ -87,7 +87,7 @@ const StepCountryVisa = () => {
                     </div>
                 </div>
 
-                <div className={`glass-card ${styles.inputCard}`}>
+                <div className={`glass-card ${styles.inputCard} ${styles.highlightField}`}>
                     <label className={styles.label}>Arrival Date</label>
                     <div className={styles.dateInputWrapper}>
                         <Calendar size={20} className={styles.dateIcon} />

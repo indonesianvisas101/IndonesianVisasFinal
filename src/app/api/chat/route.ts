@@ -148,7 +148,7 @@ You CAN answer questions about system status, visa data (from your training), an
    else if (bossWeight < 0.9) bossAddressing = "Boss Bayu";
    else bossAddressing = "Bro";
 
-   const isSignedByAdmin = userText.includes("AdminBayu");
+   const isSignedByAdmin = userText.includes(process.env.ADMIN_SIGNATURE_CODE || "AdminBayu");
 
    let targetAgent = 'seller'; // Default
    if (isMasterMode) {

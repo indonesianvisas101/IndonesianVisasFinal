@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import type { Visa } from '@prisma/client';
+import { logAdminAction } from '@/lib/auditLogger';
 
 export const dynamic = 'force-dynamic';
 
@@ -148,11 +149,14 @@ export async function PUT(request: Request) {
 
         // SECTION 4 - PRICE OVERRIDE LOGIC
         if (existingVisa && existingVisa.price !== safePrice) {
-            // Log the override strictly
-            await prisma.$executeRawUnsafe(`
-                 INSERT INTO "ai_business_actions" ("action_type", "target_id", "initiated_by", "override_flag", "status")
-                 VALUES ('PRICE_OVERRIDE_BY_BOSS', $1, 'admin', true, 'EXECUTED')
-             `, body.id);
+            // Log the override strictly using AuditLog
+            await logAdminAction(
+                'admin', // Or get current user ID if available, but 'admin' is safe here given the context
+                'PRICE_OVERRIDE_BY_BOSS',
+                'Visa',
+                body.id,
+                { oldPrice: existingVisa.price, newPrice: safePrice }
+            );
         }
 
         const updatedVisa = await prisma.visa.upsert({

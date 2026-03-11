@@ -5,6 +5,7 @@ import { ArrowRight, Check, Info } from 'lucide-react';
 import { VISA_DETAILS, VisaDetail } from '@/constants/visaDetails';
 import { VISA_DATABASE, VisaType } from '@/constants/visas';
 import VisaActionButtons from '@/components/visa/VisaActionButtons';
+import VisaPricingSelector from '@/components/visa/VisaPricingSelector';
 
 interface PageProps {
     params: Promise<{
@@ -283,27 +284,37 @@ const VisaDetailPage = async (props: PageProps) => {
                     {/* Pricing - Using Dynamic/Mixed Logic */}
                     <section className="border-b border-gray-200 pb-12">
                         <h2 className="text-2xl font-bold mb-8 text-black">{visaDetails.pricing.title}</h2>
-                        <div className="grid gap-8">
-                            {finalPricingOptions.map((option, idx) => (
-                                <div key={idx} className="bg-white p-8 rounded-2xl border-2 border-gray-300 hover:border-black transition-colors duration-300 shadow-xl">
-                                    {option.title && <h3 className="text-xl font-bold mb-6 text-black border-b border-gray-200 pb-4">{option.title}</h3>}
-                                    <table className="w-full">
-                                        <tbody>
-                                            {option.rows.map((row, rIdx) => (
-                                                <tr key={rIdx} className={row.isTotal ? "border-t-2 border-gray-400" : "border-b border-gray-200 last:border-0"}>
-                                                    <td className={`py-4 text-black ${row.isTotal ? "text-lg font-bold pt-6" : "font-semibold"}`}>
-                                                        {row.label}
-                                                    </td>
-                                                    <td className={`py-4 text-right text-black ${row.isTotal ? "text-xl font-bold pt-6" : "font-bold"}`}>
-                                                        {row.value}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ))}
-                        </div>
+                        
+                        {finalPricingOptions.length > 1 || (dbVisa && typeof dbVisa.price === 'object') ? (
+                            <VisaPricingSelector 
+                                options={finalPricingOptions} 
+                                visaId={visaDetails.id}
+                                visaName={visaDetails.badge}
+                            />
+                        ) : (
+                            <div className="grid gap-8">
+                                {finalPricingOptions.map((option, idx) => (
+                                    <div key={idx} className="bg-white p-8 rounded-2xl border-2 border-gray-300 hover:border-black transition-colors duration-300 shadow-xl">
+                                        {option.title && <h3 className="text-xl font-bold mb-6 text-black border-b border-gray-200 pb-4">{option.title}</h3>}
+                                        <table className="w-full">
+                                            <tbody>
+                                                {option.rows.map((row, rIdx) => (
+                                                    <tr key={rIdx} className={row.isTotal ? "border-t-2 border-gray-400" : "border-b border-gray-200 last:border-0"}>
+                                                        <td className={`py-4 text-black ${row.isTotal ? "text-lg font-bold pt-6" : "font-semibold"}`}>
+                                                            {row.label}
+                                                        </td>
+                                                        <td className={`py-4 text-right text-black ${row.isTotal ? "text-xl font-bold pt-6" : "font-bold"}`}>
+                                                            {row.value}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
                         {visaDetails.pricing.note && (
                             <p className="text-sm text-black mt-6 italic bg-gray-100 inline-block px-4 py-2 rounded-lg font-medium border border-gray-300">
                                 * {visaDetails.pricing.note}

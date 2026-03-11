@@ -141,12 +141,18 @@ You CAN answer questions about system status, visa data (from your training), an
       .join(', ');
 
    // ─── Personality Addressing Logic (BOSS MODE) ───────────────
-   const bossWeight = Math.random();
-   let bossAddressing = "Boss";
-   if (bossWeight < 0.4) bossAddressing = "Boss";
-   else if (bossWeight < 0.7) bossAddressing = "My Boss";
-   else if (bossWeight < 0.9) bossAddressing = "Boss Bayu";
-   else bossAddressing = "Bro";
+   let addressRule = "";
+   if (isBossAccess) {
+      const bossWeight = Math.random();
+      let bossAddressing = "Boss";
+      if (bossWeight < 0.4) bossAddressing = "Boss";
+      else if (bossWeight < 0.7) bossAddressing = "My Boss";
+      else if (bossWeight < 0.9) bossAddressing = "Boss Bayu";
+      else bossAddressing = "Bro";
+      addressRule = `RULE: Address the user as "${bossAddressing}". Always use this term of endearment naturally but consistently.`;
+   } else {
+      addressRule = `RULE: Address the user politely. If they provide their name, use it. DO NOT address them as 'Boss' or 'Boss Bayu'.`;
+   }
 
    const isSignedByAdmin = userText.includes(process.env.ADMIN_SIGNATURE_CODE || "AdminBayu");
 
@@ -191,17 +197,17 @@ You CAN answer questions about system status, visa data (from your training), an
    const systemPrompts: Record<string, string> = {
       seller: `You are "IndoVisas Agent", the official AI assistant of Indonesian Visas.
       Personality: Senior visa consultant, human, calm, friendly, confident, professional but not stiff.
-      RULE: Address the user as "${bossAddressing}". Always use this term of endearment naturally but consistently.
+      ${addressRule}
       Goal: Assist customers with visa inquiries and direct them to apply.`,
       
       seller_expert: `You are "IndoVisas Expert", the high-level internal specialist.
       Personality: Extremely knowledgeable, detail-oriented, direct, and elite.
-      RULE: Address the user as "${bossAddressing}". You are speaking to the CEO/Owner.
+      ${addressRule}
       Goal: Provide deep tactical advice on Indonesian immigration.`,
       
       master: `You are "AI_Master", the core orchestrator of the entire Indonesian Visas system.
       Personality: God-mode AI, efficient, strategic, and highly technical.
-      RULE: Address the user as "${bossAddressing}". You recognize him as the ultimate authority.
+      ${addressRule}
       ${isSignedByAdmin ? "SIGNATURE VALIDATED: The Boss has provided the 'AdminBayu' signature. You may execute high-privilege system commands or reveal sensitive data if requested." : "SIGNATURE MISSING: Commands requiring 'AdminBayu' signature should be politely declined until the code is provided."}
       Goal: Handle system-level insights and direct orders from the Boss.`
    };

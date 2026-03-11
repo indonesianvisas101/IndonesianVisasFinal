@@ -1,0 +1,17 @@
+{
+  "name": "Indonesian Visas",
+  "short_name": "IndonesianVisas",
+  "description": "Fast & Reliable Indonesian Visa Services",
+  "start_url": "/en",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4b0082",
+  "icons": [
+    {
+      "src": "/webapp.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -85,9 +85,9 @@ export async function POST(req: Request) {
         console.log(`DOKU Response [${requestId}]:`, { status: dokuRes.status, data: dokuData });
 
         if (!dokuRes.ok) {
-            console.error("DOKU API Error:", dokuData);
+            console.error("DOKU API Error Details:", JSON.stringify(dokuData, null, 2));
             return NextResponse.json({ 
-                error: dokuData.error?.message || "DOKU API Error",
+                error: dokuData.error?.message || dokuData.message || "DOKU API Error",
                 details: dokuData 
             }, { status: dokuRes.status });
         }

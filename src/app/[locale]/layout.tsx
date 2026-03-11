@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: 'Indonesian Visas',
     images: [
       {
-        url: '/images/og-image.webp',
+        url: '/og-image.webp',
         width: 1200,
         height: 630,
         alt: 'Indonesian Visas Official Agency',
@@ -59,9 +59,12 @@ export const metadata: Metadata = {
     images: ['/images/twitter-image.jpg'],
   },
   icons: {
-    icon: '/Favicon.webp',
-    apple: '/apple-touch-icon.png',
+    icon: [
+      { url: '/Favicon.webp', type: 'image/webp' },
+    ],
+    apple: '/webapp.webp',
   },
+  manifest: '/manifest.json',
   robots: {
     index: true,
     follow: true,

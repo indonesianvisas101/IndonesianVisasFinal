@@ -456,7 +456,7 @@ export const COUNTRY_DATA: CountryDef[] = [
     },
     {
         "name": "Kosovo",
-        "code": "KO",
+        "code": "XK",
         "isUnregistered": true
     },
     {

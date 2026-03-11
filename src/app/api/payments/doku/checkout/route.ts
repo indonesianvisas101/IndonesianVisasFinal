@@ -50,6 +50,15 @@ export async function POST(req: Request) {
             finalPhone = sanitizedPhone.slice(0, 16);
         }
 
+        // Validate and Fallback Name
+        const combinedName = [customerDetails.first_name, customerDetails.last_name].filter(Boolean).join(' ').trim();
+        const rawName = customerDetails.name?.trim() || combinedName;
+        const finalName = rawName.length > 0 ? rawName.substring(0, 50) : "Guest Applicant";
+
+        // Validate and Fallback Email
+        const rawEmail = customerDetails.email?.trim() || "";
+        const finalEmail = rawEmail.includes('@') ? rawEmail.substring(0, 50) : "no-reply@indonesianvisas.com";
+
         // Prepare Request Body
         const requestBody = {
             order: {
@@ -66,8 +75,8 @@ export async function POST(req: Request) {
                 ]
             },
             customer: {
-                name: customerDetails.name || `${customerDetails.first_name} ${customerDetails.last_name}`,
-                email: customerDetails.email,
+                name: finalName,
+                email: finalEmail,
                 phone: finalPhone
             }
         };

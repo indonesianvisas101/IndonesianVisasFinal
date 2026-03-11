@@ -41,10 +41,13 @@ export async function POST(req: Request) {
         const sanitizedPhone = rawPhone.replace(/\D/g, '');
 
         // DOKU requires phone to be 5-16 digits
-        if (sanitizedPhone.length < 5 || sanitizedPhone.length > 16) {
-            return NextResponse.json({ 
-                error: `Phone number must be between 5 and 16 digits. Got: ${sanitizedPhone}` 
-            }, { status: 400 });
+        // Fallback for missing/too short phone
+        let finalPhone = sanitizedPhone;
+        if (sanitizedPhone.length < 5) {
+            console.warn(`[DOKU] Phone too short (${sanitizedPhone}), using fallback.`);
+            finalPhone = "628123456789"; // Fallback placeholder
+        } else if (sanitizedPhone.length > 16) {
+            finalPhone = sanitizedPhone.slice(0, 16);
         }
 
         // Prepare Request Body
@@ -65,7 +68,7 @@ export async function POST(req: Request) {
             customer: {
                 name: customerDetails.name || `${customerDetails.first_name} ${customerDetails.last_name}`,
                 email: customerDetails.email,
-                phone: sanitizedPhone
+                phone: finalPhone
             }
         };
 

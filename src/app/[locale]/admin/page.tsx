@@ -185,6 +185,7 @@ function AdminDashboardContent() {
     const [notifications, setNotifications] = useState<any[]>([]);
     const [showNotificationsModal, setShowNotificationsModal] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [newOrdersCount, setNewOrdersCount] = useState(0);
     // Initialize users list from Context logic
     const [usersList, setUsersList] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -324,6 +325,27 @@ function AdminDashboardContent() {
                         actionLink: "/admin?tab=support"
                     };
 
+                    setAllNotifications(prev => [newNotif, ...prev]);
+                    setLatestNotification(newNotif);
+                }
+            )
+            .on(
+                'broadcast',
+                { event: 'NEW_ORDER' },
+                (payload: any) => {
+                    const order = payload.payload;
+                    setNewOrdersCount(prev => prev + 1);
+                    
+                    const newNotif = {
+                        id: `order-${order.id}`,
+                        title: "New Order Received!",
+                        message: `Order #${order.slug} from ${order.guestName} for ${order.visaName}`,
+                        type: 'success',
+                        isRead: false,
+                        createdAt: new Date().toISOString(),
+                        actionLink: "/admin?tab=orders"
+                    };
+                    
                     setAllNotifications(prev => [newNotif, ...prev]);
                     setLatestNotification(newNotif);
                 }
@@ -1032,13 +1054,17 @@ function AdminDashboardContent() {
                     { key: 'invoicing', label: 'Invoicing', icon: <ReceiptIcon /> },
                     { key: 'logs', label: 'Audit Logs', icon: <HistoryIcon /> },
                     { key: 'ai_master', label: 'AI Master', icon: <PsychologyIcon /> },
-                    { key: 'orders', label: 'Incoming Orders', icon: <ShoppingCart sx={{ fontSize: 20 }} /> },
+                    { key: 'orders', label: 'Incoming Orders', icon: <ShoppingCart sx={{ fontSize: 20 }} />, badge: newOrdersCount },
                     { key: 'support', label: 'Support Chat', icon: <MessageIcon />, badge: allNotifications.filter(n => !n.isRead).length },
                 ].map((item) => (
                     <ListItem key={item.key} disablePadding sx={{ mb: 1 }}>
                         <ListItemButton
                             selected={activeTab === item.key}
-                            onClick={() => { router.push(`/${locale}/admin?tab=${item.key}`); if (isMobile) setMobileOpen(false); }}
+                            onClick={() => { 
+                                router.push(`/${locale}/admin?tab=${item.key}`); 
+                                if (item.key === 'orders') setNewOrdersCount(0);
+                                if (isMobile) setMobileOpen(false); 
+                            }}
                             sx={{
                                 borderRadius: 2,
                                 '&.Mui-selected': { bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' }, '& .MuiListItemIcon-root': { color: 'white' } }

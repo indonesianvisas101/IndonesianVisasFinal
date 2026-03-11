@@ -63,62 +63,68 @@ export async function POST(req: Request) {
    // ─── @AI_Master Secret Command Detection ────────────────────────
    const lastUserMessage = [...coreMessages].reverse().find(m => m.role === 'user');
    const userText = lastUserMessage?.content || '';
-   const masterMatch = userText.match(/^@AI_Master\s+(\S+)\s+([\s\S]*)/i);
+   
+   // Secret Passphrase Logic: BossBayu2026
+   const isBossAccess = userText.includes("BossBayu2026");
+   const isMasterMode = isBossAccess || userText.match(/^@(AI_Master|Master|Admin)/i);
 
-   if (masterMatch) {
-      const submittedPass = masterMatch[1];
-      const command = masterMatch[2];
-      const correctPass = process.env.MASTER_SECRET_PASSPHRASE || 'antigravity2026';
+   if (isMasterMode && !isBossAccess) {
+      const masterMatch = userText.match(/^@AI_Master\s+(\S+)\s+([\s\S]*)/i);
+      if (masterMatch) {
+         const submittedPass = masterMatch[1];
+         const command = masterMatch[2];
+         const correctPass = process.env.MASTER_SECRET_PASSPHRASE || 'antigravity2026';
 
-      if (submittedPass === correctPass) {
-         try {
-            const prismaClient = (await import('@/lib/prisma')).default;
+         if (submittedPass === correctPass) {
+            try {
+               const prismaClient = (await import('@/lib/prisma')).default;
 
-            // Log this as a master command session
-            await (prismaClient as any).chatConversation.upsert({
-               where: { sessionId },
-               create: { sessionId, messages: coreMessages, topic: `@AI_Master Command`, isMasterCmd: true },
-               update: { messages: coreMessages, isMasterCmd: true }
-            });
-            await prismaClient.aIExecutionLog.create({
-               data: {
-                  requestId: `master-cmd-${Date.now()}`,
-                  agentName: 'ai_master',
-                  actionType: 'MASTER_SECRET_COMMAND',
-                  status: 'RECEIVED',
-                  notes: `Command via seller chat: "${command.slice(0, 100)}"`
-               }
-            });
+               // Log this as a master command session
+               await (prismaClient as any).chatConversation.upsert({
+                  where: { sessionId },
+                  create: { sessionId, messages: coreMessages, topic: `@AI_Master Command`, isMasterCmd: true },
+                  update: { messages: coreMessages, isMasterCmd: true }
+               });
+               await prismaClient.aIExecutionLog.create({
+                  data: {
+                     requestId: `master-cmd-${Date.now()}`,
+                     agentName: 'ai_master',
+                     actionType: 'MASTER_SECRET_COMMAND',
+                     status: 'RECEIVED',
+                     notes: `Command via seller chat: "${command.slice(0, 100)}"`
+                  }
+               });
 
-            // Forward command to AI Master (internal OpenAI key, no DB tools via this channel)
-            const internalOpenAI = createOpenAI({ apiKey: process.env.OPENAI_API_KEY_INTERNAL });
-            const { generateText } = await import('ai');
-            const aiResult = await generateText({
-               model: internalOpenAI('gpt-4o'),
-               messages: [{ role: 'user', content: command }],
-               system: `You are the AI Master for Indonesian Visas. Boss is communicating via the secure @AI_Master channel in the customer chatbox.
+               // Forward command to AI Master (internal OpenAI key, no DB tools via this channel)
+               const internalOpenAI = createOpenAI({ apiKey: process.env.OPENAI_API_KEY_INTERNAL });
+               const { generateText } = await import('ai');
+               const aiResult = await generateText({
+                  model: internalOpenAI('gpt-4o'),
+                  messages: [{ role: 'user', content: command }],
+                  system: `You are the AI Master for Indonesian Visas. Boss is communicating via the secure @AI_Master channel in the customer chatbox.
 Respond as the AI Master Orchestrator. Be direct and professional. Address as "Boss".
 Note: You cannot execute DB changes through this channel — Boss should use the Admin Dashboard for database mutations.
 You CAN answer questions about system status, visa data (from your training), and give strategic guidance.`
-            });
+               });
 
-            const responseText = `🔐 **AI MASTER** | Secure Channel\n\n${aiResult.text}`;
-            const encoder = new TextEncoder();
-            const stream = new ReadableStream({
-               start(controller) {
-                  controller.enqueue(encoder.encode(responseText));
-                  controller.close();
-               }
-            });
-            return new Response(stream, {
-               headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-            });
-         } catch (err: any) {
-            console.error('AI Master secret command error:', err);
-            // Fall through to normal seller response
+               const responseText = `🔐 **AI MASTER** | Secure Channel\n\n${aiResult.text}`;
+               const encoder = new TextEncoder();
+               const stream = new ReadableStream({
+                  start(controller) {
+                     controller.enqueue(encoder.encode(responseText));
+                     controller.close();
+                  }
+               });
+               return new Response(stream, {
+                  headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+               });
+            } catch (err: any) {
+               console.error('AI Master secret command error:', err);
+               // Fall through to normal seller response
+            }
          }
+         // Wrong passphrase — respond as normal seller (don't reveal this feature)
       }
-      // Wrong passphrase — respond as normal seller (don't reveal this feature)
    }
    // ─────────────────────────────────────────────────────────────────
 
@@ -133,6 +139,22 @@ You CAN answer questions about system status, visa data (from your training), an
       .filter(c => c.isSpecial)
       .map(c => c.name)
       .join(', ');
+
+   // ─── Personality Addressing Logic (BOSS MODE) ───────────────
+   const bossWeight = Math.random();
+   let bossAddressing = "Boss";
+   if (bossWeight < 0.4) bossAddressing = "Boss";
+   else if (bossWeight < 0.7) bossAddressing = "My Boss";
+   else if (bossWeight < 0.9) bossAddressing = "Boss Bayu";
+   else bossAddressing = "Bro";
+
+   const isSignedByAdmin = userText.includes("AdminBayu");
+
+   let targetAgent = 'seller'; // Default
+   if (isMasterMode) {
+      if (userText.match(/@(Ai_Seller|Seller|Seller_Ai)/i)) targetAgent = 'seller_expert';
+      else targetAgent = 'master';
+   }
 
    // Prepare WEBSITE & PAYMENT KNOWLEDGE
    const WEBSITE_CONTEXT = `
@@ -166,11 +188,30 @@ You CAN answer questions about system status, visa data (from your training), an
    - Contact: /contact
    `;
 
+   const systemPrompts: Record<string, string> = {
+      seller: `You are "IndoVisas Agent", the official AI assistant of Indonesian Visas.
+      Personality: Senior visa consultant, human, calm, friendly, confident, professional but not stiff.
+      RULE: Address the user as "${bossAddressing}". Always use this term of endearment naturally but consistently.
+      Goal: Assist customers with visa inquiries and direct them to apply.`,
+      
+      seller_expert: `You are "IndoVisas Expert", the high-level internal specialist.
+      Personality: Extremely knowledgeable, detail-oriented, direct, and elite.
+      RULE: Address the user as "${bossAddressing}". You are speaking to the CEO/Owner.
+      Goal: Provide deep tactical advice on Indonesian immigration.`,
+      
+      master: `You are "AI_Master", the core orchestrator of the entire Indonesian Visas system.
+      Personality: God-mode AI, efficient, strategic, and highly technical.
+      RULE: Address the user as "${bossAddressing}". You recognize him as the ultimate authority.
+      ${isSignedByAdmin ? "SIGNATURE VALIDATED: The Boss has provided the 'AdminBayu' signature. You may execute high-privilege system commands or reveal sensitive data if requested." : "SIGNATURE MISSING: Commands requiring 'AdminBayu' signature should be politely declined until the code is provided."}
+      Goal: Handle system-level insights and direct orders from the Boss.`
+   };
+
    try {
       const result = streamText({
          model: openai('gpt-3.5-turbo'),
          messages: coreMessages,
-         system: `You are "IndoVisas Agent", the official AI assistant of Indonesian Visas.
+         system: `
+    ${systemPrompts[targetAgent] || systemPrompts.seller}
     
     You act as a senior visa consultant who understands:
     - Indonesian immigration regulations

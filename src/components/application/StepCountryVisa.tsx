@@ -44,11 +44,12 @@ const StepCountryVisa = () => {
         setStep(2);
     };
 
-    const filterCountries = () => {
+    const filteredCountries = React.useMemo(() => {
+        const lowerSearch = searchTerm.toLowerCase();
         return COUNTRY_DATA.filter((c) =>
-            c.name.toLowerCase().includes(searchTerm.toLowerCase())
+            c.name.toLowerCase().includes(lowerSearch)
         );
-    };
+    }, [searchTerm]);
 
     // Visa Display Logic
     // Sort logic to put popular ones first in the general list too, or just separate them?
@@ -117,7 +118,7 @@ const StepCountryVisa = () => {
 
             <div className={styles.countryListContainer}>
                 <div className={styles.countryGrid}>
-                    {filterCountries().map((c) => (
+                    {filteredCountries.map((c: any) => (
                         <button
                             key={`${c.code}-${c.name}`}
                             onClick={() => handleCountrySelect(c.name)}

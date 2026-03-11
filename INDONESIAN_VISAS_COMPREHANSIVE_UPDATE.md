@@ -1,6 +1,6 @@
 # 🌐 INDONESIAN VISAS COMPREHENSIVE SYSTEM UPDATE & KNOWLEDGE BASE
-**Timestamp:** 2026-03-03 14:40 WIB  
-**Version:** v2.7.0-COMPREHENSIVE  
+**Timestamp:** 2026-03-11 16:00 WIB  
+**Version:** v2.8.0-COMPREHENSIVE  
 **Status:** Production Mode Active  
 
 ---
@@ -72,7 +72,8 @@ The website operates under a **Semi-Autonomous Governance Model** where AI agent
 ### 🤖 3.1 AI MASTER (Digital COO)
 - **Role:** Central Decision Maker.
 - **Capabilities:** 7 Strategic Tools — Can propose changes, approve them, execute them, toggle system modes, and report on risks.
-- **Authentication:** Requires `boss2026` passphrase for ChatWidget access.
+- **Authentication:** Requires `BossBayu2026` passphrase for ChatWidget access.
+- **Validation**: Requires `AdminBayu` signature for high-privilege commands.
 
 ### 🤖 3.2 AI RISK (Compliance & Audit)
 - **Role:** 24/7 Security Sentinel.
@@ -203,10 +204,21 @@ Identified and fixed a bug in the `handle_new_user` SQL trigger where the missin
     *   Audited render-blocking resources and maximized resource hints (`preconnect`/`dns-prefetch`).
     *   Integrated final branding assets: `Favicon.webp`, `og-image.webp`, and `webapp.webp`.
 
-### 10.4 Performance & SEO Gold
-- **Landing Page Speed**: Implementation of `next/dynamic` for heavy components and image optimization with `next/image`.
-- **Production Domain**: Unified all redirects and CTA links to `https://indonesianvisas.com`.
-- **Infrastructure**: Prepared for Cloudflare Pages global CDN distribution.
+### 10.4 Performance & Admin Intelligence (March 11, 2026)
+- **Real-time Order Badges**: Admin Dashboard now features real-time Supabase broadcasts for new visa applications, showing a persistent badge on the "Incoming Orders" tab.
+- **Information Center**: Integrated new order alerts directly into the dashboard's Information Center for immediate awareness.
+- **AI "Boss Mode" 2.0**:
+    - AI now addresses the administrator with probabilistic greetings ("Boss", "My Boss", "Boss Bayu", "Bro").
+    - Implemented `AdminBayu` signature protocol for secure command validation.
+    - Simplified @mention routing for Seller vs Expert modes.
+- **Payment & UX Hardening**:
+    - **Doku Fallback**: Implemented automatic phone number fallback to prevent "phone length" errors in Doku Checkout.
+    - **Step 1 Optimization**: Refined country filtering with `useMemo` to eliminate interaction lag on low-end devices.
+    - **Universal Domain**: Unified all email and system redirects to `https://indonesianvisas.com`.
+
+### 10.5 Infrastructure
+- **Analytics**: Optimized Google Analytics loading via a 5.5s deferred client-side injection to maximize PageSpeed Performance scores.
+- **Deployment**: Configured for Cloudflare Pages with full sitemap, robots, and OpenGraph optimization.
 
 ---
 **END OF COMPREHENSIVE REPORT (Updated March 11)**

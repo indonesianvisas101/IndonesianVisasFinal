@@ -150,45 +150,24 @@ export default function InvoicePage() {
                 return;
             }
 
-            const res = await fetch('/api/payments/midtrans/token', {
+            const res = await fetch('/api/payments/doku/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     invoiceId: invoiceData.id,
                     amount: rawNumber,
                     customerDetails: {
-                        first_name: invoiceData.guestName || invoiceData.user?.name || "Client",
+                        name: invoiceData.guestName || invoiceData.user?.name || "Client",
                         email: invoiceData.guestEmail || invoiceData.user?.email || "info@indonesianvisas.com",
-                    },
-                    items: [{
-                        id: invoiceData.id,
-                        price: rawNumber,
-                        quantity: 1,
-                        name: (invoiceData.visaName || invoiceData.visaId || "Indonesian Visas Service").substring(0, 50)
-                    }]
+                        phone: invoiceData.guestPhone || invoiceData.user?.phone || ""
+                    }
                 })
             });
 
             const data = await res.json();
 
-            if (data.token) {
-                // @ts-ignore
-                window.snap.pay(data.token, {
-                    onSuccess: function (result: any) {
-                        alert("Payment successful! Generating receipt...");
-                        window.location.reload();
-                    },
-                    onPending: function (result: any) {
-                        alert("Payment pending. Please complete your transaction.");
-                        window.location.reload();
-                    },
-                    onError: function (result: any) {
-                        alert("Payment failed! Please try again.");
-                    },
-                    onClose: function () {
-                        console.log('Customer closed the interactive payment popup');
-                    }
-                });
+            if (data.paymentUrl) {
+                window.location.href = data.paymentUrl;
             } else {
                 alert("Checkout initialization failed: " + (data.error || "Unknown Error"));
             }
@@ -202,11 +181,6 @@ export default function InvoicePage() {
 
     return (
         <Box sx={{ bgcolor: '#F4F5FA', minHeight: '100vh', py: 8 }}>
-            <Script
-                src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true' ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'}
-                data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true' ? process.env.NEXT_PUBLIC_MIDTRANS_PROD_CLIENT_KEY : process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
-                strategy="lazyOnload"
-            />
             <Container maxWidth="md">
                 <Paper
                     elevation={0}

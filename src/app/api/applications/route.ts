@@ -252,6 +252,24 @@ export async function POST(request: Request) {
             });
         } catch (invErr) { console.error("Failed to create hardened invoice:", invErr); }
 
+        // --- 4.5 REALTIME BROADCAST TO ADMIN ---
+        try {
+            const supabaseAdmin = createClient(); // Use common client for broadcast
+            // We use the same channel name as the admin dashboard listener
+            await (await supabaseAdmin).channel('admin_dashboard_global').send({
+                type: 'broadcast',
+                event: 'NEW_ORDER',
+                payload: {
+                    id: result.id,
+                    guestName: result.guestName,
+                    guestEmail: result.guestEmail,
+                    visaName: result.visaName,
+                    appliedAt: now,
+                    slug: slug
+                }
+            });
+        } catch (realtimeErr) { console.error("Admin realtime broadcast failed", realtimeErr); }
+
         // --- 5. AUDIT LOG ---
         if (actor) {
             // Assume Admin if accessing this route to create

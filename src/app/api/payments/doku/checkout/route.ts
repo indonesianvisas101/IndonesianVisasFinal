@@ -74,6 +74,9 @@ export async function POST(req: Request) {
                     }
                 ]
             },
+            payment: {
+                payment_due_date: 60 // Required by DOKU Jokul Checkout V1 API
+            },
             customer: {
                 name: finalName,
                 email: finalEmail,

@@ -63,7 +63,8 @@ import {
     Select,
     MenuItem,
     Menu, // Added
-    Tooltip // Added
+    Tooltip, // Added
+    CircularProgress // Added for Admin loading state
 } from "@mui/material";
 
 // ... (Rest of imports)
@@ -135,7 +136,7 @@ type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 
 
 // Main Content Component (Logic moved here)
 function AdminDashboardContent() {
-    const { user, logout } = useAuth();
+    const { user, isLoading: authLoading, logout } = useAuth();
     const router = useRouter();
     const theme = useTheme();
     const colorMode = useColorMode();
@@ -242,6 +243,17 @@ function AdminDashboardContent() {
             // ... (existing logic handled inside)
         }
     }, [editingVisa]);
+
+    // Admin Route Protection
+    useEffect(() => {
+        if (!authLoading) {
+            if (!user) {
+                router.push('/login');
+            } else if (user.role !== 'admin') {
+                router.push('/');
+            }
+        }
+    }, [user, authLoading, router]);
 
     // RESTORED: Fetch Users (Corrected)
     useEffect(() => {
@@ -595,6 +607,14 @@ function AdminDashboardContent() {
             alert("Error deleting document.");
         }
     };
+
+    if (authLoading || !user || user.role !== 'admin') {
+        return (
+            <Box sx={{ display: 'flex', height: '100vh', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     const handleSaveUser = async (e: React.FormEvent) => {
         e.preventDefault();

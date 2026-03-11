@@ -235,3 +235,19 @@ Identified and fixed a bug in the `handle_new_user` SQL trigger where the missin
 
 ---
 **END OF COMPREHENSIVE REPORT (Updated March 11, Post-Evening Refresh)**
+
+### Section 10: Security Hardening & DOKU Payment Fixes (Phase 21)
+**Date:** March 11, 2026
+**Focus:** Admin API Security and Payment Gateway Payload format.
+
+1. **DOKU Jokul Checkout V1 API Fix:**
+   - **Issue:** DOKU Gateway was returning a 500 error during checkout.
+   - **Resolution:** Added the missing required `payment` object containing `payment_due_date` strictly required by the DOKU `checkout/v1/payment` endpoint.
+
+2. **Invoice Update API Patch `PATCH /api/applications`:**
+   - **Issue:** The admin interface failed to patch the status of individual invoices due to missing Auth tokens (Client components vs SSR Cookies).
+   - **Resolution:** Implemented a robust Bearer Token fallback mechanism. The API now elegantly falls back to extracting authorization tokens from headers if standard SSR cookies fail.
+
+3. **Admin Dashboard Security & Route Enforcement:**
+   - **Issue:** Unauthorized users could potentially access the `/admin` route's UI layout.
+   - **Resolution:** Hardened `src/app/[locale]/admin/page.tsx`. Added `isLoading` state handling directly connected to `useAuth` user profiles alongside `useEffect` redirect routing. Only users strictly designated with `user.role === 'admin'` can render the administrative panel. Other users are forcefully redirected.

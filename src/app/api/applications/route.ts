@@ -330,7 +330,30 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
     try {
         const supabase = await createClient();
-        const { data: { user: actor } } = await supabase.auth.getUser();
+        let actor = null;
+
+        // 1. Try cookie-based session first
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            actor = user;
+        } catch { /* ignored */ }
+
+        // 2. Fallback: read Bearer token from Authorization header
+        if (!actor) {
+            const authHeader = request.headers.get('authorization');
+            const token = authHeader?.replace('Bearer ', '').trim();
+            if (token) {
+                try {
+                    const { createClient: createBrowserClient } = await import('@supabase/supabase-js');
+                    const anonClient = createBrowserClient(
+                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                    );
+                    const { data: { user } } = await anonClient.auth.getUser(token);
+                    actor = user;
+                } catch { /* ignored */ }
+            }
+        }
 
         // Simple Admin Check (Optional: enforce role)
         if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

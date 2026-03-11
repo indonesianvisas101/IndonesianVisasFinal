@@ -127,8 +127,8 @@ const StepPayment = () => {
             }).catch(e => console.error("Formspree sync failed", e));
 
             // 2. Trigger Payment Gateway
-            if (selectedMethod === 'Midtrans' && invoiceId) {
-                const tokenRes = await fetch("/api/payments/midtrans/token", {
+            if (selectedMethod === 'DOKU' && invoiceId) {
+                const checkoutRes = await fetch("/api/payments/doku/checkout", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -143,30 +143,15 @@ const StepPayment = () => {
                     })
                 });
 
-                if (!tokenRes.ok) {
-                    const errorDetail = await tokenRes.json();
-                    throw new Error(errorDetail.error || "Failed to fetch Snap token");
+                if (!checkoutRes.ok) {
+                    const errorDetail = await checkoutRes.json();
+                    throw new Error(errorDetail.error || "Failed to fetch DOKU payment URL");
                 }
-                const { token } = await tokenRes.json();
+                const { paymentUrl } = await checkoutRes.json();
 
-                // @ts-ignore
-                window.snap.pay(token, {
-                    onSuccess: () => {
-                        markStepComplete(4);
-                        setIsSuccess(true);
-                    },
-                    onPending: (result: any) => {
-                        console.log("Payment pending:", result);
-                        alert("Your payment is pending. Please complete your payment to submit your documents.");
-                    },
-                    onError: (result: any) => {
-                        console.error("Payment error:", result);
-                        alert("Payment failed. Please try again.");
-                    },
-                    onClose: () => {
-                        alert("Please complete your payment to submit your documents.");
-                    }
-                });
+                // Redirect to DOKU Checkout
+                window.location.href = paymentUrl;
+                
             } else if (selectedMethod === 'PayPal') {
                 handlePayPal();
             } else {
@@ -190,10 +175,7 @@ const StepPayment = () => {
         closePanel();
     };
 
-    const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true';
-    const clientKey = isProduction
-        ? process.env.NEXT_PUBLIC_MIDTRANS_PROD_CLIENT_KEY
-        : process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY;
+    // Environment checks for DOKU removed as they are handled server-side in /api/payments/doku/checkout
 
     if (isSuccess) {
         return (
@@ -216,11 +198,6 @@ const StepPayment = () => {
 
     return (
         <div className={styles.container}>
-            <Script
-                src={isProduction ? "https://app.midtrans.com/snap/snap.js" : "https://app.sandbox.midtrans.com/snap/snap.js"}
-                data-client-key={clientKey}
-                strategy="lazyOnload"
-            />
             <button onClick={() => setStep(3)} className={styles.backBtn}>
                 <ArrowLeft size={16} className="mr-2" /> Back
             </button>
@@ -290,15 +267,15 @@ const StepPayment = () => {
                     </button>
 
                     <button
-                        className={`${styles.methodOption} ${selectedMethod === 'Midtrans' ? styles.selected : ''}`}
-                        onClick={() => handleMethodSelect('Midtrans')}
+                        className={`${styles.methodOption} ${selectedMethod === 'DOKU' ? styles.selected : ''}`}
+                        onClick={() => handleMethodSelect('DOKU')}
                     >
                         <ShoppingCart size={24} className="text-primary" />
                         <div className={styles.methodInfo}>
-                            <p className={styles.methodName}>Order Now (Midtrans)</p>
+                            <p className={styles.methodName}>Order Now (DOKU)</p>
                             <p className={styles.methodDesc}>Secure Local & Intl Payment</p>
                         </div>
-                        {selectedMethod === 'Midtrans' && <CheckCircle size={20} className="text-accent ml-auto" />}
+                        {selectedMethod === 'DOKU' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>
                 </div>
             </div>

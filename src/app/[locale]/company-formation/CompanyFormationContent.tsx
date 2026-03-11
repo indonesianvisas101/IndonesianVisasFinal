@@ -161,13 +161,38 @@ const CompanyFormationContent = ({ dict }: { dict?: any }) => {
                             </Link>
 
                             <button
-                                className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-3 active:scale-95"
-                                onClick={() => {
-                                    alert("Online payment gateway integration coming soon! Please use WhatsApp for now.");
+                                className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                                disabled={loading}
+                                onClick={async () => {
+                                    setLoading(true);
+                                    try {
+                                        const checkoutRes = await fetch("/api/payments/doku/checkout", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({
+                                                invoiceId: `CORP_${selectedService.id}_${Date.now()}`,
+                                                amount: selectedService.price,
+                                                customerDetails: {
+                                                    name: "Corporate Customer",
+                                                    email: "customer@balihelp.id", // Placeholder or from auth
+                                                    phone: ""
+                                                }
+                                            })
+                                        });
+
+                                        if (!checkoutRes.ok) throw new Error("Payment initialization failed");
+                                        const { paymentUrl } = await checkoutRes.json();
+                                        window.location.href = paymentUrl;
+                                    } catch (err) {
+                                        console.error(err);
+                                        alert("Failed to start payment. Please use WhatsApp.");
+                                    } finally {
+                                        setLoading(false);
+                                    }
                                 }}
                             >
                                 <CreditCard size={24} />
-                                Pay Online (Credit Card)
+                                {loading ? "Initializing..." : "Pay Online (Credit Card)"}
                             </button>
 
                             <p className="text-center text-xs font-bold mode-aware-subtext opacity-60 mt-6 uppercase tracking-widest">

@@ -4,9 +4,10 @@ import Hero from "@/components/hero/Hero";
 import LazySection from "@/components/layout/LazySection";
 
 import ApplyExtend from "@/components/sections/ApplyExtend";
-import ServicesPreview from "@/components/sections/ServicesPreview";
-
 const ChatBotWrapper = dynamic(() => import("@/components/chat/ChatBotWrapper"));
+const ServicesPreview = dynamic(() => import("@/components/sections/ServicesPreview"), {
+  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Services...</div>
+});
 
 // Lazy Load Components (Below the fold)
 const HowItWorks = dynamic(() => import("@/components/sections/HowItWorks"), {
@@ -53,7 +54,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       {/* Above the fold (mostly) */}
       <ApplyExtend dict={dict} />
-      <ServicesPreview dict={dict} />
+      <LazySection minHeight="600px" rootMargin="800px">
+        <ServicesPreview dict={dict} />
+      </LazySection>
 
       {/* Below the fold (Lazy Loaded on Scroll) */}
       <LazySection minHeight="500px">

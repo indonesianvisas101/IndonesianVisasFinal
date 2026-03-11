@@ -67,7 +67,11 @@ export default function InvoicingTab() {
         status: "",
         paymentStatus: "",
         paymentReference: "",
-        adminNotes: ""
+        adminNotes: "",
+        guestName: "",
+        guestEmail: "",
+        visaName: "",
+        customAmount: ""
     });
 
     useEffect(() => {
@@ -166,7 +170,7 @@ export default function InvoicingTab() {
             if (res.ok) {
                 setInvoices(invoices.map(inv =>
                     inv.id === editingInvoice.id
-                        ? { ...inv, ...editFormData, status: editFormData.status }
+                        ? { ...inv, ...editFormData, status: editFormData.status, amount: editFormData.customAmount ? parseFloat(editFormData.customAmount) : inv.amount }
                         : inv
                 ));
                 setOpenEditDialog(false);
@@ -182,11 +186,16 @@ export default function InvoicingTab() {
 
     const handleEditClick = (inv: any) => {
         setEditingInvoice(inv);
+        const linkedInvoice = inv.invoice || inv; // Handle raw invoice or nested invoice
         setEditFormData({
             status: inv.status || "Pending",
-            paymentStatus: inv.status === 'Paid' || inv.status === 'Active' ? 'PAID' : 'UNPAID', // Heuristic
-            paymentReference: inv.paymentReference || '',
-            adminNotes: inv.adminNotes || ''
+            paymentStatus: linkedInvoice.status === 'Paid' || linkedInvoice.status === 'Active' || linkedInvoice.status === 'PAID' ? 'PAID' : 'UNPAID', // Heuristic
+            paymentReference: linkedInvoice.paymentReference || '',
+            adminNotes: linkedInvoice.adminNotes || '',
+            guestName: inv.guestName || inv.user?.name || '',
+            guestEmail: inv.guestEmail || inv.user?.email || '',
+            visaName: inv.visaName || inv.visaId || '',
+            customAmount: inv.customAmount || linkedInvoice.amount || ''
         });
         setOpenEditDialog(true);
     };
@@ -530,6 +539,35 @@ export default function InvoicingTab() {
                             <MenuItem value="Expired">Expired</MenuItem>
                             <MenuItem value="Paid">Paid</MenuItem>
                         </TextField>
+
+                        <TextField
+                            label="Customer Name"
+                            fullWidth
+                            value={editFormData.guestName}
+                            onChange={(e) => setEditFormData({ ...editFormData, guestName: e.target.value })}
+                        />
+
+                        <TextField
+                            label="Customer Email"
+                            fullWidth
+                            value={editFormData.guestEmail}
+                            onChange={(e) => setEditFormData({ ...editFormData, guestEmail: e.target.value })}
+                        />
+
+                        <TextField
+                            label="Service / Product Name"
+                            fullWidth
+                            value={editFormData.visaName}
+                            onChange={(e) => setEditFormData({ ...editFormData, visaName: e.target.value })}
+                        />
+
+                        <TextField
+                            label="Invoice Amount (IDR)"
+                            fullWidth
+                            placeholder="e.g. 5000000"
+                            value={editFormData.customAmount}
+                            onChange={(e) => setEditFormData({ ...editFormData, customAmount: e.target.value })}
+                        />
 
                         <TextField
                             select

@@ -359,17 +359,27 @@ export async function PATCH(request: Request) {
         if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const body = await request.json();
-        const { id, status, paymentReference, adminNotes, paymentStatus } = body;
+        const { id, status, paymentReference, adminNotes, paymentStatus, guestName, guestEmail, visaName, customAmount } = body;
 
         if (!id) return NextResponse.json({ error: "ID Required" }, { status: 400 });
 
-        // 1. Update Application Status
-        if (status) {
-            await prisma.$executeRawUnsafe(`UPDATE "visa_applications" SET "status" = $1 WHERE "id" = $2::uuid`, status, id);
+        // 1. Update Application Core Info
+        const appUpdateData: any = {};
+        if (status !== undefined) appUpdateData.status = status;
+        if (guestName !== undefined) appUpdateData.guestName = guestName;
+        if (guestEmail !== undefined) appUpdateData.guestEmail = guestEmail;
+        if (visaName !== undefined) appUpdateData.visaName = visaName;
+        if (customAmount !== undefined) appUpdateData.customAmount = String(customAmount).replace(/[^0-9.-]+/g, '');
+
+        if (Object.keys(appUpdateData).length > 0) {
+            await prisma.visaApplication.update({
+                where: { id: id },
+                data: appUpdateData
+            });
         }
 
         // 2. Update Linked Invoice (if exists)
-        if (paymentStatus !== undefined || paymentReference !== undefined || adminNotes !== undefined) {
+        if (paymentStatus !== undefined || paymentReference !== undefined || adminNotes !== undefined || customAmount !== undefined) {
             // Find invoice
             const invoice = await prisma.invoice.findFirst({ where: { applicationId: id } });
             if (invoice) {
@@ -377,6 +387,7 @@ export async function PATCH(request: Request) {
                 if (paymentStatus !== undefined) dataToUpdate.status = paymentStatus; // UNPAID, PAID, REFUNDED
                 if (paymentReference !== undefined) dataToUpdate.paymentReference = paymentReference;
                 if (adminNotes !== undefined) dataToUpdate.adminNotes = adminNotes;
+                if (customAmount !== undefined) dataToUpdate.amount = parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) || 0;
 
                 await prisma.invoice.update({
                     where: { id: invoice.id },
@@ -391,7 +402,7 @@ export async function PATCH(request: Request) {
             "UPDATE_APPLICATION",
             "Application",
             id,
-            { status, paymentStatus, paymentReference, adminNotes }
+            { ...appUpdateData, paymentStatus, paymentReference, adminNotes }
         );
 
         return NextResponse.json({ success: true });
@@ -412,7 +423,7 @@ export async function DELETE(request: Request) {
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
         if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        await prisma.$queryRawUnsafe(`DELETE FROM "visa_applications" WHERE "id" = $1::uuid`, id);
+        await prisma.$queryRawUnsafe(`DELETE FROM "visa_applications" WHERE "id" = $1`, id);
 
         // Also delete hardened invoice if calls cascade doesn't work (Prisma relation usually handles it if formatted right, but Raw SQL might not)
         await prisma.invoice.deleteMany({ where: { applicationId: id } });

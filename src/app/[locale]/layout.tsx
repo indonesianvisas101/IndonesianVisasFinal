@@ -9,6 +9,9 @@ import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
 import { getMessages } from "@/i18n/getMessages";
 import { locales } from "@/i18n/locales";
+import { GlobalUIProvider } from "@/hooks/useGlobalUI";
+import GlobalUIOverlay from "@/components/ui/GlobalUIOverlay";
+import { Suspense } from "react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -135,19 +138,24 @@ export default async function LocaleLayout({
             })
           }}
         />
-        <AuthProvider>
-          <ApplicationProvider>
-            <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[1000] focus:bg-white focus:text-primary focus:p-4 focus:rounded-xl focus:shadow-xl focus:font-bold border-2 border-primary">
-              Skip to content
-            </a>
-            <Header dict={dict} locale={currentLocale} />
-            <main id="main-content" className="flex-grow min-h-screen">
-              {children}
-            </main>
-            <Footer dict={dict} locale={currentLocale} />
-            <ClientLayout />
-          </ApplicationProvider>
-        </AuthProvider>
+        <GlobalUIProvider>
+          <Suspense fallback={null}>
+            <GlobalUIOverlay />
+          </Suspense>
+          <AuthProvider>
+            <ApplicationProvider>
+              <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[1000] focus:bg-white focus:text-primary focus:p-4 focus:rounded-xl focus:shadow-xl focus:font-bold border-2 border-primary">
+                Skip to content
+              </a>
+              <Header dict={dict} locale={currentLocale} />
+              <main id="main-content" className="flex-grow min-h-screen">
+                {children}
+              </main>
+              <Footer dict={dict} locale={currentLocale} />
+              <ClientLayout />
+            </ApplicationProvider>
+          </AuthProvider>
+        </GlobalUIProvider>
       </body>
     </html>
   );

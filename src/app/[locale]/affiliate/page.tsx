@@ -298,7 +298,7 @@ export default async function AffiliatePage({ params }: { params: Promise<{ loca
                     </div>
 
                     <div className="bg-white dark:bg-slate-800 p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-700 dark:shadow-[0_0_40px_rgba(37,99,235,0.05)]">
-                        <form action="https://formspree.io/f/xbdlnjka" method="POST" className="space-y-6">
+                        <form action={`https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_CONTACT_ID || 'xbdlnjka'}`} method="POST" className="space-y-6">
                             {/* Hidden field for context */}
                             <input type="hidden" name="subject" value="New Affiliate Application Request" />
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
+import { sendPaymentSuccessEmail } from '@/lib/email';
 
 /**
  * DOKU (Jokul) Webhook Notification Implementation
@@ -94,7 +95,7 @@ export async function POST(req: Request) {
 
                     // Trigger Formspree Notification
                     try {
-                        await fetch("https://formspree.io/f/mqeawejv", {
+                        await fetch(`https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_ORDER_ID || 'mqeawejv'}`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -109,6 +110,19 @@ export async function POST(req: Request) {
                         });
                     } catch (e) {
                         console.error("Webhook notification failed", e);
+                    }
+                    // Trigger Customer Email
+                    try {
+                        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+                        const invoiceUrl = `${appUrl}/invoice/${visaApp.slug || visaApp.id}`;
+                        
+                        await sendPaymentSuccessEmail(visaApp.guestEmail!, {
+                            applicantName: visaApp.guestName || 'Applicant',
+                            invoiceId: invoice.id,
+                            invoiceUrl: invoiceUrl
+                        });
+                    } catch (e) {
+                        console.error("Payment success email failed", e);
                     }
                 }
             }

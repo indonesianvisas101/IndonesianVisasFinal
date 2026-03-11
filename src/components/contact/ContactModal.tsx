@@ -25,7 +25,7 @@ const ContactModal = ({ isOpen, onClose }: ContactModalProps) => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch("https://formspree.io/f/xbdlnjka", {
+            const response = await fetch(`https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_CONTACT_ID || 'xbdlnjka'}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

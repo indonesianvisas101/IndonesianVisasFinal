@@ -15,7 +15,7 @@ const ServiceContactForm = () => {
                 </p>
             </div>
 
-            <form action="https://formspree.io/f/xbdlnjka" method="POST" className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <form action={`https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_CONTACT_ID || 'xbdlnjka'}`} method="POST" className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="flex flex-col gap-2">
                     <label className="font-bold text-sm text-gray-700 dark:text-gray-300 ml-1">Your Name</label>
                     <input

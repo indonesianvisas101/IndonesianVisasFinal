@@ -31,7 +31,7 @@ export default function ExtendPage() {
                     <h2 className="text-3xl font-bold mb-4 text-center text-slate-900 dark:text-white">Start Your Extension</h2>
                     <p className="text-center mb-10 text-slate-600 dark:text-slate-400">Please fill out the form below. Our team will pick up your passport or guide you through the process.</p>
 
-                    <form action="https://formspree.io/f/xbdlnjka" method="POST" className="flex flex-col gap-6">
+                    <form action={`https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_CONTACT_ID || 'xbdlnjka'}`} method="POST" className="flex flex-col gap-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
                                 <label className="font-bold text-sm text-slate-700 dark:text-slate-300">Full Name</label>

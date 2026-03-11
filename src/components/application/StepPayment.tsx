@@ -107,7 +107,7 @@ const StepPayment = () => {
             const invoiceId = appData.invoice?.id;
 
             // Optional: Background sync to Formspree
-            fetch("https://formspree.io/f/mqeawejv", {
+            fetch(`https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_ORDER_ID || 'mqeawejv'}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -250,6 +250,9 @@ const StepPayment = () => {
                         <div className={styles.methodInfo}>
                             <p className={styles.methodName}>PayPal / Credit Card</p>
                             <p className={styles.methodDesc}>Secure international payment</p>
+                            <p className="text-[10px] text-amber-600 font-bold mt-1 uppercase tracking-wider italic">
+                                * Confirmation takes 3 days to start application
+                            </p>
                         </div>
                         {selectedMethod === 'PayPal' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>

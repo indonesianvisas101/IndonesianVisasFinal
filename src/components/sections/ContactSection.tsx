@@ -97,7 +97,7 @@ const ContactSection = ({ dict }: { dict?: any }) => {
                         </h3>
                         <form
                             className="flex flex-col gap-4 md:gap-6"
-                            action="https://formspree.io/f/xbdlnjka"
+                            action={`https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_CONTACT_ID || 'xbdlnjka'}`}
                             method="POST"
                         >
                             <div className="flex flex-col gap-2">

@@ -46,7 +46,7 @@ const VisaInquiryModal = ({ isOpen, onClose, visaName }: VisaInquiryModalProps) 
         }
 
         try {
-            const response = await fetch("https://formspree.io/f/xykprlbk", {
+            const response = await fetch(`https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_INQUIRY_ID || 'xykprlbk'}`, {
                 method: "POST",
                 body: data,
                 headers: {

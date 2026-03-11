@@ -101,6 +101,7 @@ import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { Campaign as CampaignIcon } from "@mui/icons-material";
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import BusinessIcon from "@mui/icons-material/Business";
+import ShoppingCart from "@mui/icons-material/ShoppingCart";
 import LoginIcon from "@mui/icons-material/Login"; // New
 import LockIcon from "@mui/icons-material/Lock"; // New
 import DownloadIcon from '@mui/icons-material/Download'; // New
@@ -116,6 +117,7 @@ import ArrivalCardsTab from "@/components/admin/sections/ArrivalCardsTab"; // NE
 import AIMasterTab from "@/components/admin/sections/AIMasterTab"; // NEW
 import HistoryIcon from '@mui/icons-material/History'; // New import
 import PsychologyIcon from "@mui/icons-material/Psychology"; // Added
+import OrderPanel from "@/components/admin/sections/OrderPanel";
 import { sendAdminAlert } from "@/app/actions/sendAdminAlert"; // Smart Alert System
 
 // Constants & Types
@@ -129,7 +131,7 @@ const INITIAL_STATS = [
     { key: 'revenue', title: "Revenue", value: "$0", change: "0%", isPositive: true, icon: <AttachMoneyIcon />, color: "info.main", bg: "info.light" },
 ];
 
-type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master';
+type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master' | 'orders';
 
 // Main Content Component (Logic moved here)
 function AdminDashboardContent() {
@@ -1030,6 +1032,7 @@ function AdminDashboardContent() {
                     { key: 'invoicing', label: 'Invoicing', icon: <ReceiptIcon /> },
                     { key: 'logs', label: 'Audit Logs', icon: <HistoryIcon /> },
                     { key: 'ai_master', label: 'AI Master', icon: <PsychologyIcon /> },
+                    { key: 'orders', label: 'Incoming Orders', icon: <ShoppingCart sx={{ fontSize: 20 }} /> },
                     { key: 'support', label: 'Support Chat', icon: <MessageIcon />, badge: allNotifications.filter(n => !n.isRead).length },
                 ].map((item) => (
                     <ListItem key={item.key} disablePadding sx={{ mb: 1 }}>
@@ -1411,6 +1414,13 @@ function AdminDashboardContent() {
                     {activeTab === 'verification' && (
                         <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
                             <VerificationTab />
+                        </Box>
+                    )}
+
+                    {/* --- INCOMING ORDERS TAB --- */}
+                    {activeTab === 'orders' && (
+                        <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
+                            <OrderPanel />
                         </Box>
                     )}
 

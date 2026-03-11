@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { logAdminAction } from '@/lib/auditLogger';
 import { createClient } from '@/utils/supabase/server'; // Use server client
+import { sendConfirmationEmail, sendAdminOrderNotification } from '@/lib/email';
 
 // GET /api/applications?userId=... OR ?id=... OR ?slug=... OR (no params for all)
 export async function GET(request: Request) {
@@ -257,6 +258,36 @@ export async function POST(request: Request) {
             // If checking role is hard, we log anyway
             await logAdminAction(actor.id, "CREATE_APPLICATION", "Application", id, { slug, status, userId: finalUserId });
         }
+
+        // --- 6. SEND CONFIRMATION EMAIL ---
+        if (guestEmail || finalUserId) {
+            const recipientEmail = guestEmail || (await prisma.user.findUnique({ where: { id: finalUserId } }))?.email;
+            if (recipientEmail) {
+                const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+                const invoiceUrl = `${appUrl}/invoice/${slug}`;
+                
+                await sendConfirmationEmail(recipientEmail, {
+                    applicantName: guestName || (await prisma.user.findUnique({ where: { id: finalUserId! } }))?.name || 'Applicant',
+                    visaType: visaName || visaId,
+                    invoiceUrl: invoiceUrl,
+                    isPayPal: paymentMethod?.toLowerCase().includes('paypal')
+                });
+            }
+        }
+
+        // --- 7. SEND ADMIN NOTIFICATION ---
+        try {
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+            await sendAdminOrderNotification({
+                orderType: "Visa Application / Invoice",
+                applicantName: guestName || "System User",
+                applicantEmail: guestEmail || "-",
+                visaType: visaName || visaId,
+                amount: customAmount ? `${customAmount}` : "Standard Rate",
+                invoiceUrl: `${appUrl}/invoice/${slug}`,
+                details: body.adminNotes || "No additional notes."
+            });
+        } catch (e) { console.error("Admin notification failed", e); }
 
         return NextResponse.json({
             application: result,

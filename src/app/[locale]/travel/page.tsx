@@ -50,8 +50,8 @@ const TRAVELER_RANKING = [
     { country: "Global Visitors", growth: "+25%", icon: "🌍" },
 ];
 
-export default function TravelPage({ params }: { params: { locale: string } }) {
-    const locale = params.locale || "en";
+export default function TravelPage({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = React.use(params);
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#030712] transition-colors duration-300">
@@ -113,8 +113,8 @@ export default function TravelPage({ params }: { params: { locale: string } }) {
                         </div>
                         <div className="relative h-[600px] rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)]">
                             <Image
-                                src="/images/IndonesianVisas/bali.webp"
-                                alt="Ubud Rice Terraces"
+                                src="/images/IndonesianVisas/indonesia.webp"
+                                alt="Wonderful Indonesia Landscape"
                                 fill
                                 className="object-cover"
                             />

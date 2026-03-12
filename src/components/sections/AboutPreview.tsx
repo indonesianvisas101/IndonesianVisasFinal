@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import styles from "./AboutPreview.module.css";
+import PhotoCollage from "./PhotoCollage";
 
 const AboutPreview = ({ dict }: { dict?: any }) => {
     const t = dict?.about_preview || {};
@@ -11,19 +11,12 @@ const AboutPreview = ({ dict }: { dict?: any }) => {
     return (
         <section className={styles.section}>
             <div className="container">
-                {/* Unified Card Design - Full Background Image */}
+                {/* Unified Card Design - Full Background Image / Slider */}
                 <div className={`relative rounded-[2.5rem] overflow-hidden shadow-2xl h-[500px] group`}>
 
-                    {/* Background: Stable High Quality Image with Zoom Effect */}
-                    <div className="absolute inset-0 transition-transform duration-[800ms] ease-out group-hover:scale-105">
-                        <Image
-                            src="/images/bali.webp"
-                            alt="Indonesian Visas Brand Background"
-                            fill
-                            className="object-cover"
-                            priority
-                            sizes="(max-width: 768px) 100vw, 1200px"
-                        />
+                    {/* Background: Sliding Gallery */}
+                    <div className="absolute inset-0">
+                        <PhotoCollage />
                     </div>
 
                     {/* Overlay Gradient */}

@@ -36,6 +36,7 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                         <Link href={`/${locale}/extend`} className={styles.footerLink}>{t.visa_extension || "Visa Extension"}</Link>
                         <Link href={`/${locale}/pricing`} className={styles.footerLink}>{t.pricing || "Pricing"}</Link>
                         <Link href={`/${locale || 'en'}/company-formation`} className={styles.footerLink}>{t.company_reg || "Company Registration"}</Link>
+                        <Link href={`/${locale}/travel`} className={styles.footerLink}>{t.travel || "Travel"}</Link>
                     </div>
 
                     {/* COLUMN 3: SUPPORT */}
@@ -43,6 +44,7 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                         <h4 className={styles.columnTitle}>{t.support_title || "Support"}</h4>
                         <Link href={`/${locale}/verification-explained`} className={styles.footerLink}>{t.verification || "Verification System"}</Link>
                         <Link href={`/${locale}/faq`} className={styles.footerLink}>{t.faq_help || "FAQ & Help"}</Link>
+                        <Link href={`/${locale}/sitemap`} className={styles.footerLink}>{t.sitemap || "Site Map"}</Link>
                         <Link href="https://wa.me/6285727041992" target="_blank" className={styles.footerLink}>{t.whatsapp_contact || "Contact via WhatsApp"}</Link>
                         <Link href={`mailto:${COMPANY_EMAILS.public.contact}`} className={styles.footerLink}>{t.email_support || "Email Support"}</Link>
                     </div>

@@ -134,6 +134,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             return;
         }
 
+        setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const token = session?.access_token;
@@ -144,10 +145,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                 userId: verificationMode === 'linked' ? selectedUserId : null
             };
 
-            const method = isEditing ? 'PUT' : 'POST';
-
+            // API uses POST for both create and update — update is determined by presence of `id` in body
             const res = await fetch('/api/verification', {
-                method,
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`

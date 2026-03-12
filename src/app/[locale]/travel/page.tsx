@@ -63,6 +63,7 @@ export default function TravelPage({ params }: { params: Promise<{ locale: strin
                     fill
                     className="object-cover"
                     priority
+                    unoptimized={true}
                 />
                 <div className="absolute inset-0 bg-black/40" />
                 <div className="container relative z-10 mx-auto px-4 text-center">
@@ -117,6 +118,7 @@ export default function TravelPage({ params }: { params: Promise<{ locale: strin
                                 alt="Wonderful Indonesia Landscape"
                                 fill
                                 className="object-cover"
+                                unoptimized={true}
                             />
                         </div>
                     </div>

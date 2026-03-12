@@ -12,7 +12,7 @@ import SectionWrapper from "@/components/layout/SectionWrapper";
 import {
     User, MapPin, Shield, Activity, Phone, MessageCircle, AlertTriangle,
     Link as LinkIcon, Edit2, LogOut, FileText, ArrowRight, Plus,
-    Bell, Send, Building, Clock, Camera, Lock, Globe
+    Bell, Send, Building, Clock, Camera, Lock, Globe, CheckCircle2
 } from "lucide-react";
 import { VisaType } from "@/constants/visas";
 import { useApplication } from "@/components/application/ApplicationContext";
@@ -919,10 +919,10 @@ const UserDashboard = () => {
                         {/* Emergency Center (Updated) */}
                         <div className="glass-card p-8 rounded-[2rem] border-l-4 border-red-500">
                             <h3 className="text-xl font-bold text-red-500 flex items-center gap-2 mb-2">
-                                <AlertTriangle size={24} /> Emergency Center
+                                <AlertTriangle size={24} /> Emergency Action Hub
                             </h3>
                             <p className="text-inherit opacity-70 mb-6 text-sm">
-                                Locate services instantly based on your device location or registered address.
+                                Instant routing to local Bali emergency services via GPS or your registered address.
                             </p>
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -964,7 +964,9 @@ const UserDashboard = () => {
                         {/* Quick Support & Documents Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="glass-card p-6 rounded-[2rem]">
-                                <h3 className="font-bold mb-4 text-inherit">Quick Support</h3>
+                                <h3 className="font-bold mb-4 text-inherit flex items-center gap-2">
+                                    <Clock size={18} className="text-primary" /> 24/7 Priority Support
+                                </h3>
                                 <div className="space-y-3">
                                     <a href="https://wa.me/6285727041992" target="_blank" className="flex items-center gap-3 p-3 bg-green-50 hover:bg-green-100 rounded-xl transition-colors">
                                         <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white">
@@ -1008,6 +1010,41 @@ const UserDashboard = () => {
                                             </button>
                                         </div>
                                     )) : <p className="text-xs text-gray-400">No documents found.</p>}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* NEW: Security & AI Safeguard */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Digital Vault */}
+                            <div className="glass-card p-8 rounded-[2rem] bg-slate-900 text-white relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-8 opacity-10">
+                                    <Lock size={120} />
+                                </div>
+                                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                                    <Shield size={24} className="text-green-400" /> Digital Vault
+                                </h3>
+                                <p className="text-sm text-gray-400 leading-relaxed mb-4">
+                                    Your personal data and documents are protected by **256-bit bank-grade encryption**. We use industry-leading security protocols to ensure your information stays private and safe.
+                                </p>
+                                <div className="flex items-center gap-2 text-xs font-bold text-green-400 uppercase tracking-widest">
+                                    <CheckCircle2 size={14} /> Encrypted & Secure
+                                </div>
+                            </div>
+
+                            {/* AI System Safeguard */}
+                            <div className="glass-card p-8 rounded-[2rem] bg-gradient-to-br from-indigo-500 to-purple-600 text-white relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-8 opacity-10">
+                                    <Globe size={120} />
+                                </div>
+                                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                                    <Activity size={24} className="text-white" /> AI System Safeguard
+                                </h3>
+                                <p className="text-sm text-indigo-100 leading-relaxed mb-4">
+                                    Our integrated AI engine monitors your stay duration in real-time. It automatically alerts our legal team if an overstay risk is detected, ensuring a hussle-free experience.
+                                </p>
+                                <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-widest">
+                                    <Bell size={14} /> Integrated Protection
                                 </div>
                             </div>
                         </div>

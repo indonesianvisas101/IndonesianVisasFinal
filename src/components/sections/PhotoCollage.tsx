@@ -63,6 +63,7 @@ const PhotoCollage = ({ className = "" }: PhotoCollageProps) => {
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 1200px"
                         priority={currentIndex === 0}
+                        unoptimized={true}
                     />
 
 

@@ -95,6 +95,72 @@ export default async function VerificationExplainedPage({ params }: { params: Pr
                                 </li>
                             ))}
                         </ul>
+                    </section>
+
+                    <div className="h-px bg-slate-200 dark:bg-white/10 w-full" />
+
+                    {/* NEW SECTIONS: LEGAL & ECOSYSTEM */}
+                    <section className="space-y-16">
+                        {/* 1. Legal Sponsor Framework */}
+                        <div className="space-y-6">
+                            <h3 className="text-2xl font-black mode-aware-text uppercase tracking-tight italic">1. Legal Sponsor Framework</h3>
+                            <p className="mode-aware-subtext leading-relaxed font-medium">
+                                Every verification record is backed by **PT Indonesian Visas Agency™** as your corporate sponsor. In the Indonesian legal framework, having a registered, reputable company as your guarantor is the most critical element for a hassle-free stay. This system provides instant proof of sponsorship that is recognized across Bali and Greater Indonesia.
+                            </p>
+                        </div>
+
+                        {/* 2. Barcode Ecosystem */}
+                        <div className="space-y-6">
+                            <h3 className="text-2xl font-black mode-aware-text uppercase tracking-tight italic">2. Unified Barcode Ecosystem</h3>
+                            <p className="mode-aware-subtext leading-relaxed font-medium">
+                                Our unique barcode system isn't just a link; it's a dynamic gateway. When scanned by authorized partners or officials, it pulls real-time data from our secure servers, confirming that your visa is currently active and your documents have been double-checked by our legal team before submission.
+                            </p>
+                        </div>
+
+                        {/* 3. Foreign Traveler Safeguard */}
+                        <div className="space-y-6">
+                            <h3 className="text-2xl font-black mode-aware-text uppercase tracking-tight italic">3. Foreign Traveler Safeguard</h3>
+                            <p className="mode-aware-subtext leading-relaxed font-medium">
+                                We've designed this specifically to protect foreign travelers during random document checks or interactions with local authorities. By showing your verified profile, you provide a clear, professional trail of compliance that reduces friction and provides peace of mind.
+                            </p>
+                        </div>
+
+                        {/* 4. Authority-Ready Format */}
+                        <div className="space-y-6">
+                            <h3 className="text-2xl font-black mode-aware-text uppercase tracking-tight italic">4. Authority-Ready Format</h3>
+                            <p className="mode-aware-subtext leading-relaxed font-medium">
+                                The data presentation on the verification page follows the exact structure expected by Indonesian Immigration (Imigrasi). It highlights key fields like Passport number, Visa type, and Expiry dates in a high-contrast, easy-to-read format for quick processing by officials.
+                            </p>
+                        </div>
+
+                        {/* 5. Proven Success Stories */}
+                        <div className="space-y-6 p-10 bg-primary/5 rounded-[3rem] border border-primary/10">
+                            <h3 className="text-2xl font-black text-primary uppercase tracking-tight italic">5. Proved Practical Help</h3>
+                            <p className="mode-aware-subtext leading-relaxed font-bold">
+                                This system has already helped thousands of travelers navigate Bali safely. From smooth hotel check-ins to clarifying stay status with local banjars (neighborhood councils), our digital verification is a proven tool for the modern digital nomad and tourist.
+                            </p>
+                        </div>
+
+                        {/* 6. The Digital Vault */}
+                        <div className="space-y-6">
+                            <h3 className="text-2xl font-black mode-aware-text uppercase tracking-tight italic">6. Secure Digital Vault</h3>
+                            <p className="mode-aware-subtext leading-relaxed font-medium">
+                                Your data is protected by bank-grade encryption within our secure cloud environment. Only authorized scans of your unique QR code can access the verified profile, ensuring your private information remains safe while being readily available for legal verification.
+                            </p>
+                        </div>
+
+                        {/* 7. Dynamic Lifecycle Status */}
+                        <div className="space-y-6">
+                            <h3 className="text-2xl font-black mode-aware-text uppercase tracking-tight italic">7. Dynamic Lifecycle Status</h3>
+                            <p className="mode-aware-subtext leading-relaxed font-medium">
+                                Unlike paper documents, our system updates in real-time. If your visa is being extended, the status reflects the 'Process' phase. Once finished, it automatically switches to 'Active'. This dynamic link ensures that you always have the most current legal standing displayed to anyone who needs to verify it.
+                            </p>
+                        </div>
+                    </section>
+
+                    <div className="h-px bg-slate-200 dark:bg-white/10 w-full" />
+
+                    <section className="space-y-8">
                         <div className="p-6 bg-slate-100 dark:bg-white/5 rounded-2xl border border-dashed border-slate-300 dark:border-white/20">
                             <p className="text-sm font-bold mode-aware-subtext italic opacity-60 text-center uppercase tracking-widest">
                                 {t.privacy_note}

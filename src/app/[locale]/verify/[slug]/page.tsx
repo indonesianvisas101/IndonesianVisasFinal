@@ -79,7 +79,6 @@ export default function VerificationPage() {
                 bgcolor: '#f5f5f5',
                 py: { xs: 12, md: 16 }, // Increased padding for header clearance
                 px: 2,
-                backgroundImage: 'url(/grid-bg.png)', // Optional subtle background
             }}
         >
             <Container maxWidth="sm">

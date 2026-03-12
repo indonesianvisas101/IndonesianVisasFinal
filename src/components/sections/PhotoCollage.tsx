@@ -9,7 +9,7 @@ const IMAGES = [
     "/images/IndonesianVisas/Lombok.webp",
     "/images/IndonesianVisas/indonesia.webp",
     "/images/IndonesianVisas/java.webp",
-    "/images/bali.webp",  // Using the smaller 443KB version instead of 1.7MB
+    "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2638&auto=format&fit=crop",  // Optimized Bali Image
 ];
 
 

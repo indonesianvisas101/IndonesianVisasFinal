@@ -31,6 +31,9 @@ const ContactSection = dynamic(() => import("@/components/sections/ContactSectio
 const GoogleReviews = dynamic(() => import("@/components/sections/GoogleReviews"), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Reviews...</div>
 });
+const SafetyGuard = dynamic(() => import("@/components/sections/SafetyGuard"), {
+  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Protection...</div>
+});
 
 import { Metadata } from 'next';
 
@@ -77,6 +80,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       <LazySection minHeight="400px">
         <FAQPreview dict={dict} />
+      </LazySection>
+
+      <LazySection minHeight="500px">
+        <SafetyGuard dict={dict} />
       </LazySection>
 
       <LazySection minHeight="500px">

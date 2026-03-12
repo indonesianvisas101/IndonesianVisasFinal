@@ -26,6 +26,7 @@ import {
     Building2
 } from "lucide-react";
 import VisaCatalog from "@/components/visa/VisaCatalog";
+import TravelClient from "./TravelClient";
 
 const TRAVELER_RANKING = [
     { country: "Australia", growth: "+12%", icon: "🇦🇺" },
@@ -150,31 +151,8 @@ export default function TravelPage({ params }: { params: Promise<{ locale: strin
                 </div>
             </section>
 
-            {/* 8-15. TRAVEL DEPTH SECTIONS (Destinations / Tips / Facts) */}
-            <section className="py-32 bg-slate-50 dark:bg-slate-900/20">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
-                            {[
-                                { title: "Spiritual Bali", icon: Heart, desc: "The Island of Gods offers unmatched spiritual and wellness experiences." },
-                                { title: "Business Jakarta", icon: Building2, desc: "The heart of Southeast Asia's economy and business growth." },
-                                { title: "Wild Komodo", icon: Wind, desc: "A prehistoric adventure in the heart of the Flores archipelago." },
-                                { title: "Raja Ampat", icon: Waves, desc: "The world's richest marine biodiversity and diving paradise." },
-                                { title: "Mt. Bromo", icon: Mountain, desc: "Witness the most breathtaking sunrise in the volcanic highlands." },
-                                { title: "Ancient Java", icon: Smartphone, desc: "Connected history meet modern-day digital nomadic lifestyle." }
-                            ].map((item, i) => (
-                                <div key={i} className="space-y-6 p-10 rounded-[2.5rem] bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-xl transition-all hover:-translate-y-2">
-                                    <div className="w-16 h-16 bg-primary/5 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                        <item.icon size={32} />
-                                    </div>
-                                    <h3 className="text-2xl font-bold mode-aware-text uppercase tracking-tight">{item.title}</h3>
-                                    <p className="mode-aware-subtext leading-relaxed">{item.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
+            {/* Main Interactive Content & 8 Depth Sections */}
+            <TravelClient />
 
             {/* 16-17. INTEGRATED VISA CATALOG - POPULAR PRODUCTS */}
             <section className="py-40 bg-white dark:bg-[#030712] relative overflow-hidden">

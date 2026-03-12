@@ -61,7 +61,28 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
                 { name: "Contact Support", href: `/${locale}/contact` },
                 { name: "Privacy Policy", href: `/${locale}/privacy-policy` },
                 { name: "Terms & Conditions", href: `/${locale}/terms-and-conditions` },
-                { name: "Refund Policy", href: `/${locale}/refund` }
+                { name: "Refund Policy", href: `/${locale}/refund` },
+                { name: "Sitemap", href: `/${locale}/sitemap` }
+            ]
+        },
+        {
+            title: "Identity & Verification",
+            icon: ShieldCheck,
+            links: [
+                { name: "Verification System", href: `/${locale}/verification-explained` },
+                { name: "Arrival Card (BCV)", href: `/${locale}/arrival-card` },
+                { name: "Traveler Reviews", href: `/${locale}/reviews` },
+                { name: "Official Partners", href: `/${locale}/about#ecosystem` }
+            ]
+        },
+        {
+            title: "Account & Secure Hub",
+            icon: Lock,
+            links: [
+                { name: "User Dashboard", href: `/${locale}/dashboard` },
+                { name: "Login & Register", href: `/${locale}/login` },
+                { name: "Forgot Password", href: `/${locale}/forgot-password` },
+                { name: "Update Profile", href: `/${locale}/dashboard` }
             ]
         }
     ];

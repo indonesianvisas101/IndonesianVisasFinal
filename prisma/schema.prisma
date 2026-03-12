@@ -44,7 +44,9 @@ model User {
   conversations    Conversation[]
   invoices         Invoice[]
   payments         Payment[]
-  applications     VisaApplication[]
+  notificationPreferences Json?           @default("{\"email\": true, \"push\": true, \"marketing\": false}")
+  pushSubscriptions       PushSubscription[]
+  applications            VisaApplication[]
 
   @@map("users")
 }
@@ -311,4 +313,15 @@ model ChatConversation {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("chat_conversations")
+}
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String   @db.Uuid
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("push_subscriptions")
 }

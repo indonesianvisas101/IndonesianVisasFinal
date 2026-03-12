@@ -42,6 +42,24 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
+        
+        // --- Handle Push Subscription Registration ---
+        if (body.subscription && body.userId) {
+            const { userId, subscription } = body;
+            await (prisma as any).pushSubscription.upsert({
+                where: { endpoint: subscription.endpoint },
+                create: {
+                    userId,
+                    endpoint: subscription.endpoint,
+                    p256dh: subscription.keys.p256dh,
+                    auth: subscription.keys.auth
+                },
+                update: { userId }
+            });
+            return NextResponse.json({ success: true, message: "Push subscription registered" });
+        }
+
+        // --- Handle Notification Creation ---
         const { userId, title, message, type, actionLink, actionText } = body;
 
         const newNotif = await prisma.notification.create({
@@ -55,9 +73,29 @@ export async function POST(request: Request) {
             }
         });
 
+        // Trigger Push Notification if subscriptions exist
+        if (userId) {
+            const subs = await (prisma as any).pushSubscription.findMany({ where: { userId } });
+            if (subs.length > 0) {
+                const { sendPushNotification } = await import('@/lib/push');
+                for (const sub of subs) {
+                    const result = await sendPushNotification(sub, {
+                        title: title || "New Notification",
+                        body: message || "You have a new update.",
+                        data: { url: actionLink || '/dashboard' }
+                    });
+                    // Cleanup expired subscriptions
+                    if (result?.expired) {
+                        await (prisma as any).pushSubscription.delete({ where: { id: sub.id } });
+                    }
+                }
+            }
+        }
+
         return NextResponse.json(newNotif);
-    } catch (error) {
-        return NextResponse.json({ error: "Failed to create notification" }, { status: 500 });
+    } catch (error: any) {
+        console.error("Notification Error:", error);
+        return NextResponse.json({ error: "Failed to create notification", details: error.message }, { status: 500 });
     }
 }
 

@@ -437,6 +437,11 @@
         "privacy_note": "Note: Sensitive personal contact details and payment history are NOT accessible via the QR code.",
         "disclaimer_title": "LEGAL DISCLAIMER",
         "disclaimer_text": "Indonesian Visas provides administrative assistance and facilitation services. Final immigration approval, entry denial, and stay permits remain the sole authority of the Directorate General of Immigration of Indonesia. The verification system confirms the authenticity of our agency's issuance process, not the government's final decision.",
-        "back_home": "Back to Home"
+        "back_home": "Back to Home",
+        "safety_guard_badge": "Protected Ecosystem",
+        "safety_guard_title": "Safety Guard of IndonesianVisas.com",
+        "safety_guard_desc": "Our verification system is audited and hardened against fraud, providing a multi-layered shield for every traveler under our sponsorship.",
+        "advanced_system_title": "Advanced System Integrity",
+        "advanced_system_desc": "The IndonesianVisas.com verification engine is built on modern microservices architecture, ensuring high availability and instant response times."
     }
 }

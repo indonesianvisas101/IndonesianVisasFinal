@@ -23,6 +23,7 @@ const SupportChat = dynamic(() => import("@/components/dashboard/SupportChat"), 
 
 import { X } from "lucide-react"; // Import X for close button
 import { QRCodeSVG } from 'qrcode.react';
+import NotificationManager from "@/components/dashboard/NotificationManager";
 
 
 interface VisaHistoryItem {
@@ -453,6 +454,7 @@ const UserDashboard = () => {
 
     return (
         <PageWrapper>
+            <NotificationManager userId={user.id} />
             {/* 1. TOP CARD (Redesigned) */}
             <SectionWrapper className="mb-8">
                 <div className="glass-card rounded-[2.5rem] p-8 relative overflow-hidden flex flex-col md:flex-row gap-8 items-center justify-between">
@@ -1022,10 +1024,10 @@ const UserDashboard = () => {
                                     <Lock size={120} />
                                 </div>
                                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                    <Shield size={24} className="text-green-400" /> Digital Vault
+                                    <Shield size={24} className="text-green-400" /> Secure Data Vault
                                 </h3>
                                 <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                                    Your personal data and documents are protected by **256-bit bank-grade encryption**. We use industry-leading security protocols to ensure your information stays private and safe.
+                                    Your data is our priority. All your document scans, application logs, and personal identity data are saved safely inside our **Hussle-Free Integrated System**. We use AES-256 bank-grade encryption to ensure your digital life in Indonesia is protected 24/7.
                                 </p>
                                 <div className="flex items-center gap-2 text-xs font-bold text-green-400 uppercase tracking-widest">
                                     <CheckCircle2 size={14} /> Encrypted & Secure

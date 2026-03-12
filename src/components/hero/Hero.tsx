@@ -1,7 +1,7 @@
 
 import styles from "./Hero.module.css";
 import React from "react";
-import { HeroGlobeWrapper, HeroCTA, HeroSteps } from "./HeroClient";
+import { HeroGlobeWrapper, HeroCTA, HeroSteps, HeroBadge } from "./HeroClient";
 
 // Server Component (No 'use client')
 const Hero = ({ dict }: { dict: any }) => {
@@ -18,6 +18,7 @@ const Hero = ({ dict }: { dict: any }) => {
             <div className="container">
                 <div className={styles.content}>
                     <div className={styles.left}>
+                        <HeroBadge />
                         <h1 className={styles.title}>{hero.title || "INDONESIAN VISAS"}</h1>
                         <h2 className={styles.subtitle}>{hero.subtitle || "Your Gateway to Indonesia"}</h2>
                         <p className={styles.description}>

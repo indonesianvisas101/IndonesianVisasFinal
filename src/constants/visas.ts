@@ -698,10 +698,8 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Multiple-Entry Visitor Visas",
         "name": "D12 Pre-Investment Visit Visa",
         "description": "Indonesian D12 Pre-Investment Visit Visa",
-        "price": {
-            "1 Year": "IDR 3.000.000"
-        },
-        "fee": "2 Years: IDR 5.000.000",
+        "price": { "1 Year": "5.000.000", "2 Years": "7.000.000" },
+        "fee": { "1 Year": 3000000, "2 Years": 4000000 },
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1540,8 +1538,8 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Special Residency Visas",
         "name": "E33G Digital Nomad Visa",
         "description": "Indonesian E33G Digital Nomad Visa",
-        "price": "Offshore 6 Months: IDR 6.500.000",
-        "fee": "Offshore 1 Years: IDR 9.500.000",
+        "price": "IDR 7.000.000",
+        "fee": 2499998,
         "validity": "Single Entry",
         "requirements": [
             "Valid Passport",

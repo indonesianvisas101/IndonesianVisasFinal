@@ -81,24 +81,34 @@ NOTE: If the Boss hasn't used the secret code yet, treat him as a high-level adm
             system: systemPrompts[agentId] || systemPrompts.ai_master,
             maxOutputTokens: 8192,
             tools: {
-                // ─── TOOL 0: Get System Status ──────────────────────────────
                 getSystemStatus: {
-                    description: 'Get real-time status of the Web Ecosystem: Health, Orders, and Customer Complaints.',
+                    description: 'Get real-time status of the Web Ecosystem: Health, Orders (Paid/Unpaid), Invoices, and Complaints.',
                     inputSchema: z.object({}),
                     execute: async () => {
                         try {
-                            const [sysState, ordersToday, recentChats] = await Promise.all([
+                            const [sysState, ordersToday, payments, recentChats, applications] = await Promise.all([
                                 prisma.aISystemState.findUnique({ where: { id: 'singleton' } }),
                                 prisma.visaApplication.count({
                                     where: { 
                                         appliedAt: { gte: new Date(new Date().setHours(0,0,0,0)) } 
                                     }
                                 }),
+                                prisma.payment.findMany({
+                                    where: { createdAt: { gte: new Date(new Date().setHours(0,0,0,0)) } }
+                                }),
                                 prisma.chatConversation.findMany({
                                     take: 20,
                                     orderBy: { updatedAt: 'desc' }
+                                }),
+                                prisma.visaApplication.groupBy({
+                                    by: ['status'],
+                                    _count: true
                                 })
                             ]);
+
+                            const totalRevenueToday = payments
+                                .filter(p => p.status === 'SUCCESS' || p.status === 'PAID')
+                                .reduce((acc, curr) => acc + Number(curr.grossAmount), 0);
 
                             // Scan for complaints in recent chats
                             let complaintsCount = 0;
@@ -116,8 +126,10 @@ NOTE: If the Boss hasn't used the secret code yet, treat him as a high-level adm
                                 health: sysState?.systemHealthStatus || 'Healthy',
                                 mode: sysState?.mode || 'Normal',
                                 ordersToday,
+                                revenueToday: `IDR ${totalRevenueToday.toLocaleString('id-ID')}`,
+                                applicationStatus: applications.map(a => `${a.status}: ${a._count}`),
                                 complaintsDetected: complaintsCount,
-                                summary: `Ecosystem is ${sysState?.systemHealthStatus || 'Healthy'}. Orders Today: ${ordersToday}. Recent Complaints: ${complaintsCount}.`
+                                summary: `Ecosystem is ${sysState?.systemHealthStatus || 'Healthy'}. Orders Today: ${ordersToday}. Revenue: IDR ${totalRevenueToday.toLocaleString()}. Complaints: ${complaintsCount}.`
                             };
                         } catch (e: any) {
                             return { success: false, error: e.message };

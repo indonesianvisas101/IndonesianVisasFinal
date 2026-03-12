@@ -8,37 +8,71 @@ export function formatCurrency(amount: number): string {
     }).format(amount).replace("Rp", "IDR").trim();
 }
 
-export function parseCurrency(priceStr: string): number {
+export function parseCurrency(priceStr: string | any): number {
     if (!priceStr) return 0;
-    // Remove "IDR", "Rp", dots, spaces
-    const cleanStr = priceStr.replace(/[^0-9]/g, '');
+    if (typeof priceStr !== 'string') return Number(priceStr) || 0;
+
+    let target = priceStr.trim();
+
+    // 1. Handle colons (e.g., "1 Year: IDR 7.000.000")
+    if (target.includes(':')) {
+        target = target.split(':').pop() || '';
+    }
+
+    // 2. Handle duration labels without colons (e.g., "1Y IDR 7.000.000")
+    // If there's a space, the price is usually the last word
+    const parts = target.trim().split(/\s+/);
+    if (parts.length > 1) {
+        // Only pop if the last part contains digits (to avoid popping if there's trailing text like "Enquire")
+        if (/[0-9]/.test(parts[parts.length - 1])) {
+            target = parts.pop() || '';
+        }
+    }
+
+    // 3. Remove "IDR", "Rp", dots, spaces
+    const cleanStr = target.replace(/[^0-9]/g, '');
     return parseInt(cleanStr, 10) || 0;
 }
 
 export function calculateVisaTotal(
     price: string | Record<string, string> | any,
-    fee: number | Record<string, number> | any
+    fee: number | string | Record<string, number | string> | any
 ): string | Record<string, string> {
-
     // Case 1: Complex Object Price (e.g., multiple durations)
     if (typeof price === 'object' && price !== null && !Array.isArray(price)) {
         const totalPrices: Record<string, string> = {};
+        const feeMap: Record<string, number> = {};
 
-        // fee might be an object matching the keys of price
-        // or a single number (though the data suggests it matches structure)
+        // Pre-parse fee if it's an object or descriptive string
+        if (typeof fee === 'object' && fee !== null) {
+            Object.entries(fee).forEach(([k, v]) => {
+                feeMap[k] = typeof v === 'number' ? v : parseCurrency(String(v));
+            });
+        } else if (typeof fee === 'string' && fee.includes(':')) {
+            const parts = fee.split(':');
+            feeMap[parts[0].trim()] = parseCurrency(parts[1].trim());
+        } else if (typeof fee === 'number') {
+            // Apply same fee to all price keys if it's a flat number
+            Object.keys(price).forEach(k => { feeMap[k] = fee; });
+        } else if (typeof fee === 'string') {
+            Object.keys(price).forEach(k => { feeMap[k] = parseCurrency(fee); });
+        }
 
         for (const [key, val] of Object.entries(price)) {
             const basePrice = parseCurrency(val as string);
-            let feeAmount = 0;
-
-            if (typeof fee === 'object' && fee !== null && fee[key] !== undefined) {
-                feeAmount = Number(fee[key]);
-            } else if (typeof fee === 'number') {
-                feeAmount = fee;
-            }
-
+            const feeAmount = feeMap[key] || 0;
             totalPrices[key] = formatCurrency(basePrice + feeAmount);
         }
+
+        // Also check if fee has keys NOT in price (descriptive fee list)
+        if (typeof fee === 'object' && fee !== null) {
+            Object.entries(fee).forEach(([k, v]) => {
+                if (!(k in totalPrices)) {
+                    totalPrices[k] = formatCurrency(parseCurrency(String(v)));
+                }
+            });
+        }
+
         return totalPrices;
     }
 
@@ -46,28 +80,37 @@ export function calculateVisaTotal(
     if (typeof price === 'string') {
         const lowerPrice = price.toLowerCase();
 
-        // Check if price or fee is descriptive (contains multiple options separated by colons or non-formatting words)
-        const isDescriptive = price.includes(':') || (typeof fee === 'string' && fee.includes(':'));
+        // Check if price or fee is descriptive (contains multiple options separated by colons)
+        const hasPriceColon = price.includes(':');
+        const hasFeeColon = typeof fee === 'string' && fee.includes(':');
 
-        if (isDescriptive) {
+        if (hasPriceColon || hasFeeColon) {
             const results: Record<string, string> = {};
-
-            // Helper to parse descriptive str to KV
-            const parseDescriptiveStr = (str: string) => {
+            
+            const processStr = (str: string, isFee = false) => {
                 if (str.includes(':')) {
                     const parts = str.split(':');
-                    results[parts[0].trim()] = parts[1].trim();
+                    const key = parts[0].trim();
+                    const val = parseCurrency(parts[1].trim());
+                    const current = parseCurrency(results[key] || "0");
+                    results[key] = formatCurrency(current + val);
                 } else {
-                    results[str] = str;
+                    const val = parseCurrency(str);
+                    // If it's a flat fee and results has keys, add to all
+                    const keys = Object.keys(results);
+                    if (isFee && keys.length > 0) {
+                        keys.forEach(k => {
+                            results[k] = formatCurrency(parseCurrency(results[k]) + val);
+                        });
+                    } else if (!isFee) {
+                        results["Total"] = formatCurrency(val);
+                    }
                 }
             };
 
-            parseDescriptiveStr(price);
-
-            if (typeof fee === 'string' && fee.length > 0 && fee !== "0") {
-                parseDescriptiveStr(fee);
-            } else if (typeof fee === 'number' && fee > 0) {
-                results["Additional Fee"] = formatCurrency(fee);
+            processStr(price);
+            if (fee && fee !== "0") {
+                processStr(String(fee), true);
             }
 
             return results;
@@ -85,6 +128,8 @@ export function calculateVisaTotal(
         let feeAmount = 0;
         if (typeof fee === 'number') {
             feeAmount = fee;
+        } else if (typeof fee === 'string') {
+            feeAmount = parseCurrency(fee);
         }
 
         return formatCurrency(basePrice + feeAmount);

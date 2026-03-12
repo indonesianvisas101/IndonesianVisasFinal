@@ -130,7 +130,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                         </div>
                         <div className="relative h-[600px] rounded-[3rem] overflow-hidden shadow-2xl group">
                             <Image
-                                src="/images/Team.webp"
+                                src="/images/IndonesianVisas/Team.webp"
                                 alt="Indonesian Visas Agency Team"
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-105"

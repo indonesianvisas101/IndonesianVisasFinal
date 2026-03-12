@@ -6,6 +6,7 @@ import { VISA_DETAILS, VisaDetail } from '@/constants/visaDetails';
 import { VISA_DATABASE, VisaType } from '@/constants/visas';
 import VisaActionButtons from '@/components/visa/VisaActionButtons';
 import VisaPricingSelector from '@/components/visa/VisaPricingSelector';
+import { parseCurrency } from '@/lib/utils';
 
 interface PageProps {
     params: Promise<{
@@ -30,14 +31,8 @@ const formatPrice = (value: number | string) => {
 const getPricingOptions = (dbVisa: VisaType) => {
     const options: { title: string; rows: { label: string; value: string; isTotal?: boolean }[] }[] = [];
 
-    // Helper to extract the actual price, ignoring duration numbers like "6 Months:"
-    const parsePrice = (priceStr: string) => {
-        if (!priceStr) return 0;
-        if (priceStr.includes(':')) {
-            priceStr = priceStr.split(':')[1];
-        }
-        return parseInt(priceStr.replace(/[^0-9]/g, ''), 10) || 0;
-    };
+    // Helper to extract the actual price (now using robust centralized utility)
+    const parsePrice = (priceStr: string) => parseCurrency(priceStr);
 
     // Case 1: Simple Price (String)
     if (typeof dbVisa.price === 'string') {

@@ -44,7 +44,8 @@
     "sharp": "^0.33.2",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
-    "topojson-client": "^3.1.0"
+    "topojson-client": "^3.1.0",
+    "web-push": "^3.6.7"
   },
   "browserslist": [
     "defaults"
@@ -56,6 +57,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "autoprefixer": "^10.4.23",
     "dotenv": "^17.3.1",
     "eslint": "^9",

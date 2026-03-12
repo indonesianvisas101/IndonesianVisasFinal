@@ -88,10 +88,20 @@ export async function POST(req: Request) {
                     const visaApp = await prisma.visaApplication.update({
                         where: { id: invoice.applicationId },
                         data: {
-                            status: 'Paid',
+                            status: 'Review by Agent',
                             paymentMethod: 'DOKU'
                         }
                     });
+
+                    // Auto-verify related Verification record on payment success
+                    if (visaApp.verificationId) {
+                        await prisma.verification.update({
+                            where: { id: visaApp.verificationId },
+                            data: {
+                                status: 'VALID'
+                            }
+                        }).catch(e => console.error("Failed to update verification status on webhook", e));
+                    }
 
                     // Trigger Formspree Notification
                     try {

@@ -152,6 +152,7 @@ export default function InvoicingTab() {
 
     const handleUpdate = async () => {
         if (!editingInvoice) return;
+        setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const token = session?.access_token;
@@ -172,12 +173,14 @@ export default function InvoicingTab() {
                 await fetchInvoices(); // Refresh to get populated user/invoice data
                 setOpenEditDialog(false);
                 setEditingInvoice(null);
-                alert("Invoice updated successfully");
+                // notify("Invoice updated successfully", "success", 4000); 
             } else {
                 alert("Failed to update invoice");
             }
         } catch (e) {
             alert("Error updating invoice");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -531,11 +534,14 @@ export default function InvoicingTab() {
                             onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
                         >
                             <MenuItem value="Pending">Pending</MenuItem>
+                            <MenuItem value="Review by Agent">Review by Agent</MenuItem>
+                            <MenuItem value="On Going">On Going</MenuItem>
+                            <MenuItem value="Preparing for submission">Preparing for submission</MenuItem>
+                            <MenuItem value="Submited">Submited</MenuItem>
                             <MenuItem value="Approved">Approved</MenuItem>
                             <MenuItem value="Active">Active (Complete)</MenuItem>
-                            <MenuItem value="Rejected">Rejected</MenuItem>
+                            <MenuItem value="Reject">Reject</MenuItem>
                             <MenuItem value="Expired">Expired</MenuItem>
-                            <MenuItem value="Paid">Paid</MenuItem>
                         </TextField>
 
                         <TextField

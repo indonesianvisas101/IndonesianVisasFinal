@@ -60,7 +60,7 @@ export default function OrderPanel() {
         
         if (filter === "all") return matchesSearch;
         if (filter === "pending") return matchesSearch && order.status === "Pending";
-        if (filter === "paid") return matchesSearch && (order.status === "Paid" || order.status === "Active");
+        if (filter === "paid") return matchesSearch && ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Approved"].includes(order.status);
         return matchesSearch;
     });
 
@@ -156,7 +156,7 @@ export default function OrderPanel() {
                                 </TableCell>
                             </TableRow>
                         ) : filteredOrders.map((order) => {
-                            const isPaid = order.status === 'Paid' || order.status === 'Active';
+                            const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Approved"].includes(order.status);
                             const date = new Date(order.appliedAt || order.created_at).toLocaleDateString();
                             
                             return (

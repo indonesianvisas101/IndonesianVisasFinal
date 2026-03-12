@@ -56,7 +56,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         visaType: "",
         issuedDate: new Date().toISOString().split('T')[0],
         expiresAt: "",
-        slug: ""
+        slug: "",
+        status: "VALID"
     });
 
     // Selected Item for QR or Edit
@@ -158,8 +159,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             if (res.ok) {
                 if (isEditing) {
                     setVerifications(verifications.map(v => v.id === editId ? { ...v, ...data } : v));
-                    // Check if data itself has updated values, or manual merge
-                    fetchVerifications(); // Safer to just refetch updated item
+                    fetchVerifications();
                 } else {
                     setVerifications([data, ...verifications]);
                 }
@@ -170,6 +170,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             }
         } catch (error) {
             alert("Error saving verification");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -226,7 +228,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             visaType: "",
             issuedDate: new Date().toISOString().split('T')[0],
             expiresAt: "",
-            slug: ""
+            slug: "",
+            status: "VALID"
         });
         setSelectedUserId("");
         setVerificationMode('manual');
@@ -241,7 +244,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             visaType: item.visaType || "",
             issuedDate: item.issuedDate ? new Date(item.issuedDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             expiresAt: item.expiresAt ? new Date(item.expiresAt).toISOString().split('T')[0] : "",
-            slug: item.slug || ""
+            slug: item.slug || "",
+            status: item.status || "VALID"
         });
         setEditId(item.id);
         setIsEditing(true);
@@ -492,6 +496,18 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                             onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                             helperText="This will be part of the public URL"
                         />
+
+                        <TextField
+                            select
+                            label="Verification Status"
+                            fullWidth
+                            value={formData.status}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                        >
+                            <MenuItem value="VALID">VERIFIED (VALID)</MenuItem>
+                            <MenuItem value="REVOKED">NOT VERIFIED (REVOKED)</MenuItem>
+                            <MenuItem value="PENDING">PENDING</MenuItem>
+                        </TextField>
                     </Stack>
                 </DialogContent>
                 <DialogActions>

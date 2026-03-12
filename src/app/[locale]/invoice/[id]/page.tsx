@@ -104,7 +104,7 @@ export default function InvoicePage() {
     // --- PAYMENT DATA LOGIC ---
     // If unpaid, show all options or specific instruction.
     // If paid, maybe show payment method used if captured, or just PAID status.
-    const isPaid = invoiceData.status === 'Paid' || invoiceData.status === 'Active';
+    const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Approved"].includes(invoiceData.status);
 
 
     const handleDownloadPDF = async () => {

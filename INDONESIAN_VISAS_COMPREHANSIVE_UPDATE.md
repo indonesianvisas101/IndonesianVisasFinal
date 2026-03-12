@@ -1,6 +1,6 @@
 # 🌐 INDONESIAN VISAS COMPREHENSIVE SYSTEM UPDATE & KNOWLEDGE BASE
-**Timestamp:** 2026-03-11 16:00 WIB  
-**Version:** v2.8.0-COMPREHENSIVE  
+**Timestamp:** 2026-03-12 01:20 WIB  
+**Version:** v2.9.0-COMPREHENSIVE  
 **Status:** Production Mode Active  
 
 ---
@@ -71,9 +71,10 @@ The website operates under a **Semi-Autonomous Governance Model** where AI agent
 
 ### 🤖 3.1 AI MASTER (Digital COO)
 - **Role:** Central Decision Maker.
-- **Capabilities:** 7 Strategic Tools — Can propose changes, approve them, execute them, toggle system modes, and report on risks.
-- **Authentication:** Requires `BossBayu2026` passphrase for ChatWidget access.
-- **Validation**: Requires `AdminBayu` signature for high-privilege commands.
+- **Capabilities:** 8+ Strategic Tools — Can propose changes, approve them, execute them, toggle system modes, and report on risks/status.
+- **Authentication:** Requires `@BossBayu2026` passphrase for ChatWidget/Dashboard "Boss Mode".
+- **Validation**: Requires `AdminBayu2026` confirmation code for all database mutation executions.
+- **Tone**: Professional, respectful "Digital COO" persona.
 
 ### 🤖 3.2 AI RISK (Compliance & Audit)
 - **Role:** 24/7 Security Sentinel.
@@ -143,8 +144,8 @@ AI Worker is strictly prohibited from touching `Payment`, `Invoice`, or `User` t
 ## 📖 7. KNOWLEDGE BASE FOR AI AGENTS
 *If you are an Antigravity Agent reading this, follow these rules:*
 - **Always** prioritize `INDONESIAN_VISAS_AI_SYSTEM_MASTER_DOCUMENT_v1.0.md` for governance.
-- **Check** `.env.local` for the `MASTER_SECRET_PASSPHRASE` (currently `boss2026`).
-- **Use** the `AI Seller Brain` (Tab 6 in Admin) to see what customers are worried about.
+- **Check** `.env.local` for the `BOSS_PASSPHRASE` (`@BossBayu2026`) and `CONFIRM_CODE` (`AdminBayu2026`).
+- **Use** the `getSystemStatus` tool to monitor real-time web health and customer sentiment.
 - **Never** promise visa approval; strictly follow the **Regulation-First** tone.
 - **Ensure** every production build passes `npm run build` before pushing to `main`.
 
@@ -251,3 +252,42 @@ Identified and fixed a bug in the `handle_new_user` SQL trigger where the missin
 3. **Admin Dashboard Security & Route Enforcement:**
    - **Issue:** Unauthorized users could potentially access the `/admin` route's UI layout.
    - **Resolution:** Hardened `src/app/[locale]/admin/page.tsx`. Added `isLoading` state handling directly connected to `useAuth` user profiles alongside `useEffect` redirect routing. Only users strictly designated with `user.role === 'admin'` can render the administrative panel. Other users are forcefully redirected.
+### Section 11: Boss Mode & Ecosystem Intelligence (Phase 23)
+**Date:** March 12, 2026
+**Focus:** AI Master Security & Real-time Monitoring.
+
+1. **Boss Mode Activation:**
+   - AI Master now recognizes `@BossBayu2026` to unlock high-privilege administrative persona.
+   - Persona updated to be highly respectful and mission-aligned ("Eye eye captain!", "Yes Boss Bayu").
+
+2. **2-Step Approval (Hardened):**
+   - Introduced a second layer of security for `executeApprovedChange`.
+   - The AI will refuse to execute any database update unless the user explicitly provides the confirmation code `AdminBayu2026` in the message history.
+
+3. **Ecosystem Status Intelligence:**
+   - Implemented `getSystemStatus` tool.
+   - Capability: Reports real-time system health, count of today's visa orders, and scans customer chat logs for sentiment analysis (identifying complaints or technical hurdles).
+
+4. **Visa Data Synchronization:**
+   - Established the Admin Dashboard as the absolute source of truth.
+   - `VisaDetailPage` now dynamically renders pricing, requirements, and descriptions from the database, overriding static constants.
+
+### Section 12: Verification & Invoice Sync Hardening (Phase 25)
+**Date:** March 12, 2026
+**Focus:** Admin Verification Control & Payment Flow Automation.
+
+1. **Expanded Application Status:**
+   - Invoice Editor now offers 9 lifecycle statuses: `Pending`, `Review by Agent`, `On Going`, `Preparing for submission`, `Submited`, `Approved`, `Active (Complete)`, `Reject`, `Expired`.
+
+2. **Admin Verification Control:**
+   - Added Verification Status dropdown to Edit dialog: `VERIFIED (VALID)`, `NOT VERIFIED (REVOKED)`, `PENDING`.
+   - Directly connected to the barcode/QR verification system.
+
+3. **Automated Post-Payment Sync:**
+   - DOKU webhook now transitions application status to `Review by Agent` on successful payment.
+   - Linked Verification record is auto-set to `VALID`.
+   - Customer receives payment success email with invoice link.
+
+4. **Consistent Status Recognition:**
+   - `OrderPanel`, `InvoiceTab`, and public Invoice page all recognize the new statuses.
+   - Prevents double-charging by hiding "Pay Now" for all paid-equivalent statuses.

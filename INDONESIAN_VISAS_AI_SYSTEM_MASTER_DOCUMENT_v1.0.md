@@ -1,8 +1,8 @@
 # 🧠 INDONESIAN VISAS AI ORGANIZATION
-# MASTER SYSTEM DOCUMENTATION v2.2
+# MASTER SYSTEM DOCUMENTATION v2.3
 
-**Last Updated:** 2026-03-03 14:35 WIB  
-**Status:** Production Active — Phase 1–20 Complete  
+**Last Updated:** 2026-03-12 01:15 WIB  
+**Status:** Production Active — Phase 1–23 Complete  
 **Maintained by:** Bayu Damopolii (Boss / Human Final Authority)
 
 ---
@@ -52,7 +52,9 @@
 - Refuse unsafe commands
 - Execute under Boss Override (logged)
 - **[NEW v2.0]** Interactive Command Center — Real-time AI chat interface for admin
-- **[NEW v2.0]** Direct system command execution from chat (mode switch, memory reset, risk scan)
+- **[NEW v2.3]** **Boss Mode Orchestration** — Enhanced persona recognition for Boss Bayu.
+- **[NEW v2.3]** **Strict 2nd-Level Authorization** — Confirmation code required for all DB write operations.
+- **[NEW v2.3]** **Ecosystem Intelligence** — Real-time scans of orders and customer complaints sentiment.
 
 **Limitations:**
 - Cannot modify DB directly
@@ -259,6 +261,8 @@ Log message: `Executed under explicit Boss Override against compliance recommend
 |---|---|
 | `OPENAI_API_KEY_SELLER` | Customer-facing AI Seller |
 | `OPENAI_API_KEY_INTERNAL` | Internal governance & AI Master chat |
+| `BOSS_PASSPHRASE` | `@BossBayu2026` (Auth trigger) |
+| `CONFIRM_CODE` | `AdminBayu2026` (Execution trigger) |
 | `SNAPSHOT_ENCRYPTION_KEY` | AES-256-GCM snapshot encryption |
 
 All keys stored in `.env.local`. Seller isolated. Internal AI isolated.
@@ -302,6 +306,10 @@ The AI can execute the following within the chat stream:
 
 | Tool | Function |
 |---|---|
+| `getSystemStatus` | **[NEW]** Report Web Health, Orders Today, & Complaints Sentiment |
+| `readVisaDatabase` | Read live visa pricing and requirements |
+| `createChangeRequest` | Propose database mutations |
+| `executeApprovedChange` | **[NEW]** Hard-locked until `AdminBayu2026` is provided |
 | `toggleMode` | Switch system to `normal / emergency / maintenance` |
 | `resetMemory` | Purge `ai_master_memory` table |
 | `triggerRiskScan` | Create a manual `ai_risk_log` entry |
@@ -603,3 +611,41 @@ Added **Tab 6: AI Seller Brain** to the AIMaster dashboard.
 - **Code Splitting:** Lazy loading for all below-the-fold sections using `next/dynamic`.
 - **Accessibility:** ARIA labels added to interactive elements and skip-to-content links refined.
 - **SEO Tuning:** Metadata template implementation for consistent Title/Description tags across dynamic routes.
+
+---
+
+## 27. PHASE 22: VISA ADMIN SYNC & INTERACTIVE PRICING (Mar 11, 2026)
+
+**Status:** 100% Deployed
+**Summary:** Established Admin Dashboard as Single Source of Truth for all visa data.
+
+- **Visa Admin Hardening:** Fixed `PUT /api/visas` error to ensure price overrides are logged correctly.
+- **Dynamic Pricing Selector:** Implemented `VisaPricingSelector` for multi-year visa cards.
+- **Child Page Sync:** Hardened `VisaDetailPage` to strictly follow Admin data (Tax + Fees).
+
+---
+
+## 28. PHASE 23: BOSS MODE & 2-STEP APPROVAL (Mar 12, 2026)
+
+**Status:** 100% Deployed
+**Summary:** Secured AI Master with passphrase-gated execution and real-time status intelligence.
+
+- **Passphrase Recognition:** AI now unlocks personalized "Boss Mode" via `@BossBayu2026`.
+- **2-Step Approval Protocol:** 
+    - Initial instruction results in a `ChangeRequest`.
+    - Final execution strictly requires the code `AdminBayu2026` in the chat history.
+- **System Intelligence Tool:** Added `getSystemStatus` tool for real-time reporting on Web Health, Today's Orders, and Customer Complaints sentiment.
+- **Persona Alignment:** Updated Master AI to use a respectful Digital COO persona ("Eye eye captain!", "Yes Boss Bayu").
+
+---
+
+## 29. PHASE 25: VERIFICATION & INVOICE SYNC HARDENING (Mar 12, 2026)
+
+**Status:** 100% Deployed
+**Summary:** Synchronized the Verification, Invoice, and Payment systems across Admin Dashboard and public-facing pages.
+
+- **Application Status Expansion:** Invoice Editor now supports 9 statuses: `Pending`, `Review by Agent`, `On Going`, `Preparing for submission`, `Submited`, `Approved`, `Active (Complete)`, `Reject`, `Expired`.
+- **Verification Status Selector:** Admin can now manually Verify (`VALID`), Revoke (`REVOKED`), or set `PENDING` directly from the Verification Panel Edit dialog.
+- **Automated Post-Payment Flow:** DOKU webhook now sets application status to `Review by Agent` and auto-activates the Verification barcode (`VALID`) upon successful payment.
+- **Invoice Page Sync:** Public invoice page recognizes all new paid-equivalent statuses to prevent double-charging.
+- **Loading Indicators:** Added loading states to `handleUpdate` and `handleSave` in admin panels.

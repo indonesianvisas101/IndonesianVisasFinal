@@ -10,6 +10,7 @@ Before implementing anything:
 2. Validate Authority Matrix enforced.
 3. Validate Agent role isolation active.
 4. Validate `OPENAI_API_KEY_SELLER` and `OPENAI_API_KEY_INTERNAL` are separated.
+5. Validate `BOSS_PASSPHRASE` (`@BossBayu2026`) and `CONFIRM_CODE` (`AdminBayu2026`) are configured.
 
 If any missing:
 → Halt.
@@ -159,6 +160,7 @@ Mandatory:
 - Snapshot encryption at rest
 - Database write protection for log tables
 - Separate service account for Worker execution
+- **Hard Confirmation Gate**: AI must verify the string `AdminBayu2026` exists in message history before executing any tool with side-effects on primary tables.
 
 If any endpoint bypasses approval:
 → Block request
@@ -268,19 +270,35 @@ When system is injected with `STRATEGIC_ANALYSIS_MODE`:
 - No Auto Execution
 - Pure advisory only
 
-### FINAL VALIDATION CHECKLIST
+### SECTION 13 — ADVANCED ECOSYSTEM INTELLIGENCE (PHASE 23)
+
+**Tool: `getSystemStatus`**
+- **Trigger**: Boss asks "How is the ecosystem?", "System status", or "Are there complaints?".
+- **Logic**: 
+    - Fetch DB `Application` count for `createdAt` today.
+    - Check `AIExecutionLog` for recent errors.
+    - Scan `ChatConversation` for high-risk tokens: `bad`, `slow`, `error`, `failed`, `scam`, `help`.
+- **Output**: Unified JSON summary of Health, Orders, and Sentiment.
+
+---
+
+### FINAL VALIDATION CHECKLIST (v2.1)
 
 Before production:
 - [ ] Seller still operational
 - [ ] Worker cannot execute without `approval_id`
+- [ ] **Worker cannot execute without code `AdminBayu2026`**
 - [ ] Risk veto works
 - [ ] Snapshot restore tested
-- [ ] Legal page strict mode tested
-- [ ] Override log tested
-- [ ] Strategic memory reset tested
+- [ ] Boss Mode Persona verified
+- [ ] System intelligence tool returns real data
 - [ ] API separation tested
+- [ ] Verification status syncs with barcode on admin save
+- [ ] Application status dropdown has 9 options in Invoice Editor
+- [ ] DOKU webhook sets status to 'Review by Agent' on SUCCESS
+- [ ] Public invoice page hides Pay Now for paid-equivalent statuses
 
 If any test fails:
 → Block production release.
 
-***END OF MASTER SYSTEM EXTENSION PROMPT v2.0***
+***END OF MASTER SYSTEM EXTENSION PROMPT v2.2***

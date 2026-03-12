@@ -122,6 +122,24 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                         </div>
                     </section>
 
+                    {/* Team Section */}
+                    <section className="space-y-16">
+                        <div className="max-w-3xl mx-auto text-center space-y-4">
+                            <h2 className="text-4xl md:text-5xl font-black mode-aware-text">Our Dedicated Team</h2>
+                            <p className="text-xl mode-aware-subtext">Meet the experts behind your seamless Indonesian journey. Our team combines decades of legal expertise with a passion for world-class service.</p>
+                        </div>
+                        <div className="relative h-[600px] rounded-[3rem] overflow-hidden shadow-2xl group">
+                            <Image
+                                src="/images/Team.webp"
+                                alt="Indonesian Visas Agency Team"
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                priority
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                        </div>
+                    </section>
+
                     {/* Social Proof Section */}
                     <section className="text-center space-y-12">
                         <div className="space-y-4">

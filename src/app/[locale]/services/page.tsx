@@ -149,6 +149,31 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
         </div>
       </section>
 
+      {/* 6.5 BALI HELP SHOWCASE - New Section */}
+      <section className="py-20 bg-slate-50 dark:bg-slate-900/50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto rounded-[3rem] overflow-hidden shadow-2xl relative h-[500px] group">
+            <Image
+              src="/images/BaliHelpCompress.webp"
+              alt="Bali Help Services"
+              fill
+              className="object-cover transition-transform duration-1000 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
+            <div className="absolute inset-0 flex items-center p-12 md:p-24">
+              <div className="max-w-xl space-y-6">
+                <h3 className="text-4xl md:text-5xl font-black text-white leading-tight">Expert Assistance for Every Step.</h3>
+                <p className="text-xl text-white/80 font-medium">Navigating Indonesian regulations is complex. We provide the local expertise you need to succeed.</p>
+                <div className="flex gap-4">
+                  <div className="px-6 py-3 bg-white text-black rounded-xl font-bold shadow-lg">Legal Experts</div>
+                  <div className="px-6 py-3 bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-xl font-bold">Fast Approval</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 7. COMPANY FORMATION PROMO */}
       <SectionWrapper id="company-formation-promo" className="py-24">
         <div className="relative overflow-hidden rounded-[4rem] bg-gradient-to-br from-slate-900 to-black p-12 md:p-24 text-white shadow-2xl">

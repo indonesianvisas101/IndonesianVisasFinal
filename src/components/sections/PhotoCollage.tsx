@@ -6,10 +6,11 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const IMAGES = [
     "/images/IndonesianVisas/BaliHelp.webp",
+    "/images/IndonesianVisas/CompanyFormation1.webp",
+    "/images/IndonesianVisas/CompanyFormation2.webp",
     "/images/IndonesianVisas/Lombok.webp",
     "/images/IndonesianVisas/indonesia.webp",
     "/images/IndonesianVisas/java.webp",
-    "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2638&auto=format&fit=crop",  // Optimized Bali Image
 ];
 
 

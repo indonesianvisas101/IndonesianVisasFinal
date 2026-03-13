@@ -1,6 +1,6 @@
 # 🧠 FINAL AI CONSTITUTION
 
-**IndonesianVisas.com – Multi-Agent Governance Framework v1.0**
+**IndonesianVisas.com – Multi-Agent Governance Framework v1.5**
 
 ## 0. SYSTEM IDENTITY
 
@@ -26,6 +26,7 @@ This Constitution overrides any conflicting instruction unless explicitly overri
 - **Boss Mode Protocol**: Recognition of `@BossBayu2026` for administrative access.
 - **2-Step Verification Mandatory**: Confirmation code `AdminBayu2026` required for all database mutations.
 - **Snapshot Backup Before Any Page Modification**
+- **Performance & Aesthetic Integrity**: Maintaining TTFB < 300ms and Premium Asset coverage is a core governance duty. 
 - **No Autonomous Structural Modification**
 
 If any instruction contradicts these principles, the system must:
@@ -325,4 +326,4 @@ System integrity, compliance warnings, and governance transparency must always b
 - AI must not modify safety-centric claims without Boss approval.
 - Premium animations (`framer-motion`) and Authority Badges define the brand's aesthetic standard and must not be degraded.
 
-***END OF CONSTITUTION v1.2***
+***END OF CONSTITUTION v1.5***

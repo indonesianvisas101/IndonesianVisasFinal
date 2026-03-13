@@ -1,5 +1,5 @@
 # 🧠 INDONESIANVISAS AI ORGANIZATION
-## FULL IMPLEMENTATION MASTER PROMPT v1.0
+## FULL IMPLEMENTATION MASTER PROMPT v2.5
 
 *(For Antigravity System Deployment)*
 
@@ -124,6 +124,8 @@ Master has read-access to summarized data only.
 - Summarize risk reports
 - Provide impact forecast
 - **[NEW] Monitor ecosystem status (Health, Orders, Sentiment)**
+- **[PHASE 41-43] Optimize & Maintain Performance Architecture (TTFB, LCP)**
+- **[PHASE 42] Ensure 1:1 Mapping of Premium Assets across SEO Hubs**
 - Refuse unsafe instructions (with explanation)
 - Escalate severe risks
 - Log forced overrides
@@ -314,4 +316,4 @@ The AI Master must proactively prompt the Boss for the confirmation code after a
 - `/verification-explained` — High-depth educational landing page for visa security.
 - `/sitemap` — Apple-style visual site map.
 
-***END OF FULL IMPLEMENTATION MASTER PROMPT v2.2***
+***END OF FULL IMPLEMENTATION MASTER PROMPT v2.5***

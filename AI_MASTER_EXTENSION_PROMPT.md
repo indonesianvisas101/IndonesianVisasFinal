@@ -1,5 +1,5 @@
 # 🧠 INDONESIANVISAS AI ORGANIZATION
-## MASTER SYSTEM EXTENSION PROMPT v2.0
+## MASTER SYSTEM EXTENSION PROMPT v2.5
 
 *(Production-Ready Completion Layer)*
 
@@ -298,12 +298,14 @@ When system is injected with `STRATEGIC_ANALYSIS_MODE`:
 
 ---
 
-### FINAL VALIDATION CHECKLIST (v2.3)
+### FINAL VALIDATION CHECKLIST (v2.5)
 
 Before production:
 - [ ] Seller redirects `@BossBayu2026` to Master
 - [ ] Push Notifications registry functional via `prisma.pushSubscription`
 - [ ] **Worker cannot execute without code `AdminBayu2026`**
+- [ ] **Performance Audit**: Middleware Fast-Path active (TTFB < 300ms)
+- [ ] **Asset Mapping**: All high-res images from `/public/images/pages` verified
 - [ ] SafetyGuard section visible and animated
 - [ ] Verified Badge present in Hero
 - [ ] Build stable (Exit 0)
@@ -311,4 +313,4 @@ Before production:
 If any test fails:
 → Block production release.
 
-***END OF MASTER SYSTEM EXTENSION PROMPT v2.3***
+***END OF MASTER SYSTEM EXTENSION PROMPT v2.5***

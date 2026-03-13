@@ -1,5 +1,17 @@
 import React from "react";
 import { getMessages } from "@/i18n/getMessages";
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    return {
+        title: "Official Affiliate Program | Indonesian Visas",
+        description: "Join the official affiliate program of Indonesian Visas Agency. Earn commissions by referring clients to professional visa and immigration services.",
+        alternates: {
+            canonical: `https://indonesianvisas.com/${locale}/affiliate`,
+        },
+    };
+}
 import {
     Briefcase,
     Globe,

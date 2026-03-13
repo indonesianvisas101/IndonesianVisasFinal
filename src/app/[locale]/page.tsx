@@ -3,7 +3,9 @@ import dynamic from "next/dynamic";
 import Hero from "@/components/hero/Hero";
 import LazySection from "@/components/layout/LazySection";
 
-import ApplyExtend from "@/components/sections/ApplyExtend";
+const ApplyExtend = dynamic(() => import("@/components/sections/ApplyExtend"), {
+  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Quick Access...</div>
+});
 const ChatBotWrapper = dynamic(() => import("@/components/chat/ChatBotWrapper"));
 const ServicesPreview = dynamic(() => import("@/components/sections/ServicesPreview"), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Services...</div>
@@ -37,13 +39,21 @@ const SafetyGuard = dynamic(() => import("@/components/sections/SafetyGuard"), {
 
 import { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: "Indonesian Visas | Fast & Reliable Application Service",
-  description: "Apply for your Indonesia Visa online. Tourist VOA, B211A, KITAS and more. Trusted agents with 99% success rate based in Bali.",
-  alternates: {
-    canonical: 'https://indonesianvisas.com',
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Indonesian Visas | Fast & Reliable Application Service",
+    description: "Apply for your Indonesia Visa online. Tourist VOA, B211A, KITAS and more. Trusted agents with 99% success rate based in Bali.",
+    alternates: {
+      canonical: `https://indonesianvisas.com/${locale}`,
+    },
+    openGraph: {
+      title: "Indonesian Visas | Fast Office Bali",
+      description: "Official Indonesia Visa Agency in Bali. 99.9% Success Rate.",
+      images: ['/images/IndonesianVisas/16K.webp'],
+    }
+  };
+}
 
 import { getMessages } from "@/i18n/getMessages";
 
@@ -83,10 +93,6 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       </LazySection>
 
       <LazySection minHeight="500px">
-        <SafetyGuard dict={dict} />
-      </LazySection>
-
-      <LazySection minHeight="500px">
         <section className="py-20 bg-slate-50 dark:bg-white/5">
           <div className="container mx-auto px-4">
             <div className="text-center space-y-4 mb-12">
@@ -96,6 +102,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <GoogleReviews dict={dict} />
           </div>
         </section>
+      </LazySection>
+
+      <LazySection minHeight="500px">
+        <SafetyGuard dict={dict} />
       </LazySection>
 
       <LazySection minHeight="300px">

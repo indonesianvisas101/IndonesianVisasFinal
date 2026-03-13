@@ -16,6 +16,19 @@ const GoogleReviews = dynamic(() => import("@/components/sections/GoogleReviews"
     loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Reviews...</div>
 });
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    return {
+        title: "About Us | Indonesian Visas Official Agency",
+        description: "Learn about Indonesian Visas, your trusted partner for visa and immigration services in Bali and Jakarta since 2010.",
+        alternates: {
+            canonical: `https://indonesianvisas.com/${locale}/about`,
+        },
+    };
+}
+
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
     const dict = await getMessages(locale);
@@ -136,21 +149,75 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                         </div>
                     </section>
 
-                    {/* Team Section */}
-                    <section className="space-y-16">
-                        <div className="max-w-3xl mx-auto text-center space-y-4">
-                            <h2 className="text-4xl md:text-5xl font-black mode-aware-text">Our Dedicated Team</h2>
-                            <p className="text-xl mode-aware-subtext">Meet the experts behind your seamless Indonesian journey. Our team combines decades of legal expertise with a passion for world-class service.</p>
+                    {/* NEW SECTIONS FOR EXPANSION */}
+
+                    {/* 1. Corporate Heritage */}
+                    <section className="py-20 bg-slate-50 dark:bg-white/5 rounded-[3rem] p-12">
+                        <div className="max-w-4xl mx-auto space-y-8">
+                            <h2 className="text-4xl font-black mode-aware-text text-center">Our Corporate Heritage</h2>
+                            <p className="text-xl mode-aware-subtext leading-relaxed text-center">
+                                Founded in 2010 by a team of legal scholars and immigration experts, PT Indonesian Visas Agency has evolved from a boutique Bali-based consultancy into a national authority on cross-border mobility.
+                            </p>
+                            <div className="grid md:grid-cols-3 gap-8 pt-12">
+                                {[
+                                    { year: "2010", event: "Founded in Denpasar" },
+                                    { year: "2016", event: "National Expansion" },
+                                    { year: "2024", event: "Digital Transformation" }
+                                ].map((milestone, i) => (
+                                    <div key={i} className="text-center space-y-2">
+                                        <div className="text-3xl font-black text-primary">{milestone.year}</div>
+                                        <div className="font-bold mode-aware-text opacity-70">{milestone.event}</div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <div className="relative h-[600px] rounded-[3rem] overflow-hidden shadow-2xl group">
-                            <Image
-                                src="/images/IndonesianVisas/Team.webp"
-                                alt="Indonesian Visas Agency Team"
-                                fill
-                                className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                priority
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    </section>
+
+                    {/* 2. Global Integrity Standards */}
+                    <section className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div className="space-y-6">
+                            <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500">
+                                <ShieldCheck size={32} />
+                            </div>
+                            <h2 className="text-4xl font-black mode-aware-text">Uncompromising Integrity</h2>
+                            <p className="text-lg mode-aware-subtext leading-relaxed">
+                                We operate with a transparency-first mandate. Every application is handled with the highest ethical standards, ensuring full compliance with both Indonesian Anti-Corruption laws and International Governance protocols.
+                            </p>
+                            <div className="space-y-4">
+                                {[
+                                    "Zero-Tolerance for Bribery",
+                                    "Transparent Government Fee Structure",
+                                    "Strict Data Privacy Controls",
+                                    "Annual Compliance Audits"
+                                ].map((point, i) => (
+                                    <div key={i} className="flex items-center gap-3 font-bold mode-aware-text">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500" /> {point}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="relative h-[450px] rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white dark:border-white/10">
+                           <Image src="/images/visa/B1.webp" alt="Integrity" fill className="object-cover" />
+                        </div>
+                    </section>
+
+                    {/* 3. Community & Social Impact */}
+                    <section className="py-24 text-center space-y-8">
+                        <h2 className="text-4xl md:text-5xl font-black mode-aware-text">Beyond Business</h2>
+                        <p className="text-xl mode-aware-subtext max-w-3xl mx-auto">
+                            A portion of every visa processed through IndonesianVisas.com goes towards supporting local education and environmental conservation projects across the Indonesian archipelago.
+                        </p>
+                    </section>
+
+                    {/* 4. Strategic Partnerships */}
+                    <section className="py-20 border-y border-slate-200 dark:border-white/5">
+                        <div className="container mx-auto">
+                            <h3 className="text-center text-sm font-black text-primary uppercase tracking-[0.3em] mb-12">Strategic Partners</h3>
+                            <div className="flex flex-wrap justify-between items-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
+                                {["BaliHelp.id", "VOABali.com", "JakartaVisas.Agency", "Bali.Enterprises"].map((partner, i) => (
+                                    <div key={i} className="text-2xl font-black mode-aware-text">{partner}</div>
+                                ))}
+                            </div>
                         </div>
                     </section>
 

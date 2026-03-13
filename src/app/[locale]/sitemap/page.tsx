@@ -15,9 +15,24 @@ import {
     Users, 
     Phone,
     ArrowRight,
-    Map
+    Map,
+    Search,
+    Newspaper
 } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
+
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    return {
+        title: "Directory & Sitemap | Indonesian Visas",
+        description: "Comprehensive site map of Indonesian Visas services, guides, and legal resources.",
+        alternates: {
+            canonical: `https://indonesianvisas.com/${locale}/sitemap`,
+        },
+    };
+}
 
 export default async function SitemapPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
@@ -58,7 +73,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             icon: Shield,
             links: [
                 { name: "FAQ & Help", href: `/${locale}/faq` },
-                { name: "Contact Support", href: `/${locale}/contact` },
+                { name: "Contact Support", href: "https://wa.me/6285727041992" },
                 { name: "Privacy Policy", href: `/${locale}/privacy-policy` },
                 { name: "Terms & Conditions", href: `/${locale}/terms-and-conditions` },
                 { name: "Refund Policy", href: `/${locale}/refund` },
@@ -73,6 +88,36 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
                 { name: "Arrival Card (BCV)", href: `/${locale}/arrival-card` },
                 { name: "Traveler Reviews", href: `/${locale}/reviews` },
                 { name: "Official Partners", href: `/${locale}/about#ecosystem` }
+            ]
+        },
+        {
+            title: "Visa Glossary",
+            icon: Search,
+            links: [
+                { name: "Glossary Hub", href: `/${locale}/visa-glossary` },
+                { name: "What is KITAS", href: `/${locale}/visa-glossary/what-is-kitas` },
+                { name: "What is B211A", href: `/${locale}/visa-glossary/what-is-b211a` },
+                { name: "What is VoA", href: `/${locale}/visa-glossary/what-is-voa` }
+            ]
+        },
+        {
+            title: "Knowledge Hub",
+            icon: HelpCircle,
+            links: [
+                { name: "Visa FAQ Hub", href: `/${locale}/visa-faq` },
+                { name: "Immigration Updates", href: `/${locale}/indonesia-visa-updates` },
+                { name: "Digital Nomad News", href: `/${locale}/indonesia-visa-updates/indonesia-digital-nomad-visa-news` },
+                { name: "Bali Travel Info", href: `/${locale}/travel` }
+            ]
+        },
+        {
+            title: "Immigration News",
+            icon: Newspaper,
+            links: [
+                { name: "2026 Visa Updates", href: `/${locale}/indonesia-visa-updates/visa-updates-2026` },
+                { name: "New Bali Rules", href: `/${locale}/indonesia-visa-updates/new-bali-immigration-rules` },
+                { name: "Investor Visa Guide", href: `/${locale}/visa-glossary/what-is-investor-visa` },
+                { name: "Business Visa Guide", href: `/${locale}/visa-glossary/what-is-business-visa` }
             ]
         },
         {

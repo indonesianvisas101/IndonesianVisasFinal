@@ -286,7 +286,16 @@ export default function TravelClient() {
                             
                             <div className={`relative h-[500px] rounded-[3rem] overflow-hidden shadow-2xl group ${idx % 2 !== 0 ? 'lg:order-1' : ''}`}>
                                 <Image
-                                    src={idx === 0 ? "/images/bali.webp" : idx === 1 ? "/images/cities/jakarta.webp" : "/images/IndonesianVisas/indonesia.webp"}
+                                    src={
+                                        idx === 0 ? "/images/pages/BaliCultural Etiquette.webp" : 
+                                        idx === 1 ? "/images/pages/JakartaBusinessHub.webp" : 
+                                        idx === 2 ? "/images/pages/Indonesian Glonal Logistic.webp" :
+                                        idx === 3 ? "/images/pages/ImmigratioHub.webp" :
+                                        idx === 4 ? "/images/pages/The Digital Nomad.webp" :
+                                        idx === 5 ? "/images/pages/Marine Conservation & Tourism.webp" :
+                                        idx === 6 ? "/images/pages/Emerging Medical Tourism.webp" :
+                                        "/images/pages/The Archipilagic Fact Hub.webp"
+                                    }
                                     alt={section.title}
                                     fill
                                     className="object-cover group-hover:scale-110 transition-transform duration-700"

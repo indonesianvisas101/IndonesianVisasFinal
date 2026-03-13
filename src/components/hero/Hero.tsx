@@ -20,7 +20,7 @@ const Hero = ({ dict }: { dict: any }) => {
                     <div className={styles.left}>
                         <HeroBadge />
                         <h1 className={styles.title}>{hero.title || "INDONESIAN VISAS"}</h1>
-                        <h2 className={styles.subtitle}>{hero.subtitle || "Your Gateway to Indonesia"}</h2>
+                        <h2 className={styles.subtitle}>{hero.subtitle || "Legal & Registered Immigration Sponsor"}</h2>
                         <p className={styles.description}>
                             {hero.description || "Professional visa services for travelers, businesses, and digital nomads."}
                         </p>

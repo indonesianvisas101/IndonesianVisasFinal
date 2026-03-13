@@ -42,24 +42,23 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(
             new URL(`/${validLocale}${pathname.startsWith('/') ? '' : '/'}${pathname}`, request.url)
         )
-    } else {
-        // If path HAS locale, ensure we update the cookie to match the path
-        // This ensures subsequent visits to root or other pages default to this new locale
-        const pathLocale = pathname.split('/')[1];
-        if (locales.includes(pathLocale as any)) {
+    } 
+
+    // TYPO/LEGACY FIX: Redirect singular 'update' to plural 'updates'
+    if (pathname.includes('/indonesian-visa-update') && !pathname.includes('/indonesian-visa-updates')) {
+        const newPathname = pathname.replace('/indonesian-visa-update', '/indonesia-visa-updates');
+        return NextResponse.redirect(new URL(newPathname, request.url));
+    }
+
+    // If path HAS locale, ensure we update the cookie to match the path
+    // This ensures subsequent visits to root or other pages default to this new locale
+    const pathLocale = pathname.split('/')[1];
+    if (locales.includes(pathLocale as any)) {
+        const currentCookie = request.cookies.get('NEXT_LOCALE')?.value;
+        if (currentCookie !== pathLocale) {
             const response = NextResponse.next();
-            // We need to set the cookie. But we can't modify the response *after* returning from middleware easily
-            // unless we chain it. 
-            // Better approach: In ThemeLanguageToggle we set cookie. 
-            // In Middleware, we strictly READ cookie for redirects.
-            // If user manually goes to /fr, we probably should set persistence? 
-            // Yes, let's update cookie if it differs.
-            const currentCookie = request.cookies.get('NEXT_LOCALE')?.value;
-            if (currentCookie !== pathLocale) {
-                const response = NextResponse.next();
-                response.cookies.set('NEXT_LOCALE', pathLocale, { path: '/', maxAge: 31536000 });
-                return response;
-            }
+            response.cookies.set('NEXT_LOCALE', pathLocale, { path: '/', maxAge: 31536000 });
+            return response;
         }
     }
 
@@ -130,7 +129,21 @@ function isPublicRoute(path: string) {
         '/refund',
         '/affiliate',
         '/thanks',
-        '/invoice'
+        '/invoice',
+        '/travel',
+        '/sitemap',
+        '/visa-glossary',
+        '/visa-faq',
+        '/indonesia-visa-updates',
+        '/indonesian-visa-update',
+        '/indonesia-visa-guide-2026',
+        '/visa-types',
+        '/visa-extension',
+        '/immigration-rules',
+        '/travel-indonesia',
+        '/blog',
+        '/guides',
+        '/visa-indonesia-for-'
     ]
 
     // Exact match or starts with (handle /services/*)
@@ -138,5 +151,3 @@ function isPublicRoute(path: string) {
 
     return publicStartPaths.some(p => path === p || path.startsWith(p + '/'));
 }
-
-

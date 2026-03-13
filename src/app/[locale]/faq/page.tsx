@@ -6,6 +6,19 @@ import FAQItem from "@/components/faq/FAQItem";
 import { FAQS } from "@/constants/faqs";
 import PageWrapper from "@/components/layout/PageWrapper";
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    return {
+        title: "Frequently Asked Questions | Indonesian Visas",
+        description: "Find answers to common questions about Indonesian visas, entry requirements, and immigration procedures.",
+        alternates: {
+            canonical: `https://indonesianvisas.com/${locale}/faq`,
+        },
+    };
+}
+
 export default async function FAQPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
     const dict = await getMessages(locale);

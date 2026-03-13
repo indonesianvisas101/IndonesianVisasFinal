@@ -2,6 +2,19 @@ import React from "react";
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import { getMessages } from "@/i18n/getMessages";
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    return {
+        title: "Refund Policy | Indonesian Visas Agency",
+        description: "Official refund policy for Indonesian Visas. Information on visa application denial, force majeure, and cancellation procedures.",
+        alternates: {
+            canonical: `https://indonesianvisas.com/${locale}/refund`,
+        },
+    };
+}
+
 export default async function RefundPolicyPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
     const dict = await getMessages(locale);

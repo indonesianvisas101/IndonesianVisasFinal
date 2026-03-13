@@ -115,7 +115,7 @@ export default function TravelPage({ params }: { params: Promise<{ locale: strin
                         </div>
                         <div className="relative h-[600px] rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)]">
                             <Image
-                                src="/images/IndonesianVisas/indonesia.webp"
+                                src="/images/pages/Beyond The Horizon.webp"
                                 alt="Wonderful Indonesia Landscape"
                                 fill
                                 className="object-cover"

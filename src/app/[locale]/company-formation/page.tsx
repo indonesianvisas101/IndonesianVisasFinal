@@ -8,6 +8,19 @@ const CompanyFormationContent = dynamic(() => import("./CompanyFormationContent"
     loading: () => <div className="h-96 flex items-center justify-center">Loading Services...</div>
 });
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    return {
+        title: "Company Formation Indonesia | PT PMA Registration Bali",
+        description: "Official PT PMA and Local PT registration services. Start your business in Indonesia with expert legal assistance and 100% foreign ownership options.",
+        alternates: {
+            canonical: `https://indonesianvisas.com/${locale}/company-formation`,
+        },
+    };
+}
+
 export default async function CompanyFormationPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
     const dict = await getMessages(locale);

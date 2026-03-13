@@ -3,6 +3,19 @@ import SectionWrapper from "@/components/layout/SectionWrapper";
 import { getMessages } from "@/i18n/getMessages";
 import Link from "next/link";
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    return {
+        title: "Privacy Policy | Indonesian Visas",
+        description: "Official privacy policy for Indonesian Visas. Learn how we protect your personal data and documents during the visa application process.",
+        alternates: {
+            canonical: `https://indonesianvisas.com/${locale}/privacy-policy`,
+        },
+    };
+}
+
 export default async function PrivacyPolicyPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
     const dict = await getMessages(locale);

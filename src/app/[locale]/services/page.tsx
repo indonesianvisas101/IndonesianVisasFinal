@@ -10,6 +10,19 @@ import { getMessages } from "@/i18n/getMessages";
 const DiscountCard = dynamic(() => import("@/components/ui/cards/DiscountCard"));
 const VisaCatalog = dynamic(() => import("@/components/visa/VisaCatalog"));
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Our Services | Visa Application & Immigration Indonesia",
+    description: "Explore our comprehensive visa services including VOA, B211A, KITAS, and Business Visas for Bali and Indonesia.",
+    alternates: {
+      canonical: `https://indonesianvisas.com/${locale}/services`,
+    },
+  };
+}
+
 export default async function ServicesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const dict = await getMessages(locale);
@@ -165,8 +178,8 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
                 <h3 className="text-4xl md:text-5xl font-black text-white leading-tight">Expert Assistance for Every Step.</h3>
                 <p className="text-xl text-white/80 font-medium">Navigating Indonesian regulations is complex. We provide the local expertise you need to succeed.</p>
                 <div className="flex gap-4">
-                  <div className="px-6 py-3 bg-white text-black rounded-xl font-bold shadow-lg">Legal Experts</div>
-                  <div className="px-6 py-3 bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-xl font-bold">Fast Approval</div>
+                  <Link href={`/${locale}/legal-experts`} className="px-6 py-3 bg-white text-black rounded-xl font-bold shadow-lg hover:scale-105 transition-all">Legal Experts</Link>
+                  <Link href={`/${locale}/fast-approval`} className="px-6 py-3 bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-xl font-bold hover:bg-white/30 hover:scale-105 transition-all">Fast Approval</Link>
                 </div>
               </div>
             </div>

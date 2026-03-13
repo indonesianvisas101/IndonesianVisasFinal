@@ -314,14 +314,30 @@ model ChatConversation {
 
   @@map("chat_conversations")
 }
-model PushSubscription {
-  id        String   @id @default(cuid())
-  userId    String   @db.Uuid
-  endpoint  String   @unique
-  p256dh    String
-  auth      String
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("push_subscriptions")
-}
+ model PushSubscription {
+   id        String   @id @default(cuid())
+   userId    String   @db.Uuid
+   endpoint  String   @unique
+   p256dh    String
+   auth      String
+   createdAt DateTime @default(now())
+   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+   @@map("push_subscriptions")
+ }
+ 
+ model ImmigrationUpdate {
+   id          String    @id @default(cuid())
+   title       String
+   content     String    @db.Text
+   category    String    @default("Immigration")
+   summary     String?   @db.Text
+   image       String?
+   slug        String    @unique
+   published   Boolean   @default(false)
+   createdAt   DateTime  @default(now())
+   updatedAt   DateTime  @updatedAt
+ 
+   @@map("immigration_updates")
+ }

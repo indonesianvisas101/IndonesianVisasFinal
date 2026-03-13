@@ -116,6 +116,7 @@ import SupportChatTab from "@/components/admin/sections/SupportChatTab";
 import AuditLogTab from "@/components/admin/sections/AuditLogTab"; // New import
 import ArrivalCardsTab from "@/components/admin/sections/ArrivalCardsTab"; // NEW
 import AIMasterTab from "@/components/admin/sections/AIMasterTab"; // NEW
+import ImmigrationUpdatesTab from "@/components/admin/sections/ImmigrationUpdatesTab"; // NEW
 import HistoryIcon from '@mui/icons-material/History'; // New import
 import PsychologyIcon from "@mui/icons-material/Psychology"; // Added
 import OrderPanel from "@/components/admin/sections/OrderPanel";
@@ -132,7 +133,7 @@ const INITIAL_STATS = [
     { key: 'revenue', title: "Revenue", value: "$0", change: "0%", isPositive: true, icon: <AttachMoneyIcon />, color: "info.main", bg: "info.light" },
 ];
 
-type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master' | 'orders';
+type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master' | 'orders' | 'updates';
 
 // Main Content Component (Logic moved here)
 function AdminDashboardContent() {
@@ -1075,6 +1076,7 @@ function AdminDashboardContent() {
                     { key: 'logs', label: 'Audit Logs', icon: <HistoryIcon /> },
                     { key: 'ai_master', label: 'AI Master', icon: <PsychologyIcon /> },
                     { key: 'orders', label: 'Incoming Orders', icon: <ShoppingCart sx={{ fontSize: 20 }} />, badge: newOrdersCount },
+                    { key: 'updates', label: 'Immigration Updates', icon: <CampaignIcon /> },
                     { key: 'support', label: 'Support Chat', icon: <MessageIcon />, badge: allNotifications.filter(n => !n.isRead).length },
                 ].map((item) => (
                     <ListItem key={item.key} disablePadding sx={{ mb: 1 }}>
@@ -1510,6 +1512,13 @@ function AdminDashboardContent() {
                     {activeTab === 'ai_master' && (
                         <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
                             <AIMasterTab />
+                        </Box>
+                    )}
+
+                    {/* --- UPDATES TAB --- */}
+                    {activeTab === 'updates' && (
+                        <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
+                            <ImmigrationUpdatesTab />
                         </Box>
                     )}
 

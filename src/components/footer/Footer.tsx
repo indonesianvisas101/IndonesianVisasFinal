@@ -50,6 +50,7 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                         <h4 className={styles.columnTitle}>{t.support_title || "Support"}</h4>
                         <Link href={`/${locale}/verification-explained`} className={styles.footerLink}>{t.verification || "Verification System"}</Link>
                         <Link href={`/${locale}/faq`} className={styles.footerLink}>{t.faq_help || "FAQ & Help"}</Link>
+                        <Link href={`/${locale}/indonesia-visa-updates`} className={styles.footerLink}>Immigration Updates</Link>
                         <Link href={`/${locale}/sitemap`} className={styles.footerLink}>{t.sitemap || "Site Map"}</Link>
                         <Link href="https://wa.me/6285727041992" target="_blank" className={styles.footerLink}>{t.whatsapp_contact || "Contact via WhatsApp"}</Link>
                         <Link href={`mailto:${COMPANY_EMAILS.public.contact}`} className={styles.footerLink}>{t.email_support || "Email Support"}</Link>
@@ -62,6 +63,18 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                         <Link href={`/${locale}/terms-and-conditions`} className={styles.footerLink}>{t.terms_conditions || "Terms & Conditions"}</Link>
                         <Link href={`/${locale}/refund`} className={styles.footerLink}>{t.refund_policy || "Refund Policy"}</Link>
                         <Link href={`/${locale}/affiliate`} className={styles.footerLink}>{t.affiliate_program || "Affiliate Program"}</Link>
+                        
+                        <div className="mt-8 pt-8 border-t border-slate-200 dark:border-white/5">
+                            <a 
+                                href="https://bali.enterprises" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-xs font-black tracking-widest text-primary hover:opacity-70 transition-all uppercase italic flex items-center gap-2 group"
+                            >
+                                bali.enterprises
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -69,23 +82,6 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                 <div className={styles.bottomBar}>
                     <div className={styles.copyright}>
                         &copy; {new Date().getFullYear()} PT Indonesian Visas Agency™. {t.rights_reserved || "All Rights Reserved."}
-                    </div>
-
-                    {/* Network Links */}
-                    <div className={styles.networkLinks}>
-                        <a href="https://balihelp.id" target="_blank" rel="noopener noreferrer" aria-label="Visit balihelp.id (opens in new tab)">balihelp.id</a>
-                        <span className={styles.divider}>|</span>
-                        <a href="https://voabali.com" target="_blank" rel="noopener noreferrer" aria-label="Visit voabali.com (opens in new tab)">voabali.com</a>
-                        <span className={styles.divider}>|</span>
-                        <a href="https://balivisas.agency" target="_blank" rel="noopener noreferrer" aria-label="Visit balivisas.agency (opens in new tab)">balivisas.agency</a>
-                        <span className={styles.divider}>|</span>
-                        <a href="https://voajakarta.com" target="_blank" rel="noopener noreferrer" aria-label="Visit voajakarta.com (opens in new tab)">voajakarta.com</a>
-                        <span className={styles.divider}>|</span>
-                        <a href="https://jakartavisas.agency" target="_blank" rel="noopener noreferrer" aria-label="Visit jakartavisas.agency (opens in new tab)">jakartavisas.agency</a>
-                        <span className={styles.divider}>|</span>
-                        <a href="https://mybisnis.app" target="_blank" rel="noopener noreferrer" aria-label="Visit mybisnis.app (opens in new tab)">mybisnis.app</a>
-                        <span className={styles.divider}>|</span>
-                        <a href="https://indodesign.website" target="_blank" rel="noopener noreferrer" aria-label="Visit indodesign.website (opens in new tab)">indodesign.website</a>
                     </div>
 
                     {/* Global Disclaimer */}

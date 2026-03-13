@@ -4,6 +4,19 @@ import Link from 'next/link';
 import VisaCatalog from "@/components/visa/VisaCatalog";
 import { getMessages } from "@/i18n/getMessages";
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    return {
+        title: "Visa Pricing & Fees | Transparent Service - Indonesian Visas",
+        description: "Official government fees and transparent service pricing for all Indonesian visa types. No hidden costs.",
+        alternates: {
+            canonical: `https://indonesianvisas.com/${locale}/pricing`,
+        },
+    };
+}
+
 export default async function PricingPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
     const dict = await getMessages(locale);

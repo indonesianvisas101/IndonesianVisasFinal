@@ -49,25 +49,17 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
     return (
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center md:justify-start mt-8">
 
-            <motion.button
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                whileHover={{ scale: 1.05, translateY: -4 }}
-                whileTap={{ scale: 0.95 }}
+            <button
                 onClick={openPanel}
-                className="group relative px-8 py-4 bg-[#4B0082] text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all overflow-hidden"
+                className="group relative px-8 py-4 bg-[#4B0082] text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all overflow-hidden hover:scale-105 active:scale-95"
                 aria-label="Select your country to start visa application"
             >
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                 <span className="relative flex items-center gap-2">
                     {label || "Select Your Country"} <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </span>
-            </motion.button>
-            <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-            >
+            </button>
+            <div className={styles.animateSlideUpDelay}>
                 <Link
                     href="/arrival-card"
                     className={`cta-secondary ${styles.ctaBtn} !text-white !no-underline flex items-center justify-center hover:scale-105 transition-transform duration-300`}
@@ -82,22 +74,18 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
                 >
                     {arrivalCardLabel || "Arrival Card"}
                 </Link>
-            </motion.div>
+            </div>
         </div>
     );
 };
 
 export const HeroBadge = () => (
-    <motion.div 
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-6"
-    >
+    <div className={`inline-flex items-center gap-2 bg-gray-400 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-6 ${styles.animateSlideUp}`}>
         <div className="bg-green-500 rounded-full p-1 text-white">
             <ShieldCheck size={14} />
         </div>
-        <span className="text-white text-xs font-bold tracking-wider uppercase">Indonesia's Trusted Visa Authority</span>
-    </motion.div>
+        <span className="text-white text-xs font-bold tracking-wider uppercase">Registered Company</span>
+    </div>
 );
 
 // 3. The Rights Steps Card (Client)

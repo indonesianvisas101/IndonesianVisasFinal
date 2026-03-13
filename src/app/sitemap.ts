@@ -17,11 +17,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/pricing',
         '/affiliate',
         '/company-formation',
-        '/contact',
         '/about',
         '/faq',
         '/verification-explained',
-        '/bali_help',
         '/apply',
         '/extend',
         '/login',
@@ -30,6 +28,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/privacy-policy',
         '/terms-and-conditions',
         '/refund',
+        '/legal-experts',
+        '/fast-approval',
         // SEO Knowledge Architecture Phase 37
         '/indonesia-visa-guide-2026',
         '/visa-types/b211a-visa-indonesia',
@@ -60,6 +60,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/blog/immigration-rules-indonesia',
         '/blog/bali-expat-guide',
         '/blog/how-to-move-to-bali-legally',
+        // Specialized SEO Hubs Phase 37 Extension
+        '/visa-glossary',
+        '/visa-glossary/what-is-kitas',
+        '/visa-glossary/what-is-b211a',
+        '/visa-glossary/what-is-voa',
+        '/visa-glossary/what-is-investor-visa',
+        '/visa-glossary/what-is-business-visa',
+        '/visa-faq',
+        '/indonesia-visa-updates',
+        '/indonesia-visa-updates/visa-updates-2026',
+        '/indonesia-visa-updates/new-bali-immigration-rules',
+        '/indonesia-visa-updates/indonesia-digital-nomad-visa-news',
     ];
 
     const sitemapEntries: MetadataRoute.Sitemap = [];
@@ -72,7 +84,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
                 url: `${baseUrl}/${locale}${page}`,
                 lastModified: new Date(),
                 changeFrequency: 'weekly',
-                priority: page === '' ? 1.0 : 0.8,
+                priority: 
+                    page === '' ? 1.0 : 
+                    page === '/indonesia-visa-guide-2026' ? 0.9 :
+                    page.startsWith('/visa-faq') ? 0.9 :
+                    page.startsWith('/visa-glossary') && page !== '/visa-glossary' ? 0.8 :
+                    page.startsWith('/visa-types') ? 0.8 :
+                    page.startsWith('/visa-indonesia-for') ? 0.7 :
+                    page.startsWith('/blog') ? 0.6 :
+                    page.startsWith('/indonesia-visa-updates') ? 0.6 :
+                    0.8,
             });
         });
 

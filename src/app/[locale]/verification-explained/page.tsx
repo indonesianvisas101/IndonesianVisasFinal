@@ -3,6 +3,18 @@ import SectionWrapper from "@/components/layout/SectionWrapper";
 import { getMessages } from "@/i18n/getMessages";
 import { ShieldCheck, QrCode, ClipboardCheck, Info, CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    return {
+        title: "QR Verification System Explained | Indonesian Visas",
+        description: "Understand the digital verification process for Indonesian visa documents. QR-based secure authentication for authorities and partners.",
+        alternates: {
+            canonical: `https://indonesianvisas.com/${locale}/verification-explained`,
+        },
+    };
+}
 import VerificationClient from "./VerificationClient";
 
 export default async function VerificationExplainedPage({ params }: { params: Promise<{ locale: string }> }) {

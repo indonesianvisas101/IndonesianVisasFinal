@@ -44,6 +44,20 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                         <p className="text-xl md:text-2xl mode-aware-subtext max-w-2xl mx-auto leading-relaxed animate-fade-in-up [animation-delay:400ms]">
                             {t.hero_description || "We are more than just a visa agency. We are your legal gateway to living, working, and thriving in Indonesia. With over 16 years of dedicated service, we have helped over 10,000+ travelers and businesses navigate the regulations."}
                         </p>
+                        
+                        {/* Legal Registration Block */}
+                        <div className="mt-8 inline-block text-left bg-white/50 dark:bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 p-6 rounded-2xl animate-fade-in-up [animation-delay:600ms] shadow-sm">
+                            <h3 className="text-xs font-bold text-primary mb-3 uppercase tracking-widest flex items-center gap-2">
+                                <ShieldCheck size={14} /> Official Registration
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm mode-aware-text font-mono">
+                                <div><span className="opacity-60 text-[11px] uppercase tracking-wider block mb-0.5">Entity</span> PT Indonesian Visas Agency</div>
+                                <div><span className="opacity-60 text-[11px] uppercase tracking-wider block mb-0.5">NIB</span> 0402260034806</div>
+                                <div><span className="opacity-60 text-[11px] uppercase tracking-wider block mb-0.5">License</span> 04022610215171007</div>
+                                <div><span className="opacity-60 text-[11px] uppercase tracking-wider block mb-0.5">AHU</span> AHU-00065.AH.02.01.TAHUN 2020</div>
+                                <div className="sm:col-span-2"><span className="opacity-60 text-[11px] uppercase tracking-wider block mb-0.5">Official Immigration Sponsor</span> 2010, 2014, 2023, 2024, 2026</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

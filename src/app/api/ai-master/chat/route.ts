@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
         // --- BOSS MODE DETECTION ---
         const lastUserMessage = messages[messages.length - 1]?.content || "";
-        const isBossAuthTrigger = lastUserMessage.includes("@BossBayu2026");
+        const isBossAuthTrigger = lastUserMessage.includes("@BossBayu2026") || lastUserMessage.includes("@BayuBoss2026");
         const isConfirmTrigger = lastUserMessage.includes("AdminBayu2026");
 
         // System Prompts per Agent

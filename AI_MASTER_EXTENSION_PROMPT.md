@@ -282,23 +282,33 @@ When system is injected with `STRATEGIC_ANALYSIS_MODE`:
 
 ---
 
-### FINAL VALIDATION CHECKLIST (v2.1)
+
+### SECTION 14 — NOTIFICATION & SAFETY MAXIMIZATION (PHASE 33 & 34)
+
+**Notification Integration:**
+- **Push Engine**: `web-push` library with SSR-encrypted VAPID credentials.
+- **Service Worker**: `public/sw.js` must be registered on client initialization.
+- **Permission Flow**: 2-stage "Ask 2 Times" (Custom Dialog → Browser Native).
+- **Tooling**: AI Master can report on `PushSubscription` stats via `/api/notifications`.
+
+**Landing Page Governance:**
+- **Safety Anchor**: `SafetyGuard.tsx` (Visa Advance System™) is an immutable trust component.
+- **Verified Authority**: Hero section must maintain the "Verified Visa Authority" badge.
+- **Visual Standards**: All major CTAs and feature cards must use `framer-motion` reveal and glassmorphic styling.
+
+---
+
+### FINAL VALIDATION CHECKLIST (v2.3)
 
 Before production:
-- [ ] Seller still operational
-- [ ] Worker cannot execute without `approval_id`
+- [ ] Seller redirects `@BossBayu2026` to Master
+- [ ] Push Notifications registry functional via `prisma.pushSubscription`
 - [ ] **Worker cannot execute without code `AdminBayu2026`**
-- [ ] Risk veto works
-- [ ] Snapshot restore tested
-- [ ] Boss Mode Persona verified
-- [ ] System intelligence tool returns real data
-- [ ] API separation tested
-- [ ] Verification status syncs with barcode on admin save
-- [ ] Application status dropdown has 9 options in Invoice Editor
-- [ ] DOKU webhook sets status to 'Review by Agent' on SUCCESS
-- [ ] Public invoice page hides Pay Now for paid-equivalent statuses
+- [ ] SafetyGuard section visible and animated
+- [ ] Verified Badge present in Hero
+- [ ] Build stable (Exit 0)
 
 If any test fails:
 → Block production release.
 
-***END OF MASTER SYSTEM EXTENSION PROMPT v2.2***
+***END OF MASTER SYSTEM EXTENSION PROMPT v2.3***

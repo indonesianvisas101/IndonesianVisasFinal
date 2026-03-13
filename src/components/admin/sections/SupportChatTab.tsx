@@ -31,6 +31,7 @@ import {
     ListItemButton,
     Tooltip
 } from '@mui/material';
+import { useSearchParams } from 'next/navigation';
 
 interface Conversation {
     id: string;
@@ -61,6 +62,8 @@ export default function SupportChatTab() {
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const searchParams = useSearchParams();
+    const targetConvId = searchParams.get('conversationId');
 
     // Fetch Conversations
     useEffect(() => {
@@ -78,7 +81,13 @@ export default function SupportChatTab() {
                 // Graceful fallback
                 setConversations([]);
             } else {
-                setConversations(data as any || []);
+                const convs = data as any || [];
+                setConversations(convs);
+                
+                // Deep Linking: Auto-select if in URL
+                if (targetConvId) {
+                    setSelectedConvId(targetConvId);
+                }
             }
             setLoading(false);
         };

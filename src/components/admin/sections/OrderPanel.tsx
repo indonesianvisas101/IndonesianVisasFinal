@@ -25,12 +25,16 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import { formatCurrency } from "@/lib/utils";
+import { useParams, useRouter } from "next/navigation";
 
 export default function OrderPanel() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [filter, setFilter] = useState("all");
+    const params = useParams();
+    const router = useRouter();
+    const locale = params?.locale || 'en';
 
     useEffect(() => {
         fetchOrders();
@@ -197,22 +201,31 @@ export default function OrderPanel() {
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        {order.documents && (
-                                            <Stack direction="row" spacing={1}>
-                                                {(typeof order.documents === 'string' ? JSON.parse(order.documents) : order.documents).map((doc: any, i: number) => (
-                                                    <IconButton 
-                                                        key={i} 
-                                                        size="small" 
-                                                        color="info" 
-                                                        href={doc.url || doc} 
-                                                        target="_blank"
-                                                        title={doc.name || `Doc ${i+1}`}
-                                                    >
-                                                        <OpenInNewIcon sx={{ fontSize: 16 }} />
-                                                    </IconButton>
-                                                ))}
-                                            </Stack>
-                                        )}
+                                        {order.documents && (() => {
+                                            try {
+                                                const docs = typeof order.documents === 'string' ? JSON.parse(order.documents) : order.documents;
+                                                if (!Array.isArray(docs)) return null;
+                                                return (
+                                                    <Stack direction="row" spacing={1}>
+                                                        {docs.map((doc: any, i: number) => (
+                                                            <IconButton 
+                                                                key={i} 
+                                                                size="small" 
+                                                                color="info" 
+                                                                href={doc.url || doc} 
+                                                                target="_blank"
+                                                                title={doc.name || `Doc ${i+1}`}
+                                                            >
+                                                                <OpenInNewIcon sx={{ fontSize: 16 }} />
+                                                            </IconButton>
+                                                        ))}
+                                                    </Stack>
+                                                );
+                                            } catch (e) {
+                                                console.error("Failed to parse documents for order", order.id, e);
+                                                return <Typography variant="caption" color="error">Parse Error</Typography>;
+                                            }
+                                        })()}
                                     </TableCell>
                                     <TableCell align="right">
                                         <Stack direction="row" spacing={1} justifyContent="flex-end">
@@ -220,8 +233,7 @@ export default function OrderPanel() {
                                                 size="small" 
                                                 color="primary"
                                                 title="View Invoice"
-                                                href={`/invoice/${order.slug || order.id}`}
-                                                target="_blank"
+                                                onClick={() => router.push(`/${locale}/invoice/${order.slug || order.id}`)}
                                             >
                                                 <ReceiptIcon />
                                             </IconButton>
@@ -229,7 +241,7 @@ export default function OrderPanel() {
                                                 size="small" 
                                                 color="secondary"
                                                 title="Manage Order"
-                                                href={`/admin?tab=invoicing&id=${order.id}`}
+                                                onClick={() => router.push(`/${locale}/admin?tab=invoicing&id=${order.id}`)}
                                             >
                                                 <OpenInNewIcon />
                                             </IconButton>

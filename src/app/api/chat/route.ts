@@ -59,11 +59,10 @@ export async function POST(req: Request) {
    const lastUserMessage = [...coreMessages].reverse().find(m => m.role === 'user');
    const userText = lastUserMessage?.content || '';
    
-   const bossAuthCode = "@BossBayu2026";
-   const isBossAccess = userText.includes(bossAuthCode);
+   const isBossAccess = userText.includes("@BossBayu2026") || userText.includes("@BayuBoss2026");
    
    // Unified Detection: If user starts with Code + @TargetAgent + "command"
-   const bossModeMatch = userText.match(/@BossBayu2026\s+@(Ai_Master|Ai_Seller|Master|Seller)\s+"([^"]+)"/i);
+   const bossModeMatch = userText.match(/(@BossBayu2026|@BayuBoss2026)\s+@(Ai_Master|Ai_Seller|Master|Seller)\s+"([^"]+)"/i);
    
    let targetAgent = 'seller'; 
    let activeCommand = '';

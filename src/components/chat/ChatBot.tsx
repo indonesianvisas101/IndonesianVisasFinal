@@ -58,8 +58,12 @@ export default function ChatBot() {
     const [isLoading, setIsLoading] = useState(false);
     const [localInput, setLocalInput] = useState('');
 
-    // ─── Check for @AI_Master mode switch ──────────────────────────────────
-    const MASTER_TRIGGER = /^@AI_Master\s+(\S+)\s*$/i;
+    // AI Master Mode — switches entire widget to AI Master
+    // Support two formats: 
+    // 1. @AI_Master [passphrase] (Legacy)
+    // 2. @BossBayu2026 @Ai_Master "command" (New / Advanced)
+    const MASTER_TRIGGER_LEGACY = /^@AI_Master\s+(\S+)\s*$/i;
+    const BOSS_MODE_TRIGGER = /(@BossBayu2026|@BayuBoss2026)\s+@Ai_Master\s+"([^"]+)"/i;
 
     const handleSend = async () => {
         if (!localInput || !localInput.trim()) return;
@@ -67,8 +71,31 @@ export default function ChatBot() {
         setLocalInput('');
         setIsLoading(true);
 
-        // Check for @AI_Master [passphrase] mode switch
-        const modeMatch = userMsgText.match(MASTER_TRIGGER);
+        // 1. Advanced Boss Mode Trigger (@BossBayu2026 @Ai_Master "command")
+        const bossMatch = userMsgText.match(BOSS_MODE_TRIGGER);
+        if (bossMatch) {
+            const command = bossMatch[2];
+            setIsMasterMode(true);
+            setMasterModeLabel('🔐 BOSS MODE ACTIVE');
+            setMessages(prev => [...prev,
+                { id: Date.now().toString(), role: 'user', content: userMsgText },
+                {
+                    id: (Date.now() + 1).toString(), role: 'assistant', content:
+                        '🔐 **Boss Mode activated via Secret Code.**\n\nGreetings, Boss. Redirecting your command to AI Master...',
+                    isMasterMode: true
+                }
+            ]);
+            
+            // Immediately send the command as if it were a follow-up
+            setTimeout(() => {
+                sendChatMessageAsAI(command);
+            }, 500);
+            setIsLoading(false);
+            return;
+        }
+
+        // 2. Legacy Check for @AI_Master [passphrase] mode switch
+        const modeMatch = userMsgText.match(MASTER_TRIGGER_LEGACY);
         if (modeMatch) {
             const pass = modeMatch[1];
             // Verify passphrase with server
@@ -82,17 +109,17 @@ export default function ChatBot() {
                     setIsMasterMode(true);
                     setMasterModeLabel('🔐 AI MASTER MODE ACTIVE');
                     setMessages(prev => [...prev,
-                    { id: Date.now().toString(), role: 'user', content: userMsgText },
-                    {
-                        id: (Date.now() + 1).toString(), role: 'assistant', content:
-                            '🔐 **AI Master Mode activated.**\n\nGreetings, Boss. I am now in direct communication mode. All subsequent messages will be routed to AI Master. Type `exit` to return to normal mode.',
-                        isMasterMode: true
-                    }
+                        { id: Date.now().toString(), role: 'user', content: userMsgText },
+                        {
+                            id: (Date.now() + 1).toString(), role: 'assistant', content:
+                                '🔐 **AI Master Mode activated.**\n\nGreetings, Boss. I am now in direct communication mode. All subsequent messages will be routed to AI Master. Type `exit` to return to normal mode.',
+                            isMasterMode: true
+                        }
                     ]);
                 } else {
                     setMessages(prev => [...prev,
-                    { id: Date.now().toString(), role: 'user', content: userMsgText },
-                    { id: (Date.now() + 1).toString(), role: 'assistant', content: 'Hi! How can I assist you with Indonesian visas today?' }
+                        { id: Date.now().toString(), role: 'user', content: userMsgText },
+                        { id: (Date.now() + 1).toString(), role: 'assistant', content: 'Hi! How can I assist you with Indonesian visas today?' }
                     ]);
                 }
             } catch { }
@@ -172,10 +199,43 @@ export default function ChatBot() {
             // Analytics
             try { (window as any).gtag?.('event', 'ai_chat_query', { event_category: 'engagement' }); } catch { }
 
-        } catch (error: any) {
-            console.error("Failed to send:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Helper to send message as AI Master (Internal)
+    const sendChatMessageAsAI = async (content: string) => {
+        setIsLoading(true);
+        const assistantMsgId = Date.now().toString();
+        setMessages(prev => [...prev, { id: assistantMsgId, role: 'assistant', content: '', isMasterMode: true }]);
+
+        try {
+            const historyForAPI = messages.filter(m => m.role === 'user' || m.role === 'assistant')
+                .map(m => ({ role: m.role, content: m.content }));
+
+            const response = await fetch('/api/ai-master/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messages: [...historyForAPI, { role: 'user', content }],
+                    agentId: 'ai_master',
+                    sessionId: sessionId.current
+                })
+            });
+
+            if (!response.ok) throw new Error(response.statusText);
+
+            const data = await response.json();
+            const aiText = data.text || '✅ Command executed.';
             setMessages(prev => prev.map(m => m.id === assistantMsgId
-                ? { ...m, content: "Sorry, I encountered an error. Please try again." }
+                ? { ...m, content: aiText, isMasterMode: true }
+                : m
+            ));
+        } catch (error) {
+            console.error("Master Mode error:", error);
+            setMessages(prev => prev.map(m => m.id === assistantMsgId
+                ? { ...m, content: "Master System Error. Please check logs.", isMasterMode: true }
                 : m
             ));
         } finally {

@@ -312,19 +312,17 @@ System integrity, compliance warnings, and governance transparency must always b
 - No silent changes.
 - No undocumented action.
 
-## 14. VERIFICATION & INVOICE SYNC GOVERNANCE (PHASE 25)
 
-The following statuses define the application lifecycle and must be respected by all AI operations:
+## 15. NOTIFICATION & LANDING PAGE GOVERNANCE (PHASE 33 & 34)
 
-**Application Statuses (Source of Truth: Admin Dashboard):**
-`Pending` → `Review by Agent` → `On Going` → `Preparing for submission` → `Submited` → `Approved` → `Active (Complete)` | `Reject` | `Expired`
+**Notification System:**
+- Web Push notifications are strictly for: New Order Alerts, Visa Status Updates, and High-Priority Inquiries.
+- AI must never spam notifications.
+- Permission logic ("Ask 2 Times") must be maintained to preserve user trust.
 
-**Verification Statuses:**
-`PENDING` → `VALID` (Verified) | `REVOKED` (Not Verified)
+**Landing Page Maximization:**
+- The **Visa Advance System™** (Safety Guard) is the platform's primary trust anchor.
+- AI must not modify safety-centric claims without Boss approval.
+- Premium animations (`framer-motion`) and Authority Badges define the brand's aesthetic standard and must not be degraded.
 
-**Rules:**
-- AI must never auto-change Application or Verification status without Boss approval and confirmation code.
-- Payment success automatically triggers `Review by Agent` + `Verification VALID` — this is a system-level action, not an AI action.
-- Any AI-proposed status change must follow the 2-Step Approval Protocol (Section 13).
-
-***END OF CONSTITUTION v1.1***
+***END OF CONSTITUTION v1.2***

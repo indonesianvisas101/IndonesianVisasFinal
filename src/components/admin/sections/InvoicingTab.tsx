@@ -32,6 +32,7 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import Link from "next/link";
 import { VISA_DATABASE } from "@/constants/visas";
 import { supabase } from "@/lib/supabase";
+import { useSearchParams } from "next/navigation";
 
 export default function InvoicingTab() {
     const [invoices, setInvoices] = useState<any[]>([]);
@@ -39,7 +40,9 @@ export default function InvoicingTab() {
     const [verifications, setVerifications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
-    const [openEditDialog, setOpenEditDialog] = useState(false); // New Edit Dialog
+    const [openEditDialog, setOpenEditDialog] = useState(false);
+    const searchParams = useSearchParams();
+    const targetId = searchParams.get('id');
 
     // Form State
     const [invoiceMode, setInvoiceMode] = useState<'guest' | 'user'>('guest');
@@ -84,7 +87,18 @@ export default function InvoicingTab() {
     const fetchInvoices = async () => {
         try {
             const res = await fetch('/api/applications'); // Fetch All
-            if (res.ok) setInvoices(await res.json());
+            if (res.ok) {
+                const data = await res.json();
+                setInvoices(data);
+                
+                // Deep Linking: Auto-open if ID is in URL
+                if (targetId) {
+                    const targetInv = data.find((inv: any) => inv.id === targetId);
+                    if (targetInv) {
+                        handleEditClick(targetInv);
+                    }
+                }
+            }
         } catch (e) { console.error("Failed to fetch invoices", e); }
         finally { setLoading(false); }
     };

@@ -295,19 +295,23 @@ However: System transparency, logging, and compliance warning must never be disa
 
 The AI Master must proactively prompt the Boss for the confirmation code after a proposal is approved or when the Boss gives a direct "Execute" command. No mutation tools shall be triggered without this explicit secondary check.
 
-### SECTION 14 — VERIFICATION & INVOICE LIFECYCLE (PHASE 25)
 
-The system now supports a full application lifecycle with the following statuses:
-`Pending` → `Review by Agent` → `On Going` → `Preparing for submission` → `Submited` → `Approved` → `Active (Complete)` | `Reject` | `Expired`
+### SECTION 15 — NOTIFICATION & LANDING PAGE (PHASE 33 & 34)
 
-**Verification System:**
-- Each application automatically generates a Verification record with a unique QR code/barcode.
-- Admin can manually set Verification status: `VALID`, `REVOKED`, or `PENDING`.
-- Payment success (DOKU webhook) automatically sets: Application = `Review by Agent`, Verification = `VALID`.
+**Notification Ecosystem:**
+- **Technology**: `web-push` + VAPID.
+- **Service Worker**: `sw.js` handles background alerts.
+- **Logic**: "Ask 2 Times" permission flow on the customer dashboard.
+- **AI Task**: AI Master can trigger/report on push notification status for critical order updates.
 
-**AI Master Rules:**
-- When Boss asks to update an application status, suggest from the approved list above.
-- Never bypass the 2-step approval for status mutations.
-- Always confirm which invoice/verification is being modified before proposing changes.
+**Landing Page Components:**
+- **Safety Guard**: `src/components/sections/SafetyGuard.tsx` — Shows the "Visa Advance System™".
+- **Hero Badge**: "Verified Visa Authority" badge in `HeroClient.tsx`.
+- **Animations**: `framer-motion` reveal effects on `WhyChooseUs.tsx` and `HowItWorks.tsx`.
 
-***END OF FULL IMPLEMENTATION MASTER PROMPT v2.1***
+**New Canonical Routes:**
+- `/travel` — Comprehensive visa traveler hub.
+- `/verification-explained` — High-depth educational landing page for visa security.
+- `/sitemap` — Apple-style visual site map.
+
+***END OF FULL IMPLEMENTATION MASTER PROMPT v2.2***

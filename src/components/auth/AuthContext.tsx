@@ -122,12 +122,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             if (data && !data.error) {
                 console.log("Profile found via API for UID:", userId, data.name);
+                
+                // SAFETY: Force admin role for the primary admin email
+                const rawRole = (email.toLowerCase() === 'damnbayu@gmail.com') ? 'admin' : data.role;
+
                 profile = {
                     id: data.id,
                     name: data.name || '',
                     email: data.email,
                     whatsapp: data.whatsapp || '',
-                    role: data.role as 'user' | 'admin',
+                    role: rawRole as 'user' | 'admin',
                     joinedAt: data.createdAt || data.created_at || new Date().toISOString(),
                     avatar: data.avatar,
                     status: data.status as 'active',
@@ -158,7 +162,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 name: '',
                 email: email,
                 whatsapp: '',
-                role: 'user',
+                role: (email.toLowerCase() === 'damnbayu@gmail.com') ? 'admin' : 'user',
                 joinedAt: new Date().toISOString(),
                 status: 'active'
             };

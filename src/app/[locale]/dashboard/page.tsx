@@ -24,6 +24,12 @@ export default function DashboardRedirect() {
         }
 
         const locale = params?.locale || "en";
+        
+        if (user.role === 'admin') {
+            router.replace(`/${locale}/admin`);
+            return;
+        }
+
         const slug = user.name
             ? user.name.toLowerCase().replace(/\s+/g, '_')
             : "profile"; // Fallback to 'profile' if name is empty

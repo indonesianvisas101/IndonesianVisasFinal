@@ -348,6 +348,21 @@ model MarketingLead {
   @@map("marketing_leads")
 }
 
+model KnowledgePage {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  content         Json     // Array of structured sections
+  pageType        String   @default("knowledge_article")
+  category        String?
+  metadata        Json?    // SEO tags, OpenGraph, JSON-LD
+  published       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("knowledge_pages")
+}
+
 enum PaymentStatus {
   UNPAID
   PENDING

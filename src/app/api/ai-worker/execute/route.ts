@@ -112,10 +112,140 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: `Cannot execute: request is in state "${changeRequest.currentState}"` }, { status: 400 });
         }
 
-        // 6. Get the visa ID and fetch real snapshot BEFORE
+        // 6. Execution Branching based on Page Category
         const changes = changeRequest.proposedChanges as any;
-        const visaId = changes._meta?.visaId;
 
+        // --- BRANCH A: Knowledge Page Publishing ---
+        if (changeRequest.pageCategory === "knowledge" || changeRequest.changeType === "knowledge_article") {
+            const { slug, title, content, metadata } = changes;
+            
+            if (!slug || !title) return NextResponse.json({ error: "Missing slug or title in knowledge payload" }, { status: 400 });
+
+            // Snapshot BEFORE (if exists)
+            const existingPage = await (prisma as any).knowledgePage.findUnique({ where: { slug } });
+            const snapBefore = await prisma.aISnapshot.create({
+                data: {
+                    requestId,
+                    pagePath: changeRequest.targetPage,
+                    snapshotData: (existingPage || {}) as any
+                }
+            });
+
+            // Upsert the knowledge page
+            const publishedPage = await (prisma as any).knowledgePage.upsert({
+                where: { slug },
+                create: {
+                  slug,
+                  title,
+                  content: content as any,
+                  metadata: metadata as any,
+                  published: true
+                },
+                update: {
+                  title,
+                  content: content as any,
+                  metadata: metadata as any,
+                  published: true,
+                  updatedAt: new Date()
+                }
+            });
+
+            const snapAfter = await prisma.aISnapshot.create({
+                data: {
+                    requestId,
+                    pagePath: changeRequest.targetPage,
+                    snapshotData: publishedPage as any
+                }
+            });
+
+            // Commit state change
+            await prisma.$transaction([
+                prisma.aIChangeRequest.update({
+                    where: { requestId },
+                    data: { currentState: "executed", updatedAt: new Date() }
+                }),
+                prisma.aIExecutionLog.create({
+                    data: {
+                        requestId,
+                        agentName: agentInitiator,
+                        actionType: "EXECUTE_KNOWLEDGE_PUBLISH",
+                        snapshotBeforeId: snapBefore.id,
+                        snapshotAfterId: snapAfter.id,
+                        status: "SUCCESS",
+                        notes: `Knowledge page "${slug}" published/updated.`
+                    }
+                })
+            ]);
+
+            return NextResponse.json({
+                success: true,
+                message: `Knowledge article "${title}" is now LIVE at /visa-knowledge/${slug}`,
+                slug
+            });
+
+            // --- BRANCH B: Immigration News Updates ---
+        } else if (changeRequest.changeType === "immigration_update") {
+            const { title, content, category, summary, image, slug } = changes;
+            
+            if (!slug || !title) return NextResponse.json({ error: "Missing slug or title in news payload" }, { status: 400 });
+
+            // Snapshot BEFORE (N/A for new post, but for parity)
+            const snapBefore = await prisma.aISnapshot.create({
+                data: {
+                    requestId,
+                    pagePath: changeRequest.targetPage,
+                    snapshotData: {}
+                }
+            });
+
+            // Create the news entry
+            const newsPage = await prisma.immigrationUpdate.create({
+                data: {
+                  title,
+                  content,
+                  category,
+                  summary,
+                  image,
+                  slug,
+                  published: true // Executing means publishing
+                }
+            });
+
+            const snapAfter = await prisma.aISnapshot.create({
+                data: {
+                    requestId,
+                    pagePath: changeRequest.targetPage,
+                    snapshotData: newsPage as any
+                }
+            });
+
+            await prisma.$transaction([
+                prisma.aIChangeRequest.update({
+                    where: { requestId },
+                    data: { currentState: "executed", updatedAt: new Date() }
+                }),
+                prisma.aIExecutionLog.create({
+                    data: {
+                        requestId,
+                        agentName: agentInitiator,
+                        actionType: "EXECUTE_NEWS_PUBLISH",
+                        snapshotBeforeId: snapBefore.id,
+                        snapshotAfterId: snapAfter.id,
+                        status: "SUCCESS",
+                        notes: `Immigration news "${slug}" published.`
+                    }
+                })
+            ]);
+
+            return NextResponse.json({
+                success: true,
+                message: `Immigration news "${title}" is now LIVE at /en/indonesia-visa-updates`,
+                slug
+            });
+        }
+
+        // --- BRANCH B: Standard Visa Update (Original Logic) ---
+        const visaId = changes._meta?.visaId;
         if (!visaId) {
             return NextResponse.json({ error: "No visaId in proposedChanges metadata" }, { status: 400 });
         }

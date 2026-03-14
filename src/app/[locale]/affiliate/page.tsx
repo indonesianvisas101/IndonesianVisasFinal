@@ -55,7 +55,7 @@ export default async function AffiliatePage({ params }: { params: Promise<{ loca
                             </span> From Every Successful Referral
                         </h1>
                         <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-                            Join the official affiliate program of PT Indonesian Visas Agency™ and earn competitive commissions by referring clients to professional Indonesia visa assistance services.
+                            Join the official affiliate program of <strong>PT Indonesian Visas Agency™</strong> (NIB: 0402260034806) and earn competitive commissions by referring clients to professional Indonesia visa assistance services.
                         </p>
 
                         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-16">
@@ -105,10 +105,12 @@ export default async function AffiliatePage({ params }: { params: Promise<{ loca
                                 <div className="flex items-start gap-3 relative z-10">
                                     <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400 shrink-0 mt-1" />
                                     <div>
-                                        <h4 className="font-bold text-slate-900 dark:text-white mb-1">Important Compliance Notice</h4>
-                                        <p className="text-sm text-slate-700 dark:text-slate-300">
-                                            Visa approvals are subject to Indonesian immigration authority decisions. Affiliate commissions apply only to verified completed service transactions.
-                                        </p>
+                                        <h4 className="font-bold text-slate-900 dark:text-white mb-2 uppercase tracking-wide">Marketing Compliance & Ethics</h4>
+                                        <div className="text-sm text-slate-700 dark:text-slate-300 space-y-2">
+                                            <p>1. Affiliates must <strong>never</strong> represent themselves as the Indonesian Government or use official government logos in ads.</p>
+                                            <p>2. No "Guaranteed Approval" claims are permitted. We are an administrative agency, not the issuing authority.</p>
+                                            <p>3. Use of the term "Official Immigration Portal" is strictly prohibited.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

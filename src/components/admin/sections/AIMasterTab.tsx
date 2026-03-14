@@ -40,7 +40,11 @@ import {
     ListItemAvatar,
     ListItemText,
     ListItemButton,
-    ListItemIcon
+    ListItemIcon,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from '@mui/material';
 import { useRef } from 'react';
 import {
@@ -285,7 +289,11 @@ export default function AIMasterTab() {
         console.log("AIMasterTab mounted/updated. TabValue:", tabValue);
     }, [tabValue]);
 
-    const fetchData = useCallback(async () => {
+    const [selectedRequest, setSelectedRequest] = useState<any>(null);
+    const [reviewOpen, setReviewOpen] = useState(false);
+    const [loadingAction, setLoadingAction] = useState(false);
+
+    const fetchManagementData = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -297,6 +305,19 @@ export default function AIMasterTab() {
                 setPendingRequests(data.pendingRequests);
                 setRiskLogs(data.riskLogs);
             }
+        } catch (err) {
+            console.error("Management Data Fetch Error:", err);
+            setError("Failed to fetch management data.");
+        } finally {
+            // setLoading(false); // Will be set by the main fetchData
+        }
+    }, []);
+
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            await fetchManagementData(); // Fetch management data first
 
             // Fetch Seller Conversations
             const convRes = await fetch('/api/chat/conversations?limit=30');
@@ -328,7 +349,7 @@ export default function AIMasterTab() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [fetchManagementData]);
 
     useEffect(() => {
         fetchData();
@@ -337,20 +358,49 @@ export default function AIMasterTab() {
         return () => clearInterval(interval);
     }, [fetchData]);
 
-    const handleModeSwitch = async (newMode: string) => {
+    const handleManagementAction = async (action: string, data: any = {}) => {
         try {
+            setLoadingAction(true);
             const res = await fetch('/api/ai-master/management', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'TOGGLE_MODE', data: { mode: newMode } })
+                body: JSON.stringify({ action, data })
             });
-            if (res.ok) {
-                const updated = await res.json();
-                setSystemState(updated);
+
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await res.text();
+                throw new Error(`Server returned non-JSON response: ${text.slice(0, 100)}`);
             }
-        } catch (err) {
-            alert("Failed to update system mode");
+
+            const result = await res.json();
+            if (res.ok) {
+                fetchManagementData(); 
+                setReviewOpen(false);
+                // Proactively show success if it was an approval
+                if (action === 'APPROVE_REQUEST') {
+                    alert(`Success: ${result.message || 'Execution complete'}`);
+                }
+                return result;
+            } else {
+                throw new Error(result.error || `API error: ${res.status}`);
+            }
+        } catch (error) {
+            console.error("Management Action Failed:", error);
+            alert(`Execution Error: ${error instanceof Error ? error.message : String(error)}`);
+            return null;
+        } finally {
+            setLoadingAction(false);
         }
+    };
+
+    const handleReviewClick = (req: any) => {
+        setSelectedRequest(req);
+        setReviewOpen(true);
+    };
+
+    const toggleMode = (mode: 'normal' | 'emergency' | 'maintenance') => {
+        handleManagementAction('TOGGLE_MODE', { mode });
     };
 
     const handleResetMemory = async () => {
@@ -611,18 +661,31 @@ export default function AIMasterTab() {
                             ) : pendingRequests.map(req => (
                                 <TableRow key={req.id} hover>
                                     <TableCell><Typography variant="body2" fontWeight="bold">{req.requestId}</Typography></TableCell>
-                                    <TableCell>{req.initiatedBy}</TableCell>
-                                    <TableCell><Chip label={req.changeType} size="small" variant="outlined" /></TableCell>
+                                    <TableCell>
+                                        <Chip 
+                                            label={req.initiatedBy === 'analyst' ? 'AGENT' : req.initiatedBy.toUpperCase()} 
+                                            size="small" 
+                                            color={req.initiatedBy === 'analyst' ? 'secondary' : 'default'}
+                                            variant={req.initiatedBy === 'analyst' ? 'filled' : 'outlined'}
+                                        />
+                                    </TableCell>
+                                    <TableCell><Chip label={req.changeType.replace('_', ' ')} size="small" variant="outlined" /></TableCell>
                                     <TableCell>
                                         <Chip
-                                            label={req.riskScore}
+                                            label={req.riskScore || 'LOW'}
                                             size="small"
                                             color={Number(req.riskScore) > 70 ? 'error' : Number(req.riskScore) > 30 ? 'warning' : 'success'}
                                         />
                                     </TableCell>
                                     <TableCell>{new Date(req.createdAt).toLocaleString()}</TableCell>
                                     <TableCell align="right">
-                                        <Button size="small" variant="contained">Review</Button>
+                                        <Button 
+                                            size="small" 
+                                            variant="contained"
+                                            onClick={() => handleReviewClick(req)}
+                                        >
+                                            Review
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -742,15 +805,15 @@ export default function AIMasterTab() {
                             <CardContent>
                                 <Stack spacing={2}>
                                     <FormControlLabel
-                                        control={<Switch checked={systemState?.mode === 'normal'} onChange={() => handleModeSwitch('normal')} />}
+                                        control={<Switch checked={systemState?.mode === 'normal'} onChange={() => toggleMode('normal')} />}
                                         label="Normal Mode (Standard Operations)"
                                     />
                                     <FormControlLabel
-                                        control={<Switch checked={systemState?.mode === 'emergency'} onChange={() => handleModeSwitch('emergency')} color="error" />}
+                                        control={<Switch checked={systemState?.mode === 'emergency'} onChange={() => toggleMode('emergency')} color="error" />}
                                         label="Emergency Mode (Strict Scan & Freeze)"
                                     />
                                     <FormControlLabel
-                                        control={<Switch checked={systemState?.mode === 'maintenance'} onChange={() => handleModeSwitch('maintenance')} color="warning" />}
+                                        control={<Switch checked={systemState?.mode === 'maintenance'} onChange={() => toggleMode('maintenance')} color="warning" />}
                                         label="Maintenance Mode (Worker Restricted)"
                                     />
                                 </Stack>

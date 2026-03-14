@@ -30,54 +30,69 @@ export default async function RefundPolicyPage({ params }: { params: Promise<{ l
 
                     <div className="space-y-12">
                         <div className="bg-white dark:bg-white/5 p-10 rounded-[3rem] border border-slate-100 dark:border-white/10 shadow-sm space-y-4 font-bold mode-aware-subtext text-sm md:text-base">
-                            <p className="text-primary uppercase tracking-widest text-xs md:text-sm">INDONESIAN VISAS - PT Indonesian Visas Agency™</p>
-                            <p>Under the linked company: <span className="text-primary">PT Bali Enterprises Indonesia</span></p>
-                            <p>Address: Jl. Tibung Sari No.11C, Padangsambian Kaja, Denpasar Barat, Denpasar, Bali 80117</p>
-                            <p>Official Websites : www.indonesianvisas.com | www.balihelp.id | www.indodesign.website</p>
+                            <p className="text-primary uppercase tracking-widest text-xs md:text-sm">Official Entity: PT Indonesian Visas Agency™</p>
+                            <p>Ecosystem: <span className="text-primary">Bali Enterprises Indonesia</span></p>
+                            <p>NIB (Registration): 0402260034806</p>
+                            <p>AHU: AHU-00065.AH.02.01.TAHUN 2020</p>
                         </div>
 
                         <div className="grid gap-12 mode-aware-subtext leading-relaxed text-lg font-medium">
                             <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">{t.denial_title || "Visa Application Denial"}</h2>
-                                <p>{t.denial_p1}</p>
+                                <h2 className="text-2xl font-black mode-aware-text">1. Separation of Fees</h2>
+                                <p>By engaging our services, you acknowledge that your payment consists of two distinct components:</p>
+                                <ul className="space-y-3">
+                                    <li className="flex items-start gap-3">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0" />
+                                        <span><strong>Agency Service Fee:</strong> Covers our administrative, legal, and consultation labor.</span>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0" />
+                                        <span><strong>Government Immigration Fee:</strong> The exact tariff required by Indonesian Immigration (PNBP).</span>
+                                    </li>
+                                </ul>
                             </section>
 
                             <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">{t.force_majeure_title || "Force Majeure"}</h2>
-                                <p>{t.force_majeure_p1}</p>
-                            </section>
-
-                            <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">{t.approved_title || "Approved Visa"}</h2>
-                                <p>{t.approved_p1}</p>
-                            </section>
-
-                            <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text text-red-600 dark:text-red-400">{t.submission_title || "Submission to Immigration"}</h2>
+                                <h2 className="text-2xl font-black mode-aware-text">2. Non-Refundability of Government Fees</h2>
                                 <div className="bg-red-50 dark:bg-red-900/10 border-l-8 border-red-500 p-8 rounded-[2rem] shadow-sm">
-                                    <p className="font-bold text-red-900 dark:text-red-100">{t.submission_p1}</p>
+                                    <p className="font-bold text-red-900 dark:text-red-100">
+                                        Once a visa application is submitted to the immigration portal and the PNBP (government tariff) is paid, these funds are strictly non-refundable under Indonesian Ministry of Finance regulations. The Agency has no authority to retrieve these funds.
+                                    </p>
                                 </div>
                             </section>
 
                             <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">{t.cancellation_title || "Cancellation Policy"}</h2>
-                                <p>{t.cancellation_p1}</p>
+                                <h2 className="text-2xl font-black mode-aware-text">3. Agency Service Fee Refunds</h2>
+                                <ul className="space-y-3">
+                                    <li className="flex items-start gap-3">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0" />
+                                        <span><strong>Before Submission:</strong> If you cancel before we submit to immigration, we can refund up to 70% of the Agency Service Fee (minus consultation and bank charges).</span>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0" />
+                                        <span><strong>After Submission/Rejection:</strong> The Agency Service Fee is non-refundable as the labor for document preparation and submission has been completed.</span>
+                                    </li>
+                                </ul>
                             </section>
 
                             <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">{t.method_title || "Refund Method & Timeline"}</h2>
-                                <p>{t.method_p1}</p>
+                                <h2 className="text-2xl font-black mode-aware-text">4. Force Majeure & Policy Changes</h2>
+                                <p>
+                                    In the event of sudden governmental policy changes (e.g., border closures, new visa bans), the Agency will allow for a credit-note issuance valid for 12 months, rather than a cash refund, to facilitate your entry once regulations allow.
+                                </p>
                             </section>
 
                             <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">{t.exclusions_title || "Refund Exclusions"}</h2>
-                                <p>{t.exclusions_p1}</p>
+                                <h2 className="text-2xl font-black mode-aware-text">5. Refund Timeline</h2>
+                                <p>
+                                    Approved refunds are processed within 14-30 business days through the original payment method (Bank Transfer or Midtrans/Doku gateway).
+                                </p>
                             </section>
                         </div>
 
                         <div className="p-10 bg-primary/5 dark:bg-primary/20 rounded-[3rem] border border-primary/20">
                             <p className="text-lg font-bold italic mode-aware-text leading-relaxed">
-                                By using our services, clients acknowledge that they have read and agreed to this policy.
+                                Financial Acknowledgment: By completing a payment transaction, you testify that you have read and agreed to this strict fee-separation and refund hierarchy.
                             </p>
                         </div>
                     </div>

@@ -88,9 +88,37 @@ export async function POST(request: Request) {
             return NextResponse.json(newState);
         }
 
-        if (action === 'RESET_MEMORY') {
-            await prisma.aIMasterMemory.deleteMany({});
-            return NextResponse.json({ success: true, message: "Strategic memory reset" });
+        if (action === 'APPROVE_REQUEST') {
+            const requestId = data.requestId;
+            // 1. Mark as approved in DB
+            await prisma.aIChangeRequest.update({
+                where: { requestId },
+                data: { currentState: 'approved' }
+            });
+
+            // 2. Trigger the AI Worker
+            // Note: Since this is an admin action, we trigger the worker instantly
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+            const workerRes = await fetch(`${appUrl}/api/ai-worker/execute`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.OPENAI_API_KEY_INTERNAL}`
+                },
+                body: JSON.stringify({ requestId })
+            });
+
+            const workerResult = await workerRes.json();
+            return NextResponse.json({ success: workerRes.ok, ...workerResult });
+        }
+
+        if (action === 'REJECT_REQUEST') {
+            const requestId = data.requestId;
+            await prisma.aIChangeRequest.update({
+                where: { requestId },
+                data: { currentState: 'rejected' }
+            });
+            return NextResponse.json({ success: true, message: "Request rejected" });
         }
 
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });

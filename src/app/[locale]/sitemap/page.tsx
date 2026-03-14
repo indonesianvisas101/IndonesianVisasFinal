@@ -50,6 +50,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             links: [
                 { name: "Home", href: `/${locale}` },
                 { name: "All Services", href: `/${locale}/services` },
+                { name: "Company Profile", href: `/${locale}/company-profile` },
                 { name: "About Us", href: `/${locale}/about` },
                 { name: "Pricing", href: `/${locale}/pricing` }
             ]
@@ -82,6 +83,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
                 { name: "Privacy Policy", href: `/${locale}/privacy-policy` },
                 { name: "Terms & Conditions", href: `/${locale}/terms-and-conditions` },
                 { name: "Refund Policy", href: `/${locale}/refund` },
+                { name: "Legal & Compliance", href: `/${locale}/legal` },
                 { name: "Sitemap", href: `/${locale}/sitemap` }
             ]
         },
@@ -109,12 +111,14 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             title: "Knowledge Hub",
             icon: HelpCircle,
             links: [
+                { name: "Official Visa Knowledge", href: `/${locale}/visa-knowledge/what-is-b211a` },
                 { name: "Visa FAQ Hub", href: `/${locale}/visa-faq` },
                 { name: "Immigration Updates", href: `/${locale}/indonesia-visa-updates` },
                 { name: "Digital Nomad News", href: `/${locale}/indonesia-visa-updates/indonesia-digital-nomad-visa-news` },
                 { name: "Bali Travel Info", href: `/${locale}/travel` }
             ]
         },
+
         {
             title: "Immigration News",
             icon: Newspaper,

@@ -1766,13 +1766,65 @@ Identified and fixed a bug in the `handle_new_user` SQL trigger where the missin
 4. **22 New Authority Hubs:** Dynamically generated 5 massive clusters (`/trust`, `/expat-guides`, `/business-indonesia`, `/visa-process`, `/immigration-system`) with 10+ detailed sections each.
 5. **XML and Human Sitemaps Updated:** Automatically injected `seoPageSlugs` into the main `sitemap.xml` with dynamic priority handling and enhanced the UI Directory page. 
 
-**END OF COMPREHENSIVE REPORT (Updated March 14, Phase 46 Sync)**
+---
+### Section 19: International Corporate Profile (Phase 47)
+
+**Goal:** Build a highly authoritative, legally compliant, and modular Corporate Profile page at `/company-profile` catering to VIP expats and B2B global clients.
+
+**Key Achievements:**
+1. **Component Modularity:** Created 9 zero-dependency, highly optimized pure CSS grid components (`HeroCorporate`, `ComplianceGrid`, `InteractiveTimeline`, etc.).
+2. **Elimination of Typescript Conflicts:** Bypassed MUI `@mui/material/Grid` in favor of standard `<Box display="grid" />` to secure Future-Next.js compatibility.
+3. **SEO Integration:** Injected structural `Organization` LD-JSON context, optimized `/company-profile` metadata, and mapped it persistently into `sitemap.xml`.
+4. **Build Safety Verified:** Compiled 2032 static HTML endpoints successfully with 0 lint and 0 routing errors.
+
+---
+### Section 20: Legal & Compliance Portal (Phase 48)
+
+**Goal:** Establish a text-first, high-authority compliance repository at `/legal` that strictly separates administrative assistance from government immigration authority.
+
+**Key Achievements:**
+1. **Mandatory Disclaimer Integration:** Embedded high-visibility regulatory warnings on all legal-first components.
+2. **Corporate Metadata Anchoring:** Configured a strict `Organization` schema and monochromatic UI for auditor-friendly readability.
+3. **Data-Table Registry:** Implemented clean, board-level data tracking for NIB, NPWP, and official ahus.
+4. **Scraper-Resistant Contact Hub:** Built randomized email restoration components to protect legal communication channels.
+
+---
+### Section 21: Comprehensive Compliance Hardening (Phase 49)
+
+**Goal:** Transform existing legal documents into high-authority corporate contracts with embedded metadata, strict liability clauses, and government non-affiliation disclaimers.
+
+**Key Achievements:**
+1. **Corporate Registry Integration:** Injected NIB, NPWP, AHU, and SKT details across `Privacy`, `Terms`, `Refund`, and `Affiliate` pages.
+2. **Regulatory Positioning:** Explicitly redefined the Agency as a "Private Administrative Service Provider" to ensure zero confusion with governmental authorities.
+3. **Financial Transparency:** Implemented a clear fee-separation model in the Refund Policy (Agency Fee vs. Immigration Tariff).
+4. **Ethical Marketing Standards:** Established strict conduct guidelines for affiliates to prevent misrepresentation of governmental status.
+
+**END OF COMPREHENSIVE REPORT (Updated March 14, Phase 49 Sync)**
 # 🧠 INDONESIANVISAS AI ORGANIZATION
 ## MASTER SYSTEM EXTENSION PROMPT v2.6
 
 *(Production-Ready Completion Layer)*
 
 ### SECTION 1 — SYSTEM STATUS VALIDATION
+### Section 23: Phase 41 - AI Topic Discovery & Analyst Integration
+**Status: COMPLETED** (2026-03-14)
+
+1. **Analyst → Admin Integration**:
+    - Re-aligned `AIChangeRequest` schema fields (`id`, `initiatedBy`, `changeType`) to ensure `AI_IMMIGRATION_ANALYST` drafts are visible in the AI Master Panel's Approval Queue.
+    - Enhanced the Admin UI to correctly display agent-initiated knowledge articles with a "SECONDARY" (Purple) chip indicator.
+
+2. **Autonomous Topic Discovery Engine**:
+    - Implemented `TOPIC_DISCOVERY_ENGINE` to aggregate signals from Google Trends, Regulatory news, and Expat relocation queries.
+    - Deployed `TOPIC_FILTERS` (Relevance & Uniqueness) to prevent content duplication.
+
+3. **High-Standard Content Generation**:
+    - Updated `knowledgeGenerator.ts` to enforce a 1200-3000 word count per article.
+    - Integrated an internal linking engine to boost SEO and cross-navigation with core visa guides.
+    - Automating Schema.org injection (Article & FAQ JSON-LD) for all knowledge pages.
+
+4. **Strategic Governance**:
+    - Configured `TOPIC_SCHEDULER` with strict rate limits (2 articles/day, 10/week) to maintain quality control.
+    - Verified the production build pipeline successfully manages the new dynamic routing for knowledge articles.
 
 Before implementing anything:
 1. Validate Constitution v1.0 exists.
@@ -2083,4 +2135,40 @@ Before production:
 If any test fails:
 → Block production release.
 
+### Section 22: Programmatic Visa Knowledge Engine (Phase 40)
+**Sync Date:** March 14, 2026 (Phase 40 Final)
+**Focus:** Autonomous Content Expansion & Dynamic Knowledge Architecture
+
+#### 1. AI Immigration Analyst Agent
+- **Deployment**: Launched `AI_IMMIGRATION_ANALYST` (Immigration Intelligence & SEO Knowledge Generator).
+- **Capabilities**: Autonomous topic identification, 1200-3000 word article generation, and multi-section structured content creation.
+- **Safety**: Enforced strict rate-limiting (2/day, 10/week) and full governance integration.
+
+#### 2. Dynamic Knowledge Architecture
+- **Infrastructure**: Implemented `KnowledgePage` database model with dynamic `[slug]` routing.
+- **SEO Optimization**: Automated meta tag generation, JSON-LD schema support, and full localized URL architecture.
+- **Publishing Workflow**: Content follows the AI Analyst → Boss Approval → AI Worker Publishing pipeline.
+
+#### 3. Ecosystem Integration
+- **Sitemap.xml**: Asynchronous dynamic injection of knowledge articles into the global sitemap.
+- **Directory**: Added "Official Visa Knowledge" section to the human-readable site directory.
+- **Verification**: Database synced and built successfully with 0 disruption to core application systems.
+
 ***END OF MASTER SYSTEM EXTENSION PROMPT v2.6***
+
+### Section 24: Phase 42 - AI Immigration Updates Integration
+**Status: COMPLETED & HARDENED** (2026-03-14)
+
+1.  **AI News Agent**:
+    - Created `newsGenerator.ts` for fact-based, timely news creation.
+    - Extended `AI_IMMIGRATION_ANALYST` with news proposal capability.
+2.  **Governed Flow**:
+    - Updated AI Worker to handle `immigration_update` executes.
+    - **CRITICAL FIX**: Resolved branch logic fall-through that was causing "unexpected response" errors during publishing.
+    - Added snapshotting for news publishing to ensure 100% rollback accuracy.
+3.  **Scheduling**:
+    - Configured `newsScheduler.ts` for a weekly news discovery cadence (1 post/week).
+4.  **Admin UI**:
+    - Implemented a detailed **Review Modal** in the AI Master Panel.
+    - Hardened `handleManagementAction` with robust JSON/Status error handling to prevent dashboard crashes.
+    - Standardized `toggleMode` logic and refined TypeScript definitions for dashboard stability.

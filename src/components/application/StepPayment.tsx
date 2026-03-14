@@ -23,7 +23,11 @@ const CURRENCIES = [
 ];
 
 const StepPayment = () => {
-    const { setStep, country, visaType, personalInfo, completedSteps, markStepComplete, resetApplication, closePanel, documents, visas, numPeople, travelers } = useApplication();
+    const { 
+        setStep, country, visaType, personalInfo, completedSteps, 
+        markStepComplete, resetApplication, closePanel, documents, 
+        visas, numPeople, travelers, upsells, toggleUpsell 
+    } = useApplication();
     const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -71,6 +75,11 @@ const StepPayment = () => {
         }
 
         totalAmount = (baseAmount + feeAmount) * numPeople;
+
+        // Add Upsells
+        if (upsells.express) totalAmount += 800000;
+        if (upsells.insurance) totalAmount += 500000;
+        if (upsells.vip) totalAmount += 1500000;
     }
 
     const processCheckout = async () => {
@@ -126,10 +135,11 @@ const StepPayment = () => {
                     guestEmail: personalInfo.email,
                     paymentMethod: selectedMethod,
                     customAmount: totalAmount.toString(),
-                    documents: uploadedDocs, // Add the synced document urls here!
-                    adminNotes: travelers && travelers.length > 0 
+                    documents: uploadedDocs,
+                    upsells: upsells, // Persist selected add-ons
+                    adminNotes: (travelers && travelers.length > 0 
                         ? `Additional Travelers:\n${travelers.map(t => `- ${t.firstName} ${t.lastName} (Passport: ${t.passport}, DOB: ${t.dob})`).join('\n')}`
-                        : "No additional travelers."
+                        : "") + (Object.values(upsells).some(v => v) ? `\n\nAdd-ons Selected: ${Object.entries(upsells).filter(([k,v]) => v).map(([k,v]) => k.toUpperCase()).join(', ')}` : "")
                 })
             });
 
@@ -257,6 +267,47 @@ const StepPayment = () => {
                             IDR {totalAmount.toLocaleString()}
                         </span>
                     </div>
+                    </div>
+                </div>
+
+                <div className="mt-6">
+                    <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                        <Send size={16} className="text-primary" /> Premium Add-ons (Optional)
+                    </h4>
+                    <div className="space-y-3">
+                        <div 
+                            className={`${styles.upsellItem} ${upsells.express ? styles.upsellActive : ''}`}
+                            onClick={() => toggleUpsell('express')}
+                        >
+                            <div className="flex-grow">
+                                <p className="text-sm font-bold">🚀 Express Processing</p>
+                                <p className="text-[10px] text-gray-500">Legal review in 4 hours & priority queue.</p>
+                            </div>
+                            <span className="text-sm font-bold text-primary">+IDR 800k</span>
+                        </div>
+
+                        <div 
+                            className={`${styles.upsellItem} ${upsells.insurance ? styles.upsellActive : ''}`}
+                            onClick={() => toggleUpsell('insurance')}
+                        >
+                            <div className="flex-grow">
+                                <p className="text-sm font-bold">🛡️ Medical Insurance</p>
+                                <p className="text-[10px] text-gray-500">Full Bali nomad health coverage (30 days).</p>
+                            </div>
+                            <span className="text-sm font-bold text-primary">+IDR 500k</span>
+                        </div>
+
+                        <div 
+                            className={`${styles.upsellItem} ${upsells.vip ? styles.upsellActive : ''}`}
+                            onClick={() => toggleUpsell('vip')}
+                        >
+                            <div className="flex-grow">
+                                <p className="text-sm font-bold">💎 VIP Airport Transfer</p>
+                                <p className="text-[10px] text-gray-500">Private luxury pickup from DPS Airport.</p>
+                            </div>
+                            <span className="text-sm font-bold text-primary">+IDR 1.5M</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className={styles.currencySection}>
@@ -320,8 +371,7 @@ const StepPayment = () => {
                         <span className={styles.summaryValue}>{personalInfo.phone || "-"}</span>
                     </div>
                 </div>
-            </div>
-
+            
             {/* Payment Methods */}
             <div className={`glass-card ${styles.paymentMethodsCard}`}>
                 <h4 className={styles.summaryTitle}>Select Payment Method</h4>

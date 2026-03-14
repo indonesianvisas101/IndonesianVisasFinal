@@ -79,6 +79,7 @@ model VisaApplication {
   expiresAt      DateTime?
   appliedAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  attribution    Json?     // Stores UTM params, referrer, etc.
   user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("visa_applications")
@@ -340,4 +341,18 @@ model ChatConversation {
    updatedAt   DateTime  @updatedAt
  
    @@map("immigration_updates")
+ }
+ 
+ model MarketingLead {
+   id              String   @id @default(cuid())
+   email           String   @unique
+   name            String?
+   phone           String?
+   visaType        String?  // The visa they were looking at
+   status          String   @default("LEAD") // LEAD, QUALIFIED, CONVERTED, ABANDONED
+   attributionData Json?    // { source, medium, campaign, campaignId, referrer }
+   createdAt       DateTime @default(now())
+   updatedAt       DateTime @updatedAt
+ 
+   @@map("marketing_leads")
  }

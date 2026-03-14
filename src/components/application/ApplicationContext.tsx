@@ -65,6 +65,13 @@ interface ApplicationState {
 
     // New: Admin User Management
     adminUsers: AdminUser[];
+
+    // New: Upsells
+    upsells: {
+        express: boolean;
+        insurance: boolean;
+        vip: boolean;
+    };
 }
 
 export interface AppNotification {
@@ -98,6 +105,7 @@ interface ApplicationContextType extends ApplicationState {
     // Notifications
     notifications: Record<string, AppNotification[]>;
     allNotifications: AppNotification[];
+    toggleUpsell: (key: 'express' | 'insurance' | 'vip') => void;
     pushNotification: (userId: string, message: string) => void;
     setNotifications: (userId: string, notifications: AppNotification[]) => void;
     setAllNotifications: (notifications: AppNotification[]) => void;
@@ -138,7 +146,12 @@ const defaultState: ApplicationState = {
     announcement: null,
     notifications: {},
     allNotifications: [],
-    adminUsers: DEFAULT_MOCK_USERS
+    adminUsers: DEFAULT_MOCK_USERS,
+    upsells: {
+        express: false,
+        insurance: false,
+        vip: false
+    }
 };
 
 // Types
@@ -234,10 +247,50 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const updatePersonalInfo = (key: keyof ApplicationState['personalInfo'], value: string) => {
-        setState((prev) => ({
-            ...prev,
-            personalInfo: { ...prev.personalInfo, [key]: value },
-        }));
+        setState((prev) => {
+            const newState = {
+                ...prev,
+                personalInfo: { ...prev.personalInfo, [key]: value },
+            };
+            
+            // SIDE EFFECT: Ghost Lead Capture
+            // If we have email and at least one other field (name or phone), save as lead
+            if (newState.personalInfo.email && (newState.personalInfo.firstName || newState.personalInfo.phone)) {
+                saveLead(newState);
+            }
+            
+            return newState;
+        });
+    };
+
+    const saveLead = async (currentState: ApplicationState) => {
+        try {
+            // Get attribution from cookie
+            const getCookie = (name: string) => {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop()?.split(';').shift();
+                return null;
+            };
+
+            const attributionRaw = getCookie('marketing_attribution');
+            const attribution = attributionRaw ? JSON.parse(decodeURIComponent(attributionRaw)) : null;
+
+            await fetch('/api/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: currentState.personalInfo.email,
+                    name: `${currentState.personalInfo.firstName} ${currentState.personalInfo.lastName}`.trim(),
+                    phone: currentState.personalInfo.phone,
+                    visaType: currentState.visaType || 'Unknown',
+                    attributionData: attribution
+                })
+            });
+        } catch (e) {
+            // Silent fail for lead capture
+            console.warn("Lead capture failed", e);
+        }
     };
 
     const updateTraveler = (index: number, key: string, value: string) => {
@@ -378,6 +431,16 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
+    const toggleUpsell = (key: 'express' | 'insurance' | 'vip') => {
+        setState(prev => ({
+            ...prev,
+            upsells: {
+                ...prev.upsells,
+                [key]: !prev.upsells[key]
+            }
+        }));
+    };
+
     return (
         <ApplicationContext.Provider
             value={{
@@ -417,7 +480,8 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 deleteNotification,
                 adminUsers: state.adminUsers,
                 updateAdminUser,
-                selectVisa
+                selectVisa,
+                toggleUpsell
             }}
         >
             {children}

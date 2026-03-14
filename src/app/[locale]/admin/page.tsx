@@ -99,7 +99,7 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import LinkIcon from '@mui/icons-material/Link';
 import MessageIcon from '@mui/icons-material/Message';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import { Campaign as CampaignIcon } from "@mui/icons-material";
+import { Campaign as CampaignIcon, BarChart as BarChartIcon } from "@mui/icons-material";
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import BusinessIcon from "@mui/icons-material/Business";
 import ShoppingCart from "@mui/icons-material/ShoppingCart";
@@ -117,6 +117,7 @@ import AuditLogTab from "@/components/admin/sections/AuditLogTab"; // New import
 import ArrivalCardsTab from "@/components/admin/sections/ArrivalCardsTab"; // NEW
 import AIMasterTab from "@/components/admin/sections/AIMasterTab"; // NEW
 import ImmigrationUpdatesTab from "@/components/admin/sections/ImmigrationUpdatesTab"; // NEW
+import MarketingTab from "@/components/admin/sections/MarketingTab"; // NEW MARKETING TAB
 import HistoryIcon from '@mui/icons-material/History'; // New import
 import PsychologyIcon from "@mui/icons-material/Psychology"; // Added
 import OrderPanel from "@/components/admin/sections/OrderPanel";
@@ -133,7 +134,7 @@ const INITIAL_STATS = [
     { key: 'revenue', title: "Revenue", value: "$0", change: "0%", isPositive: true, icon: <AttachMoneyIcon />, color: "info.main", bg: "info.light" },
 ];
 
-type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master' | 'orders' | 'updates';
+type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master' | 'orders' | 'updates' | 'marketing';
 
 // Main Content Component (Logic moved here)
 function AdminDashboardContent() {
@@ -1075,6 +1076,7 @@ function AdminDashboardContent() {
                     { key: 'invoicing', label: 'Invoicing', icon: <ReceiptIcon /> },
                     { key: 'logs', label: 'Audit Logs', icon: <HistoryIcon /> },
                     { key: 'ai_master', label: 'AI Master', icon: <PsychologyIcon /> },
+                    { key: 'marketing', label: 'Marketing Intelligence', icon: <BarChartIcon /> },
                     { key: 'orders', label: 'Incoming Orders', icon: <ShoppingCart sx={{ fontSize: 20 }} />, badge: newOrdersCount },
                     { key: 'updates', label: 'Immigration Updates', icon: <CampaignIcon /> },
                     { key: 'support', label: 'Support Chat', icon: <MessageIcon />, badge: allNotifications.filter(n => !n.isRead).length },
@@ -1519,6 +1521,13 @@ function AdminDashboardContent() {
                     {activeTab === 'updates' && (
                         <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
                             <ImmigrationUpdatesTab />
+                        </Box>
+                    )}
+
+                    {/* --- MARKETING TAB --- */}
+                    {activeTab === 'marketing' && (
+                        <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
+                            <MarketingTab />
                         </Box>
                     )}
 

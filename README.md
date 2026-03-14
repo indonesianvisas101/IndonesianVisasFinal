@@ -10,7 +10,7 @@ To provide the most secure, transparent, and aesthetically premium visa processi
 - **Database**: Supabase PostgreSQL + Prisma ORM
 - **UI/UX**: Vanilla CSS + Framer Motion (premium micro-animations)
 - **Payment**: DOKU Jokul & Midtrans (dual-engine transparency)
-- **AI Orchestration**: Multi-agent system (Ai Master, Ai Seller, Ai Risk) with `@BossBayu2026` command logic.
+- **AI Orchestration**: Multi-agent system (Ai Master, Ai Seller, Ai Risk) with `.....` command logic.
 
 ## 🛡️ Key Features
 - **Visa Advance System™**: Multi-layer database verification for travel documents.

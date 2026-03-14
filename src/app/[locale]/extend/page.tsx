@@ -67,7 +67,7 @@ export default function ExtendPage({ params }: { params: Promise<{ locale: strin
                     </div>
                     <div className="relative h-[500px] rounded-[3rem] overflow-hidden group shadow-2xl border-8 border-white dark:border-white/10">
                         <Image 
-                            src="/images/pages/Indonesian Glonal Logistic.webp" 
+                            src="/images/pages/indonesian-global-logistics.webp" 
                             alt="Passport Logistics" 
                             fill 
                             className="object-cover transition-transform duration-1000 group-hover:scale-105" 

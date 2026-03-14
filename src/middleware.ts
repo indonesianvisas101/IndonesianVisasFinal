@@ -2,9 +2,11 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 import { locales, defaultLocale } from '@/i18n/locales'
+import { handleMarketingAttribution } from '@/lib/marketing'
 
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
+    let response = NextResponse.next();
 
     // OPTIMIZATION: Return early for public static assets/routes if strict matcher misses them
     // (Though matcher below handles most)
@@ -56,14 +58,15 @@ export async function middleware(request: NextRequest) {
     if (locales.includes(pathLocale as any)) {
         const currentCookie = request.cookies.get('NEXT_LOCALE')?.value;
         if (currentCookie !== pathLocale) {
-            const response = NextResponse.next();
-            response.cookies.set('NEXT_LOCALE', pathLocale, { path: '/', maxAge: 31536000 });
-            return response;
+            const localeResponse = NextResponse.next();
+            localeResponse.cookies.set('NEXT_LOCALE', pathLocale, { path: '/', maxAge: 31536000 });
+            return localeResponse;
         }
     }
 
     // 2. Run Supabase Auth Logic (Refresh Token) on the localized path
-    const { response, user } = await updateSession(request)
+    const { response: sessionResponse, user } = await updateSession(request)
+    response = sessionResponse;
 
     // 3. Protected Routes (Dashboard / Admin)
     // We need to check if the path (stripped of locale) is protected
@@ -103,6 +106,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url)
     }
 
+
+    // 5. Finalize Marketing Attribution & Cookies
+    response = await handleMarketingAttribution(request, response);
 
     return response
 }

@@ -192,3 +192,49 @@ export const sendAdminOrderNotification = async (data: {
         return { success: false, error };
     }
 };
+
+export const sendAbandonedCartEmail = async (to: string, data: {
+    applicantName: string;
+    visaType: string;
+    resumeUrl: string;
+}) => {
+    try {
+        const { applicantName, visaType, resumeUrl } = data;
+        
+        let message = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h2 style="color: #9155FD;">Need help with your ${visaType}?</h2>
+                <p>Hello ${applicantName},</p>
+                <p>We noticed you started an application for an <strong>Indonesian ${visaType}</strong> but didn't quite finish.</p>
+                <p>In Bali, things move fast! We've saved your progress so you can pick up exactly where you left off.</p>
+                
+                <div style="margin: 30px 0; text-align: center;">
+                    <a href="${resumeUrl}" style="background-color: #9155FD; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Resume Your Application</a>
+                </div>
+
+                <div style="background-color: #F4F0FF; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p style="margin: 0; color: #5B21B6; font-size: 14px;"><strong>Why complete your application now?</strong><br/>
+                    • Guaranteed review by our legal experts within 4 hours.<br/>
+                    • Avoid last-minute price increases or regulatory changes.<br/>
+                    • 100% Secure & Official Indonesian Visa Agency.</p>
+                </div>
+                
+                <p style="color: #666; font-size: 14px;">If you have any questions, just reply to this email or reach out via WhatsApp.</p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
+                <p style="font-size: 12px; color: #999;">PT Indonesian Visas Agency™<br/>Jl. Tibungsari No.11C, Bali, Indonesia</p>
+            </div>
+        `;
+
+        await resend.emails.send({
+            from: 'Indonesian Visas <contact@indonesianvisas.agency>',
+            to: [to],
+            subject: `Wait! Your Indonesia Visa application for ${visaType} is almost ready`,
+            html: message,
+        });
+        
+        return { success: true };
+    } catch (error) {
+        console.error("Resend Abandoned Cart Error:", error);
+        return { success: false, error };
+    }
+};

@@ -8,8 +8,8 @@ import Image from 'next/image';
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewsFeedPage({ params }: { params: { locale: string } }) {
-    const { locale } = params;
+export default async function NewsFeedPage({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
     
     const updates = await prisma.immigrationUpdate.findMany({
         where: { published: true },

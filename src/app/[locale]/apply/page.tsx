@@ -58,7 +58,7 @@ export default function ApplyPage({ params }: { params: Promise<{ locale: string
                         </ul>
                     </div>
                     <div className="relative h-[400px] rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white dark:border-white/10">
-                        <Image src="/images/pages/ImmigratioHub.webp" alt="Document Verification" fill className="object-cover" />
+                        <Image src="/images/pages/immigration-hub.webp" alt="Document Verification" fill className="object-cover" />
                     </div>
                 </div>
             </SectionWrapper>
@@ -103,7 +103,7 @@ export default function ApplyPage({ params }: { params: Promise<{ locale: string
                             </div>
                         </div>
                         <div className="relative aspect-video bg-white/5 rounded-3xl border border-white/10 p-2 overflow-hidden">
-                           <Image src="/images/pages/Indonesian Glonal Logistic.webp" alt="Tracking Dashboard" fill className="object-contain opacity-80" />
+                           <Image src="/images/pages/indonesian-global-logistics.webp" alt="Tracking Dashboard" fill className="object-contain opacity-80" />
                         </div>
                     </div>
                 </div>

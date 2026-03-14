@@ -152,7 +152,7 @@ export async function POST(request: Request) {
             guestName, guestEmail, guestAddress, paymentMethod, customAmount,
             description, verificationId, appliedAt,
             // New fields
-            paymentReference, adminNotes, documents
+            paymentReference, adminNotes, documents, attribution
         } = body;
 
         // Validation
@@ -224,6 +224,7 @@ export async function POST(request: Request) {
                 verificationId: finalVerificationId,
                 slug,
                 documents: documents || null,
+                attribution: attribution || null,
             }
         });
 

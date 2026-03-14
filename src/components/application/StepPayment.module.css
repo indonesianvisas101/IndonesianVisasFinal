@@ -205,3 +205,28 @@
 .convertedDisplay p {
     margin: 0;
 }
+
+.upsellItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.upsellItem:hover {
+    border-color: var(--primary);
+    background: #F8FAFC;
+    transform: translateX(4px);
+}
+
+.upsellActive {
+    border-color: var(--primary);
+    background: rgba(75, 0, 130, 0.05);
+    box-shadow: 0 0 0 1px var(--primary);
+}

@@ -12,6 +12,7 @@ import { locales } from "@/i18n/locales";
 import { GlobalUIProvider } from "@/hooks/useGlobalUI";
 import GlobalUIOverlay from "@/components/ui/GlobalUIOverlay";
 import { Suspense } from "react";
+import { GoogleTagManager } from '@next/third-parties/google';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -104,6 +105,7 @@ export default async function LocaleLayout({
   return (
     <html lang={currentLocale}>
       <head>
+        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" />
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="preconnect" href="https://api.doku.com" />

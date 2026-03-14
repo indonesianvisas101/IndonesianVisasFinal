@@ -871,6 +871,13 @@ function AdminDashboardContent() {
             documents: async () => simpleFetch('/api/documents'), // HEAD
             notifications: async () => simpleFetch('/api/notifications'), // HEAD
             upload: async () => simpleFetch('/api/upload'), // Check Bucket & Auto-Recover
+            report_pull: async () => simpleFetch('/api/admin/reports/dynamic'),
+            report_push: async () => {
+                try {
+                    const res = await fetch('/api/admin/reports/test-push', { method: 'POST' });
+                    return res.ok;
+                } catch { return false; }
+            }
         };
 
         const simpleFetch = async (url: string) => {
@@ -1067,19 +1074,19 @@ function AdminDashboardContent() {
             <List sx={{ px: 2, pt: 2 }}>
                 {[
                     { key: 'dashboard', label: 'Overview', icon: <DashboardIcon /> },
-                    { key: 'visas', label: 'Visa Database', icon: <DescriptionIcon /> },
+                    { key: 'support', label: 'Support Chat', icon: <MessageIcon />, badge: allNotifications.filter(n => !n.isRead).length },
                     { key: 'users', label: 'User Management', icon: <PeopleIcon /> },
-                    { key: 'popular_visas', label: 'Popular Visa', icon: <TrendingUpIcon /> },
-                    { key: 'arrival_cards', label: 'Arrival Cards', icon: <DescriptionIcon /> },
                     { key: 'verification', label: 'Verification', icon: <VerifiedUserIcon /> },
+                    { key: 'visas', label: 'Visa Database', icon: <DescriptionIcon /> },
+                    { key: 'popular_visas', label: 'Popular Visa', icon: <TrendingUpIcon /> },
                     { key: 'company_services', label: 'Company Formation', icon: <BusinessIcon /> },
+                    { key: 'arrival_cards', label: 'Arrival Card', icon: <DescriptionIcon /> },
+                    { key: 'orders', label: 'Incoming Order', icon: <ShoppingCart sx={{ fontSize: 20 }} />, badge: newOrdersCount },
                     { key: 'invoicing', label: 'Invoicing', icon: <ReceiptIcon /> },
                     { key: 'logs', label: 'Audit Logs', icon: <HistoryIcon /> },
-                    { key: 'ai_master', label: 'AI Master', icon: <PsychologyIcon /> },
+                    { key: 'ai_master', label: 'Ai Master', icon: <PsychologyIcon /> },
                     { key: 'marketing', label: 'Marketing Intelligence', icon: <BarChartIcon /> },
-                    { key: 'orders', label: 'Incoming Orders', icon: <ShoppingCart sx={{ fontSize: 20 }} />, badge: newOrdersCount },
                     { key: 'updates', label: 'Immigration Updates', icon: <CampaignIcon /> },
-                    { key: 'support', label: 'Support Chat', icon: <MessageIcon />, badge: allNotifications.filter(n => !n.isRead).length },
                 ].map((item) => (
                     <ListItem key={item.key} disablePadding sx={{ mb: 1 }}>
                         <ListItemButton
@@ -1328,6 +1335,13 @@ function AdminDashboardContent() {
                                                         { key: 'documents', label: 'Documents', icon: <DescriptionIcon /> },
                                                         { key: 'notifications', label: 'Notifications', icon: <NotificationsActiveIcon /> },
                                                         { key: 'upload', label: 'Upload System', icon: <CloudUploadIcon /> },
+                                                    ]
+                                                },
+                                                {
+                                                    title: "Reporting & Synchronization",
+                                                    items: [
+                                                        { key: 'report_pull', label: 'Data Pull API', icon: <DownloadIcon /> },
+                                                        { key: 'report_push', label: 'Google Sheet Push', icon: <PrintIcon /> },
                                                     ]
                                                 }
                                             ].map((group, gIdx) => (

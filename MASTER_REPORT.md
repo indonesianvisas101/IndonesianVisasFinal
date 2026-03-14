@@ -2171,5 +2171,29 @@ If any test fails:
 4.  **Admin UI**:
     - Implemented a detailed **Review Modal** in the AI Master Panel.
     - Hardened `handleManagementAction` with robust JSON/Status error handling to prevent dashboard crashes.
-    - Standardized `toggleMode` logic and refined TypeScript definitions for dashboard stability.
-    
+
+### PHASE 50: AI KNOWLEDGE INTELLIGENCE HARDENING (COMPLETED)
+- **Status**: COMPLETED & DEPLOYED to main
+- **Core Intelligence**:
+    - Integrated **AI Topic Memory** (topicMemory.ts) with semantic similarity guards to prevent SEO cannibalization.
+    - Implemented **Authority Control Layer** (authorityControl.ts) and **Source Reference System**, ensuring all content cites official regulations.
+    - Built **AI Content Quality Engine** (qualityEngine.ts) with automated scoring (>85 threshold) for readability, SEO, and uniqueness.
+- **Workflow Orchestration**:
+    - Upgraded `immigrationAnalystAgent.ts` and `topicScheduler.ts` to use intelligence-first workflows.
+    - Added **Topic Clustering** for better semantic navigation.
+- **Admin Dashboard**:
+    - Upgraded `AIMasterTab.tsx` with **Cluster** and **Quality Score** badges in the approval queue.
+    - Implemented a **Triple-Tab Review Modal** (Content, Sources, Metrics) for data-driven approvals.
+- **Distribution**:
+    - Updated `sitemap.ts` with dynamic priorities: Core Guides (0.9), Knowledge (0.7), News (0.6).
+    - Verified full production build (2052 pages).
+
+### PHASE 51: ADMIN OPTIMIZATION & DYNAMIC REPORTING (COMPLETED)
+- **Status**: COMPLETED
+- **UX Refinement**:
+    - Reordered **Admin Sidebar** to match the user's specific workflow: Overview -> Support -> User Mgmt -> Verification -> Visa DB -> Popular Visa -> Company Formation -> Arrival Card -> Orders -> Invoicing -> Audit Logs -> AI Master -> Marketing -> Update.
+- **Dynamic Reporting Engine**:
+    - **API Integration**: Created `/api/admin/reports/dynamic` to serve real-time multi-model data (Users, Visas, Applications, etc.).
+    - **Security**: Implemented `DYNAMIC_REPORT_SECRET` validation for secure external access.
+    - **Apps Script**: Prepared a custom Google Apps Script for the "indonesianvisas.com Report" spreadsheet, enabling one-click synchronization of all platform data.
+- **Environment**: Configured secret keys in `.env.local` for production-ready linking.

@@ -23,59 +23,143 @@ export async function GET(req: Request) {
     }
 
     try {
+        // 2. Log Access (Auditing)
+        if (isSecretValid) {
+            await prisma.auditLog.create({
+                data: {
+                    adminId: "DYNAMIC_REPORT_API",
+                    action: "EXPORT_REPORT",
+                    entityType: type || "manifest",
+                    metadata: { 
+                        method: "SECRET_KEY",
+                        type: type || "all",
+                        ip: req.headers.get('x-forwarded-for') || "unknown"
+                    }
+                }
+            });
+        }
+
         switch (type) {
             case 'users':
                 return NextResponse.json(await prisma.user.findMany({ 
                     orderBy: { createdAt: 'desc' },
-                    select: { id: true, email: true, name: true, role: true, status: true, createdAt: true }
+                    select: { 
+                        id: true, 
+                        email: true, 
+                        name: true, 
+                        whatsapp: true,
+                        role: true, 
+                        status: true, 
+                        createdAt: true,
+                        last_activity_at: true
+                    }
                 }));
             
             case 'visas':
                 return NextResponse.json(await prisma.visa.findMany({ 
-                    orderBy: { category: 'asc' }
+                    orderBy: { category: 'asc' },
+                    select: {
+                        id: true,
+                        category: true,
+                        name: true,
+                        price: true,
+                        fee: true,
+                        validity: true,
+                        extendable: true,
+                        createdAt: true
+                    }
                 }));
 
             case 'popular_visas':
                 return NextResponse.json(await prisma.visa.findMany({
-                    where: { id: { in: POPULAR_VISA_IDS } }
+                    where: { id: { in: POPULAR_VISA_IDS } },
+                    select: {
+                        id: true,
+                        name: true,
+                        category: true,
+                        price: true
+                    }
                 }));
 
             case 'arrival_cards':
                 return NextResponse.json(await prisma.arrivalCard.findMany({
-                    orderBy: { createdAt: 'desc' }
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        fullName: true,
+                        passportNumber: true,
+                        arrivalDate: true,
+                        flightNumber: true,
+                        status: true,
+                        createdAt: true
+                    }
                 }));
 
             case 'orders':
                 return NextResponse.json(await prisma.visaApplication.findMany({
                     orderBy: { appliedAt: 'desc' },
-                    include: { user: { select: { email: true, name: true } } }
+                    include: { 
+                        user: { 
+                            select: { 
+                                email: true, 
+                                name: true 
+                            } 
+                        } 
+                    }
                 }));
 
             case 'verification':
                 return NextResponse.json(await prisma.verification.findMany({
-                    orderBy: { createdAt: 'desc' }
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        fullName: true,
+                        passportNumber: true,
+                        visaType: true,
+                        issuedDate: true,
+                        status: true,
+                        expiresAt: true,
+                        slug: true
+                    }
                 }));
 
             case 'invoicing':
                 return NextResponse.json(await prisma.invoice.findMany({
-                    orderBy: { id: 'desc' }
+                    orderBy: { id: 'desc' },
+                    select: {
+                        id: true,
+                        amount: true,
+                        currency: true,
+                        status: true,
+                        paymentMethod: true,
+                        createdAt: true,
+                        paidAt: true
+                    }
                 }));
 
             case 'logs':
                 return NextResponse.json(await prisma.auditLog.findMany({
                     take: 500,
-                    orderBy: { createdAt: 'desc' }
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        adminId: true,
+                        action: true,
+                        entityType: true,
+                        metadata: true,
+                        createdAt: true
+                    }
                 }));
 
             default:
-                // Return overview/manifest if no type
                 return NextResponse.json({ 
-                    message: "Dynamic Report API Active", 
+                    status: "Production Active", 
+                    synchronized: true,
                     available_types: ['users', 'visas', 'popular_visas', 'arrival_cards', 'orders', 'verification', 'invoicing', 'logs']
                 });
         }
     } catch (error: any) {
-        console.error(`[ReportAPI] Error fetching ${type}:`, error);
-        return NextResponse.json({ error: "Failed to aggregate report data", details: error.message }, { status: 500 });
+        console.error(`[ReportAPI] Error:`, error);
+        return NextResponse.json({ error: "Failed to process production report" }, { status: 500 });
     }
 }

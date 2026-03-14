@@ -99,7 +99,7 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import LinkIcon from '@mui/icons-material/Link';
 import MessageIcon from '@mui/icons-material/Message';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import { Campaign as CampaignIcon, BarChart as BarChartIcon } from "@mui/icons-material";
+import { Campaign as CampaignIcon, BarChart as BarChartIcon, Assessment as AnalyticsIcon } from "@mui/icons-material";
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import BusinessIcon from "@mui/icons-material/Business";
 import ShoppingCart from "@mui/icons-material/ShoppingCart";
@@ -872,12 +872,7 @@ function AdminDashboardContent() {
             notifications: async () => simpleFetch('/api/notifications'), // HEAD
             upload: async () => simpleFetch('/api/upload'), // Check Bucket & Auto-Recover
             report_pull: async () => simpleFetch('/api/admin/reports/dynamic'),
-            report_push: async () => {
-                try {
-                    const res = await fetch('/api/admin/reports/test-push', { method: 'POST' });
-                    return res.ok;
-                } catch { return false; }
-            }
+            reporting: async () => simpleFetch('/api/admin/reports/dynamic')
         };
 
         const simpleFetch = async (url: string) => {
@@ -1338,10 +1333,9 @@ function AdminDashboardContent() {
                                                     ]
                                                 },
                                                 {
-                                                    title: "Reporting & Synchronization",
+                                                    title: "Production Intelligence",
                                                     items: [
-                                                        { key: 'report_pull', label: 'Data Pull API', icon: <DownloadIcon /> },
-                                                        { key: 'report_push', label: 'Google Sheet Push', icon: <PrintIcon /> },
+                                                        { key: 'reporting', label: 'Dynamic Reporting', icon: <AnalyticsIcon /> },
                                                     ]
                                                 }
                                             ].map((group, gIdx) => (

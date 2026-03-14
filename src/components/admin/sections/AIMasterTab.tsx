@@ -221,6 +221,7 @@ export default function AIMasterTab() {
     const [sellerCmdInput, setSellerCmdInput] = useState('');
     const [sellerCmdLoading, setSellerCmdLoading] = useState(false);
     const [selectedConv, setSelectedConv] = useState<any | null>(null);
+    const [lastSyncInfo, setLastSyncInfo] = useState<{ time: string; action: string } | null>(null);
 
     // Chat State — plain messages, no useChat dependency
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -347,6 +348,19 @@ export default function AIMasterTab() {
             console.error("Dashboard Sync Error:", err);
             setError("Failed to synchronize with Antigravity Neutral Engine.");
         } finally {
+            // Fetch last sync from audit logs
+            try {
+                const logRes = await fetch('/api/admin/logs?limit=1');
+                if (logRes.ok) {
+                    const logData = await logRes.json();
+                    if (logData.data && logData.data.length > 0) {
+                        setLastSyncInfo({
+                            time: logData.data[0].createdAt,
+                            action: logData.data[0].action
+                        });
+                    }
+                }
+            } catch (e) { /* ignore */ }
             setLoading(false);
         }
     }, [fetchManagementData]);
@@ -442,10 +456,16 @@ export default function AIMasterTab() {
                         <Typography variant="h3" fontWeight="900" letterSpacing="-1px">AI MASTER ORCHESTRATOR</Typography>
                         <Stack direction="row" spacing={1} alignItems="center">
                             <Chip
-                                label={`SYSTEM MODE: ${systemState?.mode?.toUpperCase() || 'NORMAL'}`}
-                                color={systemState?.mode === 'normal' ? 'success' : 'warning'}
+                                label="PRODUCTION ACTIVE"
+                                color="success"
                                 size="small"
-                                icon={systemState?.mode === 'normal' ? <SuccessIcon /> : <WarningIcon />}
+                                sx={{ fontWeight: 'bold', px: 1 }}
+                            />
+                            <Chip
+                                label={`MODE: ${systemState?.mode?.toUpperCase() || 'NORMAL'}`}
+                                color={systemState?.mode === 'normal' ? 'primary' : 'warning'}
+                                size="small"
+                                variant="outlined"
                             />
                             <Typography variant="caption" color="text.secondary">Antigravity Neural Engine v2.5-PROD</Typography>
                         </Stack>
@@ -484,7 +504,14 @@ export default function AIMasterTab() {
                             <Typography variant="h4" fontWeight="bold" color={systemState?.systemHealthStatus === 'healthy' ? 'success.main' : 'error.main'}>
                                 {systemState?.systemHealthStatus?.toUpperCase() || 'UNKNOWN'}
                             </Typography>
-                            <Typography variant="caption">Last risk scan: {systemState?.lastRiskScan ? new Date(systemState.lastRiskScan).toLocaleTimeString() : 'Never'}</Typography>
+                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                                <Typography variant="caption">Last risk scan: {systemState?.lastRiskScan ? new Date(systemState.lastRiskScan).toLocaleTimeString() : 'Never'}</Typography>
+                                {lastSyncInfo && (
+                                    <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        <AuditIcon sx={{ fontSize: 12 }} /> Last Sync: {new Date(lastSyncInfo.time).toLocaleTimeString()}
+                                    </Typography>
+                                )}
+                            </Box>
                         </CardContent>
                     </Card>
                 </Grid>

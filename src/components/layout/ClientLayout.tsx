@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 
 const ApplicationPanel = dynamic(() => import("@/components/application/ApplicationPanel"), { ssr: false });
 const Analytics = dynamic(() => import("@/components/analytics/Analytics"), { ssr: false });
+const ChatBotWrapper = dynamic(() => import("@/components/chat/ChatBotWrapper"), { ssr: false });
 
 import { useApplication } from "@/components/application/ApplicationContext";
 
@@ -35,6 +36,7 @@ export default function ClientLayout() {
         <>
             <ApplicationPanel />
             <Analytics />
+            <ChatBotWrapper />
         </>
     );
 }

@@ -1,22 +1,15 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { createClient } from "@/utils/supabase/server";
+import { getAdminAuth } from '@/lib/auth-helpers';
 
 export const dynamic = 'force-dynamic';
 
 // GET — returns recent AI Seller conversations for AI Master dashboard
 export async function GET(request: Request) {
     try {
-        const supabase = await createClient();
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-        const profile = await prisma.user.findUnique({
-            where: { id: authUser.id },
-            select: { role: true }
-        });
-        if (!profile || profile.role !== 'admin') {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
         }
 
         const { searchParams } = new URL(request.url);

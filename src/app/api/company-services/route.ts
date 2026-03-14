@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getAdminAuth } from '@/lib/auth-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,6 +8,13 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const isAdmin = searchParams.get('isAdmin') === 'true';
+
+        if (isAdmin) {
+            const auth = await getAdminAuth();
+            if (!auth.authorized) {
+                return NextResponse.json({ error: auth.error }, { status: auth.status });
+            }
+        }
 
         let services = await prisma.companyService.findMany({
             orderBy: [
@@ -47,6 +55,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        }
+
         const body = await request.json();
         const { category, name, price, description, features, isActive, sortOrder } = body;
 
@@ -76,6 +89,11 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
     try {
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        }
+
         const body = await request.json();
         const { id, category, name, price, description, features, isActive, sortOrder } = body;
 
@@ -103,6 +121,11 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
     try {
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        }
+
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
         if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });

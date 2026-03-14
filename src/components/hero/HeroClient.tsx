@@ -8,7 +8,6 @@ import { runWhenIdle } from "@/utils/scheduler";
 import dynamic from "next/dynamic";
 import Link from "next/link"; // Added Link
 import { ArrowRight, ShieldCheck } from "lucide-react"; 
-import { motion } from "framer-motion";
 
 // Dynamic Globe here to keep it out of Server Component
 const HeroGlobe = dynamic(() => import("./HeroGlobe"), {

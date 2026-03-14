@@ -1,10 +1,15 @@
-
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
+import { getAdminAuth } from '@/lib/auth-helpers';
 
 export async function GET() {
     try {
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        }
+
         // Use Raw SQL to safely fetch users without crashing on relation mismatches
         // TABLE NAME FIX: "users" (lowercase plural) is the actual table name based on DB inspection
         const users: any[] = await prisma.$queryRawUnsafe(`
@@ -75,6 +80,11 @@ export async function GET() {
 
 export async function PUT(request: Request) {
     try {
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        }
+
         const body = await request.json();
         const { id, status, visa, expires } = body;
 

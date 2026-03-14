@@ -127,6 +127,35 @@
         "step3_title": "3. Travel Ready",
         "step3_desc": "Receive your approved visa via email. Print or save digitally - you're ready to explore Indonesia! We also provide post-approval support if needed."
     },
+    "funnel_status": {
+        "title": "Live Application Funnel",
+        "subtitle": "How we process thousands of successful visas every month",
+        "stages": [
+            {
+                "title": "Pre-Screening",
+                "desc": "Every document is manually checked by our experts within 30 minutes of submission.",
+                "stats": "99.9% Accuracy"
+            },
+            {
+                "title": "Verification",
+                "desc": "Identity and document authenticity verification with Indonesian Immigration database.",
+                "stats": "Secure Check"
+            },
+            {
+                "title": "Immigration Process",
+                "desc": "Direct submission to the official system. We monitor status updates every 4 hours.",
+                "stats": "Fast Processing"
+            },
+            {
+                "title": "Visa Issued",
+                "desc": "Digital visa delivery directly to your email and dashboard. Ready to fly!",
+                "stats": "Success Guaranteed"
+            }
+        ],
+        "live_label": "Live Processing Status",
+        "live_active_template": "{n} Applications currently in queue",
+        "live_last_issued_template": "Last visa issued {t}"
+    },
     "why_choose_us": {
         "title": "Why Choose Us?",
         "description": "We're your trusted partner with proven expertise. Since 2010, we've been Indonesia's leading visa service provider, trusted by individuals and corporations worldwide.",

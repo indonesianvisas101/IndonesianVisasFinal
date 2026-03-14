@@ -1,7 +1,7 @@
-
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
+import { getAdminAuth } from '@/lib/auth-helpers';
 
 // GET /api/verification?id=... OR ?slug=...
 export async function GET(request: Request) {
@@ -10,6 +10,14 @@ export async function GET(request: Request) {
         const id = searchParams.get('id');
         const slug = searchParams.get('slug');
         const userId = searchParams.get('userId');
+
+        // Only enforce admin check if NO identifying param is provided (i.e. requesting full list)
+        if (!id && !slug && !userId) {
+            const auth = await getAdminAuth();
+            if (!auth.authorized) {
+                return NextResponse.json({ error: auth.error }, { status: auth.status });
+            }
+        }
 
         if (id) {
             // SINGLE VERIFICATION BY ID
@@ -80,9 +88,13 @@ async function appendInvoice(verification: any) {
 }
 
 // POST /api/verification (Create/Update)
-// POST /api/verification (Create/Update)
 export async function POST(request: Request) {
     try {
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        }
+
         const body = await request.json();
         const { id, userId, fullName, passportNumber, visaType, status } = body;
 

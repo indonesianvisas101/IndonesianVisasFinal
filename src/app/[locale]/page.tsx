@@ -6,7 +6,6 @@ import LazySection from "@/components/layout/LazySection";
 const ApplyExtend = dynamic(() => import("@/components/sections/ApplyExtend"), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Quick Access...</div>
 });
-const ChatBotWrapper = dynamic(() => import("@/components/chat/ChatBotWrapper"));
 const ServicesPreview = dynamic(() => import("@/components/sections/ServicesPreview"), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Services...</div>
 });
@@ -14,6 +13,9 @@ const ServicesPreview = dynamic(() => import("@/components/sections/ServicesPrev
 // Lazy Load Components (Below the fold)
 const HowItWorks = dynamic(() => import("@/components/sections/HowItWorks"), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Steps...</div>
+});
+const FunnelStatus = dynamic(() => import("@/components/sections/FunnelStatus"), {
+  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Status...</div>
 });
 const WhyChooseUs = dynamic(() => import("@/components/sections/WhyChooseUs"), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Features...</div>
@@ -76,8 +78,16 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <HowItWorks dict={dict} />
       </LazySection>
 
+      <LazySection minHeight="400px">
+        <FunnelStatus dict={dict} />
+      </LazySection>
+
       <LazySection minHeight="500px">
         <WhyChooseUs dict={dict} />
+      </LazySection>
+
+      <LazySection minHeight="500px">
+        <SafetyGuard dict={dict} />
       </LazySection>
 
       <LazySection minHeight="400px">
@@ -104,15 +114,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </section>
       </LazySection>
 
-      <LazySection minHeight="500px">
-        <SafetyGuard dict={dict} />
-      </LazySection>
 
       <LazySection minHeight="300px">
         <ContactSection dict={dict} />
       </LazySection>
-
-      <ChatBotWrapper />
     </>
   );
 }

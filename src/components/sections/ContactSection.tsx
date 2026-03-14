@@ -36,7 +36,7 @@ const ContactSection = ({ dict }: { dict?: any }) => {
                                     <div className="flex flex-col gap-1 overflow-hidden">
                                         <a href="mailto:contact@indonesianvisas.agency" className="text-sm md:text-base font-bold mode-aware-text hover:text-primary transition-colors truncate">contact@indonesianvisas.agency</a>
                                         <a href="mailto:info@indonesianvisas.agency" className="text-sm md:text-base font-bold mode-aware-text hover:text-primary transition-colors truncate">info@indonesianvisas.agency</a>
-                                        <a href="mailto:support@visas.agency" className="text-sm md:text-base font-bold mode-aware-text hover:text-primary transition-colors truncate">support@visas.agency</a>
+                                        <a href="mailto:indonesian@visas.agency" className="text-sm md:text-base font-bold mode-aware-text hover:text-primary transition-colors truncate">indonesian@visas.agency</a>
                                     </div>
                                 </div>
                             </div>

@@ -106,13 +106,7 @@ export default async function LocaleLayout({
     <html lang={currentLocale}>
       <head>
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-        <link rel="preconnect" href="https://flagcdn.com" />
-        <link rel="preconnect" href="https://api.doku.com" />
-        <link rel="preconnect" href="https://api-sandbox.doku.com" />
-        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-        <link rel="dns-prefetch" href="https://flagcdn.com" />
-        <link rel="dns-prefetch" href="https://api.resend.com" />
+        {/* Most icons and flags are lazy loaded, removing preconnect to reduce blocking */}
       </head>
       <body className={inter.className} suppressHydrationWarning>
 

@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getAdminAuth } from '@/lib/auth-helpers';
 
 export async function GET() {
     try {
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        }
+
         const [userCount, appCount, activeVisas] = await Promise.all([
             prisma.user.count({ where: { role: 'user' } }),
             prisma.visaApplication.count(),

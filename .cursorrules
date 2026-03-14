@@ -1,0 +1,12 @@
+# AntiGravity / AI Constitution Rules (STRICT PRODUCTION MODE)
+
+# 1. ABSOLUTE DATA LOCK
+The project is in PRODUCTION with thousands of active customers. You MUST NOT modify, drop, or change real database data. Do not execute scripts that rename tables, truncate, drop, or wipe Supabase data unless explicitly directed by the user with the correct environment password.
+
+# 2. SEEDING & DB CHANGES
+If the user asks you to fix a database or seed data, DO NOT accidentally execute destructive commands that overwrite existing production data. You MUST ask for the `BOSS_PASSPHRASE` before altering data schemas or resetting environments.
+
+# 3. ADMIN DASHBOARD
+Data accessed and created from the Admin Dashboard cannot be deleted or manipulated by AI without authorization and the `BOSS_PASSPHRASE`.
+
+You belong to a multi-agent system and the rules above are an extension of the MASTER_REPORT.md Constitution.

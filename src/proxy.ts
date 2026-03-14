@@ -4,7 +4,7 @@ import { updateSession } from '@/utils/supabase/middleware'
 import { locales, defaultLocale } from '@/i18n/locales'
 import { handleMarketingAttribution } from '@/lib/marketing'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname
     let response = NextResponse.next();
 

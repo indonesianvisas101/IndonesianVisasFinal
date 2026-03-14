@@ -17,7 +17,12 @@ import {
     ArrowRight,
     Map,
     Search,
-    Newspaper
+    Newspaper,
+    BookOpen,
+    Globe,
+    Briefcase,
+    Building,
+    Landmark
 } from "lucide-react";
 import { getMessages } from "@/i18n/getMessages";
 
@@ -128,6 +133,58 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
                 { name: "Login & Register", href: `/${locale}/login` },
                 { name: "Forgot Password", href: `/${locale}/forgot-password` },
                 { name: "Update Profile", href: `/${locale}/dashboard` }
+            ]
+        },
+        {
+            title: "Trust & Authority",
+            icon: ShieldCheck,
+            links: [
+                { name: "Legal Compliance", href: `/${locale}/trust/legal` },
+                { name: "Company Profile", href: `/${locale}/trust/company-profile` },
+                { name: "Our Process", href: `/${locale}/trust/our-process` },
+                { name: "Why Choose Us", href: `/${locale}/trust/why-choose-us` }
+            ]
+        },
+        {
+            title: "Expat Guides",
+            icon: Globe,
+            links: [
+                { name: "Move to Bali", href: `/${locale}/expat-guides/move-to-bali` },
+                { name: "Living in Bali", href: `/${locale}/expat-guides/how-to-live-in-bali` },
+                { name: "Long-Term Stay Options", href: `/${locale}/expat-guides/how-to-stay-in-bali-long-term` },
+                { name: "Digital Nomad Guide", href: `/${locale}/expat-guides/bali-digital-nomad-guide` },
+                { name: "Ultimate Expat Guide", href: `/${locale}/expat-guides/expat-guide-indonesia` }
+            ]
+        },
+        {
+            title: "Business & Investment",
+            icon: Briefcase,
+            links: [
+                { name: "Start a Company in Bali", href: `/${locale}/business-indonesia/start-company-in-bali` },
+                { name: "Business Visa Guide", href: `/${locale}/business-indonesia/business-visa-indonesia-guide` },
+                { name: "Invest in Indonesia", href: `/${locale}/business-indonesia/invest-in-indonesia` },
+                { name: "Investor Visa Guide", href: `/${locale}/business-indonesia/indonesia-investor-visa-guide` },
+                { name: "Bali Business Setup", href: `/${locale}/business-indonesia/bali-business-setup` }
+            ]
+        },
+        {
+            title: "Visa Process",
+            icon: FileText,
+            links: [
+                { name: "Processing Times", href: `/${locale}/visa-process/visa-processing-time-indonesia` },
+                { name: "Visa Costs", href: `/${locale}/visa-process/visa-cost-indonesia` },
+                { name: "Extension Costs", href: `/${locale}/visa-process/visa-extension-cost-bali` },
+                { name: "How to Apply", href: `/${locale}/visa-process/how-to-apply-indonesia-visa` }
+            ]
+        },
+        {
+            title: "Immigration System",
+            icon: Landmark,
+            links: [
+                { name: "System Overview", href: `/${locale}/immigration-system/indonesia-immigration-system` },
+                { name: "Types of Visas", href: `/${locale}/immigration-system/types-of-indonesia-visas` },
+                { name: "Bali Entry Requirements", href: `/${locale}/immigration-system/bali-entry-requirements` },
+                { name: "Visa Requirements", href: `/${locale}/immigration-system/indonesia-visa-requirements` }
             ]
         }
     ];

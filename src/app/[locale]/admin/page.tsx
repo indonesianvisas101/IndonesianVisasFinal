@@ -1778,10 +1778,10 @@ function AdminDashboardContent() {
                                                 <TableRow key={u.id} hover sx={{ bgcolor: u.status === 'Deleted' ? 'error.lighter' : 'inherit', opacity: u.status === 'Deleted' ? 0.7 : 1 }}>
                                                     <TableCell>
                                                         <Stack direction="row" spacing={2} alignItems="center">
-                                                            <Avatar sx={{ bgcolor: u.status === 'Deleted' ? 'grey.500' : 'primary.main', fontWeight: 'bold' }}>{u.name.charAt(0)}</Avatar>
+                                                            <Avatar sx={{ bgcolor: u.status === 'Deleted' ? 'grey.500' : 'primary.main', fontWeight: 'bold' }}>{(u.name || 'U').charAt(0).toUpperCase()}</Avatar>
                                                             <Box>
                                                                 <Stack direction="row" alignItems="center" gap={1}>
-                                                                    <Typography variant="subtitle2" fontWeight="bold" sx={{ textDecoration: u.status === 'Deleted' ? 'line-through' : 'none' }}>{u.name}</Typography>
+                                                                    <Typography variant="subtitle2" fontWeight="bold" sx={{ textDecoration: u.status === 'Deleted' ? 'line-through' : 'none' }}>{u.name || 'Unknown User'}</Typography>
                                                                     {/* NOTIFICATION BADGE */}
                                                                     {notifications && (notifications as any)[String(u.id)] && (notifications as any)[String(u.id)].length > 0 && (
                                                                         <Chip

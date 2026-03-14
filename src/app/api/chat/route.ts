@@ -5,6 +5,10 @@ import { VISA_DATABASE } from '@/constants/visas';
 import { COUNTRY_DATA } from '@/constants/countries';
 import prisma from '@/lib/prisma';
 
+export async function HEAD(req: Request) {
+   return new Response(null, { status: 200 });
+}
+
 export const maxDuration = 30;
 
 // Create an OpenAI provider instance with the Seller API key

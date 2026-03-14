@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { VISA_DETAILS } from '@/constants/visaDetails';
 import { locales } from '@/i18n/locales';
+import { seoPageSlugs } from '@/data/seo';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = 'https://indonesianvisas.com';
@@ -72,6 +73,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/indonesia-visa-updates/visa-updates-2026',
         '/indonesia-visa-updates/new-bali-immigration-rules',
         '/indonesia-visa-updates/indonesia-digital-nomad-visa-news',
+        ...seoPageSlugs.map(slug => `/${slug}`)
     ];
 
     const sitemapEntries: MetadataRoute.Sitemap = [];

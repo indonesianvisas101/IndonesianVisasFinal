@@ -36,6 +36,8 @@ This master report consolidates all strategic updates, AI prompts, and system co
 
 ## 1. CORE PRINCIPLES (NON-NEGOTIABLE)
 
+- ✅ **ABSOLUTE DATA LOCK (PRODUCTION)**: NO DATA can be deleted, removed, or changed from the Admin Dashboard or by AI without absolute confirmation. The Admin Dashboard is the priority truth.
+- ✅ **AI PASSWORD REQUIREMENT**: AI (AntiGravity, ChatGPT, etc.) CANNOT change data connections, switch databases, run destructive seeders, or delete/wipe DB data unless the Boss provides a specific Admin Command/Prompt WITH THE PASSWORD from the `.env` file (`BOSS_PASSPHRASE`). AI MUST REFUSE to alter/delete data without it.
 - ✅ Regulation-First Always
 - ✅ No Guarantee Language
 - ✅ No Auto Publish Without Boss Approval
@@ -1753,7 +1755,18 @@ Identified and fixed a bug in the `handle_new_user` SQL trigger where the missin
    - Optimized image delivery to maintain high PageSpeed scores while restoring visual depth.
 
 ---
-**END OF COMPREHENSIVE REPORT (Updated March 14, Phase 45 Sync)**
+### Section 18: SEO Knowledge Expansion & Strict DB Locks (Phase 46)
+
+**Goal:** Establish absolute data-locking rules for production and expand the Expat & Immigration SEO footprint without bloating the React application.
+
+**Key Achievements:**
+1. **Absolute Data Lock Implemented:** Added non-negotiable `.cursorrules` explicitly forbidding AI from wiping, dropping, or destructively seeding database tables without the `BOSS_PASSPHRASE`.
+2. **Data Restoration:** Restored missing dummy data for `/company-profile` and Verification interfaces via scripts to allow continuous testing while preserving production safety constraints.
+3. **SEO Data-Driven Architecture:** Engineered `SeoPageBuilder` to ingest pure JSON structural data.
+4. **22 New Authority Hubs:** Dynamically generated 5 massive clusters (`/trust`, `/expat-guides`, `/business-indonesia`, `/visa-process`, `/immigration-system`) with 10+ detailed sections each.
+5. **XML and Human Sitemaps Updated:** Automatically injected `seoPageSlugs` into the main `sitemap.xml` with dynamic priority handling and enhanced the UI Directory page. 
+
+**END OF COMPREHENSIVE REPORT (Updated March 14, Phase 46 Sync)**
 # 🧠 INDONESIANVISAS AI ORGANIZATION
 ## MASTER SYSTEM EXTENSION PROMPT v2.6
 

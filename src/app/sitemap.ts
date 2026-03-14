@@ -38,19 +38,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const sitemapEntries: MetadataRoute.Sitemap = [];
 
     // 2. Fetch Dynamic Content
-    const [knowledgePages] = await Promise.all([
-        (prisma as any).knowledgePage.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } })
+    const [knowledgePages, immigrationUpdates] = await Promise.all([
+        (prisma as any).knowledgePage.findMany({ where: { published: true }, select: { slug: true, updatedAt: true, category: true } }),
+        (prisma as any).immigrationUpdate.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } })
     ]);
 
     // 3. Generate for each locale
     for (const locale of locales) {
         // Static Pages
         pages.forEach(page => {
+            let priority = 0.8;
+            if (page === '') priority = 1.0;
+            else if (page.startsWith('/visa-types')) priority = 0.9;
+            else if (page.startsWith('/indonesia-visa-guide')) priority = 0.9;
+
             sitemapEntries.push({
                 url: `${baseUrl}/${locale}${page}`,
                 lastModified: new Date(),
                 changeFrequency: 'weekly',
-                priority: page === '' ? 1.0 : (page.startsWith('/visa-types') ? 0.9 : 0.8),
+                priority,
             });
         });
 
@@ -64,13 +70,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             });
         });
 
-        // Programmatic Knowledge Pages
+        // Programmatic Knowledge Pages (Prioritized)
         knowledgePages.forEach((kp: any) => {
+            const isCore = kp.category === 'core' || kp.slug.includes('guide');
             sitemapEntries.push({
                 url: `${baseUrl}/${locale}/visa-knowledge/${kp.slug}`,
                 lastModified: kp.updatedAt,
                 changeFrequency: 'weekly',
-                priority: 0.7,
+                priority: isCore ? 0.9 : 0.7,
+            });
+        });
+
+        // Immigration News Updates
+        immigrationUpdates.forEach((iu: any) => {
+            sitemapEntries.push({
+                url: `${baseUrl}/${locale}/indonesia-visa-updates/${iu.slug}`,
+                lastModified: iu.updatedAt,
+                changeFrequency: 'weekly',
+                priority: 0.6,
             });
         });
     }

@@ -357,10 +357,74 @@ model KnowledgePage {
   category        String?
   metadata        Json?    // SEO tags, OpenGraph, JSON-LD
   published       Boolean  @default(false)
+  
+  // Phase 50 Extensions
+  authorId        String?  @map("author_id")
+  author          KnowledgeAuthor? @relation(fields: [authorId], references: [id])
+  quality         AIContentQuality?
+  sources         ImmigrationSource[] @relation("PageSources")
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@map("knowledge_pages")
+}
+
+model AITopicHistory {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topicTitle      String   @map("topic_title")
+  topicSlug       String   @unique @map("topic_slug")
+  topicCluster    String   @map("topic_cluster")
+  sourceAgent     String   @map("source_agent") // analyst, news_agent, manual
+  status          String   @default("draft")    // draft, published, rejected
+  confidenceScore Float?   @map("confidence_score")
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  publishedAt     DateTime? @map("published_at")
+
+  @@map("ai_topic_history")
+}
+
+model KnowledgeAuthor {
+  id           String   @id @default(cuid())
+  name         String
+  title        String
+  organization String
+  bio          String?
+  linkedinUrl  String?  @map("linkedin_url")
+  website      String?
+  pages        KnowledgePage[]
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("knowledge_authors")
+}
+
+model ImmigrationSource {
+  id             String   @id @default(cuid())
+  name           String
+  sourceType     String   @map("source_type") // government, embassy, media, etc
+  url            String   @unique
+  country        String   @default("Indonesia")
+  authorityLevel String   @map("authority_level") // official_government, news_media, etc
+  pages          KnowledgePage[] @relation("PageSources")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("immigration_sources")
+}
+
+model AIContentQuality {
+  id              String   @id @default(cuid())
+  knowledgePageId String   @unique @map("knowledge_page_id")
+  knowledgePage   KnowledgePage @relation(fields: [knowledgePageId], references: [id], onDelete: Cascade)
+  wordCount       Int      @map("word_count")
+  readability     Float
+  seoScore        Float    @map("seo_score")
+  semanticScore   Float    @map("semantic_score")
+  uniqueness      Float    @map("uniqueness_score")
+  overallScore    Float    @map("overall_score")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("ai_content_quality")
 }
 
 enum PaymentStatus {

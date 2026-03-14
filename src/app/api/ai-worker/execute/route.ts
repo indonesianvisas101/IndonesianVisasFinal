@@ -117,11 +117,14 @@ export async function POST(req: Request) {
 
         // --- BRANCH A: Knowledge Page Publishing ---
         if (changeRequest.pageCategory === "knowledge" || changeRequest.changeType === "knowledge_article") {
-            const { slug, title, content, metadata } = changes;
+            const { slug, title, content, metadata, authorName, qualityScore, sourcesUsed } = changes;
             
             if (!slug || !title) return NextResponse.json({ error: "Missing slug or title in knowledge payload" }, { status: 400 });
 
-            // Snapshot BEFORE (if exists)
+            // 1. Fetch Author ID if exists
+            const author = await (prisma as any).knowledgeAuthor.findFirst({ where: { name: authorName || 'Indonesian Visas Research Team' } });
+
+            // 2. Snapshot BEFORE (if exists)
             const existingPage = await (prisma as any).knowledgePage.findUnique({ where: { slug } });
             const snapBefore = await prisma.aISnapshot.create({
                 data: {
@@ -130,8 +133,8 @@ export async function POST(req: Request) {
                     snapshotData: (existingPage || {}) as any
                 }
             });
-
-            // Upsert the knowledge page
+            
+            // 3. Upsert the knowledge page with Intelligence Extensions
             const publishedPage = await (prisma as any).knowledgePage.upsert({
                 where: { slug },
                 create: {
@@ -139,13 +142,15 @@ export async function POST(req: Request) {
                   title,
                   content: content as any,
                   metadata: metadata as any,
-                  published: true
+                  published: true,
+                  authorId: author?.id
                 },
                 update: {
                   title,
                   content: content as any,
                   metadata: metadata as any,
                   published: true,
+                  authorId: author?.id,
                   updatedAt: new Date()
                 }
             });
@@ -158,6 +163,37 @@ export async function POST(req: Request) {
                 }
             });
 
+            // 4. Upsert Quality Metrics
+            if (changes.qualityMetrics) {
+              const q = changes.qualityMetrics;
+              await (prisma as any).aIContentQuality.upsert({
+                where: { knowledgePageId: publishedPage.id },
+                create: {
+                  knowledgePageId: publishedPage.id,
+                  wordCount: q.wordCount,
+                  readability: q.readabilityScore,
+                  seoScore: q.seoScore,
+                  semanticScore: q.semanticScore,
+                  uniqueness: q.uniquenessScore,
+                  overallScore: q.overallScore
+                },
+                update: {
+                  wordCount: q.wordCount,
+                  readability: q.readabilityScore,
+                  seoScore: q.seoScore,
+                  semanticScore: q.semanticScore,
+                  uniqueness: q.uniquenessScore,
+                  overallScore: q.overallScore
+                }
+              });
+            }
+
+            // 5. Update Topic History status
+            await (prisma as any).aITopicHistory.updateMany({
+              where: { topicSlug: slug },
+              data: { status: 'published', publishedAt: new Date() }
+            });
+
             // Commit state change
             await prisma.$transaction([
                 prisma.aIChangeRequest.update({
@@ -168,18 +204,18 @@ export async function POST(req: Request) {
                     data: {
                         requestId,
                         agentName: agentInitiator,
-                        actionType: "EXECUTE_KNOWLEDGE_PUBLISH",
+                        actionType: "EXECUTE_INTEL_KNOWLEDGE_PUBLISH",
                         snapshotBeforeId: snapBefore.id,
                         snapshotAfterId: snapAfter.id,
                         status: "SUCCESS",
-                        notes: `Knowledge page "${slug}" published/updated.`
+                        notes: `Intelligent Knowledge page "${slug}" published/updated.`
                     }
                 })
             ]);
 
             return NextResponse.json({
                 success: true,
-                message: `Knowledge article "${title}" is now LIVE at /visa-knowledge/${slug}`,
+                message: `Intelligence-hardened article "${title}" is now LIVE at /visa-knowledge/${slug}`,
                 slug
             });
 

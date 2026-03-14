@@ -650,7 +650,8 @@ export default function AIMasterTab() {
                                 <TableCell>ID</TableCell>
                                 <TableCell>Initiator</TableCell>
                                 <TableCell>Type</TableCell>
-                                <TableCell>Risk Score</TableCell>
+                                <TableCell>Cluster</TableCell>
+                                <TableCell>Risk/Score</TableCell>
                                 <TableCell>Timestamp</TableCell>
                                 <TableCell align="right">Action</TableCell>
                             </TableRow>
@@ -671,11 +672,26 @@ export default function AIMasterTab() {
                                     </TableCell>
                                     <TableCell><Chip label={req.changeType.replace('_', ' ')} size="small" variant="outlined" /></TableCell>
                                     <TableCell>
-                                        <Chip
-                                            label={req.riskScore || 'LOW'}
-                                            size="small"
-                                            color={Number(req.riskScore) > 70 ? 'error' : Number(req.riskScore) > 30 ? 'warning' : 'success'}
+                                        <Chip 
+                                            label={(req as any).proposedChanges?.cluster || 'N/A'} 
+                                            size="small" 
+                                            variant="outlined"
+                                            color="info"
                                         />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Stack direction="row" spacing={1} alignItems="center">
+                                            <Chip
+                                                label={req.riskScore || 'LOW'}
+                                                size="small"
+                                                color={Number(req.riskScore) > 70 ? 'error' : Number(req.riskScore) > 30 ? 'warning' : 'success'}
+                                            />
+                                            {(req as any).proposedChanges?.qualityScore && (
+                                                <Badge badgeContent={`${(req as any).proposedChanges.qualityScore}%`} color="secondary">
+                                                    <PsychologyIcon fontSize="small" sx={{ ml: 1, opacity: 0.7 }} />
+                                                </Badge>
+                                            )}
+                                        </Stack>
                                     </TableCell>
                                     <TableCell>{new Date(req.createdAt).toLocaleString()}</TableCell>
                                     <TableCell align="right">
@@ -1010,6 +1026,165 @@ export default function AIMasterTab() {
                     </Grid>
                 </Grid>
             )}
+
+            {/* --- INTELLIGENCE REVIEW MODAL --- */}
+            <Dialog 
+                open={reviewOpen} 
+                onClose={() => !loadingAction && setReviewOpen(false)}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{
+                    sx: { borderRadius: 3, bgcolor: 'background.paper', backgroundImage: 'none' }
+                }}
+            >
+                <DialogTitle sx={{ borderBottom: 1, borderColor: 'divider', pb: 2 }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Box>
+                            <Typography variant="h6" fontWeight="bold">Intelligence Review</Typography>
+                            <Typography variant="caption" color="text.secondary">RequestId: {selectedRequest?.requestId}</Typography>
+                        </Box>
+                        {selectedRequest?.proposedChanges?.qualityScore && (
+                            <Chip 
+                                icon={<AIHeroIcon />} 
+                                label={`Quality: ${selectedRequest.proposedChanges.qualityScore}%`} 
+                                color={selectedRequest.proposedChanges.qualityScore > 80 ? 'success' : 'warning'}
+                                variant="outlined"
+                            />
+                        )}
+                    </Stack>
+                </DialogTitle>
+                <DialogContent sx={{ p: 0, minHeight: 400 }}>
+                    {selectedRequest && (
+                        <Box>
+                            <Tabs 
+                                value={tabValue === 99 ? 0 : tabValue === 98 ? 1 : tabValue === 97 ? 2 : 0} 
+                                onChange={(_, v) => {
+                                    if (v === 0) setTabValue(99);
+                                    if (v === 1) setTabValue(98);
+                                    if (v === 2) setTabValue(97);
+                                }}
+                                sx={{ borderBottom: 1, borderColor: 'divider', px: 2 }}
+                            >
+                                <Tab label="Article Content" />
+                                <Tab label="Sources & Metadata" />
+                                <Tab label="Quality Metrics" />
+                            </Tabs>
+
+                            <Box sx={{ p: 3 }}>
+                                {/* Content Tab */}
+                                {(tabValue >= 99 || tabValue <= 5) && (
+                                    <Box>
+                                        <Typography variant="h5" gutterBottom fontWeight="bold">
+                                            {selectedRequest.proposedChanges?.title}
+                                        </Typography>
+                                        <Divider sx={{ my: 2 }} />
+                                        <Box sx={{ 
+                                            maxHeight: 500, 
+                                            overflow: 'auto',
+                                            '& p': { mb: 2, lineHeight: 1.8 }
+                                        }}>
+                                            {selectedRequest.changeType === 'knowledge_article' ? (
+                                                Array.isArray(selectedRequest.proposedChanges?.content) ? (
+                                                    selectedRequest.proposedChanges.content.map((sec: any, idx: number) => (
+                                                        <Box key={idx} sx={{ mb: 4 }}>
+                                                            <Typography variant="h6" color="primary">{sec.title}</Typography>
+                                                            <MarkdownContent content={sec.content} />
+                                                        </Box>
+                                                    ))
+                                                ) : (
+                                                    <MarkdownContent content={selectedRequest.proposedChanges?.content || ''} />
+                                                )
+                                            ) : (
+                                                <MarkdownContent content={selectedRequest.proposedChanges?.content || ''} />
+                                            )}
+                                        </Box>
+                                    </Box>
+                                )}
+
+                                {/* Sources Tab */}
+                                {tabValue === 98 && (
+                                    <Stack spacing={3}>
+                                        <Box>
+                                            <Typography variant="subtitle2" gutterBottom fontWeight="bold">Official Sources Cited</Typography>
+                                            <List dense>
+                                                {(selectedRequest.proposedChanges?.sourcesUsed || []).length > 0 ? (
+                                                    selectedRequest.proposedChanges.sourcesUsed.map((s: string, i: number) => (
+                                                        <ListItem key={i}>
+                                                            <ListItemIcon>< LawIcon color="primary" fontSize="small" /></ListItemIcon>
+                                                            <ListItemText primary={s} />
+                                                        </ListItem>
+                                                    ))
+                                                ) : (
+                                                    <Typography variant="caption" color="text.secondary">No external sources cited statically in payload.</Typography>
+                                                )}
+                                            </List>
+                                        </Box>
+                                        <Divider />
+                                        <Box>
+                                            <Typography variant="subtitle2" gutterBottom fontWeight="bold">SEO Metadata</Typography>
+                                            <Paper variant="outlined" sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
+                                                <Typography variant="caption" display="block" color="text.secondary">META DESCRIPTION</Typography>
+                                                <Typography variant="body2" gutterBottom>{selectedRequest.proposedChanges?.metadata?.description || 'N/A'}</Typography>
+                                                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>AUTHOR ENTITY</Typography>
+                                                <Typography variant="body2">{selectedRequest.proposedChanges?.authorName || 'Indonesian Visas Research Team'}</Typography>
+                                            </Paper>
+                                        </Box>
+                                    </Stack>
+                                )}
+
+                                {/* Metrics Tab */}
+                                {tabValue === 97 && (
+                                    <Grid container spacing={2}>
+                                        {[
+                                            { label: 'SEO Efficiency', value: selectedRequest.impactForecast?.qualityMetrics?.seoScore || 0 },
+                                            { label: 'Readability', value: selectedRequest.impactForecast?.qualityMetrics?.readabilityScore || 0 },
+                                            { label: 'Semantic Breadth', value: selectedRequest.impactForecast?.qualityMetrics?.semanticScore || 0 },
+                                            { label: 'Uniqueness', value: selectedRequest.impactForecast?.qualityMetrics?.uniquenessScore || 0 }
+                                        ].map((m, i) => (
+                                            <Grid key={i} size={{ xs: 6 }}>
+                                                <Typography variant="caption" color="text.secondary">{m.label.toUpperCase()}</Typography>
+                                                <Box display="flex" alignItems="center" gap={1}>
+                                                    <LinearProgress variant="determinate" value={m.value} sx={{ flexGrow: 1, height: 6, borderRadius: 3 }} />
+                                                    <Typography variant="body2" fontWeight="bold">{Math.round(m.value)}%</Typography>
+                                                </Box>
+                                            </Grid>
+                                        ))}
+                                        <Grid size={{ xs: 12 }} sx={{ mt: 2 }}>
+                                            <Alert icon={<AuditIcon />} severity="info">
+                                                <Typography variant="caption">
+                                                    Word Count: <strong>{selectedRequest.impactForecast?.qualityMetrics?.wordCount || 'Unknown'}</strong> words.
+                                                    Cluster Affinity: <strong>{selectedRequest.proposedChanges?.cluster || 'General'}</strong>.
+                                                </Typography>
+                                            </Alert>
+                                        </Grid>
+                                    </Grid>
+                                )}
+                            </Box>
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions sx={{ p: 3, borderTop: 1, borderColor: 'divider' }}>
+                    <Button variant="outlined" onClick={() => setReviewOpen(false)} disabled={loadingAction}>Cancel</Button>
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Button 
+                        color="error" 
+                        variant="outlined" 
+                        onClick={() => handleManagementAction('REJECT_REQUEST', { requestId: selectedRequest?.requestId })}
+                        disabled={loadingAction}
+                    >
+                        Reject & Archive
+                    </Button>
+                    <Button 
+                        color="success" 
+                        variant="contained" 
+                        startIcon={loadingAction ? <CircularProgress size={20} color="inherit" /> : <SuccessIcon />}
+                        onClick={() => handleManagementAction('APPROVE_REQUEST', { requestId: selectedRequest?.requestId })}
+                        disabled={loadingAction}
+                    >
+                        Approve & Publish LIVE
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Stack>
     );
 }

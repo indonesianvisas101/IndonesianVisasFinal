@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, User, Sun, MoonIcon, LogOut, Search, LayoutDashboard, FileText, Users, TrendingUp, ShieldCheck, Building2, Globe } from "lucide-react";
+import { Menu, X, User, Sun, MoonIcon, LogOut, Search, LayoutDashboard, FileText, Users, TrendingUp, ShieldCheck, Building2, Globe, History, Brain, BarChart3, ShoppingCart, Megaphone, MessageSquare } from "lucide-react";
 import styles from "./Header.module.css";
 import React from "react";
 import { useAuth } from "../auth/AuthContext";
@@ -76,8 +76,16 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
         { label: 'Visa Database', key: 'visas', icon: <FileText size={16} /> },
         { label: 'User Management', key: 'users', icon: <Users size={16} /> },
         { label: 'Popular Visa', key: 'popular_visas', icon: <TrendingUp size={16} /> },
+        { label: 'Arrival Cards', key: 'arrival_cards', icon: <FileText size={16} /> },
         { label: 'Verification', key: 'verification', icon: <ShieldCheck size={16} /> },
         { label: 'Company Services', key: 'company_services', icon: <Building2 size={16} /> },
+        { label: 'Invoicing', key: 'invoicing', icon: <FileText size={16} /> },
+        { label: 'Audit Logs', key: 'logs', icon: <History size={16} /> },
+        { label: 'AI Master', key: 'ai_master', icon: <Brain size={16} /> },
+        { label: 'Marketing', key: 'marketing', icon: <BarChart3 size={16} /> },
+        { label: 'Incoming Orders', key: 'orders', icon: <ShoppingCart size={16} /> },
+        { label: 'Immigration Updates', key: 'updates', icon: <Megaphone size={16} /> },
+        { label: 'Support Chat', key: 'support', icon: <MessageSquare size={16} /> },
     ];
 
     const [showSearchTooltip, setShowSearchTooltip] = useState(false);

@@ -308,3 +308,85 @@
         border-color: rgba(255,255,255,0.2);
     }
 }
+
+/* Admin Dropdown Styles */
+.dropdownMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 1rem;
+    width: 380px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    z-index: 1000;
+    animation: slideDown 0.3s ease-out;
+}
+
+:global(.dark) .dropdownMenu {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdownHeader {
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #4b0082, #000);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+}
+
+.dropdownGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.dropdownItem {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    color: #0f172a;
+    transition: all 0.2s;
+    gap: 0.75rem;
+    border: 1px solid transparent;
+}
+
+:global(.dark) .dropdownItem {
+    color: #e0e0e0;
+}
+
+.dropdownItem:hover {
+    background: rgba(75, 0, 130, 0.05);
+    border-color: #4b0082;
+    transform: translateX(4px);
+}
+
+:global(.dark) .dropdownItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.itemLabel {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.adminToggle {
+    position: relative;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -6,8 +6,9 @@ import styles from "./Hero.module.css";
 import { useApplication } from "../application/ApplicationContext";
 import { runWhenIdle } from "@/utils/scheduler";
 import dynamic from "next/dynamic";
-import Link from "next/link"; // Added Link
-import { ArrowRight, ShieldCheck, RefreshCcw } from "lucide-react"; 
+import Link from "next/link"; 
+import { ArrowRight, ShieldCheck, RefreshCcw, Globe, Clock, Star, ListChecks, Mail, Zap, Lock, Info } from "lucide-react"; 
+import { Box, Typography } from "@mui/material";
 
 // Dynamic Globe here to keep it out of Server Component
 const HeroGlobe = dynamic(() => import("./HeroGlobe"), {
@@ -40,6 +41,8 @@ export const HeroGlobeWrapper = () => {
         </div>
     );
 };
+
+import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
 
 // 2. The CTA Button (Client)
 export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCardLabel?: string }) => {
@@ -87,6 +90,100 @@ export const HeroBadge = () => (
     </div>
 );
 
+export const HeroStats = ({ company, processed, success }: { company: string; processed: string; success: string }) => {
+    const [popup, setPopup] = React.useState<{ isOpen: boolean; info: StaticPopupInfo | null }>({ isOpen: false, info: null });
+
+    const openStatPopup = (id: string) => {
+        let info: StaticPopupInfo | null = null;
+        if (id === 'company') {
+            info = {
+                id: 'stat-company',
+                title: 'No. 1 Visa Agency',
+                icon: <Globe size={32} />,
+                content: (
+                    <div className="space-y-4">
+                        <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Industry Leadership</p>
+                        <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                            IndonesianVisas.com is recognized as the **Number 1 in the Industry**. Since 2010, we have pioneered the digital visa landscape in Indonesia.
+                        </Typography>
+                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                            <p className="text-sm">
+                                We utilize a specialized **AI Constitution & Agent Governance** (Orchestration AI) integrated with our **Smart Safety Verification System** to ensure 100% document authenticity.
+                            </p>
+                        </div>
+                        <p className="text-xs text-slate-400 italic">SMEs SaaS Visas Educational Website - Built for Trust.</p>
+                    </div>
+                )
+            };
+        } else if (id === 'processed') {
+            info = {
+                id: 'stat-processed',
+                title: '10K+ Applications',
+                icon: <Clock size={32} />,
+                content: (
+                    <div className="space-y-4">
+                        <p className="font-bold text-sm text-amber-600 uppercase tracking-widest">Deep Experience</p>
+                        <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                            With over **16 years of experience** (2010-2026), we've seen it all. Our journey through the industry's evolution allows us to navigate complex regulatory changes with ease.
+                        </Typography>
+                        <p className="text-sm">
+                            We've processed tens of thousands of visas, learning from every uniquely challenging case to provide you with the most reliable path to Indonesia.
+                        </p>
+                    </div>
+                )
+            };
+        } else if (id === 'success') {
+            info = {
+                id: 'stat-success',
+                title: '99% Success Rate',
+                icon: <Star size={32} />,
+                content: (
+                    <div className="space-y-4">
+                        <p className="font-bold text-sm text-green-600 uppercase tracking-widest">The Draft System™</p>
+                        <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                            Our proprietary **Draft System** is why we maintain a nearly perfect success rate.
+                        </Typography>
+                        <Box sx={{ p: 3, bgcolor: 'rgba(34, 197, 94, 0.05)', borderRadius: 4, border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+                            <ul className="space-y-2 text-sm">
+                                <li className="flex gap-2"><strong>1.</strong> We work directly within the Immigration system draft layer.</li>
+                                <li className="flex gap-2"><strong>2.</strong> Your application is submitted as a pre-verified draft.</li>
+                                <li className="flex gap-2"><strong>3.</strong> If the system flags an issue, we resolve it *before* final payment.</li>
+                                <li className="flex gap-2"><strong>4.</strong> We only pay the official tax once approval is certain.</li>
+                            </ul>
+                        </Box>
+                        <p className="text-sm font-medium">This methodology ensures zero financial loss for our clients and a 99% guaranteed result.</p>
+                    </div>
+                )
+            };
+        }
+        setPopup({ isOpen: true, info });
+    };
+
+    return (
+        <>
+            <div className={styles.statsRow}>
+                <div className={`${styles.statItem} cursor-pointer group`} onClick={() => openStatPopup('company')}>
+                    <div className={`${styles.statNumber} group-hover:scale-110 transition-transform`}>01</div>
+                    <div className={`${styles.statLabel} group-hover:text-primary transition-colors`}>{company || "Visas Company"}</div>
+                </div>
+                <div className={`${styles.statItem} cursor-pointer group`} onClick={() => openStatPopup('processed')}>
+                    <div className={`${styles.statNumber} group-hover:scale-110 transition-transform`}>10K+</div>
+                    <div className={`${styles.statLabel} group-hover:text-primary transition-colors`}>{processed || "Visas Processed"}</div>
+                </div>
+                <div className={`${styles.statItem} cursor-pointer group`} onClick={() => openStatPopup('success')}>
+                    <div className={`${styles.statNumber} group-hover:scale-110 transition-transform`}>99%</div>
+                    <div className={`${styles.statLabel} group-hover:text-primary transition-colors`}>{success || "Success Rate"}</div>
+                </div>
+            </div>
+            <CentralInfoPopup 
+                isOpen={popup.isOpen} 
+                onClose={() => setPopup({ ...popup, isOpen: false })} 
+                info={popup.info} 
+            />
+        </>
+    );
+};
+
 // 3. The Rights Steps Card (Client)
 interface HeroStepsProps {
     title: string;
@@ -106,6 +203,7 @@ export const HeroSteps = ({ title, labels }: HeroStepsProps) => {
     const { completedSteps } = useApplication();
     const [activeIdleStep, setActiveIdleStep] = React.useState<number>(0);
     const [isInitialAnimation, setIsInitialAnimation] = React.useState(true);
+    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
 
     React.useEffect(() => {
         // Run initial idle glow for 24 seconds total (6s per box: 3s stay + 3s transition)
@@ -125,15 +223,50 @@ export const HeroSteps = ({ title, labels }: HeroStepsProps) => {
     }, []);
 
     const isStepActive = (step: number) => {
-        // 1. If we are in the initial 5sec intro, glow based on idle rotation
         if (isInitialAnimation && activeIdleStep === step) return true;
-        // 2. Otherwise, glow if the step is actually completed/active in the flow
         return completedSteps.includes(step);
     };
 
+    const processInfo: StaticPopupInfo = {
+        id: 'hero-process',
+        title: 'Simple 4-Step Process',
+        icon: <ListChecks size={32} />,
+        content: (
+            <div className="space-y-4">
+                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">How It Works</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                        { label: 'Submit / Order', icon: ArrowRight },
+                        { label: 'Verified Payment', icon: Lock },
+                        { label: 'Order Status (Active)', icon: RefreshCcw },
+                        { label: 'Review Document', icon: ListChecks },
+                        { label: 'Visa Process', icon: Globe },
+                        { label: 'Approval/Delayed', icon: ShieldCheck },
+                        { label: 'Email Result', icon: Mail },
+                        { label: 'Integrated Verification', icon: Zap },
+                        { label: 'End Permits Management', icon: ShieldCheck },
+                    ].map((item, id) => (
+                        <div key={id} className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                                <item.icon size={16} />
+                            </div>
+                            <span className="text-sm font-bold text-slate-700">{item.label}</span>
+                        </div>
+                    ))}
+                </div>
+                <p className="text-xs text-slate-400 pt-2 border-t">Our system ensures every stage is handled with bank-level security and real-time immigration sync.</p>
+            </div>
+        )
+    };
+
     return (
-        <div className={`glass-card ${styles.card}`}>
-            <h3 className={styles.cardTitle}>{title || "Simple 4-Step Process"}</h3>
+        <div className={`glass-card ${styles.card} cursor-help group`} onClick={() => setIsPopupOpen(true)}>
+            <div className="flex items-center justify-between mb-2">
+                <h3 className={styles.cardTitle}>{title || "Simple 4-Step Process"}</h3>
+                <div className="p-1.5 bg-slate-100 dark:bg-white/10 rounded-full text-slate-400 group-hover:text-primary transition-colors">
+                    <Info size={16} />
+                </div>
+            </div>
 
             <div className={styles.stepList}>
                 <div className={`${styles.stepItem} ${isStepActive(1) ? styles.stepGlow : ''} ${completedSteps.includes(1) ? styles.stepDone : ''}`}>
@@ -170,6 +303,7 @@ export const HeroSteps = ({ title, labels }: HeroStepsProps) => {
                 <Link 
                     href="/check-status" 
                     className="flex items-center justify-between w-full px-6 py-4 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/20 rounded-2xl transition-all group"
+                    onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-500 rounded-lg group-hover:scale-110 transition-transform">
@@ -183,6 +317,12 @@ export const HeroSteps = ({ title, labels }: HeroStepsProps) => {
                     <ArrowRight className="text-slate-400 dark:text-gray-500 group-hover:text-primary dark:group-hover:text-white group-hover:translate-x-1 transition-all" size={18} />
                 </Link>
             </div>
+
+            <CentralInfoPopup 
+                isOpen={isPopupOpen} 
+                onClose={() => setIsPopupOpen(false)} 
+                info={processInfo} 
+            />
         </div>
     );
 };

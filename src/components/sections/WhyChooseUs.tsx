@@ -1,12 +1,45 @@
 "use client";
 
 import React from "react";
-import { Zap, ShieldCheck, CheckCircle, PhoneCallIcon } from "lucide-react";
 import styles from "./WhyChooseUs.module.css";
 import { motion } from "framer-motion";
-
+import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
+import { Info, ShieldCheck, CheckCircle, Zap, PhoneCallIcon, Clock, Star } from "lucide-react";
 
 const WhyChooseUs = ({ dict }: { dict?: any }) => {
+    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
+
+    const whyChooseUsInfo: StaticPopupInfo = {
+        id: 'why-choose-us-info',
+        title: 'Why We Are Number 1',
+        icon: <Star size={32} />,
+        content: (
+            <div className="space-y-4">
+                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">16 Years of Excellence</p>
+                <p className="text-base leading-relaxed">
+                    IndonesianVisas.com stands apart through a combination of proprietary technology and deep local expertise.
+                </p>
+                <div className="grid grid-cols-1 gap-3">
+                    <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3">
+                        <Clock size={24} className="text-amber-600 shrink-0" />
+                        <div>
+                            <p className="text-sm font-bold">Unrivaled Experience</p>
+                            <p className="text-xs text-slate-500">Founded in 2010, we've navigated every policy shift in Indonesian immigration history.</p>
+                        </div>
+                    </div>
+                    <div className="p-4 bg-green-50 rounded-2xl border border-green-100 flex gap-3">
+                        <CheckCircle size={24} className="text-green-600 shrink-0" />
+                        <div>
+                            <p className="text-sm font-bold">The 99% Promise</p>
+                            <p className="text-xs text-slate-500">We don't just submit; we pre-screen and draft to guarantee your approval before final submission.</p>
+                        </div>
+                    </div>
+                </div>
+                <p className="text-xs text-slate-400 italic">Trusted by 10,000+ digital nomads, families, and corporations worldwide.</p>
+            </div>
+        )
+    };
+
     const t = dict?.why_choose_us || {};
 
     return (
@@ -16,10 +49,13 @@ const WhyChooseUs = ({ dict }: { dict?: any }) => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-extrabold mb-6 mode-aware-text text-center"
+                    className="text-3xl md:text-4xl font-extrabold mb-6 mode-aware-text text-center cursor-help flex items-center justify-center gap-3 group"
+                    onClick={() => setIsPopupOpen(true)}
                 >
-                    {t.title || "Why Choose Us?"}
+                    {t.title || "Why Choose Us?"} <Info size={24} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </motion.h2>
+
+                <CentralInfoPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} info={whyChooseUsInfo} />
                 <motion.p 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}

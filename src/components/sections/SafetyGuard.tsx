@@ -8,9 +8,38 @@ import IDivCardModern from "../idiv/IDivCardModern";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { QRCodeSVG } from 'qrcode.react';
+import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
+import { Info } from "lucide-react";
 
 const SafetyGuard = ({ dict }: { dict?: any }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
+    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
+
+    const safetyInfo: StaticPopupInfo = {
+        id: 'safety-guard-info',
+        title: 'Safety Guard System',
+        icon: <ShieldCheck size={32} />,
+        content: (
+            <div className="space-y-4">
+                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Active Protection Layer</p>
+                <p className="text-base leading-relaxed">
+                    Our **Safety Guard** is a multi-dimensional security protocol designed to protect your identity and document integrity.
+                </p>
+                <div className="grid grid-cols-1 gap-3">
+                    <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                        <p className="text-sm font-bold flex items-center gap-2"><Lock size={14} /> Encrypted Storage</p>
+                        <p className="text-xs text-slate-500 mt-1">All passports and sensitive documents are deleted from our servers 48 hours after approval.</p>
+                    </div>
+                    <div className="p-4 bg-green-50 rounded-2xl border border-green-100">
+                        <p className="text-sm font-bold flex items-center gap-2"><ShieldCheck size={14} /> QR Verification</p>
+                        <p className="text-xs text-slate-500 mt-1">Every visa issued is backed by an IDIV Smart Code for instant authenticity checks.</p>
+                    </div>
+                </div>
+                <p className="text-xs text-slate-400 italic">IndonesianVisas.com - The only agency with real-time biometric-link integration readiness.</p>
+            </div>
+        )
+    };
+
     const params = useParams();
     const locale = params?.locale || 'en';
     const t = dict?.safety_guard || {
@@ -46,10 +75,13 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-4xl md:text-5xl font-black mode-aware-text"
+                        className="text-4xl md:text-5xl font-black mode-aware-text cursor-help flex items-center justify-center gap-3 group"
+                        onClick={() => setIsPopupOpen(true)}
                     >
-                        {t.title}
+                        {t.title} <Info size={24} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                     </motion.h2>
+
+                    <CentralInfoPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} info={safetyInfo} />
                     <motion.p 
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}

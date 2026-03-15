@@ -3,8 +3,43 @@
 import React from 'react';
 import { ClipboardCheck, ShieldEllipsis, Clock, CheckCircle2 } from 'lucide-react';
 import styles from './FunnelStatus.module.css';
+import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
+import { Info, BarChart3, Users, Zap, Search } from "lucide-react";
 
 const FunnelStatus = ({ dict }: { dict?: any }) => {
+    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
+
+    const funnelInfo: StaticPopupInfo = {
+        id: 'funnel-status-info',
+        title: 'Live Application Funnel',
+        icon: <BarChart3 size={32} />,
+        content: (
+            <div className="space-y-4">
+                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Real-Time Processing</p>
+                <p className="text-base leading-relaxed">
+                    Our **Live Funnel** shows the current operational load of our system. We maintain transparency to ensure you know exactly where your application stands.
+                </p>
+                <div className="space-y-3">
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex gap-3 items-start">
+                        <Users size={18} className="text-blue-500 mt-1" />
+                        <div>
+                            <p className="text-sm font-bold">Queue Management</p>
+                            <p className="text-xs text-slate-500">We balance load across multiple immigration officers to maintain sub-4-hour processing times.</p>
+                        </div>
+                    </div>
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex gap-3 items-start">
+                        <Zap size={18} className="text-green-500 mt-1" />
+                        <div>
+                            <p className="text-sm font-bold">Priority Processing</p>
+                            <p className="text-xs text-slate-500">Golden/VIP applications are funneled through specialized high-speed lanes.</p>
+                        </div>
+                    </div>
+                </div>
+                <p className="text-xs text-slate-400 italic">Data is synchronized with the Indonesian General Directorate of Immigration every 5 minutes.</p>
+            </div>
+        )
+    };
+
     const [stats, setStats] = React.useState({ queue: 0, lastIssued: "" });
 
     React.useEffect(() => {
@@ -81,9 +116,14 @@ const FunnelStatus = ({ dict }: { dict?: any }) => {
         <section className={styles.funnelSection}>
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                    <h2 className="text-3xl md:text-5xl font-black mode-aware-text">
-                        {t.title}
+                    <h2 
+                        className="text-3xl md:text-5xl font-black mode-aware-text cursor-help flex items-center justify-center gap-3 group"
+                        onClick={() => setIsPopupOpen(true)}
+                    >
+                        {t.title} <Info size={24} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                     </h2>
+                    
+                    <CentralInfoPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} info={funnelInfo} />
                     <p className="text-lg mode-aware-subtext">
                         {t.subtitle}
                     </p>

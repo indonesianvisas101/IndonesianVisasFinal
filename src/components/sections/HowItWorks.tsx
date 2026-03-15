@@ -4,8 +4,44 @@ import React from "react";
 import { FileText, Search, Plane } from "lucide-react";
 import styles from "./HowItWorks.module.css";
 import { motion } from "framer-motion";
+import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
+import { Info, ListChecks, CheckCircle2, ShieldCheck, Mail, Zap } from "lucide-react";
 
 const HowItWorks = ({ dict }: { dict?: any }) => {
+    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
+
+    const howItWorksInfo: StaticPopupInfo = {
+        id: 'how-it-works-info',
+        title: 'Our Proven Workflow',
+        icon: <ListChecks size={32} />,
+        content: (
+            <div className="space-y-4">
+                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Efficiency & Accuracy</p>
+                <p className="text-base leading-relaxed">
+                    Our process is refined over 16 years of operation to ensure maximum speed without sacrificing compliance.
+                </p>
+                <div className="grid grid-cols-1 gap-2">
+                    {[
+                        { label: 'Step 1: Smart Form Submission', icon: ListChecks },
+                        { label: 'Step 2: AI Pre-Verification', icon: Zap },
+                        { label: 'Step 3: Human Expert Audit', icon: CheckCircle2 },
+                        { label: 'Step 4: Secure Data Deletion', icon: ShieldCheck },
+                    ].map((step, id) => (
+                        <div key={id} className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-400">
+                                <step.icon size={16} />
+                            </div>
+                            <span className="text-sm font-bold text-slate-700">{step.label}</span>
+                        </div>
+                    ))}
+                </div>
+                <p className="text-xs text-slate-400 border-t pt-3 mt-2">
+                    Every application follows this strict protocol to maintain our 99% success rate.
+                </p>
+            </div>
+        )
+    };
+
     const t = dict?.how_it_works || {};
 
     return (
@@ -15,10 +51,13 @@ const HowItWorks = ({ dict }: { dict?: any }) => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-extrabold mb-6 mode-aware-text text-center"
+                    className="text-3xl md:text-4xl font-extrabold mb-6 mode-aware-text text-center cursor-help flex items-center justify-center gap-3 group"
+                    onClick={() => setIsPopupOpen(true)}
                 >
-                    {t.title || "How It Works"}
+                    {t.title || "How It Works"} <Info size={24} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </motion.h2>
+
+                <CentralInfoPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} info={howItWorksInfo} />
                 <motion.p 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}

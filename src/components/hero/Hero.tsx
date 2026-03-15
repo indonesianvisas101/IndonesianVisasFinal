@@ -1,7 +1,7 @@
 
 import styles from "./Hero.module.css";
 import React from "react";
-import { HeroGlobeWrapper, HeroCTA, HeroSteps, HeroBadge } from "./HeroClient";
+import { HeroGlobeWrapper, HeroCTA, HeroSteps, HeroBadge, HeroStats } from "./HeroClient";
 
 // Server Component (No 'use client')
 const Hero = ({ dict }: { dict: any }) => {
@@ -25,21 +25,12 @@ const Hero = ({ dict }: { dict: any }) => {
                             {hero.description || "Professional visa services for travelers, businesses, and digital nomads."}
                         </p>
 
-                        {/* Stats - Server Rendered Static Text */}
-                        <div className={styles.statsRow}>
-                            <div className={styles.statItem}>
-                                <div className={styles.statNumber}>01</div>
-                                <div className={styles.statLabel}>{stats.company || "Visas Company"}</div>
-                            </div>
-                            <div className={styles.statItem}>
-                                <div className={styles.statNumber}>10K+</div>
-                                <div className={styles.statLabel}>{stats.processed || "Visas Processed"}</div>
-                            </div>
-                            <div className={styles.statItem}>
-                                <div className={styles.statNumber}>99%</div>
-                                <div className={styles.statLabel}>{stats.success || "Success Rate"}</div>
-                            </div>
-                        </div>
+                        {/* Stats - Interactive Client Component */}
+                        <HeroStats 
+                            company={stats.company}
+                            processed={stats.processed}
+                            success={stats.success}
+                        />
 
                         {/* Interactive Client Component */}
                         <HeroCTA

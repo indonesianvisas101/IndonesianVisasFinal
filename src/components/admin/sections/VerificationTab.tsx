@@ -38,6 +38,10 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { QRCodeCanvas } from "qrcode.react";
 import { generateStatementPDF } from "@/utils/pdfGenerator";
 import { supabase } from "@/lib/supabase";
+import IDivCardModern from "@/components/idiv/IDivCardModern";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import ShareIcon from "@mui/icons-material/Share";
+import { downloadIDiv, downloadIDivDual } from "@/utils/idivDownloadTools";
 
 
 export default function VerificationTab({ initialUserId }: { initialUserId?: string }) {
@@ -46,6 +50,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
     const [openQRDialog, setOpenQRDialog] = useState(false);
+    const [openCardDialog, setOpenCardDialog] = useState(false);
     const [verificationMode, setVerificationMode] = useState<'linked' | 'manual'>('manual');
     const [selectedUserId, setSelectedUserId] = useState("");
 
@@ -56,6 +61,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         visaType: "",
         issuedDate: new Date().toISOString().split('T')[0],
         expiresAt: "",
+        address: "",
+        nationality: "VERIFIED HOLDER",
+        photoUrl: "",
         slug: "",
         status: "VALID"
     });
@@ -228,6 +236,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             visaType: "",
             issuedDate: new Date().toISOString().split('T')[0],
             expiresAt: "",
+            address: "",
+            nationality: "VERIFIED HOLDER",
+            photoUrl: "",
             slug: "",
             status: "VALID"
         });
@@ -244,6 +255,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             visaType: item.visaType || "",
             issuedDate: item.issuedDate ? new Date(item.issuedDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             expiresAt: item.expiresAt ? new Date(item.expiresAt).toISOString().split('T')[0] : "",
+            address: item.address || "",
+            nationality: item.nationality || "VERIFIED HOLDER",
+            photoUrl: item.photoUrl || "",
             slug: item.slug || "",
             status: item.status || "VALID"
         });
@@ -265,6 +279,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             setFormData(prev => ({
                 ...prev,
                 fullName: user.name || "",
+                address: user.address || "",
                 // In a real app, passport might be in user.verification or user profile
             }));
         }
@@ -365,6 +380,15 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                 onClick={() => { setSelectedItem(item); setOpenQRDialog(true); }}
                                             >
                                                 <QrCodeIcon />
+                                            </IconButton>
+                                            <IconButton
+                                                color="info"
+                                                size="small"
+                                                title="Preview IDiv Card"
+                                                aria-label="Preview IDiv Card"
+                                                onClick={() => { setSelectedItem(item); setOpenCardDialog(true); }}
+                                            >
+                                                <RemoveRedEyeIcon />
                                             </IconButton>
                                             <IconButton
                                                 color="primary"
@@ -490,6 +514,76 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                             InputLabelProps={{ shrink: true }}
                         />
                         <TextField
+                            label="Residential Address (for IDiv Header)"
+                            fullWidth
+                            multiline
+                            rows={2}
+                            value={formData.address}
+                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            helperText="Used to derive Province (e.g. Bali, Jakarta, etc.)"
+                        />
+                        <TextField
+                            label="Nationality / Designation"
+                            fullWidth
+                            value={formData.nationality}
+                            onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
+                        />
+                        
+                        <Box>
+                            <Typography variant="subtitle2" gutterBottom>Holder Photo</Typography>
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                <Box 
+                                    sx={{ 
+                                        width: 80, 
+                                        height: 80, 
+                                        bgcolor: 'grey.100', 
+                                        borderRadius: 1, 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center',
+                                        overflow: 'hidden',
+                                        border: '1px solid #eee'
+                                    }}
+                                >
+                                    {formData.photoUrl ? (
+                                        <img src={formData.photoUrl} alt="Portrait" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        <Typography variant="caption">No Photo</Typography>
+                                    )}
+                                </Box>
+                                <Stack spacing={1} flex={1}>
+                                    <TextField
+                                        label="Photo URL"
+                                        fullWidth
+                                        size="small"
+                                        value={formData.photoUrl}
+                                        onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
+                                        placeholder="https://... / path/to/image.jpg"
+                                    />
+                                    {verificationMode === 'linked' && selectedUserId && (
+                                        <TextField
+                                            select
+                                            label="Select from User Documents"
+                                            fullWidth
+                                            size="small"
+                                            value={formData.photoUrl}
+                                            onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
+                                        >
+                                            <MenuItem value=""><em>None</em></MenuItem>
+                                            {(users.find(u => u.id === selectedUserId)?.documents || [])
+                                                .filter((d: any) => d.type?.includes('image'))
+                                                .map((doc: any) => (
+                                                    <MenuItem key={doc.id} value={doc.url}>
+                                                        {doc.name}
+                                                    </MenuItem>
+                                                ))
+                                            }
+                                        </TextField>
+                                    )}
+                                </Stack>
+                            </Stack>
+                        </Box>
+                        <TextField
                             label="Slug (Auto-generated)"
                             fullWidth
                             value={formData.slug}
@@ -580,6 +674,65 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                         Download Image
                     </Button>
                     <Button onClick={() => setOpenQRDialog(false)}>Close</Button>
+                </DialogActions>
+            </Dialog>
+            
+            {/* IDIV CARD PREVIEW DIALOG */}
+            <Dialog open={openCardDialog} onClose={() => setOpenCardDialog(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>IDiv Card Preview</DialogTitle>
+                <DialogContent>
+                    <Box display="flex" flexDirection="column" alignItems="center" py={4}>
+                        {selectedItem && (
+                            <>
+                                <IDivCardModern data={{
+                                    id_number: selectedItem.id,
+                                    name: selectedItem.fullName,
+                                    nationality: selectedItem.nationality || "VERIFIED HOLDER",
+                                    visa_type: selectedItem.visaType,
+                                    expiry_date: selectedItem.expiresAt ? new Date(selectedItem.expiresAt).toLocaleDateString() : 'N/A',
+                                    issue_date: selectedItem.issuedDate ? new Date(selectedItem.issuedDate).toLocaleDateString() : 'N/A',
+                                    address: selectedItem.address || "",
+                                    order_id: selectedItem.slug || "N/A",
+                                    sponsor: "INDONESIAN VISAS AGENCY"
+                                }} />
+                                
+                                <Typography variant="caption" sx={{ mt: 3, color: 'text.secondary', textAlign: 'center' }}>
+                                    Standard IDiv Digital Format (KTP Style)
+                                </Typography>
+                            </>
+                        )}
+                    </Box>
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'center', pb: 3, gap: 1 }}>
+                    <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        startIcon={<DownloadIcon />}
+                        onClick={() => downloadIDivDual('idiv-front', 'idiv-back', `IDiv-Dual-${selectedItem?.slug}`, 'png')}
+                    >
+                        PNG (2-Sides)
+                    </Button>
+                    <Button 
+                        variant="outlined" 
+                        color="error" 
+                        startIcon={<PictureAsPdfIcon />}
+                        onClick={() => downloadIDivDual('idiv-front', 'idiv-back', `IDiv-PDF-${selectedItem?.slug}`, 'pdf')}
+                    >
+                        PDF (Full ID)
+                    </Button>
+                    <Button 
+                        variant="outlined" 
+                        color="info" 
+                        startIcon={<ShareIcon />}
+                        onClick={() => {
+                            const url = `${window.location.origin}/verify/${selectedItem?.slug}`;
+                            navigator.clipboard.writeText(url);
+                            alert("Verification link copied to clipboard!");
+                        }}
+                    >
+                        Share Link
+                    </Button>
+                    <Button onClick={() => setOpenCardDialog(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
         </Stack>

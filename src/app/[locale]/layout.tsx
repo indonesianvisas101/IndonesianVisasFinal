@@ -1,4 +1,3 @@
-
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "../globals.css";
@@ -13,6 +12,8 @@ import { GlobalUIProvider } from "@/hooks/useGlobalUI";
 import GlobalUIOverlay from "@/components/ui/GlobalUIOverlay";
 import { Suspense } from "react";
 import { GoogleTagManager } from '@next/third-parties/google';
+import { PayPalProvider } from "@/components/payment/PayPalProvider";
+import GlobalInfoPopup from "@/components/common/GlobalInfoPopup";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -105,8 +106,12 @@ export default async function LocaleLayout({
   return (
     <html lang={currentLocale}>
       <head>
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.paypal.com" />
+        <link rel="dns-prefetch" href="https://connect.facebook.net" />
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
-        {/* Most icons and flags are lazy loaded, removing preconnect to reduce blocking */}
+        {/* Optimized handshakes for performance */}
       </head>
       <body className={inter.className} suppressHydrationWarning>
 
@@ -139,17 +144,20 @@ export default async function LocaleLayout({
             <GlobalUIOverlay />
           </Suspense>
           <AuthProvider>
-            <ApplicationProvider>
-              <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[1000] focus:bg-white focus:text-primary focus:p-4 focus:rounded-xl focus:shadow-xl focus:font-bold border-2 border-primary">
-                Skip to content
-              </a>
-              <Header dict={dict} locale={currentLocale} />
-              <main id="main-content" className="flex-grow min-h-screen">
-                {children}
-              </main>
-              <Footer dict={dict} locale={currentLocale} />
-              <ClientLayout />
-            </ApplicationProvider>
+            <PayPalProvider>
+              <ApplicationProvider>
+                <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[1000] focus:bg-white focus:text-primary focus:p-4 focus:rounded-xl focus:shadow-xl focus:font-bold border-2 border-primary">
+                  Skip to content
+                </a>
+                <Header dict={dict} locale={currentLocale} />
+                <GlobalInfoPopup locale={currentLocale} />
+                <main id="main-content" className="flex-grow min-h-screen">
+                  {children}
+                </main>
+                <Footer dict={dict} locale={currentLocale} />
+                <ClientLayout />
+              </ApplicationProvider>
+            </PayPalProvider>
           </AuthProvider>
         </GlobalUIProvider>
       </body>

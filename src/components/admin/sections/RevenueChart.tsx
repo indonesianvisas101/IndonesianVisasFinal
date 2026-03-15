@@ -9,6 +9,7 @@ export default function RevenueChart() {
     const [period, setPeriod] = useState<'30d' | '90d' | '1y' | 'all'>('30d');
     const [data, setData] = useState<{ date: Date; amount: number; count: number }[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [totals, setTotals] = useState({ revenue: 0, transactions: 0 });
     const svgRef = useRef<SVGSVGElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -34,15 +35,18 @@ export default function RevenueChart() {
 
     const fetchData = async () => {
         setLoading(true);
+        setError(null);
         try {
             const res = await fetch('/api/invoices?isAdmin=true');
-            if (!res.ok) throw new Error("Failed to fetch");
+            if (!res.ok) {
+                if (res.status === 401) throw new Error("Unauthorized Access (401)");
+                throw new Error(`Failed to fetch (${res.status})`);
+            }
             const invoices: any[] = await res.json();
 
             const paidInvoices = invoices.filter((i: any) => i.status === 'PAID');
 
             // --- FILTER LOGIC ---
-            // "Start The Progress on 1 October 2024" (Project Start)
             const PROJECT_START = new Date('2024-10-01');
             const now = new Date();
             let startDate = new Date();
@@ -52,31 +56,25 @@ export default function RevenueChart() {
             else if (period === '1y') startDate.setFullYear(now.getFullYear() - 1);
             else if (period === 'all') startDate = PROJECT_START;
 
-            // Ensure we don't go before project start if 'all' or if user wants strict cut-off
-            // For 'all', we use project start. For others, we use the calculated date.
-
             const filtered = paidInvoices.filter((i: any) => {
                 const d = new Date(i.createdAt);
                 return d >= startDate;
             });
 
-            // Group by Day
             const grouped = new Map<string, { amount: number; count: number }>();
 
-            // Pre-fill dates to ensure continuous line (Bitcoin style needs continuity)
-            // Iterate from startDate to now
             for (let d = new Date(startDate); d <= now; d.setDate(d.getDate() + 1)) {
-                const key = d.toLocaleDateString('en-CA'); // YYYY-MM-DD
+                const key = d.toLocaleDateString('en-CA');
                 grouped.set(key, { amount: 0, count: 0 });
             }
 
             filtered.forEach((inv: any) => {
                 const d = new Date(inv.createdAt);
-                if (d < startDate) return; // Double check
+                if (d < startDate) return;
                 const key = d.toLocaleDateString('en-CA');
                 if (grouped.has(key)) {
                     const current = grouped.get(key)!;
-                    current.amount += (inv.amount || 0);
+                    current.amount += (Number(inv.amount) || 0);
                     current.count += 1;
                 }
             });
@@ -89,12 +87,13 @@ export default function RevenueChart() {
 
             setData(chartData);
             setTotals({
-                revenue: filtered.reduce((acc: number, curr: any) => acc + (curr.amount || 0), 0),
+                revenue: filtered.reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0),
                 transactions: filtered.length
             });
 
-        } catch (e) {
+        } catch (e: any) {
             console.error("Chart Error", e);
+            setError(e.message);
         } finally {
             setLoading(false);
         }

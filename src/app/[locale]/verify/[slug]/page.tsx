@@ -23,6 +23,7 @@ import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import IDivCardModern from "@/components/idiv/IDivCardModern";
 
 export default function VerificationPage() {
     const params = useParams();
@@ -139,6 +140,24 @@ export default function VerificationPage() {
                     <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1.5, fontSize: '0.75rem', mb: 3 }}>
                         Verification Status
                     </Typography>
+
+                    {/* IDIV CARD PREVIEW (PRIVACY MODE) */}
+                    <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+                        <IDivCardModern 
+                            data={{
+                                id_number: data.id,
+                                name: data.fullName,
+                                nationality: data.nationality,
+                                visa_type: data.visaType,
+                                expiry_date: new Date(data.expiresAt).toLocaleDateString(),
+                                issue_date: new Date(data.issuedDate).toLocaleDateString(),
+                                address: data.address,
+                                order_id: data.id // Use ID as Order ID if it's unified
+                            }}
+                            privacyMode={true} 
+                            autoRotate={false}
+                        />
+                    </Box>
 
                     {/* Apply Similar Visa Button - Hierarchy 4 (Supportive) */}
                     <Button

@@ -14,6 +14,7 @@ export interface VisaType {
     details?: VisaDetail;
 }
 
+
 export const VISA_DATABASE: VisaType[] = [
     {
         "id": "A1",
@@ -154,6 +155,20 @@ export const VISA_DATABASE: VisaType[] = [
             "Recent Photograph"
         ],
         "extendable": true
+    },
+    {
+        "id": "IDIV",
+        "category": "Add-ons & ID Cards",
+        "name": "IDiv Card (Digital Sponsor ID)",
+        "description": "Official Indonesian Visas Digital ID. Acts as a verified sponsor ID for travelers and nomad activities.",
+        "price": "IDR 325.000",
+        "fee": 0,
+        "validity": "Lifetime / Per Visa",
+        "requirements": [
+            "Valid Passport",
+            "Recent Photograph"
+        ],
+        "extendable": false
     },
     {
         "id": "C3",
@@ -1588,7 +1603,22 @@ export const VISA_DATABASE: VisaType[] = [
             "Recent Photograph"
         ],
         "extendable": true
+    },
+    {
+        "id": "IDIV",
+        "category": "Digital Identity",
+        "name": "IDiv Digital ID Card",
+        "description": "Indonesian Digital Identity Recognition for Foreigners & Expats.",
+        "price": "IDR 325.000",
+        "fee": 0,
+        "validity": "Lifetime (Digital)",
+        "requirements": [
+            "Valid Passport",
+            "Recent Photograph",
+            "Proof of Address (Optional)"
+        ],
+        "extendable": false
     }
 ];
 
-export const POPULAR_VISA_IDS = ['B1', 'C1', 'C2', 'C12', 'D1', 'D2', 'D12', 'E33G', 'E28A'];
+export const POPULAR_VISA_IDS = ['IDIV', 'B1', 'C1', 'C2', 'C12', 'D1', 'D2', 'D12', 'E23', 'E33G', 'E28A'];

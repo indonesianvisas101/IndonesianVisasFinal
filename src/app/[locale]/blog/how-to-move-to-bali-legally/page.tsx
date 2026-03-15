@@ -67,7 +67,7 @@ export default async function MoveToBaliBlogPage({ params }: { params: Promise<{
             content: (
                 <div className="space-y-4">
                     <p>
-                        Once your KITAS is issued, you can finally open a full-tier Indonesian bank account (BCA or Mandiri). This allows you to pay for electricity, high-speed fiber internet, and local vendors via the **QRIS** (Quick Response Code Indonesian Standard) system, which is the soul of commerce in Bali.
+                        Once your KITAS is issued, you can finally open a full-tier Indonesian bank account (BRI,BCA or Mandiri). This allows you to pay for electricity, high-speed fiber internet, and local vendors via the **QRIS** (Quick Response Code Indonesian Standard) system, which is the soul of commerce in Bali.
                     </p>
                 </div>
             )

@@ -89,9 +89,10 @@ export default function InvoicePage() {
     // --- Price Calculation Logic ---
     let priceDisplay = "Contact Support";
 
-    // 1. Custom Amount (Manual Override)
-    if (invoiceData.customAmount) {
-        priceDisplay = invoiceData.customAmount;
+    // 1. Custom Amount (Priority: Hardened Invoice Amount)
+    const activeAmount = invoiceData.invoice?.amount || invoiceData.customAmount;
+    if (activeAmount) {
+        priceDisplay = `IDR ${parseFloat(String(activeAmount)).toLocaleString()}`;
     }
     // 2. Lookup standard price from Database
     else {
@@ -284,7 +285,7 @@ export default function InvoicePage() {
                                         fontSize: '0.875rem'
                                     }}
                                 >
-                                    {invoiceData.status?.toUpperCase() || "PENDING"}
+                                    {invoiceData.invoice?.status || invoiceData.status?.toUpperCase() || "PENDING"}
                                 </Box>
                             </Box>
                         </Grid>
@@ -310,15 +311,20 @@ export default function InvoicePage() {
                                         <Typography variant="body2" color="text.secondary">
                                             Visa Processing & Administration Fee
                                         </Typography>
-                                        {invoiceData.description && (
-                                            <Typography variant="caption" display="block" sx={{ mt: 1, whiteSpace: 'pre-wrap', color: 'text.secondary', fontStyle: 'italic' }}>
-                                                {invoiceData.description}
+                                        {invoiceData.invoice?.adminNotes && (
+                                            <Typography variant="caption" display="block" sx={{ mt: 1, whiteSpace: 'pre-wrap', color: 'text.secondary', fontStyle: 'italic', borderTop: '1px solid rgba(0,0,0,0.05)', pt: 1 }}>
+                                                {invoiceData.invoice.adminNotes}
                                             </Typography>
                                         )}
                                     </TableCell>
-                                    <TableCell align="center">1</TableCell>
+                                    <TableCell align="center">{invoiceData.invoice?.quantity || invoiceData.quantity || 1}</TableCell>
                                     <TableCell align="right">{priceDisplay}</TableCell>
-                                    <TableCell align="right" sx={{ fontWeight: 600 }}>{priceDisplay}</TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: 600 }}>
+                                        {invoiceData.invoice?.amount 
+                                            ? `IDR ${parseFloat(String(invoiceData.invoice.amount)).toLocaleString()}`
+                                            : priceDisplay
+                                        }
+                                    </TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>
@@ -342,6 +348,27 @@ export default function InvoicePage() {
                                     {priceDisplay}
                                 </Typography>
                             </Box>
+                            
+                            {/* Detailed breakdown if available */}
+                            {invoiceData.invoice?.serviceFee > 0 && (
+                                <Box sx={{ mt: 3, p: 2, bgcolor: '#F9FAFC', borderRadius: 2, border: '1px solid rgba(0,0,0,0.05)' }}>
+                                    <Typography variant="caption" fontWeight="700" color="text.secondary" sx={{ display: 'block', mb: 1, textTransform: 'uppercase' }}>
+                                        Fee Breakdown
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography variant="caption">Visa Service Fee:</Typography>
+                                        <Typography variant="caption" fontWeight="600">IDR {parseFloat(String(invoiceData.invoice.serviceFee)).toLocaleString()}</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography variant="caption">PPh 23 Tax (2%):</Typography>
+                                        <Typography variant="caption" fontWeight="600">IDR {parseFloat(String(invoiceData.invoice.pph23Amount)).toLocaleString()}</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Typography variant="caption">Gateway & Processing:</Typography>
+                                        <Typography variant="caption" fontWeight="600">IDR {parseFloat(String(invoiceData.invoice.gatewayFee)).toLocaleString()}</Typography>
+                                    </Box>
+                                </Box>
+                            )}
                         </Box>
                     </Box>
 

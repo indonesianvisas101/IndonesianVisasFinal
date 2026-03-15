@@ -7,7 +7,7 @@ import { useApplication } from "../application/ApplicationContext";
 import { runWhenIdle } from "@/utils/scheduler";
 import dynamic from "next/dynamic";
 import Link from "next/link"; // Added Link
-import { ArrowRight, ShieldCheck } from "lucide-react"; 
+import { ArrowRight, ShieldCheck, RefreshCcw } from "lucide-react"; 
 
 // Dynamic Globe here to keep it out of Server Component
 const HeroGlobe = dynamic(() => import("./HeroGlobe"), {
@@ -164,6 +164,24 @@ export const HeroSteps = ({ title, labels }: HeroStepsProps) => {
                         <p className={styles.stepDesc}>{labels?.step4_desc || "Complete payment via secure methods"}</p>
                     </div>
                 </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/10">
+                <Link 
+                    href="/check-status" 
+                    className="flex items-center justify-between w-full px-6 py-4 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/20 rounded-2xl transition-all group"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-500 rounded-lg group-hover:scale-110 transition-transform">
+                            <RefreshCcw size={18} />
+                        </div>
+                        <div className="text-left">
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">Check Order Status</p>
+                            <p className="text-[10px] text-slate-500 dark:text-gray-400">Track your application real-time</p>
+                        </div>
+                    </div>
+                    <ArrowRight className="text-slate-400 dark:text-gray-500 group-hover:text-primary dark:group-hover:text-white group-hover:translate-x-1 transition-all" size={18} />
+                </Link>
             </div>
         </div>
     );

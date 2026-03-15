@@ -79,8 +79,11 @@ model VisaApplication {
   expiresAt      DateTime?
   appliedAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  quantity       Int       @default(1)
   attribution    Json?
   user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoices       Invoice[]
+  applicationDocuments ApplicationDocument[]
 
   @@map("visa_applications")
 }
@@ -118,6 +121,9 @@ model Verification {
   issuedDate     DateTime
   status         String    @default("VALID")
   expiresAt      DateTime?
+  address        String?
+  nationality    String?
+  photoUrl       String?
   slug           String    @unique
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -156,27 +162,56 @@ model Message {
   senderType     String
   message        String
   isRead         Boolean      @default(false) @map("is_read")
+  metadata       Json?        @default("{}")
   createdAt      DateTime     @default(now()) @map("created_at")
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@map("messages")
 }
 
+model ApplicationDocument {
+  id            String          @id @default(cuid())
+  applicationId String          @map("application_id")
+  fileName      String          @map("file_name")
+  filePath      String          @map("file_path")
+  fileType      String          @map("file_type")
+  uploadedAt    DateTime        @default(now()) @map("uploaded_at")
+  application   VisaApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("application_documents")
+}
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  recipient String
+  subject   String
+  content   String   @db.Text
+  status    String   @default("SENT")
+  sentAt    DateTime @default(now()) @map("sent_at")
+
+  @@map("email_logs")
+}
+
 model Invoice {
-  id               String        @id @default(cuid())
-  userId           String?       @db.Uuid
+  id               String          @id @default(cuid())
+  userId           String?         @db.Uuid
   applicationId    String?
-  amount           Decimal       @db.Decimal(10, 2)
-  currency         String        @default("IDR")
-  status           PaymentStatus @default(UNPAID)
+  amount           Decimal         @db.Decimal(20, 2)
+  serviceFee       Decimal?        @default(0) @db.Decimal(20, 2)
+  gatewayFee       Decimal?        @default(0) @db.Decimal(20, 2)
+  pph23Amount      Decimal?        @default(0) @db.Decimal(20, 2)
+  currency         String          @default("IDR")
+  status           PaymentStatus   @default(UNPAID)
   paymentMethod    String?
   paymentReference String?
   adminNotes       String?
   dueDate          DateTime?
   paidAt           DateTime?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  user             User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  quantity         Int             @default(1)
+  user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  visaApplication  VisaApplication? @relation(fields: [applicationId], references: [id])
   payments         Payment[]
 
   @@map("invoices")
@@ -206,7 +241,7 @@ model Payment {
   invoiceId       String?
   applicationId   String?  @map("application_id")
   userId          String?  @db.Uuid
-  grossAmount     Decimal  @db.Decimal(10, 2)
+  grossAmount     Decimal  @db.Decimal(20, 2)
   currency        String   @default("IDR")
   paymentType     String?
   status          String   @default("PENDING")
@@ -425,6 +460,31 @@ model AIContentQuality {
   createdAt       DateTime @default(now()) @map("created_at")
 
   @@map("ai_content_quality")
+}
+
+model Addon {
+  id          String   @id @default(cuid())
+  name        String
+  sku         String   @unique
+  description String
+  shortDesc   String?
+  price       Decimal  @db.Decimal(10, 2)
+  category    String   @default("General")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("addons")
+}
+
+model GlobalSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String?
+  isEnabled   Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+
+  @@map("global_settings")
 }
 
 enum PaymentStatus {

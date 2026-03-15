@@ -71,6 +71,7 @@ interface ApplicationState {
         express: boolean;
         insurance: boolean;
         vip: boolean;
+        idiv: boolean; // NEW: ID Indonesian Visas
     };
 }
 
@@ -105,7 +106,7 @@ interface ApplicationContextType extends ApplicationState {
     // Notifications
     notifications: Record<string, AppNotification[]>;
     allNotifications: AppNotification[];
-    toggleUpsell: (key: 'express' | 'insurance' | 'vip') => void;
+    toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv') => void;
     pushNotification: (userId: string, message: string) => void;
     setNotifications: (userId: string, notifications: AppNotification[]) => void;
     setAllNotifications: (notifications: AppNotification[]) => void;
@@ -150,7 +151,8 @@ const defaultState: ApplicationState = {
     upsells: {
         express: false,
         insurance: false,
-        vip: false
+        vip: false,
+        idiv: false
     }
 };
 
@@ -384,6 +386,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
             documents: defaultState.documents,
             paymentMethod: null,
             completedSteps: [],
+            upsells: defaultState.upsells
         }));
     };
 
@@ -431,7 +434,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
-    const toggleUpsell = (key: 'express' | 'insurance' | 'vip') => {
+    const toggleUpsell = (key: 'express' | 'insurance' | 'vip' | 'idiv') => {
         setState(prev => ({
             ...prev,
             upsells: {

@@ -43,6 +43,10 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                         <Link href={`/${locale}/pricing`} className={styles.footerLink}>{t.pricing || "Pricing"}</Link>
                         <Link href={`/${locale || 'en'}/company-formation`} className={styles.footerLink}>{t.company_reg || "Company Registration"}</Link>
                         <Link href={`/${locale}/travel`} className={styles.footerLink}>{t.travel || "Travel"}</Link>
+                        <Link href={`/${locale || 'en'}/idiv-search`} className={styles.footerLink}>Track IDiv</Link>
+                        <Link href={`/${locale || 'en'}/apply?visa=IDIV`} className={styles.footerLink}>
+                            Order IDiv Card <span className="text-[8px] bg-primary text-white px-1.5 py-0.5 rounded-full ml-1 font-bold">HOT</span>
+                        </Link>
                     </div>
 
                     {/* COLUMN 3: SUPPORT */}
@@ -62,6 +66,7 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                         <Link href={`/${locale}/privacy-policy`} className={styles.footerLink}>{t.privacy_policy || "Privacy Policy"}</Link>
                         <Link href={`/${locale}/terms-and-conditions`} className={styles.footerLink}>{t.terms_conditions || "Terms & Conditions"}</Link>
                         <Link href={`/${locale}/refund`} className={styles.footerLink}>{t.refund_policy || "Refund Policy"}</Link>
+                        <Link href={`/${locale}/help`} className={styles.footerLink}>Help Center</Link>
                         <Link href={`/${locale}/affiliate`} className={styles.footerLink}>{t.affiliate_program || "Affiliate Program"}</Link>
                         
                         <div className="mt-8 pt-8 border-t border-slate-200 dark:border-white/5">

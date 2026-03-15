@@ -96,9 +96,18 @@ export async function GET(req: Request) {
                 }));
 
             case 'orders':
-                return NextResponse.json(await prisma.visaApplication.findMany({
+                return NextResponse.json(await (prisma.visaApplication as any).findMany({
                     orderBy: { appliedAt: 'desc' },
-                    include: { 
+                    select: {
+                        id: true,
+                        slug: true,
+                        userId: true,
+                        visaName: true,
+                        status: true,
+                        quantity: true,
+                        appliedAt: true,
+                        guestName: true,
+                        guestEmail: true,
                         user: { 
                             select: { 
                                 email: true, 
@@ -124,16 +133,21 @@ export async function GET(req: Request) {
                 }));
 
             case 'invoicing':
-                return NextResponse.json(await prisma.invoice.findMany({
+                return NextResponse.json(await (prisma.invoice as any).findMany({
                     orderBy: { id: 'desc' },
                     select: {
                         id: true,
                         amount: true,
+                        serviceFee: true,
+                        gatewayFee: true,
+                        pph23Amount: true,
                         currency: true,
                         status: true,
                         paymentMethod: true,
                         createdAt: true,
-                        paidAt: true
+                        paidAt: true,
+                        userId: true,
+                        applicationId: true
                     }
                 }));
 

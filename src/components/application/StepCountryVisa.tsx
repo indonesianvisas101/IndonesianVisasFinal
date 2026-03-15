@@ -9,10 +9,23 @@ import { COUNTRY_DATA } from "@/constants/countries";
 import { VisaType, POPULAR_VISA_IDS } from "@/constants/visas";
 import { Search, Users, Calendar, ArrowRight, CheckCircle, Flag, Info, AlertCircle } from "lucide-react";
 import { calculateVisaTotal } from "@/lib/utils";
+import { Typography } from "@mui/material";
+import IDivCardModern from "@/components/idiv/IDivCardModern";
 
 
 const StepCountryVisa = () => {
-    const { country, updateData, setStep, numPeople, arrivalDate, visaType, markStepComplete, visas } = useApplication();
+    const { 
+        country, 
+        updateData, 
+        setStep, 
+        numPeople, 
+        arrivalDate, 
+        visaType, 
+        markStepComplete, 
+        visas,
+        upsells,
+        toggleUpsell
+    } = useApplication();
     const [searchTerm, setSearchTerm] = useState("");
     const [customVisa, setCustomVisa] = useState("");
     const [showAllVisas, setShowAllVisas] = useState(false);
@@ -265,6 +278,65 @@ const StepCountryVisa = () => {
                                 handleVisaSelect(e.target.value);
                             }}
                         />
+                    </div>
+                </div>
+            </div>
+
+            {/* IDIV PREMIUM ADD-ON (NEW) */}
+            <div className="mt-10 mb-6">
+                <div 
+                    className={`glass-card p-6 border-2 transition-all cursor-pointer relative overflow-hidden group ${upsells.idiv ? 'border-primary bg-primary/5 ring-4 ring-primary/10' : 'border-slate-200 dark:border-white/10'}`}
+                    onClick={() => toggleUpsell('idiv')}
+                >
+                    {/* Highlight Effect */}
+                    <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                        <div className="flex items-start gap-4">
+                            <div className={`p-4 rounded-2xl transition-colors ${upsells.idiv ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-500'}`}>
+                                <Users size={28} />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h5 className="text-xl font-bold">ID Indonesian Visas (IDIV)</h5>
+                                    <span className="bg-amber-100 text-amber-600 text-[10px] font-black uppercase px-2 py-0.5 rounded-full tracking-tighter">Premium Add-on</span>
+                                </div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">
+                                    Get your dedicated Digital ID Card. This acts as a verified sponsor ID for travelers and has proven to help a lot of travelers during their stay in Indonesia.
+                                </p>
+                                
+                                <div className="mt-3 flex items-center gap-4">
+                                    <div className="flex items-center gap-1.5 text-xs font-bold text-success-main">
+                                        <CheckCircle size={14} /> Official Verified Sponsor ID
+                                    </div>
+                                    <div className="group/note relative inline-block">
+                                        <div className="flex items-center gap-1.5 text-xs font-bold text-primary cursor-help">
+                                            <Info size={14} /> Proven Results
+                                        </div>
+                                        {/* Hover Notification */}
+                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 group-hover/note:opacity-100 transition-opacity pointer-events-none text-center shadow-xl">
+                                            Has proven help a lot of travelers
+                                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="text-right flex flex-col items-end gap-2">
+                            {upsells.idiv && (
+                                <div className="scale-75 origin-right mb-[-40px] mt-[-20px] hidden md:block">
+                                    <IDivCardModern autoRotate={false} showActions={false} />
+                                </div>
+                            )}
+                            <Typography variant="h5" fontWeight="900" className="text-primary">$20.00</Typography>
+                            <Typography variant="caption" className="text-gray-400">One-time fee • Per Person</Typography>
+                            <div className="mt-3">
+                                <button className={`btn btn-sm px-6 py-2 rounded-xl border-2 font-bold transition-all ${upsells.idiv ? 'bg-primary text-white border-primary' : 'border-primary text-primary hover:bg-primary/5'}`}>
+                                    {upsells.idiv ? "Included in Order" : "Add to Order"}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

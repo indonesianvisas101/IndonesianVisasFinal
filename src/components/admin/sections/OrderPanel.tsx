@@ -26,12 +26,14 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import { formatCurrency } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
+import DocumentViewer from "../DocumentViewer";
 
 export default function OrderPanel() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [filter, setFilter] = useState("all");
+    const [viewingDoc, setViewingDoc] = useState<{ url: string, name: string } | null>(null);
     const params = useParams();
     const router = useRouter();
     const locale = params?.locale || 'en';
@@ -207,18 +209,21 @@ export default function OrderPanel() {
                                                 if (!Array.isArray(docs)) return null;
                                                 return (
                                                     <Stack direction="row" spacing={1}>
-                                                        {docs.map((doc: any, i: number) => (
-                                                            <IconButton 
-                                                                key={i} 
-                                                                size="small" 
-                                                                color="info" 
-                                                                href={doc.url || doc} 
-                                                                target="_blank"
-                                                                title={doc.name || `Doc ${i+1}`}
-                                                            >
-                                                                <OpenInNewIcon sx={{ fontSize: 16 }} />
-                                                            </IconButton>
-                                                        ))}
+                                                        {docs.map((doc: any, i: number) => {
+                                                            const url = typeof doc === 'string' ? doc : doc.url;
+                                                            const name = typeof doc === 'string' ? `Document ${i + 1}` : (doc.name || `Document ${i + 1}`);
+                                                            return (
+                                                                <IconButton 
+                                                                    key={i} 
+                                                                    size="small" 
+                                                                    color="primary" 
+                                                                    onClick={() => setViewingDoc({ url, name })}
+                                                                    title={name}
+                                                                >
+                                                                    <OpenInNewIcon sx={{ fontSize: 16 }} />
+                                                                </IconButton>
+                                                            );
+                                                        })}
                                                     </Stack>
                                                 );
                                             } catch (e) {
@@ -253,6 +258,15 @@ export default function OrderPanel() {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            {viewingDoc && (
+                <DocumentViewer 
+                    open={!!viewingDoc} 
+                    onClose={() => setViewingDoc(null)} 
+                    documentUrl={viewingDoc.url} 
+                    documentName={viewingDoc.name} 
+                />
+            )}
         </Stack>
     );
 }

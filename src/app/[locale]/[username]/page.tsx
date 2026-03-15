@@ -24,6 +24,9 @@ const SupportChat = dynamic(() => import("@/components/dashboard/SupportChat"), 
 import { X } from "lucide-react"; // Import X for close button
 import { QRCodeSVG } from 'qrcode.react';
 import NotificationManager from "@/components/dashboard/NotificationManager";
+import IDivCardModern from "@/components/idiv/IDivCardModern";
+import { downloadIDiv } from "@/utils/idivDownloadTools";
+import { Download, FileImage, FileType } from "lucide-react";
 
 
 interface VisaHistoryItem {
@@ -581,44 +584,61 @@ const UserDashboard = () => {
                         </div>
                     </div>
 
-                    {/* RIGHT: Verification & Invoice Status */}
-                    <div className="glass-card p-6 rounded-[2rem] border border-gray-100 dark:border-white/10 h-full relative overflow-hidden">
+                    {/* RIGHT: Verification & Invoice Status (REPLACED WITH PREMIUM IDIV VIEW) */}
+                    <div className="glass-card p-6 rounded-[2rem] border border-gray-100 dark:border-white/10 h-full relative overflow-hidden flex flex-col items-center">
                         {verification && (verification.status === 'VALID' || verification.status === 'Active') ? (
-                            <div className="flex flex-col items-center justify-center text-center h-full relative z-10">
-                                <div className="bg-white p-3 rounded-xl shadow-lg mb-4">
-                                    {/* QR Code */}
-                                    <QRCodeSVG
-                                        value={`https://indonesianvisas.com/verify/${verification.slug}`}
-                                        size={128}
-                                        level="M"
-                                    />
-
+                            <>
+                                <div className="mb-6 w-full transform scale-[0.85] origin-top">
+                                    <IDivCardModern data={{
+                                        id_number: verification.id?.substring(0, 18),
+                                        name: verification.fullName,
+                                        nationality: verification.nationality,
+                                        visa_type: verification.visaType,
+                                        expiry_date: verification.expiresAt ? new Date(verification.expiresAt).toLocaleDateString() : 'N/A',
+                                        issue_date: verification.issuedDate ? new Date(verification.issuedDate).toLocaleDateString() : 'N/A',
+                                        address: verification.address,
+                                        photoUrl: verification.photoUrl,
+                                        order_id: verification.slug
+                                    }} />
                                 </div>
-                                <h3 className="text-xl font-extrabold text-green-600 mb-1">
-                                    Verified Member
-                                </h3>
-                                <p className="text-sm text-gray-500 mb-4 max-w-xs">
-                                    Your account is fully verified. Provide this QR code to our partners for benefits.
-                                </p>
-                                {verification.invoice && (
-                                    <a
-                                        href={verification.invoice.url}
-                                        target="_blank"
-                                        className="btn btn-outline-primary text-sm py-2 px-4 rounded-full flex items-center gap-2 hover:bg-primary hover:text-white transition-colors"
-                                    >
-                                        <FileText size={16} /> View Invoice
-                                    </a>
-                                )}
-                            </div>
+
+                                <div className="w-full space-y-3 z-20">
+                                    <h3 className="text-lg font-bold text-center mb-1">Your Digital IDiv Card</h3>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <button
+                                            onClick={() => downloadIDiv('idiv-front', `IDiv-Front-${verification.slug}`, 'png')}
+                                            className="flex flex-col items-center gap-1 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl hover:bg-blue-100 transition-colors"
+                                        >
+                                            <FileImage size={18} className="text-blue-600" />
+                                            <span className="text-[10px] font-bold">PNG</span>
+                                        </button>
+                                        <button
+                                            onClick={() => downloadIDiv('idiv-front', `IDiv-Front-${verification.slug}`, 'jpeg')}
+                                            className="flex flex-col items-center gap-1 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-xl hover:bg-orange-100 transition-colors"
+                                        >
+                                            <Download size={18} className="text-orange-600" />
+                                            <span className="text-[10px] font-bold">JPG</span>
+                                        </button>
+                                        <button
+                                            onClick={() => downloadIDiv('idiv-front', `IDiv-Front-${verification.slug}`, 'pdf')}
+                                            className="flex flex-col items-center gap-1 p-2 bg-red-50 dark:bg-red-900/20 rounded-xl hover:bg-red-100 transition-colors"
+                                        >
+                                            <FileType size={18} className="text-red-600" />
+                                            <span className="text-[10px] font-bold">PDF</span>
+                                        </button>
+                                    </div>
+                                    <p className="text-[10px] text-center text-gray-400">High-quality export for printing</p>
+                                </div>
+                            </>
                         ) : (
-                            <div className="flex flex-col items-center justify-center text-center h-full text-gray-400">
+                            <div className="flex flex-col items-center justify-center text-center h-full text-gray-400 py-10">
                                 <Shield size={48} className="mb-4 opacity-20" />
-                                <h3 className="text-lg font-bold text-gray-500 mb-2">Not Verified Yet</h3>
-                                <p className="text-sm max-w-xs mx-auto mb-4">
-                                    Complete your visa application and document submission to get your Verified Traveler QR Code.
+                                <h3 className="text-lg font-bold text-gray-500 mb-2">IDiv Not Active</h3>
+                                <p className="text-sm max-w-xs mx-auto mb-6">
+                                    Your digital verification card will be available here once your visa is fully processed.
                                 </p>
-                                <button onClick={() => setShowChat(true)} className="text-primary text-sm font-bold hover:underline">
-                                    Contact Admin for Help
+                                <button onClick={() => setShowChat(true)} className="btn btn-primary text-xs py-2 px-4 rounded-full">
+                                    Check Status
                                 </button>
                             </div>
                         )}
@@ -628,7 +648,6 @@ const UserDashboard = () => {
                             {verification?.status === 'VALID' || verification?.status === 'Active' ? 'VALID' : 'WAIT'}
                         </div>
                     </div>
-
                 </div>
             </SectionWrapper>
 
@@ -1171,7 +1190,7 @@ const UserDashboard = () => {
                     </div>
                 )
             }
-        </PageWrapper >
+        </PageWrapper>
     );
 };
 

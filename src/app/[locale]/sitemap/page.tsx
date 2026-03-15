@@ -92,6 +92,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             icon: ShieldCheck,
             links: [
                 { name: "Verification System", href: `/${locale}/verification-explained` },
+                { name: "IDiv Public Search", href: `/${locale}/idiv-search` },
                 { name: "Arrival Card (BCV)", href: `/${locale}/arrival-card` },
                 { name: "Traveler Reviews", href: `/${locale}/reviews` },
                 { name: "Official Partners", href: `/${locale}/about#ecosystem` }
@@ -111,7 +112,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             title: "Knowledge Hub",
             icon: HelpCircle,
             links: [
-                { name: "Official Visa Knowledge", href: `/${locale}/visa-knowledge/what-is-b211a` },
+                { name: "Official Visa Knowledge", href: `/${locale}/visa-glossary/what-is-b211a` },
                 { name: "Visa FAQ Hub", href: `/${locale}/visa-faq` },
                 { name: "Immigration Updates", href: `/${locale}/indonesia-visa-updates` },
                 { name: "Digital Nomad News", href: `/${locale}/indonesia-visa-updates/indonesia-digital-nomad-visa-news` },

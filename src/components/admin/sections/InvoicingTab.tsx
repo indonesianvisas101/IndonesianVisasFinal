@@ -33,6 +33,7 @@ import Link from "next/link";
 import { VISA_DATABASE } from "@/constants/visas";
 import { supabase } from "@/lib/supabase";
 import { useSearchParams } from "next/navigation";
+import DocumentViewer from "../DocumentViewer";
 
 export default function InvoicingTab() {
     const [invoices, setInvoices] = useState<any[]>([]);
@@ -41,6 +42,7 @@ export default function InvoicingTab() {
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
+    const [viewingDoc, setViewingDoc] = useState<{ url: string, name: string } | null>(null);
     const searchParams = useSearchParams();
     const targetId = searchParams.get('id');
 
@@ -648,18 +650,19 @@ export default function InvoicingTab() {
                                     Attached Documents
                                 </Typography>
                                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                                    {Object.entries(editingInvoice.documents).map(([key, url]) => (
-                                        <Chip
-                                            key={key}
-                                            label={key.replace(/([A-Z])/g, ' $1').trim()} // Turns "passportPhoto" into "passport Photo"
-                                            component="a"
-                                            href={url as string}
-                                            target="_blank"
-                                            clickable
-                                            color="info"
-                                            variant="outlined"
-                                        />
-                                    ))}
+                                    {Object.entries(editingInvoice.documents).map(([key, url]) => {
+                                        const name = key.replace(/([A-Z])/g, ' $1').trim();
+                                        return (
+                                            <Chip
+                                                key={key}
+                                                label={name}
+                                                onClick={() => setViewingDoc({ url: url as string, name })}
+                                                clickable
+                                                color="info"
+                                                variant="outlined"
+                                            />
+                                        );
+                                    })}
                                 </Stack>
                             </Box>
                         )}
@@ -670,6 +673,15 @@ export default function InvoicingTab() {
                     <Button variant="contained" onClick={handleUpdate}>Update Invoice</Button>
                 </DialogActions>
             </Dialog>
+
+            {viewingDoc && (
+                <DocumentViewer 
+                    open={!!viewingDoc} 
+                    onClose={() => setViewingDoc(null)} 
+                    documentUrl={viewingDoc.url} 
+                    documentName={viewingDoc.name} 
+                />
+            )}
         </Stack>
     );
 }

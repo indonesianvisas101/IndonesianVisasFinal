@@ -3,9 +3,9 @@ import dynamic from "next/dynamic";
 import Hero from "@/components/hero/Hero";
 import LazySection from "@/components/layout/LazySection";
 
-const ApplyExtend = dynamic(() => import("@/components/sections/ApplyExtend"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Quick Access...</div>
-});
+import { getMessages } from "@/i18n/getMessages";
+import ApplyExtend from "@/components/sections/ApplyExtend";
+
 const ServicesPreview = dynamic(() => import("@/components/sections/ServicesPreview"), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Services...</div>
 });
@@ -56,8 +56,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     }
   };
 }
-
-import { getMessages } from "@/i18n/getMessages";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

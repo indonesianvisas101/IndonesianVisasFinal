@@ -6,16 +6,21 @@ export const sendConfirmationEmail = async (to: string, data: {
     applicantName: string;
     visaType: string;
     invoiceUrl: string;
+    orderId: string;
     isPayPal?: boolean;
 }) => {
     try {
-        const { applicantName, visaType, invoiceUrl, isPayPal } = data;
+        const { applicantName, visaType, invoiceUrl, orderId, isPayPal } = data;
         
         let message = `
             <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                 <h2 style="color: #9155FD;">Application Received!</h2>
                 <p>Hello ${applicantName},</p>
-                <p>Thank you for choosing <strong>Indonesian Visas Agency</strong>. We have received your application for <strong>${visaType}</strong>.</p>
+                <div style="background-color: #f4f0ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p style="margin: 0; font-size: 14px;"><strong>ORDER ID:</strong> ${orderId}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;"><strong>SERVICE:</strong> ${visaType}</p>
+                </div>
+                <p>Thank you for choosing <strong>Indonesian Visas Agency</strong>. We have received your application.</p>
                 
                 ${isPayPal ? `
                 <div style="background-color: #FFF9E6; border-left: 4px solid #FFB400; padding: 15px; margin: 20px 0;">
@@ -39,7 +44,7 @@ export const sendConfirmationEmail = async (to: string, data: {
         await resend.emails.send({
             from: 'Indonesian Visas <contact@indonesianvisas.agency>',
             to: [to],
-            subject: `Application Submission: ${visaType}`,
+            subject: `Order #${orderId} - Application Submission`,
             html: message,
         });
         
@@ -52,16 +57,20 @@ export const sendConfirmationEmail = async (to: string, data: {
 
 export const sendPaymentSuccessEmail = async (to: string, data: {
     applicantName: string;
-    invoiceId: string;
+    orderId: string;
     invoiceUrl: string;
 }) => {
     try {
-        const { applicantName, invoiceUrl } = data;
+        const { applicantName, orderId, invoiceUrl } = data;
         
         let message = `
             <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                 <h2 style="color: #56CA00;">Payment Confirmed!</h2>
                 <p>Hello ${applicantName},</p>
+                <div style="background-color: #e6ffeb; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p style="margin: 0; font-size: 14px;"><strong>ORDER ID:</strong> ${orderId}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #56CA00;">Status: PAID & VERIFIED</p>
+                </div>
                 <p>Thanks for the trusted payment! We have received your payment correctly.</p>
                 <p>We will now review your application process and send the answer ASAP.</p>
                 
@@ -78,7 +87,7 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
         await resend.emails.send({
             from: 'Indonesian Visas <contact@indonesianvisas.agency>',
             to: [to],
-            subject: `Payment Success - Indonesian Visas`,
+            subject: `Payment Confirmed - Order #${orderId}`,
             html: message,
         });
         

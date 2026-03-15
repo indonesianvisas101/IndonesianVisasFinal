@@ -29,7 +29,8 @@ import {
     Divider,
     Chip,
     ListItemButton,
-    Tooltip
+    Tooltip,
+    LinearProgress
 } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 
@@ -49,7 +50,7 @@ interface Conversation {
 
 interface Message {
     id: string;
-    senderType: 'user' | 'admin' | 'system';
+    senderType: 'user' | 'admin' | 'system' | string;
     message: string;
     created_at: string;
 }
@@ -59,6 +60,7 @@ export default function SupportChatTab() {
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [selectedConvId, setSelectedConvId] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
+    const [messagesLoading, setMessagesLoading] = useState(false);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -77,11 +79,11 @@ export default function SupportChatTab() {
                 .order('updated_at', { ascending: false });
 
             if (error) {
-                console.error("Error fetching conversations:", error);
+                console.error("Error fetching conversations:", JSON.stringify(error, null, 2));
                 // Graceful fallback
                 setConversations([]);
             } else {
-                const convs = data as any || [];
+                const convs = (data as any) || [];
                 setConversations(convs);
                 
                 // Deep Linking: Auto-select if in URL
@@ -114,35 +116,62 @@ export default function SupportChatTab() {
         if (!selectedConvId) return;
 
         const fetchMessages = async () => {
+            setMessagesLoading(true);
             const { data, error } = await supabase
                 .from('messages')
                 .select('*')
                 .eq('conversation_id', selectedConvId)
                 .order('created_at', { ascending: true });
 
-            if (!error) setMessages(data || []);
+            if (error) {
+                console.error("Error fetching messages:", error);
+            } else {
+                setMessages(data || []);
+            }
+            setMessagesLoading(false);
         };
 
         fetchMessages();
 
         // Realtime Messages
+        console.log("Subscribing to realtime messages for:", selectedConvId);
         const channel = supabase
             .channel(`admin_chat:${selectedConvId}`)
             .on(
                 'postgres_changes',
-                { event: '*', schema: 'public', table: 'messages', filter: `conversation_id=eq.${selectedConvId}` },
+                { 
+                    event: 'INSERT', 
+                    schema: 'public', 
+                    table: 'messages', 
+                    filter: `conversation_id=eq.${selectedConvId}` 
+                },
                 (payload) => {
-                    if (payload.eventType === 'INSERT') {
-                        const newMsg = payload.new as Message;
-                        setMessages(prev => [...prev, newMsg]);
-                        scrollToBottom();
-                    } else if (payload.eventType === 'DELETE') {
-                        const deletedId = payload.old.id;
-                        setMessages(prev => prev.filter(m => m.id !== deletedId));
-                    }
+                    console.log("Realtime INSERT received:", payload);
+                    const newMsg = payload.new as Message;
+                    // Prevent duplicates
+                    setMessages(prev => {
+                        if (prev.find(m => m.id === newMsg.id)) return prev;
+                        return [...prev, newMsg];
+                    });
+                    scrollToBottom();
                 }
             )
-            .subscribe();
+            .on(
+                'postgres_changes',
+                { 
+                    event: 'DELETE', 
+                    schema: 'public', 
+                    table: 'messages', 
+                    filter: `conversation_id=eq.${selectedConvId}` 
+                },
+                (payload) => {
+                    const deletedId = payload.old.id;
+                    setMessages(prev => prev.filter(m => m.id !== deletedId));
+                }
+            )
+            .subscribe((status) => {
+                console.log(`Realtime subscription status for ${selectedConvId}:`, status);
+            });
 
         return () => {
             supabase.removeChannel(channel);
@@ -416,7 +445,8 @@ export default function SupportChatTab() {
             </Box>
 
             {/* Main Chat Area */}
-            <Box sx={{ flex: 1, height: '100%' }}>
+            <Box sx={{ flex: 1, height: '100%', position: 'relative' }}>
+                {loading && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }} />}
                 <Paper sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                     {selectedConv ? (
                         <>
@@ -449,17 +479,28 @@ export default function SupportChatTab() {
 
                             {/* Chat Messages */}
                             <Box sx={{ flex: 1, overflowY: 'auto', p: 3, bgcolor: '#f5f7fa' }}>
-                                {messages.map((msg) => {
-                                    // Fix Alignment: Admin is RIGHT, User is LEFT
-                                    // Logic: If sender is the 'selected user', they are LEFT. 
-                                    const isCustomer = msg.senderType === selectedConv.user_id || msg.senderType === 'user';
+                                {messagesLoading ? (
+                                    <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                                        <Loader2 className="animate-spin text-primary" size={40} />
+                                    </Box>
+                                ) : messages.length === 0 ? (
+                                    <Box display="flex" justifyContent="center" alignItems="center" height="100%" flexDirection="column" color="text.secondary">
+                                        <MessageCircle size={48} className="mb-2 opacity-20" />
+                                        <Typography variant="body2">No messages in this conversation.</Typography>
+                                    </Box>
+                                ) : messages.map((msg) => {
                                     const isSystem = msg.senderType === 'system';
-                                    const isAdmin = !isCustomer && !isSystem;
+                                    const isAdmin = msg.senderType === 'admin' || 
+                                                    msg.senderType === 'ADMIN' ||
+                                                    msg.senderType === user?.id;
+                                    const isCustomer = !isAdmin && !isSystem;
 
                                     if (isSystem) {
                                         return (
                                             <Box key={msg.id} display="flex" justifyContent="center" mb={2}>
-                                                <Typography variant="caption" sx={{ bgcolor: 'action.hover', px: 1, py: 0.5, borderRadius: 1 }}>{msg.message}</Typography>
+                                                <Typography variant="caption" sx={{ bgcolor: 'action.hover', px: 1, py: 0.5, borderRadius: 1, color: 'text.secondary' }}>
+                                                    {msg.message}
+                                                </Typography>
                                             </Box>
                                         );
                                     }

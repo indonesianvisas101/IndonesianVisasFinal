@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { logAdminAction } from '@/lib/auditLogger';
 import { createClient } from '@/utils/supabase/server'; // Use server client
 import { sendConfirmationEmail, sendAdminOrderNotification } from '@/lib/email';
+import { calculateOrderFees } from '@/utils/feeCalculator';
 
 // GET /api/applications?userId=... OR ?id=... OR ?slug=... OR (no params for all)
 export async function GET(request: Request) {
@@ -20,19 +21,27 @@ export async function GET(request: Request) {
             let param = '';
 
             if (id) {
-                whereClause = 'WHERE "id" = $1';
+                whereClause = 'WHERE a."id" = $1';
                 param = id;
             } else {
-                whereClause = 'WHERE "slug" = $1';
+                whereClause = 'WHERE a."slug" = $1';
                 param = slug!;
             }
 
-            const apps: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM "visa_applications" ${whereClause}`, param);
+            // Fetch with Invoice joined to ensure latest Admin Edits are visible
+            const rawApps = await prisma.$queryRawUnsafe(`
+                SELECT a.*, i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
+                       i."serviceFee", i."gatewayFee", i."pph23Amount"
+                FROM "visa_applications" a
+                LEFT JOIN "invoices" i ON a.id = i."applicationId"
+                ${whereClause}
+            `, param) as any[];
 
-            if (!apps || apps.length === 0) {
-                return NextResponse.json({ error: 'Application not found' }, { status: 404 });
+            if (!rawApps || rawApps.length === 0) {
+                console.error(`Application not found for ${id ? 'id' : 'slug'}: ${param}`);
+                return NextResponse.json({ error: 'Invoice or Application not found' }, { status: 404 });
             }
-            const app = apps[0];
+            const app = rawApps[0];
             const uId = app.userId || app.user_id;
 
             let userData = null;
@@ -42,24 +51,22 @@ export async function GET(request: Request) {
 
             let verificationData = null;
             if (app.verificationId) {
-                // Use Raw SQL to avoid schema mismatch
                 const verifResult: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM "Verification" WHERE id = $1`, app.verificationId);
                 if (verifResult.length > 0) {
                     verificationData = verifResult[0];
                 }
             } else if (uId) {
-                // Fallback: Check if user has a verification record
                 const verifResult: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM "Verification" WHERE "userId" = $1::uuid`, uId);
                 if (verifResult.length > 0) {
                     verificationData = verifResult[0];
                 }
             }
 
-            const response = {
+            const response = JSON.parse(JSON.stringify({
                 ...app,
                 // Normalized keys
                 id: app.id,
-                slug: app.slug || app.id, // Fallback
+                slug: app.slug || app.id,
                 userId: uId,
                 visaId: app.visaId || app.visa_id,
                 visaName: app.visaName || app.visa_name,
@@ -69,6 +76,19 @@ export async function GET(request: Request) {
                 appliedAt: app.appliedAt || app.applied_at,
                 customAmount: app.customAmount,
                 status: app.status,
+                quantity: app.quantity || 1,
+
+                // Injected Invoice Data (for real-time sync)
+                invoice: {
+                    status: app.paymentStatus,
+                    amount: app.invoiceAmount,
+                    paymentReference: app.paymentReference,
+                    adminNotes: app.adminNotes,
+                    quantity: app.invoiceQuantity || app.quantity || 1,
+                    serviceFee: app.serviceFee,
+                    gatewayFee: app.gatewayFee,
+                    pph23Amount: app.pph23Amount
+                },
 
                 user: userData || {
                     name: app.guestName,
@@ -76,7 +96,7 @@ export async function GET(request: Request) {
                     address: app.guestAddress || "Guest Customer"
                 },
                 verification: verificationData
-            };
+            }));
             return NextResponse.json(response);
         }
 
@@ -152,7 +172,7 @@ export async function POST(request: Request) {
             guestName, guestEmail, guestAddress, paymentMethod, customAmount,
             description, verificationId, appliedAt,
             // New fields
-            paymentReference, adminNotes, documents, attribution
+            paymentReference, adminNotes, documents, attribution, quantity
         } = body;
 
         // Validation
@@ -210,7 +230,7 @@ export async function POST(request: Request) {
         }
 
         // --- 2. CREATE APPLICATION via Prisma ORM ---
-        const result = await prisma.visaApplication.create({
+        const result = await (prisma.visaApplication as any).create({
             data: {
                 id,
                 userId: finalUserId,
@@ -225,12 +245,12 @@ export async function POST(request: Request) {
                 slug,
                 documents: documents || null,
                 attribution: attribution || null,
+                quantity: quantity ? parseInt(String(quantity)) : 1,
             }
         });
 
         // --- 3. AUTO-CREATE DOCUMENT (Users Only) ---
         if (finalUserId) {
-            // Document
             try {
                 const webUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com'}/invoice/${slug}`;
                 const docId = crypto.randomUUID();
@@ -241,25 +261,45 @@ export async function POST(request: Request) {
             } catch (err) { console.error("Failed to sync invoice document:", err); }
         }
 
-        // --- 4. HARDENED INVOICE (Payment Lifecycle for Everyone) ---
-        let createdInvoice = null;
-        try {
-            const invAmount = customAmount ? parseFloat(customAmount) : 0;
-            createdInvoice = await prisma.invoice.create({
-                data: {
-                    userId: finalUserId || null,
-                    applicationId: id,
-                    amount: invAmount,
-                    status: (status === 'Paid' || status === 'Active') ? 'PAID' : 'UNPAID',
-                    paymentMethod: paymentMethod || 'Manual',
-                    paymentReference: paymentReference,
-                    adminNotes: adminNotes || `Auto-generated from Application ${slug}`,
-                    createdAt: now, // Sync with appliedAt 
-                    updatedAt: now
-                }
+    // --- 4. HARDENED INVOICE (Payment Lifecycle for Everyone) ---
+    console.log(`[API] Creating invoice for slug: ${slug}, application: ${id}`);
+    let createdInvoice = null;
+    try {
+        const baseServiceAmount = customAmount ? parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) : 0;
+        const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(baseServiceAmount, paymentMethod || 'Manual');
 
-            });
-        } catch (invErr) { console.error("Failed to create hardened invoice:", invErr); }
+        // Check if invoice ID (slug) already exists
+        const existingInv = await (prisma.invoice as any).findUnique({ where: { id: slug } });
+        if (existingInv) {
+            console.log(`[API] Invoice ${slug} already exists, appending suffix`);
+            slug = `${slug}-${crypto.randomBytes(1).toString('hex')}`;
+        }
+        
+        createdInvoice = await (prisma.invoice as any).create({
+            data: {
+                id: slug,
+                userId: finalUserId || null,
+                applicationId: id,
+                amount: totalAmount,
+                serviceFee: serviceFee,
+                gatewayFee: gatewayFee,
+                pph23Amount: pph23Amount,
+                currency: "IDR",
+                status: (status === 'Paid' || status === 'Active') ? 'PAID' : 'UNPAID',
+                paymentMethod: paymentMethod || 'Manual',
+                paymentReference: paymentReference,
+                adminNotes: adminNotes || `Auto-generated from Application ${slug}`,
+                quantity: quantity ? parseInt(String(quantity)) : 1,
+                createdAt: now,
+                updatedAt: now
+            }
+        });
+        console.log(`[API] Invoice created successfully: ${createdInvoice.id}`);
+    } catch (invErr: any) { 
+        console.error("[API] CRITICAL: Hardened invoice creation failed!", invErr);
+        // If invoice fails, we should probably throw an error so the client knows
+        throw new Error(`Invoice Creation Failed: ${invErr.message || 'Database error'}`);
+    }
 
         // --- 4.5 REALTIME BROADCAST TO ADMIN ---
         try {
@@ -297,6 +337,7 @@ export async function POST(request: Request) {
                     applicantName: guestName || (await prisma.user.findUnique({ where: { id: finalUserId! } }))?.name || 'Applicant',
                     visaType: visaName || visaId,
                     invoiceUrl: invoiceUrl,
+                    orderId: slug,
                     isPayPal: paymentMethod?.toLowerCase().includes('paypal')
                 });
             }
@@ -370,7 +411,7 @@ export async function PATCH(request: Request) {
         if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const body = await request.json();
-        const { id, status, paymentReference, adminNotes, paymentStatus, guestName, guestEmail, visaName, customAmount, userId } = body;
+        const { id, status, paymentReference, adminNotes, paymentMethod, paymentStatus, guestName, guestEmail, visaName, customAmount, userId, quantity } = body;
 
         if (!id) return NextResponse.json({ error: "ID Required" }, { status: 400 });
 
@@ -382,6 +423,7 @@ export async function PATCH(request: Request) {
         if (visaName !== undefined) appUpdateData.visaName = visaName;
         if (customAmount !== undefined) appUpdateData.customAmount = String(customAmount).replace(/[^0-9.-]+/g, '');
         if (userId !== undefined) appUpdateData.userId = userId ? userId : null;
+        if (quantity !== undefined) appUpdateData.quantity = parseInt(String(quantity)) || 1;
 
         if (Object.keys(appUpdateData).length > 0) {
             await prisma.visaApplication.update({
@@ -391,15 +433,29 @@ export async function PATCH(request: Request) {
         }
 
         // 2. Update Linked Invoice (if exists)
-        if (paymentStatus !== undefined || paymentReference !== undefined || adminNotes !== undefined || customAmount !== undefined) {
+        if (paymentStatus !== undefined || paymentReference !== undefined || adminNotes !== undefined || customAmount !== undefined || paymentMethod !== undefined) {
             // Find invoice
             const invoice = await prisma.invoice.findFirst({ where: { applicationId: id } });
             if (invoice) {
                 const dataToUpdate: any = {};
-                if (paymentStatus !== undefined) dataToUpdate.status = paymentStatus; // UNPAID, PAID, REFUNDED
+                if (paymentStatus !== undefined) dataToUpdate.status = paymentStatus;
                 if (paymentReference !== undefined) dataToUpdate.paymentReference = paymentReference;
                 if (adminNotes !== undefined) dataToUpdate.adminNotes = adminNotes;
-                if (customAmount !== undefined) dataToUpdate.amount = parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) || 0;
+                
+                // Recalculate fees if amount or method changes
+                const methodToUse = paymentMethod || invoice.paymentMethod || 'Manual';
+                const amountToUse = customAmount !== undefined 
+                    ? parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) 
+                    : Number((invoice as any).serviceFee || invoice.amount);
+                
+                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(amountToUse, methodToUse);
+                
+                dataToUpdate.amount = totalAmount;
+                dataToUpdate.serviceFee = serviceFee;
+                dataToUpdate.gatewayFee = gatewayFee;
+                dataToUpdate.pph23Amount = pph23Amount;
+                if (paymentMethod !== undefined) dataToUpdate.paymentMethod = paymentMethod;
+                if (quantity !== undefined) dataToUpdate.quantity = parseInt(String(quantity)) || 1;
 
                 await prisma.invoice.update({
                     where: { id: invoice.id },

@@ -128,7 +128,7 @@ export async function POST(req: Request) {
                         
                         await sendPaymentSuccessEmail(visaApp.guestEmail!, {
                             applicantName: visaApp.guestName || 'Applicant',
-                            invoiceId: invoice.id,
+                            orderId: invoice.id,
                             invoiceUrl: invoiceUrl
                         });
                     } catch (e) {

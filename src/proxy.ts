@@ -138,6 +138,7 @@ function isPublicRoute(path: string) {
         '/invoice',
         '/travel',
         '/sitemap',
+        '/help',
         '/visa-glossary',
         '/visa-faq',
         '/indonesia-visa-updates',

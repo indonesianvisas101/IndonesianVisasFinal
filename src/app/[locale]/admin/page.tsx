@@ -108,6 +108,7 @@ import LockIcon from "@mui/icons-material/Lock"; // New
 import DownloadIcon from '@mui/icons-material/Download'; // New
 import PrintIcon from '@mui/icons-material/Print'; // New
 import RefreshIcon from '@mui/icons-material/Refresh'; // New
+import MailIcon from '@mui/icons-material/Mail'; // New
 
 import VerificationTab from "@/components/admin/sections/VerificationTab";
 import CompanyServicesTab from "@/components/admin/sections/CompanyServicesTab";
@@ -118,9 +119,13 @@ import ArrivalCardsTab from "@/components/admin/sections/ArrivalCardsTab"; // NE
 import AIMasterTab from "@/components/admin/sections/AIMasterTab"; // NEW
 import ImmigrationUpdatesTab from "@/components/admin/sections/ImmigrationUpdatesTab"; // NEW
 import MarketingTab from "@/components/admin/sections/MarketingTab"; // NEW MARKETING TAB
+import AddonsTab from "@/components/admin/sections/AddonsTab"; // NEW
+import GlobalSettingsTab from "@/components/admin/sections/GlobalSettingsTab"; // NEW
 import HistoryIcon from '@mui/icons-material/History'; // New import
 import PsychologyIcon from "@mui/icons-material/Psychology"; // Added
 import OrderPanel from "@/components/admin/sections/OrderPanel";
+import FinancePanel from "@/components/admin/sections/FinancePanel";
+import EmailLogPanel from "@/components/admin/sections/EmailLogPanel";
 import { sendAdminAlert } from "@/app/actions/sendAdminAlert"; // Smart Alert System
 
 // Constants & Types
@@ -134,7 +139,7 @@ const INITIAL_STATS = [
     { key: 'revenue', title: "Revenue", value: "$0", change: "0%", isPositive: true, icon: <AttachMoneyIcon />, color: "info.main", bg: "info.light" },
 ];
 
-type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master' | 'orders' | 'updates' | 'marketing';
+type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master' | 'orders' | 'updates' | 'marketing' | 'finance' | 'email_logs' | 'addons' | 'global_settings';
 
 // Main Content Component (Logic moved here)
 function AdminDashboardContent() {
@@ -188,6 +193,7 @@ function AdminDashboardContent() {
     const [notifications, setNotifications] = useState<any[]>([]);
     const [showNotificationsModal, setShowNotificationsModal] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [globalApiLoading, setGlobalApiLoading] = useState(false); // Track all fetch calls
     const [newOrdersCount, setNewOrdersCount] = useState(0);
     // Initialize users list from Context logic
     const [usersList, setUsersList] = useState<any[]>([]);
@@ -233,11 +239,26 @@ function AdminDashboardContent() {
         ctaSubtitle: ''
     });
 
-    // NEW: Pricing Editor State
-    const [isMultiPricing, setIsMultiPricing] = useState(false);
     const [pricingRows, setPricingRows] = useState<{ label: string; price: string; fee: number }[]>([
         { label: 'Standard', price: '', fee: 0 }
     ]);
+    const [isMultiPricing, setIsMultiPricing] = useState(false);
+
+    // Link Document Logic (Replaces File Upload)
+    const [docName, setDocName] = useState("");
+    const [docUrl, setDocUrl] = useState("");
+
+    // PDF Export Menu State
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const pdfMenuOpen = Boolean(anchorEl);
+
+    // UI HELPER: Reset link inputs when dialog opens/closes
+    useEffect(() => {
+        if (!editingUser) {
+            setDocName("");
+            setDocUrl("");
+        }
+    }, [editingUser]);
 
     // Sync Form State when opening edit dialog
     useEffect(() => {
@@ -260,6 +281,7 @@ function AdminDashboardContent() {
     // RESTORED: Fetch Users (Corrected)
     useEffect(() => {
         const fetchUsers = async () => {
+            setGlobalApiLoading(true);
             try {
                 const res = await fetch('/api/users');
                 if (res.ok) {
@@ -268,6 +290,8 @@ function AdminDashboardContent() {
                 }
             } catch (e) {
                 console.error("Failed to fetch users", e);
+            } finally {
+                setGlobalApiLoading(false);
             }
         };
         fetchUsers();
@@ -288,6 +312,7 @@ function AdminDashboardContent() {
     // RESTORED: Fetch Admin Data (Stats & Notifications)
     useEffect(() => {
         const fetchAdminData = async () => {
+            setGlobalApiLoading(true);
             try {
                 const res = await fetch('/api/admin/stats');
                 if (res.ok) {
@@ -314,6 +339,8 @@ function AdminDashboardContent() {
                 }
             } catch (e) {
                 console.error("Notif fetch failed", e);
+            } finally {
+                setGlobalApiLoading(false);
             }
         };
         fetchAdminData();
@@ -610,14 +637,6 @@ function AdminDashboardContent() {
         }
     };
 
-    if (authLoading || !user || user.role !== 'admin') {
-        return (
-            <Box sx={{ display: 'flex', height: '100vh', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
-
     const handleSaveUser = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingUser) return;
@@ -646,8 +665,6 @@ function AdminDashboardContent() {
     };
 
     // Link Document Logic (Replaces File Upload)
-    const [docName, setDocName] = useState("");
-    const [docUrl, setDocUrl] = useState("");
 
     const handleAddLink = async () => {
         if (!editingUser || !docName || !docUrl) {
@@ -686,19 +703,11 @@ function AdminDashboardContent() {
     };
 
     // UI HELPER: Reset link inputs when dialog opens/closes
-    useEffect(() => {
-        if (!editingUser) {
-            setDocName("");
-            setDocUrl("");
-        }
-    }, [editingUser]);
 
-    // PDF Export Menu State
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const pdfMenuOpen = Boolean(anchorEl);
     const handlePdfMenuClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handlePdfMenuClose = () => {
         setAnchorEl(null);
     };
@@ -1007,7 +1016,14 @@ function AdminDashboardContent() {
         }
     }, [activeTab]);
 
-    // --- ACCESS CHECK ---
+    if (authLoading || !user || user.role !== 'admin') {
+        return (
+            <Box sx={{ display: 'flex', height: '100vh', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
     if (!user || user.role !== 'admin') {
         return (
             <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
@@ -1078,10 +1094,14 @@ function AdminDashboardContent() {
                     { key: 'arrival_cards', label: 'Arrival Card', icon: <DescriptionIcon /> },
                     { key: 'orders', label: 'Incoming Order', icon: <ShoppingCart sx={{ fontSize: 20 }} />, badge: newOrdersCount },
                     { key: 'invoicing', label: 'Invoicing', icon: <ReceiptIcon /> },
+                    { key: 'finance', label: 'Finance & Tax', icon: <AttachMoneyIcon /> },
+                    { key: 'email_logs', label: 'Email Communication', icon: <MailIcon /> },
                     { key: 'logs', label: 'Audit Logs', icon: <HistoryIcon /> },
                     { key: 'ai_master', label: 'Ai Master', icon: <PsychologyIcon /> },
                     { key: 'marketing', label: 'Marketing Intelligence', icon: <BarChartIcon /> },
                     { key: 'updates', label: 'Immigration Updates', icon: <CampaignIcon /> },
+                    { key: 'addons', label: 'Product Add-ons', icon: <ShoppingCart /> },
+                    { key: 'global_settings', label: 'Global Info Popup', icon: <CampaignIcon /> },
                 ].map((item) => (
                     <ListItem key={item.key} disablePadding sx={{ mb: 1 }}>
                         <ListItemButton
@@ -1173,6 +1193,14 @@ function AdminDashboardContent() {
 
             {/* MAIN CONTENT */}
             <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 3 }, pt: { xs: 10, md: 12 }, width: { md: `calc(100% - ${DRAWER_WIDTH}px)` }, minHeight: '100vh', bgcolor: 'background.default' }}>
+                
+                {/* GLOBAL LOADING INDICATOR */}
+                {(globalApiLoading || checkingHealth) && (
+                    <Box sx={{ position: 'fixed', top: '82px', left: { md: DRAWER_WIDTH }, right: 0, zIndex: 1100 }}>
+                        <LinearProgress />
+                    </Box>
+                )}
+
                 <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
                     {/* --- DASHBOARD TAB --- */}
                     {activeTab === 'dashboard' && (
@@ -1468,6 +1496,20 @@ function AdminDashboardContent() {
                         </Stack>
                     )}
 
+                    {/* --- PRODUCT ADDONS TAB --- */}
+                    {activeTab === 'addons' && (
+                        <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
+                            <AddonsTab />
+                        </Box>
+                    )}
+
+                    {/* --- GLOBAL SETTINGS TAB --- */}
+                    {activeTab === 'global_settings' && (
+                        <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
+                            <GlobalSettingsTab />
+                        </Box>
+                    )}
+
                     {/* --- VERIFICATION TAB --- */}
                     {activeTab === 'verification' && (
                         <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
@@ -1515,6 +1557,20 @@ function AdminDashboardContent() {
                     {activeTab === 'logs' && (
                         <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
                             <AuditLogTab />
+                        </Box>
+                    )}
+
+                    {/* --- FINANCE TAB --- */}
+                    {activeTab === 'finance' && (
+                        <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
+                            <FinancePanel />
+                        </Box>
+                    )}
+
+                    {/* --- EMAIL LOGS TAB --- */}
+                    {activeTab === 'email_logs' && (
+                        <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
+                            <EmailLogPanel />
                         </Box>
                     )}
 

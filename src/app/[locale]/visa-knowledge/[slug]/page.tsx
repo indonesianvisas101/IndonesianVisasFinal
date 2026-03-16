@@ -2,10 +2,11 @@ import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { ShieldCheck, Info, FileText, HelpCircle, CheckCircle2 } from 'lucide-react';
 
-export async function generateMetadata({ params }: { params: { slug: string, locale: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string, locale: string }> }) {
+  const { slug } = await params;
   const db = prisma as any;
   const page = await db['knowledgePage'].findUnique({
-    where: { slug: params.slug }
+    where: { slug }
   });
 
   if (!page) return {};
@@ -53,10 +54,11 @@ export async function generateMetadata({ params }: { params: { slug: string, loc
   };
 }
 
-export default async function KnowledgePage({ params }: { params: { slug: string, locale: string } }) {
+export default async function KnowledgePage({ params }: { params: Promise<{ slug: string, locale: string }> }) {
+  const { slug, locale } = await params;
   const db = prisma as any;
   const page = await db['knowledgePage'].findUnique({
-    where: { slug: params.slug }
+    where: { slug }
   });
 
   if (!page || !page.published) {
@@ -151,10 +153,10 @@ export default async function KnowledgePage({ params }: { params: { slug: string
               Don't navigate Indonesian immigration alone. Our team of experts is ready to assist you.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-               <a href={`/${params.locale}/apply`} className="px-10 py-4 bg-white text-primary rounded-full font-black text-lg hover:scale-105 transition-transform">
+               <a href={`/${locale}/apply`} className="px-10 py-4 bg-white text-primary rounded-full font-black text-lg hover:scale-105 transition-transform">
                  Apply Now
                </a>
-               <a href={`/${params.locale}/services`} className="px-10 py-4 bg-transparent border-2 border-white/30 text-white rounded-full font-black text-lg hover:bg-white/10 transition-colors">
+               <a href={`/${locale}/services`} className="px-10 py-4 bg-transparent border-2 border-white/30 text-white rounded-full font-black text-lg hover:bg-white/10 transition-colors">
                  View Services
                </a>
             </div>

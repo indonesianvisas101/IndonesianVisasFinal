@@ -107,7 +107,9 @@ export default async function LocaleLayout({
     <html lang={currentLocale}>
       <head>
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://thvdfcogdxmqipybqzot.supabase.co" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://thvdfcogdxmqipybqzot.supabase.co" />
         <link rel="dns-prefetch" href="https://www.paypal.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />

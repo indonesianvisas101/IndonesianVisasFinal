@@ -141,7 +141,7 @@ export default function VerificationPage() {
                         Verification Status
                     </Typography>
 
-                    {/* IDIV CARD PREVIEW (PRIVACY MODE) */}
+                    {/* IDIV CARD PREVIEW */}
                     <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
                         <IDivCardModern 
                             data={{
@@ -152,9 +152,10 @@ export default function VerificationPage() {
                                 expiry_date: new Date(data.expiresAt).toLocaleDateString(),
                                 issue_date: new Date(data.issuedDate).toLocaleDateString(),
                                 address: data.address,
-                                order_id: data.id // Use ID as Order ID if it's unified
+                                photoUrl: data.photoUrl,
+                                order_id: data.id 
                             }}
-                            privacyMode={true} 
+                            privacyMode={false} 
                             autoRotate={false}
                         />
                     </Box>

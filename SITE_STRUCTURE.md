@@ -48,6 +48,12 @@ Massive authority clusters designed for SEO dominance.
 - `/visa-faq` — Categorized help repository.
 - `/comparisons` — Head-to-head analysis (e.g., Bali vs. Thailand).
 
+### 3.4 Regulation Depth (Authority Hub)
+- `/regulations/indonesia-visa-regulations` — Comprehensive guide to legal frameworks.
+- `/regulations/immigration-law-references` — Direct references to Ministerial Decrees.
+- `/regulations/official-immigration-policy` — Strategic vision and digital transformation.
+- `/regulations/visa-eligibility-rules` — Detailed eligibility and verification rules.
+
 ---
 
 ## 👤 4. USER GATEWAY & AUTHENTICATION

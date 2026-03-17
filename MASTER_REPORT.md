@@ -1,6 +1,6 @@
 # 🧠 INDONESIAN VISAS: COMPREHENSIVE MASTER INTELLIGENCE REPORT
-**Version:** 3.7.0 (Exhaustive Bible) | **Date:** March 16, 2026
-**Status:** Production Active | **Confidentiality:** Boss Bayu Authorized
+**Version:** 3.8.0 (Regulation & Admin Depth) | **Date:** March 17, 2026
+**Status:** Production Optimized | **Confidentiality:** Boss Bayu Authorized
 
 ---
 
@@ -56,11 +56,11 @@ The system is governed by a **Semi-Autonomous Multi-Agent Framework** where role
 
 ### 3.1 Order & Application Flow
 1. **Entry**: User lands on `/` or `/services/[id]` and initiates via the "Hero" or "Select Country" CTA.
-2. **Step 1 (Visa/Arrival)**: User selects their country (97 eligible) and arrival date with real-time availability check.
+2. **Step 1 (Visa/Arrival)**: User selects their country (97 eligible) and arrival date. For specific visas (e.g., D1, D2), **Multi-Price Tier Selection** (1 Year vs 2 Years) is integrated directly.
 3. **Step 2 (Documents)**: Secure upload system for passports and required documents.
 4. **Step 3 (Payment)**: 
     - **Midtrans**: Generates a 24-hour Snap Token for IDR payments (GoPay, VA, CC).
-    - **PayPal**: Direct capture integration with auto-invoice generation.
+    - **PayPal**: Direct capture integration with auto-invoice generation and **Status Sync Webhook**.
 5. **Step 4 (Success)**: Immediate redirection to `/thanks` with a unique dynamic `invoiceId`.
 
 ### 3.2 Tracking and Management
@@ -92,8 +92,8 @@ The **IDiv Advanced Safety System™** is the crown jewel of platform trust.
 ### 5.1 AI Master Panel
 Located at `/admin/ai-master`, this is the command center for Boss Bayu.
 - **Approval Queue**: Review proposals from the AI Master (e.g., price updates, new news articles).
-- **Risk Monitor**: Real-time display of last compliance scan and sentiment analysis of customer chats.
-- **Health Metrics**: Live "System Status" showing orders today, revenue trends, and execution logs.
+- **Management**: Approve/reject AI change requests, view risk logs, toggle system mode.
+- **Invoicing Enhancements**: The Admin Invoicing Tab now displays full **Step 1-4 Submission Details**, including selected visa tiers, arrival dates, passport info, and document links.
 
 ### 5.2 Dynamic Reporting Engine
 - **API Endpoint**: `/api/admin/reports/dynamic` with `DYNAMIC_REPORT_SECRET` protection.
@@ -126,6 +126,7 @@ The platform features a massive, SEO-optimized directory structured for visibili
 - `/visa-knowledge/[slug]` — Deep-dive authority articles.
 - `/blog` — Standard Expat & Visa articles.
 - `/visa-faq` — Searchable help-center categorized by visa type.
+- `/regulations/*` — Regulation Depth Authority Cluster (4 specialized legal pages).
 
 ### 6.4 User & Security Routes
 - `/dashboard` — Personal portal for orders/documents.

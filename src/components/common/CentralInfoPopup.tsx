@@ -60,7 +60,7 @@ export default function CentralInfoPopup({ isOpen, onClose, info }: CentralInfoP
                                         p: { xs: 4, sm: 6 },
                                         position: 'relative',
                                         overflowY: 'auto',
-                                        maxHeight: { xs: '60vh', sm: '85vh' }
+                                        maxHeight: { xs: '50vh', sm: '85vh' }
                                     }}
                                 >
                                     <IconButton

@@ -3679,15 +3679,10 @@ If any test fails:
 - /admin — **AI Master Orchestration Hub** — Platform command & control.
 
 #### 10. Legal, Privacy & Compliance
-
 - /privacy-policy — GDPR/PDP Compliance.
-
 - /terms-and-conditions — Legal TOS.
-
 - /refund — Official refund policy.
-
 - /legal — Legal documentation repository.
-
 - /legal-experts — Legal counsel team introduction.
 
 ---
@@ -3697,79 +3692,84 @@ If any test fails:
 ---
 
 ## 37. PHASE 50: ORDER STATUS & HELP CENTER (Mar 15, 2026)
-
 **Status:** 100% Deployed
-
 **Summary:** Implementation of real-time tracking, invoice integrity fixes, and the Knowledge Hub.
 
 ### 37.1 Order Status System
-
 - **[NEW] /check-status Page:** Interactive lookup using Order ID, Invoice, or Personal Info.
-
 - **[NEW] Public API:** Secure, rate-limited endpoint with strict privacy filters (data redacting).
-
 - **Hero Integration:** Added "Check Order Status" CTA for immediate user access.
 
 ### 37.2 Invoice System Hardening
-
 - **Quantity Bug:** Fixed itemization logic in StepPayment and backend; multi-visa orders now show correct total quantity.
-
 - **Admin Persistence:** Modified fetching logic to join invoices table directly, ensuring admin edits (notes/amounts) sync instantly.
 
 ### 37.3 Help Center v1.0
-
 - **Hub:** /help main navigation.
-
 - **Guides:** Specialized pages for Payment Verification, Scam Warning, and Troubleshooting.
-
 - **Footer Navigation:** Direct "Help Center" entry point.
 
 ---
 
 ## 38. PHASE 51: UNIFIED ID & IDIV SYSTEM POLISH (Mar 16, 2026)
-
 **Status:** 100% Deployed
 
 #### 🛠️ Core Engineering Updates
-
 - **Unified ID Architecture**: Synchronized Order IDs across Invoices, Applications, and IDiv cards.
-
 - **NIK Compliance**: Shortened ID format to 14-digit alphanumeric strings to match Indonesian national identification standards.
-
 - **3D Interactive Smart Code**: Replaced static UI with a flippable 3D card in the Safety Center using framer-motion for smooth 60fps animations.
-
 - **High-Fidelity Export Tools**: Integrated html-to-image and jsPDF for high-quality (3x DPI) PNG/PDF exports of IDiv cards.
 
 #### 🎨 UI/UX Refinements
-
 - **Search ID CTA**: Styled with secondary white-border contrast to differentiate from primary flows while maintaining width symmetry.
-
 - **IDiv Overlay Fix**: Optimized label vertical alignment and spacing to prevent text collisions on mobile and small-screen previews.
-
 - **Admin Verification Panel**: Added Download and Sharing suites directly into the Verification Preview modal.
 
 #### 📊 Reporting & Integration
-
 - **Spreadsheet v2.2**: Deployed syntax-safe Google Apps Script to automated data collection for Tax (PPH23), Service Fees, and Gateway commissions.
 
 ---
 
-### 🛡️ PHASE 50: REGULATION DEPTH & ADMIN INFRASTRUCTURE HARDENING
+### 🛡️ PHASE 50.2: REGULATION DEPTH & ADMIN INFRASTRUCTURE HARDENING
 **Date:** 2026-03-17 | **Status:** ✅ FULL PRODUCTION BUILD COMPLETE
 
 #### 🛂 Service & Regulatory Expansion
-
 - **Regulation Depth Cluster**: Deployed 4 high-authority legal pages at `/regulations/*` covering Indonesia Visa Regulations, Immigration Law, Official Policy, and Eligibility Rules.
 - **Multi-Price Selection**: Implemented duration-based pricing tiers (1 Year vs 2 Years) in Step 1 of the application flow for multiple-entry visas.
 - **Sitemap Integration**: Added "Regulation Depth" category to the global sitemap hub.
 
 #### ⚙️ Admin & Payment Reliability
-
 - **Step 1-4 Visibility**: Enhanced the Admin Invoicing Tab to show comprehensive customer submission data, including visa tiers, arrival dates, and document links.
 - **PayPal Webhook Sync**: Implemented automated payment/invoice status updates triggered by PayPal `PAYMENT.CAPTURE.COMPLETED` events.
 - **CSS Syntax Refactor**: Resolved production-blocking logic in `StepCountryVisa.module.css` and verified with a clean `npm run build`.
 
 #### 📊 Performance & Delivery
+- **Build Verification**: Successfully generated 2661 static pages with zero errors.
+- **Landing Page Speed**: Verified Hero assets deferred hydration via `runWhenIdle` and `LazySection` implementation for maximum TBT optimization.
+
+---
+
+## 39. PHASE 51.2: APPLICATION FUNNEL & MULTI-TRAVELER SPLIT (Mar 17, 2026)
+**Status:** ✅ 100% Deployed & Verified
+
+#### 🛒 Multi-Traveler Checkout Polish
+- **Step 1 Validation**: Forced price tier selection with auto-scroll and visual "Please select a tier" alerts.
+- **Individual Email Collection**: Modified Step 2 to capture unique email addresses for every traveler in multi-person orders.
+- **Split Invoice Engine**: Refactored `processCheckout` to create separate `VisaApplication` and `Invoice` records per traveler, dividing the total pricing proportionally.
+- **Primary Payer Flow**: The primary traveler initiates the payment gateway; subsequent travelers receive automated invoice links via email.
+
+#### 🏛️ Corporate Infrastructure & Payment
+- **Enhanced BCA Details**: Added Corporate Bank Account info (PT Indonesian Visas Agency) including SWIFT Code and denpasar branch address to the `/payment` page.
+- **PayPal Localization Fix**: Hardened the post-payment redirect logic in `PayPalIntegration.tsx` to maintain the user's current locale prefix.
+- **Account Hub Integration**: Updated payment success emails with a personalized suggestion to "Create an Account" to track processing status.
+
+#### 📧 Automated Notification Hardening
+- **Enhanced Order Reminders**: Re-designed abandonment and unpaid reminder emails with clear "UNPAID" status headers and direct secure-payment CTAs.
+- **Paid Status Precision**: Standardized status reporting to "PAID & Review by Agent" across all customer-facing touchpoints.
+
+---
+
+***PHASE 51.2 COMPLETE — MULTI-TRAVELER ENGINE ACTIVE***
 
 - **Build Verification**: Successfully generated 2661 static pages with zero errors.
 - **Landing Page Speed**: Verified Hero assets deferred hydration via `runWhenIdle` and `LazySection` implementation for maximum TBT optimization.

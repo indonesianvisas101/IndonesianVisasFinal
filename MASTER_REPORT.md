@@ -1,5 +1,5 @@
 # 🧠 INDONESIAN VISAS: COMPREHENSIVE MASTER INTELLIGENCE REPORT
-**Version:** 3.8.0 (Regulation & Admin Depth) | **Date:** March 17, 2026
+**Version:** 3.9.0 (Multi-Traveler Split & Account Hub) | **Date:** March 17, 2026
 **Status:** Production Optimized | **Confidentiality:** Boss Bayu Authorized
 
 ---
@@ -23,8 +23,8 @@ The Indonesian Visas platform is built on a high-availability, performance-tuned
     - **Agents**: Multi-agent semi-autonomous governance (Master, Worker, Risk, Seller).
 - **Services**:
     - **Payments**: Midtrans (Snap IDR) & PayPal (Capture Global).
-    - **Email**: Resend (Transactional emails for orders, payments, and receipts).
-    - **Analytics**: Google Tag Manager & Custom Server-side Tracking.
+    - **Email**: Resend (Transactional emails for orders, payments, and receipts) + **Multi-traveler Invoice Splitter**.
+- **Analytics**: Google Tag Manager & Custom Server-side Tracking.
 
 ### 1.2 Base Build Information
 - **Build Mode**: Static Site Generation (SSG) for 2000+ SEO pages + Dynamic SSR for dashboard and admin functions.
@@ -56,17 +56,18 @@ The system is governed by a **Semi-Autonomous Multi-Agent Framework** where role
 
 ### 3.1 Order & Application Flow
 1. **Entry**: User lands on `/` or `/services/[id]` and initiates via the "Hero" or "Select Country" CTA.
-2. **Step 1 (Visa/Arrival)**: User selects their country (97 eligible) and arrival date. For specific visas (e.g., D1, D2), **Multi-Price Tier Selection** (1 Year vs 2 Years) is integrated directly.
-3. **Step 2 (Documents)**: Secure upload system for passports and required documents.
-4. **Step 3 (Payment)**: 
-    - **Midtrans**: Generates a 24-hour Snap Token for IDR payments (GoPay, VA, CC).
-    - **PayPal**: Direct capture integration with auto-invoice generation and **Status Sync Webhook**.
-5. **Step 4 (Success)**: Immediate redirection to `/thanks` with a unique dynamic `invoiceId`.
+2. **Step 1 (Visa/Arrival)**: User selects their country (97 eligible) and arrival date. **Strict Tier Selection** is enforced; users cannot proceed without choosing a pricing tier (e.g., Standard vs Express).
+3. **Step 2 (Documents & Travelers)**: Secure upload system. For multi-traveler orders, **Individual Email Addresses** are collected for every person to ensure separate legal processing and receipt delivery.
+4. **Step 3 (Payment & Splitting)**: 
+    - **Logic**: The total order is split into individual `VisaApplication` and `Invoice` records. The total amount is divided equally among travelers.
+    - **Midtrans**: Generates a 24-hour Snap Token for IDR payments.
+    - **PayPal**: Direct capture integration with auto-invoice generation and **localized redirect support** (maintains `/en`, `/id` paths).
+5. **Step 4 (Success & Onboarding)**: Immediate redirection to `/thanks`. An automated "Create Hub Account" suggestion is sent to the user's email to facilitate status tracking.
 
 ### 3.2 Tracking and Management
-- **Customer Side**: `/check-status` allows users to track their application in real-time using Order ID or Passport Number.
-- **Admin Side**: `OrderPanel` broadcasts live updates via Supabase Realtime when new applications are received.
-- **Automation**: Payment success webhooks (Doku/Midtrans) automatically transition orders to `Review by Agent` status.
+- **Customer Side**: `/check-status` and the private Dashboard allow users to track their application.
+- **Admin Side**: `OrderPanel` broadcasts live updates via Supabase Realtime.
+- **Automation**: Payment success webhooks (Doku/Midtrans/PayPal) automatically transition orders to `Review by Agent` status.
 
 ---
 
@@ -93,12 +94,12 @@ The **IDiv Advanced Safety System™** is the crown jewel of platform trust.
 Located at `/admin/ai-master`, this is the command center for Boss Bayu.
 - **Approval Queue**: Review proposals from the AI Master (e.g., price updates, new news articles).
 - **Management**: Approve/reject AI change requests, view risk logs, toggle system mode.
-- **Invoicing Enhancements**: The Admin Invoicing Tab now displays full **Step 1-4 Submission Details**, including selected visa tiers, arrival dates, passport info, and document links.
+- **Invoicing Enhancements**: The Admin Invoicing Tab displays full **Step 1-4 Submission Details**, including passport info, tier selections, and live document links.
 
 ### 5.2 Dynamic Reporting Engine
 - **API Endpoint**: `/api/admin/reports/dynamic` with `DYNAMIC_REPORT_SECRET` protection.
 - **Google Sheets Integration**: A custom Google Apps Script (`indonesianvisas.com Report`) connects the platform database directly to the official spreadsheet for one-click updates.
-- **Security**: Sensitive data (passwords, encryption keys) are strictly filtered out of report snapshots.
+- **Corporate Transparency**: Reports now include PPH23 tax breakdowns and Gateway-specific itemization.
 
 ---
 
@@ -108,7 +109,7 @@ The platform features a massive, SEO-optimized directory structured for visibili
 
 ### 6.1 Core Landing & Funnels
 - `/` — Main Hub
-- `/apply` — Application Wizard
+- `/apply` — Application Wizard (**Multi-traveler ready**)
 - `/extend` — Extension Wizard
 - `/arrival-card` — Digital Pass
 - `/pricing` — Comparison Matrix
@@ -147,12 +148,8 @@ The platform features a massive, SEO-optimized directory structured for visibili
 ### 7.2 Maintenance Commands
 - **Build Verification**: `rm -rf .next && npm run build` (Ensures zero-error production).
 - **Sync**: `git commit -m "[Phase Header]: [Summary]"` + `git push origin main`.
-- **Secrets**: Masked in documentation.
-    - `BOSS_PASSPHRASE`: (xxxxx)
-    - `CONFIRM_CODE`: (xxxxx)
-    - `PAYPAL_CLIENT_ID`: (xxxxx)
-    - `MIDTRANS_SERVER_KEY`: (xxxxx)
+- **Infrastructure**: Added Corporate BCA Support (PT Indonesian Visas Agency) with **SWIFT/CENAIDJA** verification.
 
 ---
-**END OF MASTER INTELLIGENCE REPORT v3.7.0**
+**END OF MASTER INTELLIGENCE REPORT v3.9.0**
 *(Maintained by IndonesianVisas AI Master Agent)*

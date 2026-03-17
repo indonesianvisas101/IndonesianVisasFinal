@@ -40,6 +40,7 @@ interface ApplicationState {
     travelers: {
         firstName: string;
         lastName: string;
+        email: string; // NEW: Collect email for each traveler
         passport: string;
         dob: string;
     }[];
@@ -322,9 +323,9 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         setState((prev) => {
             const newTravelers = [...prev.travelers];
             if (!newTravelers[index]) {
-                newTravelers[index] = { firstName: '', lastName: '', passport: '', dob: '' };
+                newTravelers[index] = { firstName: '', lastName: '', email: '', passport: '', dob: '' };
             }
-            newTravelers[index] = { ...newTravelers[index], [key]: value };
+            newTravelers[index] = { ...newTravelers[index], [key]: value } as any;
             return { ...prev, travelers: newTravelers };
         });
     };

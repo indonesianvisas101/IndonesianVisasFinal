@@ -27,6 +27,7 @@ const StepCountryVisa = () => {
         upsells,
         toggleUpsell
     } = useApplication();
+    const [validationError, setValidationError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [customVisa, setCustomVisa] = useState("");
     const [showAllVisas, setShowAllVisas] = useState(false);
@@ -35,6 +36,7 @@ const StepCountryVisa = () => {
 
     const handleCountrySelect = (selectedCountry: string) => {
         updateData("country", selectedCountry);
+        setValidationError(null);
         setTimeout(() => {
             visaSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
@@ -43,6 +45,7 @@ const StepCountryVisa = () => {
     const handleVisaSelect = (visaName: string) => {
         updateData("visaType", visaName);
         updateData("priceTier", null); // Reset tier selection when visa changes
+        setValidationError(null);
         // Auto-scroll to CTA
         setTimeout(() => {
             actionAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -52,6 +55,7 @@ const StepCountryVisa = () => {
     const handleTierSelect = (tierName: string, e: React.MouseEvent) => {
         e.stopPropagation(); // Avoid re-triggering handleVisaSelect
         updateData("priceTier", tierName);
+        setValidationError(null);
     };
 
     const handlePeopleChange = (change: number) => {
@@ -64,9 +68,16 @@ const StepCountryVisa = () => {
         const selectedVisa = visas.find(v => v.name === visaType);
         if (selectedVisa && typeof calculateVisaTotal(selectedVisa.price, selectedVisa.fee) === 'object') {
             if (!priceTier) {
-                alert("Please select a visa duration/tier first");
+                setValidationError("Please select a visa duration/tier to continue.");
+                visaSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
+        }
+
+        if (!visaType) {
+            setValidationError("Please select a visa type first.");
+            visaSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
         }
 
         markStepComplete(1);
@@ -372,6 +383,12 @@ const StepCountryVisa = () => {
 
             {/* Action Area */}
             <div className={styles.actionArea} ref={actionAreaRef}>
+                {validationError && (
+                    <div className="mb-4 p-4 bg-red-50 text-red-600 border border-red-200 rounded-xl flex items-center gap-3 animate-shake">
+                        <AlertCircle size={20} />
+                        <span className="font-bold text-sm">{validationError}</span>
+                    </div>
+                )}
                 <button
                     className={`cta-accent ${styles.continueBtn} w-full justify-center`}
                     onClick={handleContinue}

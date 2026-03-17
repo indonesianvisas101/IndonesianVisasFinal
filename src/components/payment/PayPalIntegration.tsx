@@ -76,6 +76,7 @@ export default function PayPalIntegration({
                             },
                             body: JSON.stringify({
                                 orderID: data.orderID,
+                                invoiceId: invoiceId, // Pass invoiceId to backend for email triggering if needed
                             }),
                         });
 
@@ -95,8 +96,12 @@ export default function PayPalIntegration({
 
                         if (onSuccess) onSuccess(captureData);
                         
-                        // Redirect to thanks page
-                        window.location.href = `/thanks?invoice=${invoiceId}&status=paid`;
+                        // Get current locale from URL or params if available
+                        const pathParts = window.location.pathname.split('/');
+                        const currentLocale = pathParts[1] || 'en';
+                        
+                        // Redirect to thanks page with locale
+                        window.location.href = `/${currentLocale}/thanks?invoice=${invoiceId}&status=paid`;
                     } catch (err: any) {
                         setError(err.message || "Payment capture failed");
                         if (onError) onError(err);

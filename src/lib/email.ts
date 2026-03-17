@@ -69,16 +69,26 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
                 <p>Hello ${applicantName},</p>
                 <div style="background-color: #e6ffeb; padding: 15px; border-radius: 8px; margin: 15px 0;">
                     <p style="margin: 0; font-size: 14px;"><strong>ORDER ID:</strong> ${orderId}</p>
-                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #56CA00;">Status: PAID & VERIFIED</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #56CA00;">Status: PAID & Review by Agent</p>
                 </div>
                 <p>Thanks for the trusted payment! We have received your payment correctly.</p>
-                <p>We will now review your application process and send the answer ASAP.</p>
+                <p>Your application is now under <strong>Review by Agent</strong>. We will process your documents and notify you of any updates ASAP.</p>
                 
                 <div style="margin: 30px 0; text-align: center;">
                     <a href="${invoiceUrl}" style="background-color: #56CA00; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Download Paid Invoice</a>
                 </div>
 
-                <p style="color: #666; font-size: 14px;">Your application status has been updated to <strong>Paid</strong>.</p>
+                <div style="background-color: #F0F9FF; border-left: 4px solid #0EA5E9; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                    <p style="margin: 0; color: #0369A1; font-weight: bold;">💡 Suggestion: Track Your Progress</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; color: #0C4A6E;">
+                        Create an account using this email to track your application status in real-time and download your visa once issued.
+                    </p>
+                    <p style="margin: 10px 0 0 0;">
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL}/register" style="color: #0EA5E9; font-weight: bold; text-decoration: underline;">Create Account Now</a>
+                    </p>
+                </div>
+
+                <p style="color: #666; font-size: 14px;">If you have any questions, please reply to this email or contact us via WhatsApp.</p>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
                 <p style="font-size: 12px; color: #999;">PT Indonesian Visas Agency™<br/>Jl. Tibungsari No.11C, Bali, Indonesia</p>
             </div>
@@ -109,23 +119,30 @@ export const sendPaymentReminderEmail = async (to: string, data: {
         
         let message = `
             <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                <h2 style="color: #FFB400;">Payment Instruction Needed</h2>
+                <h2 style="color: #FFB400;">Action Required: Payment Pending</h2>
                 <p>Hello ${applicantName},</p>
-                <p>Thank you for your order for <strong>${visaType}</strong>.</p>
-                <p>To finalize your application, please complete the payment of <strong>${amount}</strong> using the link below:</p>
+                <p>We noticed your order for <strong>${visaType}</strong> is still <strong>UNPAID</strong>.</p>
+                
+                <div style="background-color: #FFF9E6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p style="margin: 0; font-size: 14px;"><strong>SERVICE:</strong> ${visaType}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; color: #B45309;"><strong>STATUS:</strong> UNPAID</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;"><strong>AMOUNT DUE:</strong> ${amount}</p>
+                </div>
+
+                <p>To finalize your application and start the legal process, please complete your payment using the secure link below:</p>
                 
                 <div style="margin: 30px 0; text-align: center;">
-                    <a href="${paymentUrl}" style="background-color: #FFB400; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">Finish Payment Now</a>
+                    <a href="${paymentUrl}" style="background-color: #FFB400; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">Complete Payment Now</a>
                 </div>
 
                 <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                    <p style="margin: 0;"><strong>Quick Guide:</strong><br/>
-                    1. Click the button above to open the secure DOKU payment page.<br/>
-                    2. Choose your preferred method (QRIS, Bank Transfer, or Credit Card).<br/>
-                    3. Once paid, our system will automatically notify our team to start your process.</p>
+                    <p style="margin: 0; font-size: 13px;"><strong>Why pay now?</strong><br/>
+                    • Prices for Indonesian visas can change without notice based on regulation.<br/>
+                    • We cannot start reviewing your documents until payment is confirmed.<br/>
+                    • Official processing starts within 4 hours of payment verification.</p>
                 </div>
                 
-                <p style="color: #666; font-size: 14px;">This link will expire soon. If you have any trouble, please contact us on WhatsApp.</p>
+                <p style="color: #666; font-size: 14px;">If you have already paid or need assistance, please reply to this email or reach us on WhatsApp.</p>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
                 <p style="font-size: 12px; color: #999;">PT Indonesian Visas Agency™<br/>Jl. Tibungsari No.11C, Bali, Indonesia</p>
             </div>

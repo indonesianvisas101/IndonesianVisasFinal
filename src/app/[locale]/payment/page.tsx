@@ -122,15 +122,51 @@ function PaymentContent() {
                                     </Box>
                                 </Stack>
                                 <Divider sx={{ my: 3 }} />
+                                <Box sx={{ mb: 3 }}>
+                                    <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2, color: 'primary.main', textTransform: 'uppercase', letterSpacing: 1 }}>
+                                        Corporate Account (International/Local)
+                                    </Typography>
+                                    <Box sx={{ bgcolor: 'rgba(145, 85, 253, 0.05)', p: 3, borderRadius: 2, border: '1px dashed #9155FD' }}>
+                                        <Grid container spacing={2}>
+                                            <Grid size={{ xs: 12, sm: 6 }}>
+                                                <Typography variant="caption" color="text.secondary">BANK NAME</Typography>
+                                                <Typography variant="subtitle1" fontWeight="bold">BCA (Bank Central Asia)</Typography>
+                                            </Grid>
+                                            <Grid size={{ xs: 12, sm: 6 }}>
+                                                <Typography variant="caption" color="text.secondary">ACCOUNT NUMBER</Typography>
+                                                <Typography variant="h6" fontWeight="bold" fontFamily="monospace" sx={{ color: '#9155FD' }}>
+                                                    611-017850
+                                                </Typography>
+                                            </Grid>
+                                            <Grid size={{ xs: 12, sm: 6 }}>
+                                                <Typography variant="caption" color="text.secondary">ACCOUNT HOLDER</Typography>
+                                                <Typography variant="subtitle1" fontWeight="bold">Indonesian Visas Agency</Typography>
+                                            </Grid>
+                                            <Grid size={{ xs: 12, sm: 6 }}>
+                                                <Typography variant="caption" color="text.secondary">SWIFT CODE</Typography>
+                                                <Typography variant="subtitle1" fontWeight="bold">CENAIDJA</Typography>
+                                            </Grid>
+                                            <Grid size={{ xs: 12 }}>
+                                                <Typography variant="caption" color="text.secondary">BRANCH ADDRESS</Typography>
+                                                <Typography variant="subtitle2" fontWeight="bold">Jl. Tibung Sari No 11, Denpasar, Bali 80117</Typography>
+                                            </Grid>
+                                        </Grid>
+                                    </Box>
+                                </Box>
+
+                                <Divider sx={{ my: 3 }}>
+                                    <Typography variant="caption" color="text.secondary">OR LOCAL TRANSFER</Typography>
+                                </Divider>
+
                                 <Box sx={{ bgcolor: '#F3F4F6', p: 3, borderRadius: 2 }}>
                                     <Grid container spacing={2}>
                                         <Grid size={{ xs: 12, sm: 4 }}>
                                             <Typography variant="caption" color="text.secondary">BANK NAME</Typography>
-                                            <Typography variant="subtitle1" fontWeight="bold">BCA (Bank Central Asia)</Typography>
+                                            <Typography variant="subtitle1" fontWeight="bold">BCA</Typography>
                                         </Grid>
                                         <Grid size={{ xs: 12, sm: 4 }}>
                                             <Typography variant="caption" color="text.secondary">ACCOUNT NUMBER</Typography>
-                                            <Typography variant="h6" fontWeight="bold" fontFamily="monospace" sx={{ color: '#9155FD' }}>
+                                            <Typography variant="h6" fontWeight="bold" fontFamily="monospace">
                                                 611-590-3172
                                             </Typography>
                                         </Grid>
@@ -141,7 +177,7 @@ function PaymentContent() {
                                     </Grid>
                                 </Box>
                                 <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
-                                    Please include your Invoice # in the transfer notes.
+                                    Please include your Invoice # in the transfer notes for faster verification.
                                 </Typography>
                             </CardContent>
                         </Card>

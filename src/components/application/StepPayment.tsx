@@ -98,14 +98,14 @@ const StepPayment = () => {
     const processCheckout = async () => {
         setIsSubmitting(true);
         try {
-            // 0. Upload Documents First
-            const uploadedDocs: Record<string, string> = {};
-
+            // 0. Upload Documents First - Map them by traveler index
+            const travelerDocs: Record<number, Record<string, string>> = {};
             const docsArray = Array.isArray(documents) ? documents : [documents];
             const uploadPromises: Promise<void>[] = [];
 
             docsArray.forEach((docSet, index) => {
                 if (!docSet) return;
+                travelerDocs[index] = {};
                 
                 Object.entries(docSet).forEach(([key, fileObj]) => {
                     const typedFile = fileObj as File | null;
@@ -114,21 +114,18 @@ const StepPayment = () => {
                         formData.append('file', typedFile);
                         formData.append('bucket', 'documents');
 
-                        // Unique key per traveler
-                        const uniqueKey = index === 0 ? key : `Traveler_${index + 1}_${key}`;
-
                         uploadPromises.push(
                             fetch('/api/upload', {
                                 method: 'POST',
                                 body: formData
                             })
                             .then(res => res.json())
-                            .then(data => {
+                                .then(data => {
                                 if (data.url) {
-                                    uploadedDocs[uniqueKey] = data.url;
+                                    travelerDocs[index][key] = data.url;
                                 }
                             })
-                            .catch(e => console.error("Failed to upload file:", uniqueKey, e))
+                            .catch(e => console.error(`Failed to upload file for traveler ${index + 1}:`, key, e))
                         );
                     }
                 });
@@ -136,58 +133,83 @@ const StepPayment = () => {
 
             await Promise.all(uploadPromises);
 
-            // 1. Submit to API to create DB Application & Invoice
-            console.log("[CHECKOUT] Creating Application & Invoice...");
-            const appRes = await fetch("/api/applications", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    visaId: currentVisa?.id || "custom",
-                    visaName: visaType,
-                    status: "Pending",
-                    guestName: `${personalInfo.firstName} ${personalInfo.lastName}`,
-                    guestEmail: personalInfo.email,
-                    paymentMethod: selectedMethod,
-                    customAmount: totalAmount.toString(), // Base + Upsells
-                    quantity: numPeople,
-                    documents: uploadedDocs,
-                    upsells: upsells,
-                    attribution: {
-                        country: country || "Unknown",
-                        priceTier: priceTier || "Standard",
-                        arrivalDate: arrivalDate || "Not specified",
-                        phone: personalInfo.phone || "Not provided",
-                        dob: personalInfo.dob || "Not provided"
-                    },
-                    adminNotes: (travelers && travelers.length > 0 
-                        ? `Additional Travelers:\n${travelers.map(t => `- ${t.firstName} ${t.lastName} (Passport: ${t.passport}, DOB: ${t.dob})`).join('\n')}`
-                        : "") + (Object.values(upsells).some(v => v) ? `\n\nAdd-ons Selected: ${Object.entries(upsells).filter(([k,v]) => v).map(([k,v]) => k.toUpperCase()).join(', ')}` : "")
-                })
-            });
- 
-            const appData = await appRes.json();
-            if (!appRes.ok) throw new Error(appData.error || "Failed to create application");
+            // 1. Calculate Split Amounts
+            // We divide the total base + addons by numPeople as requested
+            const perPersonBaseAmount = totalAmount / numPeople;
+            const createdInvoices: { id: string; amount: number }[] = [];
+
+            // 2. Loop and Create Applications/Invoices for each traveler
+            console.log(`[CHECKOUT] Splitting order into ${numPeople} applications...`);
             
-            const invoiceId = appData.invoice?.id;
-            const finalInvoiceAmount = appData.invoice?.amount || grandTotal; // Use verified server amount
-            console.log("[CHECKOUT] Invoice Created:", invoiceId, "Amount:", finalInvoiceAmount);
- 
-            // 2. Trigger Payment Gateway
-            if (selectedMethod === 'PayPal') {
-                if (!invoiceId) {
-                    console.error("[CHECKOUT] PayPal missing Invoice ID in response:", appData);
-                    throw new Error("Invoice ID missing for PayPal.");
+            for (let i = 0; i < numPeople; i++) {
+                const isPrimary = i === 0;
+                const travelerData = isPrimary ? null : travelers[i - 1];
+                
+                const name = isPrimary 
+                    ? `${personalInfo.firstName} ${personalInfo.lastName}`
+                    : `${travelerData?.firstName} ${travelerData?.lastName}`;
+                
+                const email = isPrimary ? personalInfo.email : travelerData?.email;
+
+                const appRes = await fetch("/api/applications", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        visaId: currentVisa?.id || "custom",
+                        visaName: visaType,
+                        status: "Pending",
+                        guestName: name,
+                        guestEmail: email,
+                        paymentMethod: selectedMethod,
+                        customAmount: perPersonBaseAmount.toString(), 
+                        quantity: 1, // Individual invoice
+                        documents: travelerDocs[i] || {},
+                        upsells: upsells,
+                        attribution: {
+                            country: country || "Unknown",
+                            priceTier: priceTier || "Standard",
+                            arrivalDate: arrivalDate || "Not specified",
+                            phone: isPrimary ? personalInfo.phone : "See Primary",
+                            dob: isPrimary ? personalInfo.dob : travelerData?.dob,
+                            isSplitOrder: numPeople > 1,
+                            orderIndex: i + 1,
+                            totalTravelers: numPeople
+                        },
+                        adminNotes: isPrimary && numPeople > 1 
+                            ? `Primary Payer of Split Order (${numPeople} Travelers total)`
+                            : `Split Order Traveler #${i + 1}`
+                    })
+                });
+
+                const appData = await appRes.json();
+                if (!appRes.ok) throw new Error(appData.error || `Failed to create application for ${name}`);
+                
+                if (appData.invoice) {
+                    createdInvoices.push({
+                        id: appData.invoice.id,
+                        amount: appData.invoice.amount
+                    });
                 }
+            }
+
+            if (createdInvoices.length === 0) throw new Error("Failed to generate any invoices.");
+
+            // 3. Trigger Payment Gateway for the FIRST invoice
+            // The user said: "it must be works on normal order like a Bulk order but separate invoice."
+            // We redirect to the first invoice. The others are sent via email to each person.
+            const primaryInvoice = createdInvoices[0];
+            const invoiceId = primaryInvoice.id;
+            const finalInvoiceAmount = primaryInvoice.amount;
+
+            if (selectedMethod === 'PayPal') {
                 const usdRate = CURRENCIES.find(c => c.code === 'USD')?.rate || 16250;
                 const grandTotalUSD = Math.ceil(finalInvoiceAmount / usdRate);
-                console.log("[CHECKOUT] Redirecting to PayPal flow:", invoiceId, "USD:", grandTotalUSD);
+                console.log("[CHECKOUT] Redirecting to PayPal for Primary Invoice:", invoiceId);
                 window.location.href = `/${locale}/payment?invoice=${invoiceId}&amount=${grandTotalUSD}&currency=USD`;
                 return;
             } 
             
             if (selectedMethod === 'DOKU') {
-                if (!invoiceId) throw new Error("Invoice ID missing for DOKU.");
-                
                 const checkoutRes = await fetch("/api/payments/doku/checkout", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -208,22 +230,11 @@ const StepPayment = () => {
                     throw new Error(errorDetail.error || "Failed to fetch DOKU payment URL");
                 }
                 const { paymentUrl } = await checkoutRes.json();
- 
-                // Redirect to DOKU Checkout
                 window.location.href = paymentUrl;
                 return;
             } 
             
-            if (selectedMethod === 'Manual') {
-                // Manual Submit - No gateway needed
-                markStepComplete(4);
-                setIsSuccess(true);
-            } else {
-                // Fallback for unidentified methods or missing invoiceId
-                if (!invoiceId) {
-                    throw new Error("System error: Invoice could not be generated. Please try again.");
-                }
-                console.warn("[CHECKOUT] Unidentified method or flow, falling back to success screen.");
+            if (selectedMethod === 'Manual' || !selectedMethod) {
                 markStepComplete(4);
                 setIsSuccess(true);
             }

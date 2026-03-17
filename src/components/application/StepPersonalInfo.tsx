@@ -30,6 +30,8 @@ const StepPersonalInfo = () => {
             const t = travelers[i] || {};
             if (!t.firstName) newErrors[`t_${i}_firstName`] = "Required";
             if (!t.lastName) newErrors[`t_${i}_lastName`] = "Required";
+            if (!t.email) newErrors[`t_${i}_email`] = "Required";
+            else if (!/\S+@\S+\.\S+/.test(t.email)) newErrors[`t_${i}_email`] = "Invalid";
             if (!t.passport) newErrors[`t_${i}_passport`] = "Required";
         }
 
@@ -132,7 +134,7 @@ const StepPersonalInfo = () => {
 
                 {/* Additional Travelers */}
                 {Array.from({ length: Math.max(0, numPeople - 1) }).map((_, i) => {
-                    const t = travelers[i] || { firstName: "", lastName: "", passport: "", dob: "" };
+                    const t = travelers[i] || { firstName: "", lastName: "", email: "", passport: "", dob: "" };
                     return (
                         <div key={i} className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
                             <h4 className="font-bold text-lg mb-4 text-primary">Traveler {i + 2}</h4>
@@ -157,6 +159,17 @@ const StepPersonalInfo = () => {
                                     />
                                     {errors[`t_${i}_lastName`] && <span className={styles.errorText}>{errors[`t_${i}_lastName`]}</span>}
                                 </div>
+                            </div>
+                            <div className={styles.field}>
+                                <label className={styles.label}>Email Address</label>
+                                <input
+                                    type="email"
+                                    placeholder="Traveler's official email"
+                                    className={`${styles.input} ${errors[`t_${i}_email`] ? styles.errorInput : ""}`}
+                                    value={t.email || ""}
+                                    onChange={(e) => updateTraveler(i, "email", e.target.value)}
+                                />
+                                {errors[`t_${i}_email`] && <span className={styles.errorText}>{errors[`t_${i}_email`]}</span>}
                             </div>
                             <div className={styles.field}>
                                 <label className={styles.label}>Passport Number</label>

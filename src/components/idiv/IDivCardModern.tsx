@@ -92,6 +92,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                     perspective: '1200px', 
                     width: '100%',
                     maxWidth: { xs: '340px', sm: '420px' },
+                    height: { xs: '215px', sm: '265px' },
                     aspectRatio: '1.58 / 1',
                     margin: '0 auto',
                     cursor: 'pointer',

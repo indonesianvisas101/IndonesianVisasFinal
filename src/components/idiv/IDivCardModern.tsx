@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Flag, Globe, Info, QrCode as QrIcon, Download, Share2, X, ExternalLink } from 'lucide-react';
+import { ShieldCheck, Flag, Globe, Info, QrCode as QrIcon, Download, Share2, X, ExternalLink, User } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadIDivDual } from '@/utils/idivDownloadTools';
 import { Button } from '@mui/material';
@@ -248,9 +248,12 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                             component="img" 
                                             src={cardData.photoUrl} 
                                             sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
+                                            }}
                                         />
                                     ) : (
-                                        <Globe size={40} className="text-blue-200 opacity-60" />
+                                        <User size={40} className="text-blue-200 opacity-60" />
                                     )}
                                     <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '24%', bgcolor: 'rgba(3,105,161,0.15)', backdropFilter: 'blur(2px)', borderTop: '1px solid rgba(255,255,255,0.5)' }} />
                                 </Box>
@@ -362,23 +365,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                             className="sm:w-[120px] sm:h-[120px]"
                                         />
                                     )}
-                                    <div className={styles.photoContainer}>
-                    {data.photoUrl ? (
-                        <img 
-                            src={data.photoUrl} 
-                            alt="Identity" 
-                            className={styles.photo}
-                            onError={(e) => {
-                                // Fallback if photoUrl fails
-                                (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
-                            }}
-                        />
-                    ) : (
-                        <div className={`${styles.photo} flex items-center justify-center bg-gray-100`}>
-                             <User size={40} className="text-gray-300" />
-                        </div>
-                    )}
-                </div>
+                                    {/* QR Code fallback UI removed - redundant here */}
                     <Typography sx={{ fontSize: '0.6rem', fontWeight: 900, letterSpacing: 1, color: '#0369a1', fontFamily: 'monospace' }}>
                                         {cardData.order_id}
                                     </Typography>

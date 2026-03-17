@@ -228,42 +228,52 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                     </Box>
                                 </Box>
 
-                                {/* Photo/Avatar Placeholder */}
-                                <Box sx={{ 
-                                    width: { xs: '65px', sm: '85px' }, 
-                                    height: { xs: '85px', sm: '105px' }, 
-                                    bgcolor: 'rgba(255,255,255,0.7)', 
-                                    borderRadius: 1.5, 
-                                    border: '1px solid rgba(0,0,0,0.08)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
-                                    mt: 0.5
-                                }}>
-                                    {cardData.photoUrl ? (
-                                        <Box 
-                                            component="img" 
-                                            src={cardData.photoUrl} 
-                                            sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
-                                            }}
-                                        />
-                                    ) : (
-                                        <User size={40} className="text-blue-200 opacity-60" />
-                                    )}
-                                    <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '24%', bgcolor: 'rgba(3,105,161,0.15)', backdropFilter: 'blur(2px)', borderTop: '1px solid rgba(255,255,255,0.5)' }} />
-                                </Box>
+                                 {/* Photo & Beneath Text Column */}
+                                 <Box sx={{ 
+                                     display: 'flex', 
+                                     flexDirection: 'column', 
+                                     alignItems: 'center',
+                                     width: { xs: '65px', sm: '85px' },
+                                     gap: 0.5,
+                                     mt: 0.5,
+                                     position: 'relative'
+                                 }}>
+                                     {/* Photo/Avatar Placeholder */}
+                                     <Box sx={{ 
+                                         width: '100%', 
+                                         height: { xs: '85px', sm: '105px' }, 
+                                         bgcolor: 'rgba(255,255,255,0.7)', 
+                                         borderRadius: 1.5, 
+                                         border: '1px solid rgba(0,0,0,0.08)',
+                                         display: 'flex',
+                                         alignItems: 'center',
+                                         justifyContent: 'center',
+                                         position: 'relative',
+                                         overflow: 'hidden',
+                                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
+                                     }}>
+                                         {cardData.photoUrl ? (
+                                             <Box 
+                                                 component="img" 
+                                                 src={cardData.photoUrl} 
+                                                 sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                 onError={(e) => {
+                                                     (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
+                                                 }}
+                                             />
+                                         ) : (
+                                             <User size={40} className="text-blue-200 opacity-60" />
+                                         )}
+                                         <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '24%', bgcolor: 'rgba(3,105,161,0.15)', backdropFilter: 'blur(2px)', borderTop: '1px solid rgba(255,255,255,0.5)' }} />
+                                     </Box>
 
-                                {/* DESCRIPTIVE TEXT BENEATH IMAGE */}
-                                <Box sx={{ position: 'absolute', right: { xs: '10px', sm: '15px' }, bottom: { xs: '5px', sm: '10px' }, width: { xs: '65px', sm: '85px' }, textAlign: 'center' }}>
-                                     <Typography sx={{ fontSize: '0.42rem', fontWeight: 700, lineHeight: 1.1, color: '#0369a1', opacity: 0.8 }}>
-                                         Official Smart IDiv by:<br/>indonesianvisas.com
-                                    </Typography>
-                                </Box>
+                                     {/* DESCRIPTIVE TEXT BENEATH IMAGE */}
+                                     <Box sx={{ textAlign: 'center', width: '100%' }}>
+                                         <Typography sx={{ fontSize: '0.42rem', fontWeight: 800, lineHeight: 1.1, color: '#0369a1', opacity: 0.9 }}>
+                                             Official Smart IDiv by:<br/>indonesianvisas.com
+                                         </Typography>
+                                     </Box>
+                                 </Box>
                             </Box>
                         </Box>
                         {/* DESCRIPTIVE TEXT BELOW IMAGE */}

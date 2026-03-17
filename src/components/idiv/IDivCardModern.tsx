@@ -57,7 +57,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
     const cardData = {
         id_number: data?.id_number || "99710024889100",
         formatted_id: (data?.id_number || "99710024889100").slice(0, 14).replace(/(\d{4})(\d{4})(\d{6})/, "$1-$2-$3"),
-        name: data?.name || "SARAH J. WILLIAMS", // User path: "Just Show The Name and Order ID"
+        name: data?.name || "SARAH J. WILLIAMS", 
         nationality: privacyMode ? "XXXXXXXX" : (data?.nationality || "UNITED KINGDOM").toUpperCase(),
         visa_type: (data?.visa_type || "VERIFIED E-VOA").toUpperCase(),
         expiry_date: privacyMode ? "XX-XX-XXXX" : (data?.expiry_date || "2025-12-01"),
@@ -127,7 +127,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             width: '100%',
                             height: '100%',
                             backfaceVisibility: 'hidden',
-                            borderRadius: '16px', // Rounded corners for premium feel
+                            borderRadius: '16px', 
                             overflow: 'hidden',
                             background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
                             boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
@@ -136,7 +136,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             flexDirection: 'column',
                             p: { xs: 2, sm: 2.5 },
                             color: '#1e293b',
-                            transform: 'translateZ(1px)' // Force layer separation
+                            transform: 'translateZ(1px)' 
                         }}
                     >
                         {/* Gloss Overlay */}
@@ -183,28 +183,16 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                 </Box>
                             </Box>
 
-                            {/* Right Side: ID Numbers (Moved from Body) */}
-                            <Box sx={{ textAlign: 'right', maxWidth: '40%' }}>
-                                <Typography fontWeight="900" sx={{ 
-                                    fontSize: '0.6rem', 
-                                    color: '#0369a1', 
-                                    lineHeight: 1,
-                                    mb: 0.2,
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
-                                }}>
-                                    ID: {displayId}
-                                </Typography>
+                            {/* Right Side: SMART ID Only */}
+                            <Box sx={{ textAlign: 'right', pt: 0.2 }}>
                                 <Typography sx={{ 
-                                    fontSize: '0.45rem', 
+                                    fontSize: '0.55rem', 
                                     color: '#64748b', 
                                     fontWeight: 800, 
                                     lineHeight: 1,
                                     opacity: 0.8,
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
+                                    letterSpacing: 0.5,
+                                    whiteSpace: 'nowrap'
                                 }}>
                                     SMART ID: {cardData.order_id || 'NOT_LINKED'}
                                 </Typography>
@@ -218,34 +206,44 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             flexDirection: 'column', 
                             opacity: isFlipped ? 0 : 1, 
                             transition: 'opacity 0.3s ease',
-                            pointerEvents: isFlipped ? 'none' : 'auto',
-                            justifyContent: 'center', // Center content vertically
-                            pt: 0.5
+                            pointerEvents: isFlipped ? 'none' : 'auto'
                         }}>
+                            {/* ID No Restored to Body */}
+                            <Typography variant="h6" fontWeight="900" sx={{ 
+                                fontSize: { xs: '0.75rem', sm: '0.9rem' }, 
+                                mb: 0.5, 
+                                letterSpacing: { xs: 0.5, sm: 1 }, 
+                                color: '#0369a1', 
+                                zIndex: 2,
+                                whiteSpace: 'nowrap'
+                            }}>
+                                ID No : {displayId}
+                            </Typography>
+
                              {/* Details Container */}
                              <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0 }}>
-                                 {/* Data Fields - Refined Layout (Sync with Landing, Verify, and Admin) */}
-                                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.8, justifyContent: 'center' }}>
-                                     <Box>
-                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
-                                         <Typography sx={{ fontSize: { xs: '0.75rem', sm: '0.9rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
+                                 {/* Data Fields */}
+                                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0, justifyContent: 'space-between' }}>
+                                     <Box sx={{ height: '2.4rem' }}>
+                                         <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
+                                         <Typography sx={{ fontSize: { xs: '0.65rem', sm: '0.8rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
                                      </Box>
-                                     <Box>
-                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
-                                         <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
+                                     <Box sx={{ height: '2.4rem' }}>
+                                         <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
+                                         <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
                                      </Box>
-                                     <Box>
-                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>JENIS VISA</Typography>
-                                         <Typography sx={{ fontSize: '0.8rem', fontWeight: 800, color: '#0369a1', lineHeight: 1.2 }}>{cardData.visa_type}</Typography>
+                                     <Box sx={{ height: '2.4rem' }}>
+                                         <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>JENIS VISA</Typography>
+                                         <Typography sx={{ fontSize: '0.75rem', fontWeight: 800, color: '#0369a1', lineHeight: 1.2 }}>{cardData.visa_type}</Typography>
                                      </Box>
-                                     <Box display="flex" gap={2.5}>
+                                     <Box display="flex" gap={2} sx={{ height: '2.4rem' }}>
                                          <Box>
-                                             <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
-                                             <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.2 }}>{cardData.issue_date}</Typography>
+                                             <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
+                                             <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.2 }}>{cardData.issue_date}</Typography>
                                          </Box>
                                          <Box>
-                                             <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
-                                             <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#ef4444', lineHeight: 1.2 }}>{cardData.expiry_date}</Typography>
+                                             <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
+                                             <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: '#ef4444', lineHeight: 1.2 }}>{cardData.expiry_date}</Typography>
                                          </Box>
                                      </Box>
                                  </Box>
@@ -318,17 +316,6 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             p: { xs: 2.5, sm: 3 },
                             // For browser display, it needs to be rotated
                             transform: 'rotateY(180deg) translateZ(1px)',
-                            // BUT critical for html-to-image/capture: when we grab ID "idiv-back", 
-                            // we want the content to NOT be mirrored.
-                            // We use a CSS class to reset transform during capture if needed, 
-                            // but usually html-to-image captures the element as is.
-                            // If we capture it while it's rotateY(180), it's mirrored.
-                            // Better Hack: wrap the INNER content in another box that doesn't rotate, 
-                            // or just ensure the capture doesn't include the parent's mirror.
-                            '&.capture-mode': {
-                                transform: 'none',
-                                position: 'relative',
-                            },
                             color: '#1e293b'
                         }}
                     >
@@ -336,10 +323,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             width: '100%', 
                             height: '100%', 
                             display: 'flex', 
-                            flexDirection: 'column',
-                            // If the parent is rotateY(180), this child will be mirrored.
-                            // We need to un-mirror it for the USER UI, but NOT for capture.
-                            // Actually, the standard way is to have a hidden un-mirrored version for capture.
+                            flexDirection: 'column'
                         }}>
                             <Box display="flex" justifyContent="center" alignItems="center" gap={1} mb={1.5} borderBottom="1px solid #e2e8f0" pb={1}>
                                 <QrIcon size={16} className="text-blue-600" />
@@ -369,7 +353,6 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                             includeMargin={false}
                                         />
                                     )}
-                                    {/* QR Code fallback UI removed - redundant here */}
                                     <Typography sx={{ fontSize: '0.55rem', fontWeight: 900, letterSpacing: 1, color: '#0369a1', fontFamily: 'monospace', mt: 0.5 }}>
                                         {cardData.order_id}
                                     </Typography>
@@ -389,7 +372,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
             {/* Action Buttons for Preview */}
             {showActions && (
                 <Box sx={{ 
-                    mt: { xs: 8, sm: 6 }, // Increased margin since it flows naturally now
+                    mt: { xs: 8, sm: 6 }, 
                     display: 'flex', 
                     gap: 1.5, 
                     justifyContent: 'center',

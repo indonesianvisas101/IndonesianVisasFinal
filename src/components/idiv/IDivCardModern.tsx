@@ -224,31 +224,31 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                         }}>
                              {/* Details Container */}
                              <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0 }}>
-                                {/* Data Fields - Standardized Layout (Ensures parity across Landing, Verify, and Admin) */}
-                                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0, justifyContent: 'space-between' }}>
-                                    <Box sx={{ height: '2.4rem' }}>
-                                        <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
-                                        <Typography sx={{ fontSize: { xs: '0.65rem', sm: '0.8rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
-                                    </Box>
-                                    <Box sx={{ height: '2.4rem' }}>
-                                        <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
-                                        <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
-                                    </Box>
-                                    <Box sx={{ height: '2.4rem' }}>
-                                        <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>JENIS VISA</Typography>
-                                        <Typography sx={{ fontSize: '0.75rem', fontWeight: 800, color: '#0369a1', lineHeight: 1.2 }}>{cardData.visa_type}</Typography>
-                                    </Box>
-                                    <Box display="flex" gap={2} sx={{ height: '2.4rem' }}>
-                                        <Box>
-                                            <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
-                                            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.2 }}>{cardData.issue_date}</Typography>
-                                        </Box>
-                                        <Box>
-                                            <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
-                                            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: '#ef4444', lineHeight: 1.2 }}>{cardData.expiry_date}</Typography>
-                                        </Box>
-                                    </Box>
-                                </Box>
+                                 {/* Data Fields - Refined Layout (Sync with Landing, Verify, and Admin) */}
+                                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.8, justifyContent: 'center' }}>
+                                     <Box>
+                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
+                                         <Typography sx={{ fontSize: { xs: '0.75rem', sm: '0.9rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
+                                     </Box>
+                                     <Box>
+                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
+                                         <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
+                                     </Box>
+                                     <Box>
+                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>JENIS VISA</Typography>
+                                         <Typography sx={{ fontSize: '0.8rem', fontWeight: 800, color: '#0369a1', lineHeight: 1.2 }}>{cardData.visa_type}</Typography>
+                                     </Box>
+                                     <Box display="flex" gap={2.5}>
+                                         <Box>
+                                             <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
+                                             <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.2 }}>{cardData.issue_date}</Typography>
+                                         </Box>
+                                         <Box>
+                                             <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
+                                             <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#ef4444', lineHeight: 1.2 }}>{cardData.expiry_date}</Typography>
+                                         </Box>
+                                     </Box>
+                                 </Box>
 
                                  {/* Photo & Beneath Text Column */}
                                  <Box sx={{ 
@@ -296,7 +296,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                          </Typography>
                                      </Box>
                                  </Box>
-                            </Box>
+                             </Box>
                         </Box>
                     </Box>
 

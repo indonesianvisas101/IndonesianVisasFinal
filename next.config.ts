@@ -26,11 +26,11 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
 
-  logging: {
-    fetches: {
-      fullUrl: true,
-    },
-  },
+  // logging: {
+  //   fetches: {
+  //     fullUrl: true,
+  //   },
+  // },
 
   images: {
     formats: ['image/avif', 'image/webp'],

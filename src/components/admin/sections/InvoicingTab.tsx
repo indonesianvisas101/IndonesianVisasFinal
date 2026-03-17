@@ -77,7 +77,12 @@ export default function InvoicingTab() {
         guestEmail: "",
         visaName: "",
         customAmount: "",
-        userId: ""
+        userId: "",
+        description: "",
+        attribution: {
+            phone: "",
+            country: ""
+        }
     });
 
     useEffect(() => {
@@ -201,8 +206,6 @@ export default function InvoicingTab() {
     };
 
     const handleEditClick = (inv: any) => {
-        setEditingInvoice(inv);
-        const linkedInvoice = inv.invoice || inv; // Handle raw invoice or nested invoice
         setEditFormData({
             status: inv.status || "Pending",
             paymentStatus: linkedInvoice.status === 'Paid' || linkedInvoice.status === 'Active' || linkedInvoice.status === 'PAID' ? 'PAID' : 'UNPAID', // Heuristic
@@ -212,7 +215,12 @@ export default function InvoicingTab() {
             guestEmail: inv.guestEmail || inv.user?.email || '',
             visaName: inv.visaName || inv.visaId || '',
             customAmount: inv.customAmount || linkedInvoice.amount || '',
-            userId: inv.userId || inv.user_id || ''
+            userId: inv.userId || inv.user_id || '',
+            description: linkedInvoice.description || inv.description || '',
+            attribution: {
+                phone: inv.attribution?.phone || '',
+                country: inv.attribution?.country || ''
+            }
         });
         setOpenEditDialog(true);
     };
@@ -590,6 +598,16 @@ export default function InvoicingTab() {
                         />
 
                         <TextField
+                            label="Invoice Description (Public)"
+                            fullWidth
+                            multiline
+                            rows={3}
+                            value={editFormData.description}
+                            onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                            helperText="This appears in the ITEM DESCRIPTION section on the public invoice and PDF."
+                        />
+
+                        <TextField
                             select
                             label="Payment Status (Invoice)"
                             fullWidth
@@ -612,11 +630,39 @@ export default function InvoicingTab() {
                             helperText="External Transaction ID or Bank Reference"
                         />
 
+                        <Box sx={{ p: 2, bgcolor: 'primary.50', borderRadius: 2, border: '1px dashed primary.main' }}>
+                            <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
+                                Bill To / Submission Attribution
+                            </Typography>
+                            <Stack spacing={2}>
+                                <TextField
+                                    label="Phone Number"
+                                    fullWidth
+                                    size="small"
+                                    value={editFormData.attribution?.phone || ""}
+                                    onChange={(e) => setEditFormData({ 
+                                        ...editFormData, 
+                                        attribution: { ...editFormData.attribution, phone: e.target.value } 
+                                    })}
+                                />
+                                <TextField
+                                    label="Country / Origin"
+                                    fullWidth
+                                    size="small"
+                                    value={editFormData.attribution?.country || ""}
+                                    onChange={(e) => setEditFormData({ 
+                                        ...editFormData, 
+                                        attribution: { ...editFormData.attribution, country: e.target.value } 
+                                    })}
+                                />
+                            </Stack>
+                        </Box>
+
                         <TextField
                             label="Admin Internal Notes"
                             fullWidth
                             multiline
-                            rows={3}
+                            rows={2}
                             value={editFormData.adminNotes}
                             onChange={(e) => setEditFormData({ ...editFormData, adminNotes: e.target.value })}
                         />

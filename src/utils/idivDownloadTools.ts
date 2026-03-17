@@ -76,8 +76,14 @@ export const downloadIDivDual = async (
     try {
         const options = { pixelRatio: 3, backgroundColor: '#ffffff', cacheBust: true };
         
+        // Temporarily add capture-mode class to back element to fix mirroring
+        backEl.classList.add('capture-mode');
+        
         const frontDataUrl = await toPng(frontEl, options);
         const backDataUrl = await toPng(backEl, options);
+
+        // Remove the class after capture
+        backEl.classList.remove('capture-mode');
 
         if (format === 'pdf') {
             const pdf = new jsPDF({

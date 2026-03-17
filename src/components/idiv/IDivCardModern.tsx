@@ -263,6 +263,32 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                 </Box>
                             </Box>
                         </Box>
+                        {/* DESCRIPTIVE TEXT BELOW IMAGE */}
+                <Box 
+                    sx={{ 
+                        mt: { xs: 5, sm: 6 }, 
+                        mb: 5, // +5px from original
+                        mr: 2, // +2px from original (assuming 0 before)
+                        px: 3, 
+                        textAlign: 'center' 
+                    }}
+                >
+                    <Typography 
+                        variant="caption" 
+                        sx={{ 
+                            color: 'text.secondary', 
+                            fontSize: '0.65rem', 
+                            lineHeight: 1.4,
+                            display: 'block',
+                            opacity: 0.8
+                        }}
+                    >
+                        This Indonesia Virtual Identity (IDiv) card is an official digital credential 
+                        issued by Indonesian Visas Agency. It serves as a verified verification 
+                        of your sponsorship and legal stay status in the Republic of Indonesia. 
+                        Scan the QR code on the back for real-time validation.
+                    </Typography>
+                </Box>
                     </Box>
 
                     {/* BACK SIDE */}
@@ -282,49 +308,88 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             display: 'flex',
                             flexDirection: 'column',
                             p: { xs: 2.5, sm: 3 },
-                            transform: 'rotateY(180deg) translateZ(1px)', // Force layer separation
+                            // For browser display, it needs to be rotated
+                            transform: 'rotateY(180deg) translateZ(1px)',
+                            // BUT critical for html-to-image/capture: when we grab ID "idiv-back", 
+                            // we want the content to NOT be mirrored.
+                            // We use a CSS class to reset transform during capture if needed, 
+                            // but usually html-to-image captures the element as is.
+                            // If we capture it while it's rotateY(180), it's mirrored.
+                            // Better Hack: wrap the INNER content in another box that doesn't rotate, 
+                            // or just ensure the capture doesn't include the parent's mirror.
+                            '&.capture-mode': {
+                                transform: 'none',
+                                position: 'relative',
+                            },
                             color: '#1e293b'
                         }}
                     >
-                        <Box display="flex" justifyContent="center" alignItems="center" gap={1} mb={1.5} borderBottom="1px solid #e2e8f0" pb={1}>
-                            <QrIcon size={16} className="text-blue-600" />
-                            <Typography variant="caption" fontWeight="900" sx={{ color: '#0369a1', letterSpacing: 1.5, fontSize: '0.65rem' }}>
-                                SMART VERIFICATION CODE
-                            </Typography>
-                        </Box>
-
-                        <Box sx={{ flex: 1, display: 'flex', gap: { xs: 2, sm: 3 }, alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
-                            {/* QR Code Section */}
-                            <Box sx={{ 
-                                p: 1.5, 
-                                bgcolor: 'white', 
-                                borderRadius: 3, 
-                                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                                border: '1px solid #e2e8f0',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                gap: 1
-                            }}>
-                                {isMounted && (
-                                    <QRCodeSVG 
-                                        value={`https://indonesianvisas.com/en/verify/${cardData.order_id}`} // Updated to point to verify
-                                        size={100}
-                                        level="H"
-                                        includeMargin={false}
-                                        className="sm:w-[120px] sm:h-[120px]"
-                                    />
-                                )}
-                                <Typography sx={{ fontSize: '0.6rem', fontWeight: 900, letterSpacing: 1, color: '#0369a1', fontFamily: 'monospace' }}>
-                                    {cardData.order_id}
+                        <Box sx={{ 
+                            width: '100%', 
+                            height: '100%', 
+                            display: 'flex', 
+                            flexDirection: 'column',
+                            // If the parent is rotateY(180), this child will be mirrored.
+                            // We need to un-mirror it for the USER UI, but NOT for capture.
+                            // Actually, the standard way is to have a hidden un-mirrored version for capture.
+                        }}>
+                            <Box display="flex" justifyContent="center" alignItems="center" gap={1} mb={1.5} borderBottom="1px solid #e2e8f0" pb={1}>
+                                <QrIcon size={16} className="text-blue-600" />
+                                <Typography variant="caption" fontWeight="900" sx={{ color: '#0369a1', letterSpacing: 1.5, fontSize: '0.65rem' }}>
+                                    SMART VERIFICATION CODE
                                 </Typography>
                             </Box>
-                        </Box>
 
-                        <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center' }}>
-                            <Typography sx={{ fontSize: '0.5rem', fontWeight: 800, color: '#64748b', opacity: 0.6, letterSpacing: 2 }}>
-                                AUTHENTICITY SECURED VIA IDIV SYSTEM
-                            </Typography>
+                            <Box sx={{ flex: 1, display: 'flex', gap: { xs: 2, sm: 3 }, alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
+                                {/* QR Code Section */}
+                                <Box sx={{ 
+                                    p: 1.5, 
+                                    bgcolor: 'white', 
+                                    borderRadius: 3, 
+                                    boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                                    border: '1px solid #e2e8f0',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: 1
+                                }}>
+                                    {isMounted && (
+                                        <QRCodeSVG 
+                                            value={`https://indonesianvisas.com/en/verify/${cardData.order_id}`} // Updated to point to verify
+                                            size={100}
+                                            level="H"
+                                            includeMargin={false}
+                                            className="sm:w-[120px] sm:h-[120px]"
+                                        />
+                                    )}
+                                    <div className={styles.photoContainer}>
+                    {data.photoUrl ? (
+                        <img 
+                            src={data.photoUrl} 
+                            alt="Identity" 
+                            className={styles.photo}
+                            onError={(e) => {
+                                // Fallback if photoUrl fails
+                                (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
+                            }}
+                        />
+                    ) : (
+                        <div className={`${styles.photo} flex items-center justify-center bg-gray-100`}>
+                             <User size={40} className="text-gray-300" />
+                        </div>
+                    )}
+                </div>
+                    <Typography sx={{ fontSize: '0.6rem', fontWeight: 900, letterSpacing: 1, color: '#0369a1', fontFamily: 'monospace' }}>
+                                        {cardData.order_id}
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center' }}>
+                                <Typography sx={{ fontSize: '0.5rem', fontWeight: 800, color: '#64748b', opacity: 0.6, letterSpacing: 2 }}>
+                                    AUTHENTICITY SECURED VIA IDIV SYSTEM
+                                </Typography>
+                            </Box>
                         </Box>
                     </Box>
                 </motion.div>

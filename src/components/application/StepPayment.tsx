@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useApplication } from "./ApplicationContext";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import styles from "./StepPayment.module.css";
 import Script from "next/script";
 import { Chip, Divider, CircularProgress } from "@mui/material";
-import { ArrowLeft, CreditCard, Landmark, Smartphone, QrCode, Settings, CheckCircle, ShoppingCart, Send, Info, RefreshCcw, AlertCircle } from "lucide-react";
+import { ArrowLeft, CreditCard, Landmark, Smartphone, QrCode, Settings, CheckCircle, ShoppingCart, Send, Info, RefreshCcw, AlertCircle, Zap } from "lucide-react";
 import { parseCurrency } from "@/lib/utils";
 // 10 Major Currencies for conversion
 const CURRENCIES = [
@@ -89,6 +90,12 @@ const StepPayment = () => {
         if (upsells.vip) totalAmount += getAddonPrice('VIP');
         if (upsells.idiv) totalAmount += getAddonPrice('IDIV') * numPeople;
     }
+
+    // Helper to get the correct photo for IDiv (Priority: Selfie from Step 3)
+    const getIdivPhoto = (index: number) => {
+        const docs = Array.isArray(documents) ? documents[index] : (index === 0 ? documents : null);
+        return docs?.selfie || docs?.passport; // Priority to selfie
+    };
 
     const pph23Amount = Math.round(totalAmount * 0.02);
     // 3rd Party Payment Fee (4%)
@@ -256,6 +263,11 @@ const StepPayment = () => {
 
     // Environment checks for DOKU removed as they are handled server-side in /api/payments/doku/checkout
 
+    // Scroll to top on mount
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, []);
+
     if (isSuccess) {
         return (
             <div className={styles.container}>
@@ -281,25 +293,100 @@ const StepPayment = () => {
                 <ArrowLeft size={16} className="mr-2" /> Back
             </button>
 
-            <h3 className={styles.heading}>Make a Payment</h3>
+            <h3 className={styles.heading}>Fast Checkout</h3>
 
-            {(selectedMethod === 'PayPal' || selectedMethod === 'DOKU') && (
-                <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-500/30 rounded-2xl flex items-start gap-3">
-                    <div className="mt-1"><AlertCircle size={18} className="text-amber-600" /></div>
-                    <div>
-                        <p className="text-sm font-bold text-amber-800 dark:text-amber-400">Transaction Fee Info</p>
-                        <p className="text-xs text-amber-700 dark:text-amber-500/80 leading-relaxed">
-                            A <strong>2% Tax (PPh 23)</strong> and <strong>4% Platform Fee</strong> are applied to 3rd party payments ({selectedMethod}). The total in the Order Summary below is the final amount to be charged.
-                        </p>
+            {/* 1. PREMIUM ADD-ONS */}
+            <div className="mt-4 mb-6">
+                <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <Zap size={16} className="text-primary" /> Premium Add-ons (Optional)
+                </h4>
+                <div className="space-y-3">
+                    <div 
+                        className={`${styles.upsellItem} ${upsells.express ? styles.upsellActive : ''}`}
+                        onClick={() => toggleUpsell('express')}
+                    >
+                        <div className="flex-grow">
+                            <p className="text-sm font-bold">🚀 Express Processing</p>
+                            <p className="text-[10px] text-gray-500">Legal review in 4 hours & priority queue.</p>
+                        </div>
+                        <span className="text-sm font-bold text-primary">
+                            +IDR {(addons?.find(a => a.sku === 'EXPRESS')?.price || 800000).toLocaleString()}
+                        </span>
+                    </div>
+
+                    <div 
+                        className={`${styles.upsellItem} ${upsells.insurance ? styles.upsellActive : ''}`}
+                        onClick={() => toggleUpsell('insurance')}
+                    >
+                        <div className="flex-grow">
+                            <p className="text-sm font-bold">🛡️ Medical Insurance</p>
+                            <p className="text-[10px] text-gray-500">Full Bali nomad health coverage (30 days).</p>
+                        </div>
+                        <span className="text-sm font-bold text-primary">
+                            +IDR {(addons?.find(a => a.sku === 'INSURANCE')?.price || 500000).toLocaleString()}
+                        </span>
+                    </div>
+
+                    <div 
+                        className={`${styles.upsellItem} ${upsells.vip ? styles.upsellActive : ''}`}
+                        onClick={() => toggleUpsell('vip')}
+                    >
+                        <div className="flex-grow">
+                            <p className="text-sm font-bold">💎 VIP Airport Transfer</p>
+                            <p className="text-[10px] text-gray-500">Private luxury pickup from DPS Airport.</p>
+                        </div>
+                        <span className="text-sm font-bold text-primary">
+                            +IDR {(addons?.find(a => a.sku === 'VIP')?.price || 1500000).toLocaleString()}
+                        </span>
+                    </div>
+
+                    <div 
+                        className={`${styles.upsellItem} ${upsells.idiv ? styles.upsellActive : ''}`}
+                        onClick={() => toggleUpsell('idiv')}
+                    >
+                        <div className="flex-grow">
+                            <p className="text-sm font-bold">💳 IDIV Digital Processing</p>
+                            <p className="text-[10px] text-gray-500">Official verified sponsor ID & digital card.</p>
+                        </div>
+                        <span className="text-sm font-bold text-primary">
+                            +IDR {(addons?.find(a => a.sku === 'IDIV')?.price || 325000).toLocaleString()}
+                        </span>
                     </div>
                 </div>
-            )}
+            </div>
 
-            {/* Application Summary */}
-            <div className={`glass-card ${styles.summaryCard}`}>
+            {/* 2. PERSONAL INFORMATION */}
+            <div className={`glass-card p-4 mb-6 border-slate-100 dark:border-white/5`}>
+                <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <CheckCircle size={16} className="text-primary" /> Personal Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                    <div className={styles.summaryRow}>
+                        <span className={styles.summaryLabel}>Visa For:</span>
+                        <span className={styles.summaryValue}>{country || "-"}</span>
+                    </div>
+                    <div className={styles.summaryRow}>
+                        <span className={styles.summaryLabel}>Full Name:</span>
+                        <span className={styles.summaryValue}>
+                            {personalInfo.firstName} {personalInfo.lastName}
+                        </span>
+                    </div>
+                    <div className={styles.summaryRow}>
+                        <span className={styles.summaryLabel}>Email:</span>
+                        <span className={styles.summaryValue}>{personalInfo.email || "-"}</span>
+                    </div>
+                    <div className={styles.summaryRow}>
+                        <span className={styles.summaryLabel}>Phone:</span>
+                        <span className={styles.summaryValue}>{personalInfo.phone || "-"}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* 3. ORDER SUMMARY */}
+            <div className={`glass-card ${styles.summaryCard} mb-6`}>
                 <div className="flex justify-between items-center mb-4">
                     <h4 className={styles.summaryTitle}>Order Summary</h4>
-                    <Chip label="Step 4 of 4" size="small" color="primary" variant="outlined" />
+                    <Chip label="Final Step" size="small" color="primary" variant="outlined" />
                 </div>
                 
                 <div className={styles.priceSummary}>
@@ -317,10 +404,10 @@ const StepPayment = () => {
                         <div key={k} className={styles.priceRow}>
                             <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k} Add-on</span>
                             <span className="text-xs font-bold text-primary">
-                               + IDR {k === 'idiv' ? ((20 * 16250) * numPeople).toLocaleString() : 
-                                      k === 'express' ? (800000).toLocaleString() : 
-                                      k === 'insurance' ? (500000).toLocaleString() : 
-                                      (1500000).toLocaleString()}
+                               + IDR {k === 'idiv' ? (parseCurrency(addons?.find(a => a.sku === 'IDIV')?.price || "325000") * numPeople).toLocaleString() : 
+                                      k === 'express' ? parseCurrency(addons?.find(a => a.sku === 'EXPRESS')?.price || "800000").toLocaleString() : 
+                                      k === 'insurance' ? parseCurrency(addons?.find(a => a.sku === 'INSURANCE')?.price || "500000").toLocaleString() : 
+                                      parseCurrency(addons?.find(a => a.sku === 'VIP')?.price || "1500000").toLocaleString()}
                             </span>
                         </div>
                     ))}
@@ -344,226 +431,132 @@ const StepPayment = () => {
                             IDR {grandTotal.toLocaleString()}
                         </span>
                     </div>
-                    </div>
+                </div>
+            </div>
+
+            {/* 4. CURRENCY CONVERTER */}
+            <div className={`${styles.currencySection} mb-6`}>
+                <div className="flex items-center gap-2 mb-3">
+                    <RefreshCcw size={16} className="text-primary" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Currency Converter</span>
+                </div>
+                
+                <div className={styles.currencyGrid}>
+                    {CURRENCIES.map((curr) => (
+                        <button
+                            key={curr.code}
+                            onClick={() => handleCurrencyChange(curr)}
+                            className={`${styles.currBtn} ${selectedCurrency.code === curr.code ? styles.currActive : ''}`}
+                        >
+                            <span className="text-lg">{curr.icon}</span>
+                            <span className="text-[10px] font-bold">{curr.code}</span>
+                        </button>
+                    ))}
                 </div>
 
-                <div className="mt-6">
-                    <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                        <Send size={16} className="text-primary" /> Premium Add-ons (Optional)
-                    </h4>
-                    <div className="space-y-3">
-                        <div 
-                            className={`${styles.upsellItem} ${upsells.express ? styles.upsellActive : ''}`}
-                            onClick={() => toggleUpsell('express')}
-                        >
-                            <div className="flex-grow">
-                                <p className="text-sm font-bold">🚀 Express Processing</p>
-                                <p className="text-[10px] text-gray-500">Legal review in 4 hours & priority queue.</p>
-                            </div>
-                            <span className="text-sm font-bold text-primary">
-                                +IDR {(addons?.find(a => a.sku === 'EXPRESS')?.price || 800000).toLocaleString()}
-                            </span>
+                <div className={styles.convertedDisplay}>
+                    {isConverting ? (
+                        <div className="flex items-center justify-center py-2 gap-2">
+                            <CircularProgress size={16} thickness={6} />
+                            <span className="text-xs text-gray-400 animate-pulse">Calculating fair rates...</span>
                         </div>
-
-                        <div 
-                            className={`${styles.upsellItem} ${upsells.insurance ? styles.upsellActive : ''}`}
-                            onClick={() => toggleUpsell('insurance')}
-                        >
-                            <div className="flex-grow">
-                                <p className="text-sm font-bold">🛡️ Medical Insurance</p>
-                                <p className="text-[10px] text-gray-500">Full Bali nomad health coverage (30 days).</p>
-                            </div>
-                            <span className="text-sm font-bold text-primary">
-                                +IDR {(addons?.find(a => a.sku === 'INSURANCE')?.price || 500000).toLocaleString()}
-                            </span>
+                    ) : (
+                        <div className="text-center py-1">
+                            <p className="text-[10px] text-gray-400 uppercase tracking-tighter mb-1">Estimated Cost in {selectedCurrency.name}</p>
+                            <p className="text-lg font-black text-primary">
+                                {selectedCurrency.symbol} {Math.ceil(grandTotal / selectedCurrency.rate).toLocaleString()}
+                            </p>
+                            <p className="text-[8px] text-gray-300 italic">* Estimated rate for comparison only</p>
                         </div>
-
-                        <div 
-                            className={`${styles.upsellItem} ${upsells.vip ? styles.upsellActive : ''}`}
-                            onClick={() => toggleUpsell('vip')}
-                        >
-                            <div className="flex-grow">
-                                <p className="text-sm font-bold">💎 VIP Airport Transfer</p>
-                                <p className="text-[10px] text-gray-500">Private luxury pickup from DPS Airport.</p>
-                            </div>
-                            <span className="text-sm font-bold text-primary">
-                                +IDR {(addons?.find(a => a.sku === 'VIP')?.price || 1500000).toLocaleString()}
-                            </span>
-                        </div>
-
-                        <div 
-                            className={`${styles.upsellItem} ${upsells.idiv ? styles.upsellActive : ''}`}
-                            onClick={() => toggleUpsell('idiv')}
-                        >
-                            <div className="flex-grow">
-                                <p className="text-sm font-bold">💳 IDIV Digital Processing</p>
-                                <p className="text-[10px] text-gray-500">Mandatory digital verification & processing.</p>
-                            </div>
-                            <span className="text-sm font-bold text-primary">
-                                +IDR {(addons?.find(a => a.sku === 'IDIV')?.price || 325000).toLocaleString()}
-                            </span>
-                        </div>
-                    </div>
+                    )}
                 </div>
+            </div>
 
-                <div className={styles.currencySection}>
-                    <div className="flex items-center gap-2 mb-3">
-                        <RefreshCcw size={16} className="text-primary" />
-                        <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Currency Converter</span>
-                    </div>
-                    
-                    <div className={styles.currencyGrid}>
-                        {CURRENCIES.map((curr) => (
-                            <button
-                                key={curr.code}
-                                onClick={() => handleCurrencyChange(curr)}
-                                className={`${styles.currBtn} ${selectedCurrency.code === curr.code ? styles.currActive : ''}`}
-                            >
-                                <span className="text-lg">{curr.icon}</span>
-                                <span className="text-[10px] font-bold">{curr.code}</span>
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className={styles.convertedDisplay}>
-                        {isConverting ? (
-                            <div className="flex items-center justify-center py-2 gap-2">
-                                <CircularProgress size={16} thickness={6} />
-                                <span className="text-xs text-gray-400 animate-pulse">Calculating fair rates...</span>
-                            </div>
-                        ) : (
-                            <div className="text-center py-1">
-                                <p className="text-[10px] text-gray-400 uppercase tracking-tighter mb-1">Estimated Cost in {selectedCurrency.name}</p>
-                                <p className="text-lg font-black text-primary">
-                                    {selectedCurrency.symbol} {Math.ceil(grandTotal / selectedCurrency.rate).toLocaleString()}
-                                </p>
-                                <p className="text-[8px] text-gray-300 italic">* Estimated rate for comparison only</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <Divider sx={{ my: 3 }} />
-
-                <h4 className={styles.summaryTitle}>Personal Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-                    <div className={styles.summaryRow}>
-                        <span className={styles.summaryLabel}>Visa For:</span>
-                        <span className={styles.summaryValue}>{country || "-"}</span>
-                    </div>
-                    <div className={styles.summaryRow}>
-                        <span className={styles.summaryLabel}>Full Name:</span>
-                        <span className={styles.summaryValue}>
-                            {personalInfo.firstName} {personalInfo.lastName}
-                        </span>
-                    </div>
-                    {/* ... rest of personal info ... */}
-                    <div className={styles.summaryRow}>
-                        <span className={styles.summaryLabel}>Email:</span>
-                        <span className={styles.summaryValue}>{personalInfo.email || "-"}</span>
-                    </div>
-                    <div className={styles.summaryRow}>
-                        <span className={styles.summaryLabel}>Phone:</span>
-                        <span className={styles.summaryValue}>{personalInfo.phone || "-"}</span>
-                    </div>
-                </div>
-            
-            {/* Payment Methods */}
-            <div className={`glass-card ${styles.paymentMethodsCard}`}>
+            {/* 5. SELECT PAYMENT METHOD */}
+            <div className={`glass-card ${styles.paymentMethodsCard} mb-6`}>
                 <h4 className={styles.summaryTitle}>Select Payment Method</h4>
                 <div className={styles.methodsList}>
-
                     <button
                         className={`${styles.methodOption} ${selectedMethod === 'PayPal' ? styles.selected : ''}`}
                         onClick={() => handleMethodSelect('PayPal')}
                     >
-                        <CreditCard size={24} className="text-primary" />
+                        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                            <CreditCard size={24} />
+                        </div>
                         <div className={styles.methodInfo}>
                             <p className={styles.methodName}>PayPal / Credit Card</p>
-                            <p className={styles.methodDesc}>Secure international payment</p>
-                            <p className="text-[10px] text-amber-600 font-bold mt-1 uppercase tracking-wider italic">
-                                * Confirmation takes 3 days to start application
-                            </p>
+                            <p className={styles.methodDesc}>Instant confirmation • International Card</p>
                         </div>
                         {selectedMethod === 'PayPal' && <CheckCircle size={20} className="text-accent ml-auto" />}
-                    </button>
-
-                    <button
-                        className={`${styles.methodOption} ${selectedMethod === 'Manual' ? styles.selected : ''}`}
-                        onClick={() => handleMethodSelect('Manual')}
-                    >
-                        <Send size={24} className="text-primary" />
-                        <div className={styles.methodInfo}>
-                            <p className={styles.methodName}>Submit Application Only</p>
-                            <p className={styles.methodDesc}>Consult with agent first</p>
-                        </div>
-                        {selectedMethod === 'Manual' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>
 
                     <button
                         className={`${styles.methodOption} ${selectedMethod === 'DOKU' ? styles.selected : ''}`}
                         onClick={() => handleMethodSelect('DOKU')}
                     >
-                        <ShoppingCart size={24} className="text-primary" />
+                        <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-600">
+                            <CreditCard size={24} />
+                        </div>
                         <div className={styles.methodInfo}>
-                            <p className={styles.methodName}>Order Now (DOKU)</p>
-                            <p className={styles.methodDesc}>Secure Local & Intl Payment</p>
+                            <p className={styles.methodName}>Visa / Master Card (DOKU)</p>
+                            <p className={styles.methodDesc}>Secure Local & Intl Payment gateway</p>
                         </div>
                         {selectedMethod === 'DOKU' && <CheckCircle size={20} className="text-accent ml-auto" />}
+                    </button>
+
+                    <button
+                        className={`${styles.methodOption} ${selectedMethod === 'Manual' ? styles.selected : ''}`}
+                        onClick={() => handleMethodSelect('Manual')}
+                    >
+                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-600">
+                            <Send size={24} />
+                        </div>
+                        <div className={styles.methodInfo}>
+                            <p className={styles.methodName}>Submit Application Only</p>
+                            <p className={styles.methodDesc}>Consult with agent first before pay</p>
+                        </div>
+                        {selectedMethod === 'Manual' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>
                 </div>
             </div>
 
-            {/* Action Disclaimer */}
-            <div className="mb-4 px-4 py-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/20 rounded-xl flex items-start gap-3">
-                <Info size={16} className="text-amber-600 mt-0.5 flex-shrink-0" />
+            {/* 6. AGREEMENT CHECKBOX */}
+            <div className="mb-6 px-4 py-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl flex items-start gap-4">
+                <Info size={20} className="text-amber-600 mt-0.5 flex-shrink-0" />
                 <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-400 font-medium">
-                    By making this payment, you agree that you have read and accepted our <span className="underline cursor-pointer">Terms & Conditions</span> and <span className="underline cursor-pointer">Refund Policy</span>.
+                    By making this payment, you agree that you have read and accepted our <Link href="/terms-and-conditions" className="underline font-bold">Terms & Conditions</Link> and <Link href="/refund" className="underline font-bold">Refund Policy</Link>.
                 </p>
             </div>
 
-            {/* Action Buttons */}
-             <div className={styles.actions}>
-                {selectedMethod === 'PayPal' ? (
-                    <div className="w-full space-y-4">
-                         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-500/30 flex items-center gap-3">
-                            <Info size={18} className="text-blue-600" />
-                            <p className="text-xs text-blue-700 dark:text-blue-400 font-medium">Click the PayPal button below to complete your order securely.</p>
-                        </div>
-                        <div className="relative z-10">
-                            {/* We need to ensure the application is created before PayPal buttons can work effectively if we want them here */}
-                            {/* For simplicity in this complex flow, we keep the redirect but make it CLEAR */}
-                            <button
-                                onClick={processCheckout}
-                                disabled={isSubmitting}
-                                className={`cta-primary w-full justify-center gap-3 py-4 text-base`}
-                            >
-                                {isSubmitting ? <CircularProgress size={20} color="inherit" /> : <><CreditCard size={20} /> Pay with PayPal / Card</>}
-                            </button>
-                        </div>
+            {/* 7. CTA ORDER */}
+            <div className={styles.actions}>
+                {selectedMethod === 'PayPal' && (
+                     <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-500/30 flex items-center gap-3">
+                        <Info size={18} className="text-blue-600" />
+                        <p className="text-xs text-blue-700 dark:text-blue-400 font-medium">Review your order details above then click to pay securely.</p>
                     </div>
-                ) : (
-                    <button
-                        onClick={processCheckout}
-                        disabled={!selectedMethod || isSubmitting}
-                        className={`cta-accent ${styles.submitBtn} w-full justify-center gap-3 py-4`}
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <CircularProgress size={20} color="inherit" />
-                                <span>Processing...</span>
-                            </>
-                        ) : (
-                            <>
-                                {selectedMethod === 'Manual' ? <Send size={20} /> : <ShoppingCart size={20} />}
-                                <span>{selectedMethod === 'Manual' ? 'Submit Application' : 'Complete Order'}</span>
-                            </>
-                        )}
-                    </button>
                 )}
+                
+                <button
+                    onClick={processCheckout}
+                    disabled={(!selectedMethod && !isSuccess) || isSubmitting}
+                    className={`cta-accent ${styles.submitBtn} w-full justify-center gap-3 py-5 text-lg shadow-xl shadow-amber-500/20`}
+                >
+                    {isSubmitting ? (
+                        <>
+                            <CircularProgress size={24} color="inherit" />
+                            <span>Processing...</span>
+                        </>
+                    ) : (
+                        <>
+                            {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : <ShoppingCart size={24} />)}
+                            <span>{selectedMethod === 'Manual' ? 'SUBMIT APPLICATION' : (selectedMethod === 'PayPal' ? 'PAY WITH PAYPAL' : 'COMPLETE ORDER')}</span>
+                        </>
+                    )}
+                </button>
 
                 {!selectedMethod && (
-                    <p className="text-sm text-center text-gray-500 mt-2">Please select a payment method to proceed.</p>
+                    <p className="text-sm text-center text-gray-500 mt-3 font-medium">Please select a payment method to proceed.</p>
                 )}
             </div>
         </div>

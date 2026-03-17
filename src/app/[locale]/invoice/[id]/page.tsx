@@ -244,6 +244,17 @@ export default function InvoicePage() {
                             <Typography variant="body2" color="text.secondary">
                                 {invoiceData.user?.email || invoiceData.guestEmail || "-"}
                             </Typography>
+                            {/* Phone & Country from attribution */}
+                            {invoiceData.attribution?.phone && (
+                                <Typography variant="body2" color="text.secondary">
+                                    {invoiceData.attribution.phone}
+                                </Typography>
+                            )}
+                            {invoiceData.attribution?.country && (
+                                <Typography variant="body2" color="text.secondary">
+                                    {invoiceData.attribution.country}
+                                </Typography>
+                            )}
                             {(invoiceData.user?.address || invoiceData.guestAddress) && (
                                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                                     {invoiceData.user?.address || invoiceData.guestAddress}
@@ -257,16 +268,23 @@ export default function InvoicePage() {
                             {/* PAYMENT DETAILS */}
                             <Box sx={{ mt: 1, mb: 2 }}>
                                 {isPaid ? (
-                                    <Typography variant="body2" color="success.main" fontWeight="bold">
-                                        Payment Completed
-                                    </Typography>
+                                    <Box>
+                                        <Typography variant="body2" color="success.main" fontWeight="bold">
+                                            Payment Completed
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Via: {invoiceData.paymentMethod?.toUpperCase() || "Captured Merchant"}
+                                        </Typography>
+                                    </Box>
                                 ) : (
                                     <>
-                                        <Typography variant="body2" color="text.secondary" fontWeight="bold">Bank Transfer (BCA)</Typography>
-                                        <Typography variant="body2" fontFamily="monospace">611-590-3172</Typography>
-                                        <Typography variant="caption" display="block" color="text.secondary">Wahyudin Damopolii</Typography>
+                                        <Typography variant="body2" color="text.secondary" fontWeight="bold">Bank Transfer (BCA Corporate)</Typography>
+                                        <Typography variant="body2" fontFamily="monospace" fontWeight="bold" sx={{ color: '#9155FD' }}>611-017850</Typography>
+                                        <Typography variant="caption" display="block" color="text.secondary" sx={{ fontStyle: 'italic' }}>Account: Indonesian Visas Agency</Typography>
+                                        <Typography variant="caption" display="block" color="text.secondary">SWIFT: CENAIDJA</Typography>
+                                        <Typography variant="caption" display="block" color="text.secondary">Address: Jl. Tibung Sari No 11, Bali</Typography>
 
-                                        <Typography variant="body2" color="text.secondary" fontWeight="bold" sx={{ mt: 1 }}>PayPal/Wise/stripe/apple pay</Typography>
+                                        <Typography variant="body2" color="text.secondary" fontWeight="bold" sx={{ mt: 1.5 }}>Online Checkout</Typography>
                                         <Typography variant="body2" fontFamily="monospace">indonesianvisas.com/payment</Typography>
                                     </>
                                 )}
@@ -309,11 +327,28 @@ export default function InvoicePage() {
                                             {invoiceData.visaName || invoiceData.visaId}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            Visa Processing & Administration Fee
+                                            Processing & Administration (Applicant: {invoiceData.guestName || invoiceData.user?.name})
                                         </Typography>
+                                        
+                                        {/* Show Multi-Traveler breakdown if metadata indicates it */}
+                                        {invoiceData.attribution?.totalTravelers > 1 && (
+                                            <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed rgba(0,0,0,0.05)' }}>
+                                                <Typography variant="caption" color="primary" fontWeight="bold">
+                                                    GROUP BOOKING (#{invoiceData.attribution.orderIndex} of {invoiceData.attribution.totalTravelers})
+                                                </Typography>
+                                            </Box>
+                                        )}
+
+                                        {/* INVOICE DESCRIPTION (From Admin) */}
+                                        {(invoiceData.invoice?.description || invoiceData.description) && (
+                                            <Typography variant="body2" sx={{ mt: 1.5, color: '#4B5563', whiteSpace: 'pre-wrap', bgcolor: '#F9FAFB', p: 1.5, borderRadius: 1.5, border: '1px solid #E5E7EB' }}>
+                                                {invoiceData.invoice?.description || invoiceData.description}
+                                            </Typography>
+                                        )}
+
                                         {invoiceData.invoice?.adminNotes && (
                                             <Typography variant="caption" display="block" sx={{ mt: 1, whiteSpace: 'pre-wrap', color: 'text.secondary', fontStyle: 'italic', borderTop: '1px solid rgba(0,0,0,0.05)', pt: 1 }}>
-                                                {invoiceData.invoice.adminNotes}
+                                                Notes: {invoiceData.invoice.adminNotes}
                                             </Typography>
                                         )}
                                     </TableCell>
@@ -332,43 +367,53 @@ export default function InvoicePage() {
 
                     {/* TOTAL CALCULATION */}
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 6 }}>
-                        <Box sx={{ minWidth: 250 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                <Typography variant="body2" color="text.secondary">Subtotal:</Typography>
-                                <Typography variant="body2" fontWeight="600">{priceDisplay}</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                <Typography variant="body2" color="text.secondary">Tax (0%):</Typography>
-                                <Typography variant="body2" fontWeight="600">IDR 0</Typography>
-                            </Box>
-                            <Divider sx={{ my: 1.5 }} />
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Typography variant="h6" fontWeight="bold">Total:</Typography>
-                                <Typography variant="h6" fontWeight="bold" sx={{ color: '#9155FD' }}>
-                                    {priceDisplay}
-                                </Typography>
-                            </Box>
-                            
+                        <Box sx={{ minWidth: 280 }}>
                             {/* Detailed breakdown if available */}
-                            {invoiceData.invoice?.serviceFee > 0 && (
-                                <Box sx={{ mt: 3, p: 2, bgcolor: '#F9FAFC', borderRadius: 2, border: '1px solid rgba(0,0,0,0.05)' }}>
-                                    <Typography variant="caption" fontWeight="700" color="text.secondary" sx={{ display: 'block', mb: 1, textTransform: 'uppercase' }}>
-                                        Fee Breakdown
-                                    </Typography>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                        <Typography variant="caption">Visa Service Fee:</Typography>
-                                        <Typography variant="caption" fontWeight="600">IDR {parseFloat(String(invoiceData.invoice.serviceFee)).toLocaleString()}</Typography>
+                            {invoiceData.invoice?.serviceFee > 0 ? (
+                                <>
+                                    <Box sx={{ mb: 2, pb: 1, borderBottom: '1px solid #E5E7EB' }}>
+                                        <Typography variant="caption" fontWeight="700" color="text.secondary" sx={{ display: 'block', mb: 1, textTransform: 'uppercase' }}>
+                                            Order Details
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2">Base Processing:</Typography>
+                                            <Typography variant="body2" fontWeight="600">IDR {parseFloat(String(invoiceData.invoice.serviceFee)).toLocaleString()}</Typography>
+                                        </Box>
+                                        
+                                        {/* Add-ons list if stored in metadata/upsells */}
+                                        {invoiceData.upsells && Object.entries(invoiceData.upsells).filter(([_,v]) => v).map(([k, _]) => (
+                                            <Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                                <Typography variant="caption" color="text.secondary">+ {k.toUpperCase()} Add-on:</Typography>
+                                                <Typography variant="caption" fontWeight="600">Included</Typography>
+                                            </Box>
+                                        ))}
+
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2">Government Tax (2%):</Typography>
+                                            <Typography variant="body2" fontWeight="600">IDR {parseFloat(String(invoiceData.invoice.pph23Amount)).toLocaleString()}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2">Service Fee (4%):</Typography>
+                                            <Typography variant="body2" fontWeight="600">IDR {parseFloat(String(invoiceData.invoice.gatewayFee)).toLocaleString()}</Typography>
+                                        </Box>
                                     </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                        <Typography variant="caption">PPh 23 Tax (2%):</Typography>
-                                        <Typography variant="caption" fontWeight="600">IDR {parseFloat(String(invoiceData.invoice.pph23Amount)).toLocaleString()}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography variant="caption">Gateway & Processing:</Typography>
-                                        <Typography variant="caption" fontWeight="600">IDR {parseFloat(String(invoiceData.invoice.gatewayFee)).toLocaleString()}</Typography>
-                                    </Box>
+                                </>
+                            ) : (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                    <Typography variant="body2" color="text.secondary">Subtotal:</Typography>
+                                    <Typography variant="body2" fontWeight="600">{priceDisplay}</Typography>
                                 </Box>
                             )}
+
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                                <Typography variant="h6" fontWeight="bold">Grand Total:</Typography>
+                                <Typography variant="h6" fontWeight="bold" sx={{ color: '#9155FD' }}>
+                                    {invoiceData.invoice?.amount 
+                                        ? `IDR ${parseFloat(String(invoiceData.invoice.amount)).toLocaleString()}`
+                                        : priceDisplay
+                                    }
+                                </Typography>
+                            </Box>
                         </Box>
                     </Box>
 

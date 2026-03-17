@@ -64,7 +64,6 @@ export const generateInvoicePDF = async (invoice: any) => {
 
     // --- 2. ADDRESSES (Bill To / Payable To) ---
     y = 70;
-    const midX = pageWidth / 2;
 
     // Bill To (Left)
     doc.setFont("helvetica", "bold");
@@ -83,6 +82,16 @@ export const generateInvoicePDF = async (invoice: any) => {
     doc.setFontSize(9);
     doc.setTextColor(grayText[0], grayText[1], grayText[2]);
     doc.text(invoice.user?.email || invoice.guestEmail || "", margin, y);
+    
+    // Rich Bill To Info
+    if (invoice.attribution?.phone) {
+        y += 5;
+        doc.text(invoice.attribution.phone, margin, y);
+    }
+    if (invoice.attribution?.country) {
+        y += 5;
+        doc.text(invoice.attribution.country, margin, y);
+    }
     if (invoice.user?.address || invoice.guestAddress) {
         y += 5;
         doc.text(invoice.user?.address || invoice.guestAddress, margin, y);
@@ -101,24 +110,36 @@ export const generateInvoicePDF = async (invoice: any) => {
     doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
     doc.text("PT Indonesian Visas Agency™", rightX, y, { align: "right" });
 
+    // Corporate Bank Account (Standardized)
     y += 5;
-    doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-    doc.text("BCA: 123-456-7890", rightX, y, { align: "right" });
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    if (invoice.status === 'Paid' || invoice.status === 'Active') {
+        doc.text("PAYMENT CAPTURED", rightX, y, { align: "right" });
+    } else {
+        doc.text("BCA: 611-017850", rightX, y, { align: "right" });
+        y += 4;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7);
+        doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+        doc.text("Indonesian Visas Agency (SWIFT: CENAIDJA)", rightX, y, { align: "right" });
+    }
 
-    // Status Badge (Visual simulation text)
-    y += 10;
-    const status = invoice.status?.toUpperCase() || "PENDING";
+    // Status Badge
+    y += 8;
+    const status = invoice.invoice?.status || invoice.status?.toUpperCase() || "PENDING";
     const statusColor = (status === 'PAID' || status === 'ACTIVE') ? [86, 202, 0] : [255, 180, 0];
 
+    doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
+    // Draw a small rect or just text
     doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
     doc.setFont("helvetica", "bold");
     doc.text(status, rightX, y, { align: "right" });
 
 
     // --- 3. TABLE ---
-    y = 110;
+    y = 105;
 
     // Header Bg
     doc.setFillColor(249, 250, 252);
@@ -135,7 +156,8 @@ export const generateInvoicePDF = async (invoice: any) => {
 
     // Items
     y += 16;
-    const priceDisplay = invoice.customAmount || "By Quote";
+    const activeAmount = invoice.invoice?.amount || invoice.customAmount || 0;
+    const priceDisplay = activeAmount ? `IDR ${parseFloat(activeAmount).toLocaleString()}` : "By Quote";
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
@@ -144,21 +166,38 @@ export const generateInvoicePDF = async (invoice: any) => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-    doc.text("Visa Processing & Administration Fee", margin + 5, y + 4);
+    doc.text(`Processing & Administration (Applicant: ${invoice.guestName || invoice.user?.name || 'Customer'})`, margin + 5, y + 4);
 
-    if (invoice.description) {
-        doc.setFont("helvetica", "italic");
-        const splitDesc = doc.splitTextToSize(invoice.description, 90);
-        doc.text(splitDesc, margin + 5, y + 9);
+    if (invoice.attribution?.totalTravelers > 1) {
+        y += 5;
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.text(`GROUP BOOKING (#${invoice.attribution.orderIndex} of ${invoice.attribution.totalTravelers})`, margin + 5, y + 4);
+        y -= 5;
     }
 
+    // Invoice Description (From Admin)
+    const adminDescription = invoice.invoice?.description || invoice.description;
+    if (adminDescription) {
+        y += 10;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+        const splitDesc = doc.splitTextToSize(adminDescription, 100);
+        doc.text(splitDesc, margin + 5, y);
+        y += (splitDesc.length * 4);
+    }
+
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-    doc.text("1", 130, y, { align: "center" });
-    doc.text(priceDisplay, 160, y, { align: "right" });
-    doc.text(priceDisplay, rightX - 5, y, { align: "right" });
+    doc.text("1", 130, 121, { align: "center" }); // Pivot back to standard Y for totals
+    doc.text(priceDisplay, 160, 121, { align: "right" });
+    doc.text(priceDisplay, rightX - 5, 121, { align: "right" });
+
+    // Adjust Y if description was long
+    if (y < 135) y = 135;
 
     // Divider
-    y += 20;
     doc.setDrawColor(230, 230, 230);
     doc.line(margin, y, rightX, y);
 
@@ -167,18 +206,26 @@ export const generateInvoicePDF = async (invoice: any) => {
     const totalX = 140; // Label col X
     const valX = rightX - 5; // Value col X
 
-    doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-    doc.text("Subtotal:", totalX, y);
-    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-    doc.text(priceDisplay, valX, y, { align: "right" });
+    if (invoice.invoice?.serviceFee > 0) {
+        doc.setFontSize(7);
+        doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+        doc.text("Base Processing:", totalX, y);
+        doc.text(`IDR ${parseFloat(invoice.invoice.serviceFee).toLocaleString()}`, valX, y, { align: "right" });
+        y += 4;
+        doc.text("Gov. Tax (2%):", totalX, y);
+        doc.text(`IDR ${parseFloat(invoice.invoice.pph23Amount).toLocaleString()}`, valX, y, { align: "right" });
+        y += 4;
+        doc.text("Service Fee (4%):", totalX, y);
+        doc.text(`IDR ${parseFloat(invoice.invoice.gatewayFee).toLocaleString()}`, valX, y, { align: "right" });
+        y += 6;
+    } else {
+        doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+        doc.text("Subtotal:", totalX, y);
+        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+        doc.text(priceDisplay, valX, y, { align: "right" });
+        y += 10;
+    }
 
-    y += 5;
-    doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-    doc.text("Tax (0%):", totalX, y);
-    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-    doc.text("IDR 0", valX, y, { align: "right" });
-
-    y += 8;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);

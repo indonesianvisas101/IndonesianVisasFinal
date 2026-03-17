@@ -27,6 +27,11 @@ const StepCountryVisa = () => {
         upsells,
         toggleUpsell
     } = useApplication();
+
+    // Scroll to top on mount
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, []);
     const [validationError, setValidationError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [customVisa, setCustomVisa] = useState("");
@@ -56,6 +61,11 @@ const StepCountryVisa = () => {
         e.stopPropagation(); // Avoid re-triggering handleVisaSelect
         updateData("priceTier", tierName);
         setValidationError(null);
+        
+        // AUTO DIRECT TO CTA CONTINUE AFTER SELECT TIER
+        setTimeout(() => {
+            actionAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
     };
 
     const handlePeopleChange = (change: number) => {

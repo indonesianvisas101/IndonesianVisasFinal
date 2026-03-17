@@ -48,9 +48,26 @@ const StepCountryVisa = () => {
     };
 
     const handleVisaSelect = (visaName: string) => {
-        if (visaType !== visaName) { // FIX: Only reset tier selection if visa actually changed
+        if (visaType !== visaName) { 
             updateData("visaType", visaName);
-            updateData("priceTier", null); 
+            
+            // Auto-select tier if there is exactly ONE option
+            const selectedVisa = visas.find(v => v.name === visaName);
+            if (selectedVisa) {
+                const totalData = calculateVisaTotal(selectedVisa.price, selectedVisa.fee);
+                if (typeof totalData === 'object' && totalData !== null) {
+                    const keys = Object.keys(totalData);
+                    if (keys.length === 1) {
+                        updateData("priceTier", keys[0]);
+                    } else {
+                        updateData("priceTier", null);
+                    }
+                } else {
+                    updateData("priceTier", null);
+                }
+            } else {
+                updateData("priceTier", null);
+            }
         }
         setValidationError(null);
         // Auto-scroll to CTA

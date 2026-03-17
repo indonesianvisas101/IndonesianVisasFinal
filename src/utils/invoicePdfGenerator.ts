@@ -97,6 +97,22 @@ export const generateInvoicePDF = async (invoice: any) => {
         doc.text(invoice.user?.address || invoice.guestAddress, margin, y);
     }
 
+    // Indonesian Address for IDiv Support
+    const verification = invoice.verification || (invoice.verificationId ? { address: "Placeholder" } : null); // Mock or real
+    if (invoice.verification?.address || invoice.guestAddress) {
+        y += 8;
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.text("RESIDENTIAL ADDRESS (IDIV):", margin, y);
+        y += 5;
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+        const addr = invoice.verification?.address || invoice.guestAddress;
+        const splitAddr = doc.splitTextToSize(addr, 80);
+        doc.text(splitAddr, margin, y);
+        y += (splitAddr.length * 4);
+    }
+
     // Payable To (Right) -- reset Y
     y = 70;
     doc.setFont("helvetica", "normal");

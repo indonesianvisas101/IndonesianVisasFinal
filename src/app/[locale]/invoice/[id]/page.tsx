@@ -260,6 +260,16 @@ export default function InvoicePage() {
                                     {invoiceData.user?.address || invoiceData.guestAddress}
                                 </Typography>
                             )}
+
+                            {/* Indonesian Address Display */}
+                            {(invoiceData.verification?.address || invoiceData.guestAddress) && (
+                                <Box sx={{ mt: 2 }}>
+                                    <Typography variant="overline" sx={{ color: '#9155FD', fontWeight: 700 }}>RESIDENTIAL ADDRESS (IDIV):</Typography>
+                                    <Typography variant="body2" sx={{ color: '#1F2937', fontWeight: 500 }}>
+                                        {invoiceData.verification?.address || invoiceData.guestAddress}
+                                    </Typography>
+                                </Box>
+                            )}
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
                             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Payable To:</Typography>

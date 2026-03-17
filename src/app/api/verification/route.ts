@@ -201,6 +201,37 @@ export async function POST(request: Request) {
     }
 }
 
+
+// PUT /api/verification (Partial Update / Status Toggle)
+export async function PUT(request: Request) {
+    try {
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        }
+
+        const body = await request.json();
+        const { id, ...updateData } = body;
+
+        if (!id) {
+            return NextResponse.json({ error: 'ID required' }, { status: 400 });
+        }
+
+        const updated = await (prisma.verification as any).update({
+            where: { id },
+            data: {
+                ...updateData,
+                updatedAt: new Date()
+            }
+        });
+
+        return NextResponse.json(updated);
+    } catch (error) {
+        console.error('Update verification error:', error);
+        return NextResponse.json({ error: 'Failed to update verification' }, { status: 500 });
+    }
+}
+
 export async function DELETE(request: Request) {
     try {
         const { searchParams } = new URL(request.url);

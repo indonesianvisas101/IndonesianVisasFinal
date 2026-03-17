@@ -6,6 +6,10 @@ import { handleMarketingAttribution } from '@/lib/marketing'
 
 import { IDIV_DOC_PATHS } from '@/constants/paths'
 
+export async function middleware(request: NextRequest) {
+    return await proxy(request);
+}
+
 export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname
     
@@ -161,5 +165,9 @@ function isPublicRoute(path: string) {
     // Exact match or starts with (handle /services/*)
     if (path === '/' || path === '') return true; // root (relative to locale)
 
+
     return publicStartPaths.some(p => path === p || path.startsWith(p + '/'));
 }
+
+export default middleware;
+

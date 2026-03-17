@@ -234,7 +234,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                      flexDirection: 'column', 
                                      alignItems: 'center',
                                      width: { xs: '65px', sm: '85px' },
-                                     gap: 0.5,
+                                     gap: 0.2,
                                      mt: 0.5,
                                      position: 'relative'
                                  }}>
@@ -268,8 +268,8 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                      </Box>
 
                                      {/* DESCRIPTIVE TEXT BENEATH IMAGE */}
-                                     <Box sx={{ textAlign: 'center', width: '100%' }}>
-                                         <Typography sx={{ fontSize: '0.42rem', fontWeight: 800, lineHeight: 1.1, color: '#0369a1', opacity: 0.9 }}>
+                                     <Box sx={{ textAlign: 'center', width: '100%', mt: -0.2, ml: -0.2 }}>
+                                         <Typography sx={{ fontSize: '0.4rem', fontWeight: 800, lineHeight: 1.1, color: '#0369a1', opacity: 0.9 }}>
                                              Official Smart IDiv by:<br/>indonesianvisas.com
                                          </Typography>
                                      </Box>

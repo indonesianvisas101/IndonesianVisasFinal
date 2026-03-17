@@ -94,7 +94,7 @@ const StepPayment = () => {
     // Helper to get the correct photo for IDiv (Priority: Selfie from Step 3)
     const getIdivPhoto = (index: number) => {
         const docs = Array.isArray(documents) ? documents[index] : (index === 0 ? documents : null);
-        return docs?.selfie || docs?.passport; // Priority to selfie
+        return docs?.recentPhoto || docs?.passportPhoto; // Priority to recentPhoto (selfie)
     };
 
     const pph23Amount = Math.round(totalAmount * 0.02);

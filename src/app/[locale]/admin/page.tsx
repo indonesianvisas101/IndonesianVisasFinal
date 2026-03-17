@@ -880,8 +880,8 @@ function AdminDashboardContent() {
             documents: async () => simpleFetch('/api/documents'), // HEAD
             notifications: async () => simpleFetch('/api/notifications'), // HEAD
             upload: async () => simpleFetch('/api/upload'), // Check Bucket & Auto-Recover
-            report_pull: async () => simpleFetch('/api/admin/reports/dynamic'),
-            reporting: async () => simpleFetch('/api/admin/reports/dynamic')
+            report_pull: async () => simpleFetch('/api/admin/reports'),
+            reporting: async () => simpleFetch('/api/admin/reports')
         };
 
         const simpleFetch = async (url: string) => {

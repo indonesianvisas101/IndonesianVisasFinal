@@ -168,6 +168,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
 
                         {/* Header */}
                         <Box display="flex" justifyContent="space-between" alignItems="start" mb={1} borderBottom="1px solid rgba(0,0,0,0.1)" pb={0.5} sx={{ zIndex: 2 }}>
+                            {/* Left Side: Flag & Province */}
                             <Box display="flex" alignItems="center" gap={1.5}>
                                 <Box sx={{ width: 28, height: 18, bgcolor: '#ef4444', position: 'relative', border: '1px solid rgba(0,0,0,0.1)', overflow: 'hidden', borderRadius: '2px' }}>
                                     <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', bgcolor: 'white' }} />
@@ -181,6 +182,33 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                     </Typography>
                                 </Box>
                             </Box>
+
+                            {/* Right Side: ID Numbers (Moved from Body) */}
+                            <Box sx={{ textAlign: 'right', maxWidth: '40%' }}>
+                                <Typography fontWeight="900" sx={{ 
+                                    fontSize: '0.6rem', 
+                                    color: '#0369a1', 
+                                    lineHeight: 1,
+                                    mb: 0.2,
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                }}>
+                                    ID: {displayId}
+                                </Typography>
+                                <Typography sx={{ 
+                                    fontSize: '0.45rem', 
+                                    color: '#64748b', 
+                                    fontWeight: 800, 
+                                    lineHeight: 1,
+                                    opacity: 0.8,
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                }}>
+                                    SMART ID: {cardData.order_id || 'NOT_LINKED'}
+                                </Typography>
+                            </Box>
                         </Box>
 
                         {/* Content Wrapper to hide on Flip */}
@@ -190,38 +218,12 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             flexDirection: 'column', 
                             opacity: isFlipped ? 0 : 1, 
                             transition: 'opacity 0.3s ease',
-                            pointerEvents: isFlipped ? 'none' : 'auto'
+                            pointerEvents: isFlipped ? 'none' : 'auto',
+                            justifyContent: 'center', // Center content vertically
+                            pt: 0.5
                         }}>
-                            {/* ID Number */}
-                            <Typography variant="h6" fontWeight="900" sx={{ 
-                                fontSize: { xs: '0.75rem', sm: '0.9rem' }, 
-                                mb: 0, 
-                                letterSpacing: { xs: 0.5, sm: 1 }, 
-                                color: '#0369a1', 
-                                zIndex: 2,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis'
-                            }}>
-                                ID No : {displayId}
-                            </Typography>
-                            <Typography sx={{ 
-                                fontSize: '0.55rem', 
-                                color: '#64748b', 
-                                fontWeight: 800, 
-                                mb: 0.5, 
-                                letterSpacing: 0.5, 
-                                zIndex: 2,
-                                opacity: 0.8,
-                                maxWidth: '100%',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis'
-                            }}>
-                                SMART ID: {cardData.order_id || 'NOT_LINKED'}
-                            </Typography>
- 
-                            {/* Details Container */}
-                            <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0 }}>
+                             {/* Details Container */}
+                             <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0 }}>
                                 {/* Data Fields - Standardized Layout (Ensures parity across Landing, Verify, and Admin) */}
                                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0, justifyContent: 'space-between' }}>
                                     <Box sx={{ height: '2.4rem' }}>

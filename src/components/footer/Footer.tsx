@@ -63,6 +63,7 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                     {/* COLUMN 4: LEGAL */}
                     <div className={styles.linkColumn}>
                         <h4 className={styles.columnTitle}>{t.legal_title || "Legal"}</h4>
+                        <Link href={`/${locale}/regulations/indonesia-visa-regulations`} className={styles.footerLink}>Visa Regulations</Link>
                         <Link href={`/${locale}/privacy-policy`} className={styles.footerLink}>{t.privacy_policy || "Privacy Policy"}</Link>
                         <Link href={`/${locale}/terms-and-conditions`} className={styles.footerLink}>{t.terms_conditions || "Terms & Conditions"}</Link>
                         <Link href={`/${locale}/refund`} className={styles.footerLink}>{t.refund_policy || "Refund Policy"}</Link>

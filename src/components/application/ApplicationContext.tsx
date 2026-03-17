@@ -25,6 +25,7 @@ interface ApplicationState {
     country: string | null;
     numPeople: number;
     visaType: string | null;
+    priceTier: string | null; // NEW: Track selected duration/tier
     arrivalDate: string; // New
 
     personalInfo: {
@@ -130,6 +131,7 @@ const defaultState: ApplicationState = {
     country: null,
     numPeople: 1,
     visaType: null,
+    priceTier: null,
     arrivalDate: "",
     personalInfo: {
         firstName: "",
@@ -401,6 +403,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
             country: null,
             numPeople: 1,
             visaType: visaId,
+            priceTier: null,
             arrivalDate: "",
             personalInfo: defaultState.personalInfo,
             travelers: [],

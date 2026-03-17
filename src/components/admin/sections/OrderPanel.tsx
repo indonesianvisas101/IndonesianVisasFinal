@@ -236,6 +236,14 @@ export default function OrderPanel() {
                                         <Stack direction="row" spacing={1} justifyContent="flex-end">
                                             <IconButton 
                                                 size="small" 
+                                                color="info"
+                                                title="Order Details"
+                                                onClick={() => router.push(`/${locale}/admin?tab=invoicing&id=${order.id}`)}
+                                            >
+                                                <SearchIcon />
+                                            </IconButton>
+                                            <IconButton 
+                                                size="small" 
                                                 color="primary"
                                                 title="View Invoice"
                                                 onClick={() => router.push(`/${locale}/invoice/${order.slug || order.id}`)}

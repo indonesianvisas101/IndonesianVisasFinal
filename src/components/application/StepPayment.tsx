@@ -24,10 +24,10 @@ const CURRENCIES = [
 ];
 
 const StepPayment = () => {
-    const { 
-        setStep, country, visaType, personalInfo, completedSteps, 
-        markStepComplete, resetApplication, closePanel, documents, 
-        visas, numPeople, travelers, upsells, toggleUpsell, addons
+    const {
+        visaType, country, personalInfo, setStep, documents, markStepComplete, resetApplication, closePanel,
+        visas, numPeople, travelers, upsells, toggleUpsell, addons,
+        priceTier, arrivalDate
     } = useApplication();
     const params = useParams();
     const locale = params?.locale || 'en';
@@ -57,17 +57,22 @@ const StepPayment = () => {
 
         try {
             if (typeof currentVisa.price === 'object' && currentVisa.price !== null) {
-                baseAmount = parseCurrency(String((currentVisa.price as any)[Object.keys(currentVisa.price)[0]] || "0"));
+                // Prioritize priceTier from context, fallback to first key
+                const tier = priceTier || Object.keys(currentVisa.price)[0];
+                baseAmount = parseCurrency(String((currentVisa.price as any)[tier] || "0"));
+                
+                // Also sync fee if it's tier-based
+                if (typeof currentVisa.fee === 'object' && currentVisa.fee !== null) {
+                    feeAmount = parseCurrency(String((currentVisa.fee as any)[tier] || "0"));
+                } else {
+                    feeAmount = parseCurrency(String(currentVisa.fee));
+                }
             } else {
                 baseAmount = parseCurrency(String(currentVisa.price));
-            }
-
-            if (typeof currentVisa.fee === 'object' && currentVisa.fee !== null) {
-                feeAmount = parseCurrency(String((currentVisa.fee as any)[Object.keys(currentVisa.fee)[0]] || "0"));
-            } else {
                 feeAmount = parseCurrency(String(currentVisa.fee));
             }
-        } catch {
+        } catch (e) {
+            console.error("[StepPayment] Price calculation error:", e);
             baseAmount = parseCurrency(String(currentVisa.price));
             feeAmount = parseCurrency(String(currentVisa.fee));
         }
@@ -146,7 +151,14 @@ const StepPayment = () => {
                     customAmount: totalAmount.toString(), // Base + Upsells
                     quantity: numPeople,
                     documents: uploadedDocs,
-                    upsells: upsells, 
+                    upsells: upsells,
+                    attribution: {
+                        country: country || "Unknown",
+                        priceTier: priceTier || "Standard",
+                        arrivalDate: arrivalDate || "Not specified",
+                        phone: personalInfo.phone || "Not provided",
+                        dob: personalInfo.dob || "Not provided"
+                    },
                     adminNotes: (travelers && travelers.length > 0 
                         ? `Additional Travelers:\n${travelers.map(t => `- ${t.firstName} ${t.lastName} (Passport: ${t.passport}, DOB: ${t.dob})`).join('\n')}`
                         : "") + (Object.values(upsells).some(v => v) ? `\n\nAdd-ons Selected: ${Object.entries(upsells).filter(([k,v]) => v).map(([k,v]) => k.toUpperCase()).join(', ')}` : "")

@@ -17,14 +17,41 @@ export async function POST(req: Request) {
             console.log(`[PAYPAL_WEBHOOK] Order approved: ${orderId}`);
         } 
         else if (eventType === 'PAYMENT.CAPTURE.COMPLETED') {
-            const captureId = body.resource.id;
-            const orderId = body.resource.supplementary_data?.related_ids?.order_id || body.resource.parent_payment;
+            const resource = body.resource;
+            const captureId = resource.id;
+            const orderId = resource.supplementary_data?.related_ids?.order_id || resource.parent_payment;
             
             console.log(`[PAYPAL_WEBHOOK] Capture completed: ${captureId} for Order: ${orderId}`);
 
-            // The capture logic is already in /api/payments/paypal/capture-order
-            // But if the client fails to call it, we can sync here based on orderId
-            // To be robust, we'd find the payment record and update status
+            if (orderId) {
+                // Find payment by orderId
+                const payment = await prisma.payment.findFirst({
+                    where: { orderId: orderId }
+                });
+
+                if (payment) {
+                    await prisma.payment.update({
+                        where: { id: payment.id },
+                        data: {
+                            status: 'COMPLETED',
+                            transactionId: captureId,
+                            updatedAt: new Date()
+                        }
+                    });
+
+                    if (payment.invoiceId) {
+                        await prisma.invoice.update({
+                            where: { id: payment.invoiceId },
+                            data: {
+                                status: 'PAID',
+                                updatedAt: new Date(),
+                                paidAt: new Date()
+                            }
+                        });
+                        console.log(`[PAYPAL_WEBHOOK] Updated Invoice ${payment.invoiceId} to PAID`);
+                    }
+                }
+            }
         }
 
         return NextResponse.json({ received: true });

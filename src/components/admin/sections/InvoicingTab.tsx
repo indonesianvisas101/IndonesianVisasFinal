@@ -645,9 +645,9 @@ export default function InvoicingTab() {
 
                         {/* RENDER ATTACHED DOCUMENTS */}
                         {editingInvoice && editingInvoice.documents && Object.keys(editingInvoice.documents).length > 0 && (
-                            <Box sx={{ mt: 2, p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+                            <Box sx={{ mt: 2, p: 2, bgcolor: '#f0f9ff', borderRadius: 2, border: '1px solid #bae6fd' }}>
                                 <Typography variant="subtitle2" color="primary" fontWeight="bold" gutterBottom>
-                                    Attached Documents
+                                    Step 3: Uploaded Documents
                                 </Typography>
                                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                                     {Object.entries(editingInvoice.documents).map(([key, url]) => {
@@ -660,12 +660,59 @@ export default function InvoicingTab() {
                                                 clickable
                                                 color="info"
                                                 variant="outlined"
+                                                size="small"
                                             />
                                         );
                                     })}
                                 </Stack>
                             </Box>
                         )}
+
+                        {/* STEP 1 & 2 SUBMISSION DETAILS */}
+                        {editingInvoice && (editingInvoice.attribution || editingInvoice.verificationId) && (() => {
+                            const verification = editingInvoice.verification || verifications.find(v => v.id === editingInvoice.verificationId);
+                            return (
+                                <Box sx={{ mt: 2, p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+                                    <Typography variant="subtitle2" color="slate.700" fontWeight="bold" gutterBottom>
+                                        Step 1 & 2: Submission Details
+                                    </Typography>
+                                    <Stack spacing={1}>
+                                        {editingInvoice.attribution && (
+                                            <>
+                                                <Typography variant="caption" display="block">
+                                                    <strong>Origin Country:</strong> {editingInvoice.attribution.country || "Not specified"}
+                                                </Typography>
+                                                <Typography variant="caption" display="block">
+                                                    <strong>Price Tier / Duration:</strong> {editingInvoice.attribution.priceTier || "Standard"}
+                                                </Typography>
+                                                <Typography variant="caption" display="block">
+                                                    <strong>Arrival Date:</strong> {editingInvoice.attribution.arrivalDate || "Not specified"}
+                                                </Typography>
+                                                <Typography variant="caption" display="block">
+                                                    <strong>Phone:</strong> {editingInvoice.attribution.phone || "Not specified"}
+                                                </Typography>
+                                                <Typography variant="caption" display="block">
+                                                    <strong>Date of Birth:</strong> {editingInvoice.attribution.dob || "Not specified"}
+                                                </Typography>
+                                            </>
+                                        )}
+                                        {verification && (
+                                            <>
+                                                <Typography variant="caption" display="block">
+                                                    <strong>Passport:</strong> {verification.passportNumber}
+                                                </Typography>
+                                                <Typography variant="caption" display="block">
+                                                    <strong>Nationality:</strong> {verification.nationality || "N/A"}
+                                                </Typography>
+                                                <Typography variant="caption" display="block">
+                                                    <strong>Address:</strong> {verification.address || "N/A"}
+                                                </Typography>
+                                            </>
+                                        )}
+                                    </Stack>
+                                </Box>
+                            );
+                        })()}
                     </Stack>
                 </DialogContent>
                 <DialogActions>

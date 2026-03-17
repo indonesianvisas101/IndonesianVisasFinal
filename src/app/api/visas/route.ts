@@ -1,5 +1,6 @@
 // Force recompile
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import type { Visa } from '@prisma/client';
 import { logAdminAction } from '@/lib/auditLogger';
@@ -232,6 +233,11 @@ export async function DELETE(request: Request) {
         if (dbUser) {
             await logAdminAction(dbUser.id, "DELETE_VISA", "Visa", id, {});
         }
+
+        // Revalidate public pages
+        revalidatePath('/[locale]/services/[id]', 'page');
+        revalidatePath('/[locale]/visas', 'page');
+        revalidatePath('/[locale]/apply', 'page');
 
         return NextResponse.json({ success: true });
     } catch {

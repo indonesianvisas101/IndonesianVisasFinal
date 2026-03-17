@@ -133,6 +133,16 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             ]
         },
         {
+            title: "Regulation Depth",
+            icon: Landmark,
+            links: [
+                { name: "Visa Regulations", href: `/${locale}/regulations/indonesia-visa-regulations` },
+                { name: "Immigration Law", href: `/${locale}/regulations/immigration-law-references` },
+                { name: "Official Policy", href: `/${locale}/regulations/official-immigration-policy` },
+                { name: "Eligibility Rules", href: `/${locale}/regulations/visa-eligibility-rules` }
+            ]
+        },
+        {
             title: "Account & Secure Hub",
             icon: Lock,
             links: [

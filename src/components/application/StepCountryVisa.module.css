@@ -306,6 +306,45 @@
     display: inline-block; /* Ensure it centers nicely */
 }
 
+.tierSelection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tierBtn {
+    padding: 0.4rem 0.8rem;
+    border-radius: 99px;
+    border: 1px solid #E2E8F0;
+    background: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tierBtnActive {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+}
+
+:global([data-theme="dark"]) .tierSelection {
+    border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+:global([data-theme="dark"]) .tierBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+}
+
 /* Custom Visa Input */
 .customVisaCard {
     border-style: dashed;

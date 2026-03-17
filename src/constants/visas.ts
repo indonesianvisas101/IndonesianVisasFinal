@@ -624,9 +624,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "D1 Tourist Visit Visa (Single-Entry Visit Visa)",
         "description": "Indonesian D1 Tourist Visit Visa (Single-Entry Visit Visa)",
         "price": {
-            "1 Year": "IDR 4.500.000"
+            "1 Year": "IDR 4.500.000",
+            "2 Years": "IDR 7.300.000"
         },
-        "fee": "2 Years: IDR 7.300.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -640,9 +641,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "D2 Business Visit Visa (Single-Entry)",
         "description": "Indonesian D2 Business Visit Visa (Single-Entry)",
         "price": {
-            "1 Year": "IDR 5.500.000"
+            "1 Year": "IDR 5.500.000",
+            "2 Years": "IDR 8.500.000"
         },
-        "fee": "2 Years: IDR 8.500.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -998,9 +1000,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "E28A Investment KITAS",
         "description": "Indonesian E28A Investment KITAS",
         "price": {
-            "Offshore 1 Year": "IDR 14.000.000"
+            "Offshore 1 Year": "IDR 14.000.000",
+            "Offshore 2 Years": "IDR 17.000.000"
         },
-        "fee": "Offshore 2 Years: IDR 17.000.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1112,9 +1115,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Primary/Secondary Student",
         "description": "Indonesian Primary/Secondary Student",
         "price": {
-            "1 Year": "IDR 6.000.000"
+            "1 Year": "IDR 6.000.000",
+            "2 Years": "IDR 8.500.000"
         },
-        "fee": "2 Years: IDR 8.500.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1128,9 +1132,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Higher Education Student",
         "description": "Indonesian Higher Education Student",
         "price": {
-            "1 Year": "IDR 6.000.000"
+            "1 Year": "IDR 6.000.000",
+            "2 Years": "IDR 8.500.000"
         },
-        "fee": "2 Years: IDR 8.500.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1144,9 +1149,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "SEZ Student Visa",
         "description": "Indonesian SEZ Student Visa",
         "price": {
-            "1 Year": "IDR 6.000.000"
+            "1 Year": "IDR 6.000.000",
+            "2 Years": "IDR 8.500.000"
         },
-        "fee": "2 Years: IDR 8.500.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1188,9 +1194,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Spouse of Indonesian",
         "description": "Indonesian Spouse of Indonesian",
         "price": {
-            "1 Year": "IDR 11.500.000"
+            "1 Year": "IDR 11.500.000",
+            "2 Years": "IDR 14.000.000"
         },
-        "fee": "2 Years: IDR 14.000.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1204,9 +1211,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Spouse of Resident",
         "description": "Indonesian Spouse of Resident",
         "price": {
-            "1 Year": "IDR 11.500.000"
+            "1 Year": "IDR 11.500.000",
+            "2 Years": "IDR 14.000.000"
         },
-        "fee": "2 Years: IDR 14.000.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1220,9 +1228,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Child of Indonesian",
         "description": "Indonesian Child of Indonesian",
         "price": {
-            "1 Year": "IDR 11.500.000"
+            "1 Year": "IDR 11.500.000",
+            "2 Years": "IDR 14.000.000"
         },
-        "fee": "2 Years: IDR 14.000.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1236,9 +1245,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Accompanying Child (Indonesian)",
         "description": "Indonesian Accompanying Child (Indonesian)",
         "price": {
-            "1 Year": "IDR 11.500.000"
+            "1 Year": "IDR 11.500.000",
+            "2 Years": "IDR 14.000.000"
         },
-        "fee": "2 Years: IDR 14.000.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1252,9 +1262,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Child of Resident",
         "description": "Indonesian Child of Resident",
         "price": {
-            "1 Year": "IDR 11.500.000"
+            "1 Year": "IDR 11.500.000",
+            "2 Years": "IDR 14.000.000"
         },
-        "fee": "2 Years: IDR 14.000.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1268,9 +1279,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Child of Ind. Parent",
         "description": "Indonesian Child of Ind. Parent",
         "price": {
-            "1 Year": "IDR 11.500.000"
+            "1 Year": "IDR 11.500.000",
+            "2 Years": "IDR 14.000.000"
         },
-        "fee": "2 Years: IDR 14.000.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1284,9 +1296,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Parent of Indonesian",
         "description": "Indonesian Parent of Indonesian",
         "price": {
-            "1 Year": "IDR 11.500.000"
+            "1 Year": "IDR 11.500.000",
+            "2 Years": "IDR 14.000.000"
         },
-        "fee": "2 Years: IDR 14.000.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
@@ -1314,9 +1327,10 @@ export const VISA_DATABASE: VisaType[] = [
         "name": "Child Joining Sibling",
         "description": "Indonesian Child Joining Sibling",
         "price": {
-            "1 Year": "IDR 6.000.000"
+            "1 Year": "IDR 6.000.000",
+            "2 Years": "IDR 8.500.000"
         },
-        "fee": "2 Years: IDR 8.500.000",
+        "fee": 0,
         "validity": "Select Duration",
         "requirements": [
             "Valid Passport",

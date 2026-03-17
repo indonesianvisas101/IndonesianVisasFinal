@@ -21,6 +21,7 @@ const StepCountryVisa = () => {
         numPeople, 
         arrivalDate, 
         visaType, 
+        priceTier,
         markStepComplete, 
         visas,
         upsells,
@@ -41,10 +42,16 @@ const StepCountryVisa = () => {
 
     const handleVisaSelect = (visaName: string) => {
         updateData("visaType", visaName);
+        updateData("priceTier", null); // Reset tier selection when visa changes
         // Auto-scroll to CTA
         setTimeout(() => {
             actionAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 150);
+    };
+
+    const handleTierSelect = (tierName: string, e: React.MouseEvent) => {
+        e.stopPropagation(); // Avoid re-triggering handleVisaSelect
+        updateData("priceTier", tierName);
     };
 
     const handlePeopleChange = (change: number) => {
@@ -53,6 +60,15 @@ const StepCountryVisa = () => {
     };
 
     const handleContinue = () => {
+        // Validation: If visa has multiple tiers, one must be selected
+        const selectedVisa = visas.find(v => v.name === visaType);
+        if (selectedVisa && typeof calculateVisaTotal(selectedVisa.price, selectedVisa.fee) === 'object') {
+            if (!priceTier) {
+                alert("Please select a visa duration/tier first");
+                return;
+            }
+        }
+
         markStepComplete(1);
         setStep(2);
     };
@@ -234,18 +250,31 @@ const StepCountryVisa = () => {
                             <div className={styles.visaFooter}>
                                 <div className={styles.visaPrice}>
                                     {(() => {
-                                        const totalPrice = calculateVisaTotal(visa.price, visa.fee);
-                                        if (typeof totalPrice === 'string') {
-                                            return totalPrice;
+                                        const totalData = calculateVisaTotal(visa.price, visa.fee);
+                                        if (typeof totalData === 'string') {
+                                            return totalData;
                                         } else {
+                                            const tiers = Object.entries(totalData);
                                             return (
-                                                <div className="flex flex-col gap-1 items-center">
-                                                    {Object.entries(totalPrice).map(([d, p]) => (
-                                                        <div key={d} className="text-sm">
-                                                            <span className="opacity-70 font-semibold text-xs text-gray-500 dark:text-gray-400 mr-1">{d}:</span>
-                                                            {p}
-                                                        </div>
-                                                    ))}
+                                                <div className="flex flex-col gap-3 items-center w-full">
+                                                    {/* Selected/Default Price Display */}
+                                                    <div className="text-xl font-black text-amber-500">
+                                                        {priceTier && totalData[priceTier] ? totalData[priceTier] : "Select Tier"}
+                                                    </div>
+                                                    
+                                                    {/* Tier Selection Buttons */}
+                                                    <div className={styles.tierSelection}>
+                                                        {tiers.map(([tier, price]) => (
+                                                            <button
+                                                                key={tier}
+                                                                onClick={(e) => handleTierSelect(tier, e)}
+                                                                className={`${styles.tierBtn} ${priceTier === tier ? styles.tierBtnActive : ''}`}
+                                                            >
+                                                                <div className="opacity-70 text-[10px] uppercase font-bold">{tier}</div>
+                                                                <div>{price}</div>
+                                                            </button>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             );
                                         }

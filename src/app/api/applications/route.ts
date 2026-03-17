@@ -425,9 +425,13 @@ export async function PATCH(request: Request) {
                 
                 // Recalculate fees if amount or method changes
                 const methodToUse = paymentMethod || invoice.paymentMethod || 'Manual';
-                const amountToUse = customAmount !== undefined 
+                let amountToUse = customAmount !== undefined 
                     ? parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) 
                     : Number((invoice as any).serviceFee || invoice.amount);
+                
+                if (isNaN(amountToUse)) {
+                    amountToUse = Number((invoice as any).serviceFee || invoice.amount);
+                }
                 
                 const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(amountToUse, methodToUse);
                 

@@ -174,7 +174,14 @@ function AdminDashboardContent() {
 
     const [mobileOpen, setMobileOpen] = useState(false);
     const searchParams = useSearchParams();
-    const activeTab = (searchParams.get('tab') as TabType) || 'dashboard';
+    const routerActiveTab = (searchParams.get('tab') as TabType) || 'dashboard';
+    const [activeTab, setActiveTab] = useState<TabType>(routerActiveTab);
+
+    useEffect(() => {
+        if (routerActiveTab !== activeTab) {
+            setActiveTab(routerActiveTab);
+        }
+    }, [routerActiveTab]);
 
     // Data State
     const [visas, setVisas] = useState<VisaType[]>([]);
@@ -1107,6 +1114,7 @@ function AdminDashboardContent() {
                         <ListItemButton
                             selected={activeTab === item.key}
                             onClick={() => { 
+                                setActiveTab(item.key as TabType);
                                 router.push(`/${locale}/admin?tab=${item.key}`); 
                                 if (item.key === 'orders') setNewOrdersCount(0);
                                 if (isMobile) setMobileOpen(false); 

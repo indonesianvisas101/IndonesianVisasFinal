@@ -64,26 +64,26 @@ model AuditLog {
 }
 
 model VisaApplication {
-  id             String    @id @default(cuid())
-  userId         String?   @map("user_id") @db.Uuid
-  visaId         String
-  visaName       String?
-  status         String    @default("Pending")
-  verificationId String?
-  slug           String?   @unique @default(cuid())
-  guestName      String?
-  guestEmail     String?
-  paymentMethod  String?
-  customAmount   String?
-  documents      Json?
-  expiresAt      DateTime?
-  appliedAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  quantity       Int       @default(1)
-  attribution    Json?
-  user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  invoices       Invoice[]
+  id                   String                @id @default(cuid())
+  userId               String?               @map("user_id") @db.Uuid
+  visaId               String
+  visaName             String?
+  status               String                @default("Pending")
+  verificationId       String?
+  slug                 String?               @unique @default(cuid())
+  guestName            String?
+  guestEmail           String?
+  paymentMethod        String?
+  customAmount         String?
+  documents            Json?
+  expiresAt            DateTime?
+  appliedAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  attribution          Json?
+  quantity             Int                   @default(1)
   applicationDocuments ApplicationDocument[]
+  invoices             Invoice[]
+  user                 User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("visa_applications")
 }
@@ -121,12 +121,12 @@ model Verification {
   issuedDate     DateTime
   status         String    @default("VALID")
   expiresAt      DateTime?
-  address        String?
-  nationality    String?
-  photoUrl       String?
   slug           String    @unique
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  address        String?
+  nationality    String?
+  photoUrl       String?
   user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -162,8 +162,8 @@ model Message {
   senderType     String
   message        String
   isRead         Boolean      @default(false) @map("is_read")
-  metadata       Json?        @default("{}")
   createdAt      DateTime     @default(now()) @map("created_at")
+  metadata       Json?        @default("{}")
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@map("messages")
@@ -185,7 +185,7 @@ model EmailLog {
   id        String   @id @default(cuid())
   recipient String
   subject   String
-  content   String   @db.Text
+  content   String
   status    String   @default("SENT")
   sentAt    DateTime @default(now()) @map("sent_at")
 
@@ -193,25 +193,25 @@ model EmailLog {
 }
 
 model Invoice {
-  id               String          @id @default(cuid())
-  userId           String?         @db.Uuid
+  id               String           @id @default(cuid())
+  userId           String?          @db.Uuid
   applicationId    String?
-  amount           Decimal         @db.Decimal(20, 2)
-  serviceFee       Decimal?        @default(0) @db.Decimal(20, 2)
-  gatewayFee       Decimal?        @default(0) @db.Decimal(20, 2)
-  pph23Amount      Decimal?        @default(0) @db.Decimal(20, 2)
-  currency         String          @default("IDR")
-  status           PaymentStatus   @default(UNPAID)
+  amount           Decimal          @db.Decimal(20, 2)
+  currency         String           @default("IDR")
+  status           PaymentStatus    @default(UNPAID)
   paymentMethod    String?
   paymentReference String?
   adminNotes       String?
   dueDate          DateTime?
   paidAt           DateTime?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  quantity         Int             @default(1)
-  user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  quantity         Int              @default(1)
+  gatewayFee       Decimal?         @default(0) @db.Decimal(20, 2)
+  pph23Amount      Decimal?         @default(0) @db.Decimal(20, 2)
+  serviceFee       Decimal?         @default(0) @db.Decimal(20, 2)
   visaApplication  VisaApplication? @relation(fields: [applicationId], references: [id])
+  user             User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
   payments         Payment[]
 
   @@map("invoices")
@@ -384,80 +384,77 @@ model MarketingLead {
 }
 
 model KnowledgePage {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  title           String
-  content         Json     // Array of structured sections
-  pageType        String   @default("knowledge_article")
-  category        String?
-  metadata        Json?    // SEO tags, OpenGraph, JSON-LD
-  published       Boolean  @default(false)
-  
-  // Phase 50 Extensions
-  authorId        String?  @map("author_id")
-  author          KnowledgeAuthor? @relation(fields: [authorId], references: [id])
-  quality         AIContentQuality?
-  sources         ImmigrationSource[] @relation("PageSources")
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id        String              @id @default(cuid())
+  slug      String              @unique
+  title     String
+  content   Json
+  pageType  String              @default("knowledge_article")
+  category  String?
+  metadata  Json?
+  published Boolean             @default(false)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  authorId  String?             @map("author_id")
+  quality   AIContentQuality?
+  author    KnowledgeAuthor?    @relation(fields: [authorId], references: [id])
+  sources   ImmigrationSource[] @relation("PageSources")
 
   @@map("knowledge_pages")
 }
 
 model AITopicHistory {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  topicTitle      String   @map("topic_title")
-  topicSlug       String   @unique @map("topic_slug")
-  topicCluster    String   @map("topic_cluster")
-  sourceAgent     String   @map("source_agent") // analyst, news_agent, manual
-  status          String   @default("draft")    // draft, published, rejected
-  confidenceScore Float?   @map("confidence_score")
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topicTitle      String    @map("topic_title")
+  topicSlug       String    @unique @map("topic_slug")
+  topicCluster    String    @map("topic_cluster")
+  sourceAgent     String    @map("source_agent")
+  status          String    @default("draft")
+  confidenceScore Float?    @map("confidence_score")
   notes           String?
-  createdAt       DateTime @default(now()) @map("created_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
   publishedAt     DateTime? @map("published_at")
 
   @@map("ai_topic_history")
 }
 
 model KnowledgeAuthor {
-  id           String   @id @default(cuid())
+  id           String          @id @default(cuid())
   name         String
   title        String
   organization String
   bio          String?
-  linkedinUrl  String?  @map("linkedin_url")
+  linkedinUrl  String?         @map("linkedin_url")
   website      String?
+  createdAt    DateTime        @default(now()) @map("created_at")
   pages        KnowledgePage[]
-  createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("knowledge_authors")
 }
 
 model ImmigrationSource {
-  id             String   @id @default(cuid())
+  id             String          @id @default(cuid())
   name           String
-  sourceType     String   @map("source_type") // government, embassy, media, etc
-  url            String   @unique
-  country        String   @default("Indonesia")
-  authorityLevel String   @map("authority_level") // official_government, news_media, etc
+  sourceType     String          @map("source_type")
+  url            String          @unique
+  country        String          @default("Indonesia")
+  authorityLevel String          @map("authority_level")
+  createdAt      DateTime        @default(now()) @map("created_at")
   pages          KnowledgePage[] @relation("PageSources")
-  createdAt      DateTime @default(now()) @map("created_at")
 
   @@map("immigration_sources")
 }
 
 model AIContentQuality {
-  id              String   @id @default(cuid())
-  knowledgePageId String   @unique @map("knowledge_page_id")
-  knowledgePage   KnowledgePage @relation(fields: [knowledgePageId], references: [id], onDelete: Cascade)
-  wordCount       Int      @map("word_count")
+  id              String        @id @default(cuid())
+  knowledgePageId String        @unique @map("knowledge_page_id")
+  wordCount       Int           @map("word_count")
   readability     Float
-  seoScore        Float    @map("seo_score")
-  semanticScore   Float    @map("semantic_score")
-  uniqueness      Float    @map("uniqueness_score")
-  overallScore    Float    @map("overall_score")
-  createdAt       DateTime @default(now()) @map("created_at")
+  seoScore        Float         @map("seo_score")
+  semanticScore   Float         @map("semantic_score")
+  uniqueness      Float         @map("uniqueness_score")
+  overallScore    Float         @map("overall_score")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  knowledgePage   KnowledgePage @relation(fields: [knowledgePageId], references: [id], onDelete: Cascade)
 
   @@map("ai_content_quality")
 }
@@ -478,11 +475,11 @@ model Addon {
 }
 
 model GlobalSetting {
-  id          String   @id @default(cuid())
-  key         String   @unique
-  value       String?
-  isEnabled   Boolean  @default(false)
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String?
+  isEnabled Boolean  @default(false)
+  updatedAt DateTime @updatedAt
 
   @@map("global_settings")
 }

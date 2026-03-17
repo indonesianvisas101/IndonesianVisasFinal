@@ -141,14 +141,14 @@ export const HeroStats = ({ company, processed, success }: { company: string; pr
                     <div className="space-y-4">
                         <p className="font-bold text-sm text-green-600 uppercase tracking-widest">The Draft System™</p>
                         <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
-                            Our proprietary **Draft System** is why we maintain a nearly perfect success rate.
+                            Our proprietary **Draft System** and **Dual-Review Cycle** ensure the highest success rates in the industry.
                         </Typography>
                         <Box sx={{ p: 3, bgcolor: 'rgba(34, 197, 94, 0.05)', borderRadius: 4, border: '1px solid rgba(34, 197, 94, 0.2)' }}>
                             <ul className="space-y-2 text-sm">
                                 <li className="flex gap-2"><strong>1.</strong> We work directly within the Immigration system draft layer.</li>
                                 <li className="flex gap-2"><strong>2.</strong> Your application is submitted as a pre-verified draft.</li>
-                                <li className="flex gap-2"><strong>3.</strong> If the system flags an issue, we resolve it *before* final payment.</li>
-                                <li className="flex gap-2"><strong>4.</strong> We only pay the official tax once approval is certain.</li>
+                                <li className="flex gap-2"><strong>3.</strong> If the system flags an issue, our agent resolve it *immediately*.</li>
+                                <li className="flex gap-2"><strong>4.</strong> We only proceed to official submission once approval is verified.</li>
                             </ul>
                         </Box>
                         <p className="text-sm font-medium">This methodology ensures zero financial loss for our clients and a 99% guaranteed result.</p>
@@ -341,8 +341,8 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
                 >
                     <div className={styles.stepCircle}>4</div>
                     <div>
-                        <h4 className={styles.stepHeading}>{labels?.step4 || "Make Payment"}</h4>
-                        <p className={styles.stepDesc}>{labels?.step4_desc || "Complete payment via secure methods"}</p>
+                        <h4 className={styles.stepHeading}>{labels?.step4 || "Final Confirmation"}</h4>
+                        <p className={styles.stepDesc}>{labels?.step4_desc || "Review details and complete your application"}</p>
                     </div>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import prisma from '@/lib/prisma';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_stub_for_build');
 
@@ -41,16 +42,24 @@ export const sendConfirmationEmail = async (to: string, data: {
             </div>
         `;
 
+        const emailSubject = `Order #${orderId} - Application Submission`;
         await resend.emails.send({
             from: 'Indonesian Visas <contact@indonesianvisas.agency>',
             to: [to],
-            subject: `Order #${orderId} - Application Submission`,
+            subject: emailSubject,
             html: message,
         });
+        
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: emailSubject, content: message, status: 'SENT' }
+        }).catch(e => console.error("Failed to log sent email", e));
         
         return { success: true };
     } catch (error) {
         console.error("Resend Confirmation Email Error:", error);
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: `FAILED: Order #${data.orderId}`, content: String(error), status: 'FAILED' }
+        }).catch(() => {});
         return { success: false, error };
     }
 };
@@ -94,16 +103,24 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
             </div>
         `;
 
+        const emailSubject = `Payment Confirmed - Order #${orderId}`;
         await resend.emails.send({
             from: 'Indonesian Visas <contact@indonesianvisas.agency>',
             to: [to],
-            subject: `Payment Confirmed - Order #${orderId}`,
+            subject: emailSubject,
             html: message,
         });
+        
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: emailSubject, content: message, status: 'SENT' }
+        }).catch(e => console.error("Failed to log sent email", e));
         
         return { success: true };
     } catch (error) {
         console.error("Resend Payment Email Error:", error);
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: `FAILED: Payment Confirmed #${data.orderId}`, content: String(error), status: 'FAILED' }
+        }).catch(() => {});
         return { success: false, error };
     }
 };
@@ -148,16 +165,24 @@ export const sendPaymentReminderEmail = async (to: string, data: {
             </div>
         `;
 
+        const emailSubject = `Action Required: Complete Your Payment for ${visaType}`;
         await resend.emails.send({
             from: 'Indonesian Visas <contact@indonesianvisas.agency>',
             to: [to],
-            subject: `Action Required: Complete Your Payment for ${visaType}`,
+            subject: emailSubject,
             html: message,
         });
+        
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: emailSubject, content: message, status: 'SENT' }
+        }).catch(e => console.error("Failed to log sent email", e));
         
         return { success: true };
     } catch (error) {
         console.error("Resend Reminder Email Error:", error);
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: `FAILED: Payment Reminder for ${data.visaType}`, content: String(error), status: 'FAILED' }
+        }).catch(() => {});
         return { success: false, error };
     }
 };
@@ -205,16 +230,24 @@ export const sendAdminOrderNotification = async (data: {
             </div>
         `;
 
+        const emailSubject = `NEW ORDER: ${applicantName} - ${visaType}`;
         await resend.emails.send({
             from: 'Indonesian Visas System <system@indonesianvisas.agency>',
             to: ['indonesianvisas@gmail.com'],
-            subject: `NEW ORDER: ${applicantName} - ${visaType}`,
+            subject: emailSubject,
             html: message,
         });
+        
+        await prisma.emailLog.create({
+            data: { recipient: 'indonesianvisas@gmail.com', subject: emailSubject, content: message, status: 'SENT' }
+        }).catch(e => console.error("Failed to log sent email", e));
         
         return { success: true };
     } catch (error) {
         console.error("Resend Admin Notification Error:", error);
+        await prisma.emailLog.create({
+            data: { recipient: 'indonesianvisas@gmail.com', subject: `FAILED: New Order Alert`, content: String(error), status: 'FAILED' }
+        }).catch(() => {});
         return { success: false, error };
     }
 };
@@ -251,16 +284,24 @@ export const sendAbandonedCartEmail = async (to: string, data: {
             </div>
         `;
 
+        const emailSubject = `Wait! Your Indonesia Visa application for ${visaType} is almost ready`;
         await resend.emails.send({
             from: 'Indonesian Visas <contact@indonesianvisas.agency>',
             to: [to],
-            subject: `Wait! Your Indonesia Visa application for ${visaType} is almost ready`,
+            subject: emailSubject,
             html: message,
         });
+        
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: emailSubject, content: message, status: 'SENT' }
+        }).catch(e => console.error("Failed to log sent email", e));
         
         return { success: true };
     } catch (error) {
         console.error("Resend Abandoned Cart Error:", error);
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: `FAILED: Abandoned Cart ${data.visaType}`, content: String(error), status: 'FAILED' }
+        }).catch(() => {});
         return { success: false, error };
     }
 };

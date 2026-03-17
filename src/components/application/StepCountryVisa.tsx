@@ -34,6 +34,7 @@ const StepCountryVisa = () => {
     }, []);
     const [validationError, setValidationError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [visaSearch, setVisaSearch] = useState("");
     const [customVisa, setCustomVisa] = useState("");
     const [showAllVisas, setShowAllVisas] = useState(false);
     const visaSectionRef = useRef<HTMLDivElement>(null);
@@ -93,22 +94,29 @@ const StepCountryVisa = () => {
     };
 
     const handleContinue = () => {
+        if (!country) {
+            setValidationError("Please select your country first.");
+            return;
+        }
+
         // Validation: If visa has multiple tiers, one must be selected
         const selectedVisa = visas.find(v => v.name === visaType);
+        
+        if (!visaType) {
+            setValidationError("Please select a visa type first.");
+            return;
+        }
+
         if (selectedVisa && typeof calculateVisaTotal(selectedVisa.price, selectedVisa.fee) === 'object') {
             if (!priceTier) {
                 setValidationError("Please select a visa duration/tier to continue.");
-                visaSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // ONLY scroll to visa section if TIER is not selected
+                visaSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
                 return;
             }
         }
 
-        if (!visaType) {
-            setValidationError("Please select a visa type first.");
-            visaSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            return;
-        }
-
+        // numPeople and arrivalDate are optional as per user request
         markStepComplete(1);
         setStep(2);
     };
@@ -128,7 +136,18 @@ const StepCountryVisa = () => {
         .sort((a, b) => POPULAR_VISA_IDS.indexOf(a.id) - POPULAR_VISA_IDS.indexOf(b.id));
 
     const otherVisas = visas.filter(v => !POPULAR_VISA_IDS.includes(v.id));
-    const displayedVisas = showAllVisas ? [...popularVisas, ...otherVisas] : popularVisas;
+    
+    const displayedVisas = React.useMemo(() => {
+        const baseVisas = showAllVisas ? [...popularVisas, ...otherVisas] : popularVisas;
+        if (!visaSearch) return baseVisas;
+        
+        const lowerSearch = visaSearch.toLowerCase();
+        return (showAllVisas ? baseVisas : [...popularVisas, ...otherVisas]).filter(v => 
+            v.name.toLowerCase().includes(lowerSearch) || 
+            v.description.toLowerCase().includes(lowerSearch) ||
+            v.id.toLowerCase().includes(lowerSearch)
+        );
+    }, [showAllVisas, visaSearch, popularVisas, otherVisas]);
 
     return (
         <div className={styles.container}>
@@ -214,12 +233,24 @@ const StepCountryVisa = () => {
                         <h4 className={styles.subHeading}>Choose Your Visa Type</h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Select the visa that fits your needs</p>
                     </div>
-                    <button
-                        onClick={() => setShowAllVisas(!showAllVisas)}
-                        className="btn btn-sm text-primary font-bold border border-primary/20 hover:bg-primary/5 px-4 py-2 rounded-full transition-all"
-                    >
-                        {showAllVisas ? "Show Popular" : "See All Visas"}
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <div className={`flex items-center gap-2 bg-white dark:bg-gray-800 border-2 rounded-full px-3 py-1 transition-all ${visaSearch ? 'border-primary w-64' : 'border-gray-100 dark:border-white/10 w-44 focus-within:w-64 focus-within:border-primary'}`}>
+                            <Search size={14} className="text-gray-400" />
+                            <input 
+                                type="text"
+                                placeholder="Search visa..."
+                                className="bg-transparent border-none outline-none text-xs w-full py-1"
+                                value={visaSearch}
+                                onChange={(e) => setVisaSearch(e.target.value)}
+                            />
+                        </div>
+                        <button
+                            onClick={() => setShowAllVisas(!showAllVisas)}
+                            className="btn btn-sm text-primary font-bold border border-primary/20 hover:bg-primary/5 px-4 py-2 rounded-full transition-all"
+                        >
+                            {showAllVisas ? "Show Popular" : "See All Visas"}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Special Country Warning */

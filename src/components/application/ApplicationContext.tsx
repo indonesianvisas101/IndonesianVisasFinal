@@ -396,6 +396,9 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const selectVisa = (visaId: string) => {
+        const foundVisa = visas.find(v => v.id === visaId);
+        const visaName = foundVisa ? foundVisa.name : visaId;
+
         setState((prev) => ({
             ...prev,
             // Reset application data
@@ -403,7 +406,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
             isPanelOpen: true,
             country: null,
             numPeople: 1,
-            visaType: visaId,
+            visaType: visaName,
             priceTier: null,
             arrivalDate: "",
             personalInfo: defaultState.personalInfo,

@@ -6,9 +6,10 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import styles from "./StepPayment.module.css";
 import Script from "next/script";
-import { Chip, Divider, CircularProgress } from "@mui/material";
-import { ArrowLeft, CreditCard, Landmark, Smartphone, QrCode, Settings, CheckCircle, ShoppingCart, Send, Info, RefreshCcw, AlertCircle, Zap } from "lucide-react";
+import { Chip, Divider, CircularProgress, Alert, Box, Typography, Button } from "@mui/material";
+import { ArrowLeft, CreditCard, Landmark, Smartphone, QrCode, Settings, CheckCircle, ShoppingCart, Send, Info, RefreshCcw, AlertCircle, Zap, ShieldCheck, ExternalLink } from "lucide-react";
 import { parseCurrency } from "@/lib/utils";
+import PayPalIntegration from "@/components/payment/PayPalIntegration";
 // 10 Major Currencies for conversion
 const CURRENCIES = [
     { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp', icon: '🇮🇩', rate: 1 },
@@ -37,9 +38,14 @@ const StepPayment = () => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
     const [isConverting, setIsConverting] = useState(false);
+    
+    // Inline PayPal State
+    const [showPayPalButtons, setShowPayPalButtons] = useState(false);
+    const [paymentInfo, setPaymentInfo] = useState<{ invoiceId: string, amount: number, currency: string } | null>(null);
 
     const handleMethodSelect = (method: string) => {
         setSelectedMethod(method);
+        setShowPayPalButtons(false);
     };
 
     const handleCurrencyChange = (currency: typeof CURRENCIES[0]) => {
@@ -141,12 +147,11 @@ const StepPayment = () => {
             await Promise.all(uploadPromises);
 
             // 1. Calculate Split Amounts
-            // We divide the total base + addons by numPeople as requested
             const perPersonBaseAmount = totalAmount / numPeople;
-            const createdInvoices: { id: string; amount: number }[] = [];
+            const applications = [];
 
-            // 2. Loop and Create Applications/Invoices for each traveler
-            console.log(`[CHECKOUT] Splitting order into ${numPeople} applications...`);
+            // 2. Aggregate Applications for each traveler
+            console.log(`[CHECKOUT] Preparing ${numPeople} applications for consolidated submission...`);
             
             for (let i = 0; i < numPeople; i++) {
                 const isPrimary = i === 0;
@@ -156,68 +161,70 @@ const StepPayment = () => {
                     ? `${personalInfo.firstName} ${personalInfo.lastName}`
                     : `${travelerData?.firstName} ${travelerData?.lastName}`;
                 
-                const email = isPrimary ? personalInfo.email : travelerData?.email;
+                const email = isPrimary ? (personalInfo.email || "") : (travelerData?.email || "");
 
-                const appRes = await fetch("/api/applications", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        visaId: currentVisa?.id || "custom",
-                        visaName: visaType,
-                        status: "Pending",
-                        guestName: name,
-                        guestEmail: email,
-                        paymentMethod: selectedMethod,
-                        customAmount: perPersonBaseAmount.toString(), 
-                        quantity: 1, // Individual invoice
-                        documents: travelerDocs[i] || {},
-                        upsells: upsells,
-                        attribution: {
-                            country: country || "Unknown",
-                            priceTier: priceTier || "Standard",
-                            arrivalDate: arrivalDate || "Not specified",
-                            phone: isPrimary ? personalInfo.phone : "See Primary",
-                            dob: isPrimary ? personalInfo.dob : travelerData?.dob,
-                            isSplitOrder: numPeople > 1,
-                            orderIndex: i + 1,
-                            totalTravelers: numPeople
-                        },
-                        adminNotes: isPrimary && numPeople > 1 
-                            ? `Primary Payer of Split Order (${numPeople} Travelers total)`
-                            : `Split Order Traveler #${i + 1}`
-                    })
+                applications.push({
+                    visaId: currentVisa?.id || "custom",
+                    visaName: visaType,
+                    status: "Apply to Agent",
+                    guestName: name,
+                    guestEmail: email,
+                    paymentMethod: selectedMethod || 'Manual',
+                    customAmount: perPersonBaseAmount.toFixed(0), 
+                    quantity: 1,
+                    documents: travelerDocs[i] || {},
+                    upsells: upsells,
+                    attribution: {
+                        country: country || "Unknown",
+                        priceTier: priceTier || "Standard",
+                        arrivalDate: arrivalDate || "Not specified",
+                        phone: isPrimary ? personalInfo.phone : "See Primary",
+                        dob: isPrimary ? personalInfo.dob : travelerData?.dob,
+                        isSplitOrder: numPeople > 1,
+                        orderIndex: i + 1,
+                        totalTravelers: numPeople
+                    },
+                    adminNotes: isPrimary && numPeople > 1 
+                        ? `Primary Payer of Split Order (${numPeople} Travelers total)`
+                        : `Split Order Traveler #${i + 1}`
                 });
-
-                const appData = await appRes.json();
-                if (!appRes.ok) throw new Error(appData.error || `Failed to create application for ${name}`);
-                
-                if (appData.invoice) {
-                    createdInvoices.push({
-                        id: appData.invoice.id,
-                        amount: appData.invoice.amount
-                    });
-                }
             }
 
-            if (createdInvoices.length === 0) throw new Error("Failed to generate any invoices.");
+            // 3. Consolidated API Call
+            const checkoutRes = await fetch("/api/applications", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ applications })
+            });
 
-            // 3. Trigger Payment Gateway for the FIRST invoice
-            // The user said: "it must be works on normal order like a Bulk order but separate invoice."
-            // We redirect to the first invoice. The others are sent via email to each person.
-            const primaryInvoice = createdInvoices[0];
-            const invoiceId = primaryInvoice.id;
-            const finalInvoiceAmount = primaryInvoice.amount;
+            const checkoutData = await checkoutRes.json();
+            if (!checkoutRes.ok) throw new Error(checkoutData.error || "Failed to process checkout");
+            
+            const results = checkoutData.results || [checkoutData];
+            if (!results || results.length === 0) throw new Error("No invoices generated.");
+
+            // 4. Trigger Payment Gateway for the FIRST invoice
+            const primaryResult = results[0];
+            const invoiceId = primaryResult.invoice.id;
+            const finalInvoiceAmount = primaryResult.invoice.amount;
 
             if (selectedMethod === 'PayPal') {
                 const usdRate = CURRENCIES.find(c => c.code === 'USD')?.rate || 16250;
                 const grandTotalUSD = Math.ceil(finalInvoiceAmount / usdRate);
-                console.log("[CHECKOUT] Redirecting to PayPal for Primary Invoice:", invoiceId);
-                window.location.href = `/${locale}/payment?invoice=${invoiceId}&amount=${grandTotalUSD}&currency=USD`;
+                console.log("[CHECKOUT] Starting Inline PayPal for Primary Invoice:", invoiceId);
+                
+                // Store payment info for inline rendering
+                setPaymentInfo({
+                    invoiceId: invoiceId,
+                    amount: grandTotalUSD,
+                    currency: 'USD'
+                });
+                setShowPayPalButtons(true);
                 return;
             } 
             
             if (selectedMethod === 'DOKU') {
-                const checkoutRes = await fetch("/api/payments/doku/checkout", {
+                const dokuRes = await fetch("/api/payments/doku/checkout", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -232,11 +239,11 @@ const StepPayment = () => {
                     })
                 });
  
-                if (!checkoutRes.ok) {
-                    const errorDetail = await checkoutRes.json();
+                if (!dokuRes.ok) {
+                    const errorDetail = await dokuRes.json();
                     throw new Error(errorDetail.error || "Failed to fetch DOKU payment URL");
                 }
-                const { paymentUrl } = await checkoutRes.json();
+                const { paymentUrl } = await dokuRes.json();
                 window.location.href = paymentUrl;
                 return;
             } 
@@ -530,33 +537,57 @@ const StepPayment = () => {
 
             {/* 7. CTA ORDER */}
             <div className={styles.actions}>
-                {selectedMethod === 'PayPal' && (
+                {selectedMethod === 'PayPal' && !showPayPalButtons && (
                      <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-500/30 flex items-center gap-3">
                         <Info size={18} className="text-blue-600" />
-                        <p className="text-xs text-blue-700 dark:text-blue-400 font-medium">Review your order details above then click to pay securely.</p>
+                        <p className="text-xs text-blue-700 dark:text-blue-400 font-medium">Review your order details above then click to generate your secure PayPal checkout.</p>
                     </div>
                 )}
-                
-                <button
-                    onClick={processCheckout}
-                    disabled={(!selectedMethod && !isSuccess) || isSubmitting}
-                    className={`cta-accent ${styles.submitBtn} w-full justify-center gap-3 py-5 text-lg shadow-xl shadow-amber-500/20`}
-                >
-                    {isSubmitting ? (
-                        <>
-                            <CircularProgress size={24} color="inherit" />
-                            <span>Processing...</span>
-                        </>
-                    ) : (
-                        <>
-                            {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : <ShoppingCart size={24} />)}
-                            <span>{selectedMethod === 'Manual' ? 'SUBMIT APPLICATION' : (selectedMethod === 'PayPal' ? 'PAY WITH PAYPAL' : 'COMPLETE ORDER')}</span>
-                        </>
-                    )}
-                </button>
 
-                {!selectedMethod && (
-                    <p className="text-sm text-center text-gray-500 mt-3 font-medium">Please select a payment method to proceed.</p>
+                {showPayPalButtons && paymentInfo ? (
+                    <Box sx={{ mt: 2, p: 3, bgcolor: '#f8fafc', borderRadius: 6, border: '2px solid #003087' }}>
+                        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2, textAlign: 'center', color: '#003087' }}>
+                            SECURE PAYPAL CHECKOUT READY
+                        </Typography>
+                        <PayPalIntegration 
+                            invoiceId={paymentInfo.invoiceId}
+                            amount={paymentInfo.amount}
+                            currency={paymentInfo.currency}
+                        />
+                        <Button 
+                            variant="text" 
+                            size="small" 
+                            fullWidth 
+                            onClick={() => setShowPayPalButtons(false)}
+                            sx={{ mt: 2, color: 'text.secondary', textTransform: 'none' }}
+                        >
+                            Change Payment Method
+                        </Button>
+                    </Box>
+                ) : (
+                    <>
+                        <button
+                            onClick={processCheckout}
+                            disabled={(!selectedMethod && !isSuccess) || isSubmitting}
+                            className={`cta-accent ${styles.submitBtn} w-full justify-center gap-3 py-5 text-lg shadow-xl shadow-amber-500/20`}
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <CircularProgress size={24} color="inherit" />
+                                    <span>Processing...</span>
+                                </>
+                            ) : (
+                                <>
+                                    {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : <ShoppingCart size={24} />)}
+                                    <span>{selectedMethod === 'Manual' ? 'SUBMIT APPLICATION' : (selectedMethod === 'PayPal' ? 'GENERATE PAYPAL LINK' : 'COMPLETE ORDER')}</span>
+                                </>
+                            )}
+                        </button>
+
+                        {!selectedMethod && (
+                            <p className="text-sm text-center text-gray-500 mt-3 font-medium">Please select a payment method to proceed.</p>
+                        )}
+                    </>
                 )}
             </div>
         </div>

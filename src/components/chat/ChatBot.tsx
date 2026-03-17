@@ -57,6 +57,18 @@ export default function ChatBot() {
     ]);
     const [isLoading, setIsLoading] = useState(false);
     const [localInput, setLocalInput] = useState('');
+    const [isDismissed, setIsDismissed] = useState(false);
+
+    useEffect(() => {
+        const dismissed = sessionStorage.getItem('chat_dismissed') === 'true';
+        if (dismissed) setIsDismissed(true);
+    }, []);
+
+    const handleDismiss = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        sessionStorage.setItem('chat_dismissed', 'true');
+        setIsDismissed(true);
+    };
 
     // AI Master Mode — switches entire widget to AI Master
     // Support two formats: 
@@ -251,8 +263,19 @@ export default function ChatBot() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isOpen]);
 
+    if (isDismissed) return null;
+
     return (
-        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end print:hidden">
+        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end print:hidden group">
+            {!isOpen && (
+                <button 
+                    onClick={handleDismiss}
+                    className="absolute -top-2 -left-2 bg-gray-900/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10 border border-white/20"
+                    title="Hide for this session"
+                >
+                    <X size={10} />
+                </button>
+            )}
             {isOpen && (
                 <div className="bg-white dark:bg-gray-900 w-80 h-[480px] rounded-2xl shadow-2xl mb-4 border border-gray-200 dark:border-gray-800 flex flex-col overflow-hidden animate-fade-in-up">
 

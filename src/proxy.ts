@@ -6,7 +6,28 @@ import { handleMarketingAttribution } from '@/lib/marketing'
 
 import { IDIV_DOC_PATHS } from '@/constants/paths'
 
+const RATE_LIMIT_MAP = new Map<string, { count: number, reset: number }>();
+const LIMIT = 100; // 100 requests
+const WINDOW = 60 * 1000; // 1 minute
+
 export async function middleware(request: NextRequest) {
+    const ip = request.ip || 'anonymous';
+    const now = Date.now();
+    const record = RATE_LIMIT_MAP.get(ip);
+
+    if (record) {
+        if (now > record.reset) {
+            RATE_LIMIT_MAP.set(ip, { count: 1, reset: now + WINDOW });
+        } else {
+            record.count++;
+            if (record.count > LIMIT) {
+                return new NextResponse('Too Many Requests', { status: 429 });
+            }
+        }
+    } else {
+        RATE_LIMIT_MAP.set(ip, { count: 1, reset: now + WINDOW });
+    }
+
     return await proxy(request);
 }
 

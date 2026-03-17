@@ -161,219 +161,217 @@ export async function GET(request: Request) {
     }
 }
 
+import { ApplicationSchema, MultiApplicationSchema } from '@/types/schemas';
+
 // POST /api/applications (Create Invoice/Application)
 export async function POST(request: Request) {
     try {
         const supabase = await createClient();
-        const { data: { user: actor } } = await supabase.auth.getUser(); // Actor (Admin or User)
+        const { data: { user: actor } } = await supabase.auth.getUser();
 
-        const body = await request.json();
-        const {
-            userId, visaId, visaName, status,
-            guestName, guestEmail, guestAddress, paymentMethod, customAmount,
-            description, verificationId, appliedAt,
-            // New fields
-            paymentReference, adminNotes, documents, attribution, quantity
-        } = body;
-
-        // Validation
-        if (!visaId) return NextResponse.json({ error: "Visa Product is required" }, { status: 400 });
-        if (!userId && !guestName) return NextResponse.json({ error: "Required: User or Guest Name" }, { status: 400 });
-
-        const finalUserId = (userId && userId.trim() !== "") ? userId : undefined;
-        const id = crypto.randomUUID();
-        const now = appliedAt ? new Date(appliedAt).toISOString() : new Date().toISOString();
-
-        // --- 1. GENERATE SLUG ---
-        let namePart = "guest";
-        if (finalUserId) {
-            const u = await prisma.user.findUnique({ where: { id: finalUserId } });
-            if (u && u.name) namePart = u.name.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
-        } else if (guestName) {
-            namePart = guestName.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
-        }
-
-        let passportPart = crypto.randomBytes(2).toString('hex').toLowerCase();
-        if (verificationId) {
-            const verif = await prisma.$queryRawUnsafe(`SELECT * FROM "Verification" WHERE id = $1`, verificationId);
-            if (verif && (verif as any[]).length > 0) {
-                const v = (verif as any[])[0];
-                if (v.passportNumber) passportPart = v.passportNumber.slice(-3).toLowerCase();
-            }
-        }
-
-        const visaPart = visaId === 'custom' ? 'cust' : visaId.slice(0, 4).toLowerCase();
-        let slug = `${namePart}-${passportPart}-${visaPart}`;
-
-        const checkSlug = await prisma.$queryRawUnsafe(`SELECT id FROM "visa_applications" WHERE slug = $1`, slug);
-        if ((checkSlug as any[]).length > 0) slug = `${slug}-${crypto.randomBytes(1).toString('hex')}`;
-
-        // --- 1.5 AUTO-CREATE VERIFICATION (If not provided) ---
-        let finalVerificationId = verificationId;
-        if (!finalVerificationId) {
-            try {
-                const newVerifId = crypto.randomUUID();
-                const verifSlug = crypto.randomBytes(4).toString('hex');
-                const passportNum = `DUMMY-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
-
-                await prisma.$executeRawUnsafe(`
-                    INSERT INTO "Verification" (
-                        "id", "userId", "fullName", "passportNumber", "visaType", 
-                        "status", "slug", "createdAt", "updatedAt", "issuedDate", "expiresAt"
-                    ) VALUES (
-                        $1, $2, $3, $4, $5, 
-                        $6, $7, $8::timestamptz, $8::timestamptz, $8::timestamptz, NULL
-                    )
-                `, newVerifId, finalUserId || null, finalUserId ? (await prisma.user.findUnique({ where: { id: finalUserId } }))?.name || guestName : guestName || "Guest", passportNum, visaName || visaId || 'Visa', status === 'Approved' || status === 'Active' ? 'VALID' : 'PENDING', verifSlug, now);
-
-                finalVerificationId = newVerifId;
-            } catch (verifErr) { console.error("Failed to auto-create verification:", verifErr); }
-        }
-
-        // --- 2. CREATE APPLICATION via Prisma ORM ---
-        const result = await (prisma.visaApplication as any).create({
-            data: {
-                id,
-                userId: finalUserId,
-                visaId: visaId,
-                visaName: visaName,
-                status: status || 'Pending',
-                guestName,
-                guestEmail,
-                paymentMethod,
-                customAmount: customAmount !== undefined && customAmount !== null ? String(customAmount) : null,
-                verificationId: finalVerificationId,
-                slug,
-                documents: documents || null,
-                attribution: attribution || null,
-                quantity: quantity ? parseInt(String(quantity)) : 1,
-            }
-        });
-
-        // --- 3. AUTO-CREATE DOCUMENT (Users Only) ---
-        if (finalUserId) {
-            try {
-                const webUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com'}/invoice/${slug}`;
-                const docId = crypto.randomUUID();
-                await prisma.$executeRawUnsafe(`
-                    INSERT INTO "Document" ("id", "userId", "name", "url", "type", "size", "createdAt", "updatedAt")
-                    VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz, $7::timestamptz)
-                `, docId, finalUserId, `INVOICE: ${visaName || visaId}`, webUrl, 'application/invoice', 'LINK', now);
-            } catch (err) { console.error("Failed to sync invoice document:", err); }
-        }
-
-    // --- 4. HARDENED INVOICE (Payment Lifecycle for Everyone) ---
-    console.log(`[API] Creating invoice for slug: ${slug}, application: ${id}`);
-    let createdInvoice = null;
-    try {
-        const baseServiceAmount = customAmount ? parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) : 0;
-        const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(baseServiceAmount, paymentMethod || 'Manual');
-
-        // Check if invoice ID (slug) already exists
-        const existingInv = await (prisma.invoice as any).findUnique({ where: { id: slug } });
-        if (existingInv) {
-            console.log(`[API] Invoice ${slug} already exists, appending suffix`);
-            slug = `${slug}-${crypto.randomBytes(1).toString('hex')}`;
-        }
+        const rawBody = await request.json();
         
-        createdInvoice = await (prisma.invoice as any).create({
-            data: {
-                id: slug,
-                userId: finalUserId || null,
-                applicationId: id,
-                amount: totalAmount,
-                serviceFee: serviceFee,
-                gatewayFee: gatewayFee,
-                pph23Amount: pph23Amount,
-                currency: "IDR",
-                status: (status === 'Paid' || status === 'Active') ? 'PAID' : 'UNPAID',
-                paymentMethod: paymentMethod || 'Manual',
-                paymentReference: paymentReference,
-                adminNotes: adminNotes || `Auto-generated from Application ${slug}`,
-                quantity: quantity ? parseInt(String(quantity)) : 1,
-                createdAt: now,
-                updatedAt: now
-            }
-        });
-        console.log(`[API] Invoice created successfully: ${createdInvoice.id}`);
-    } catch (invErr: any) { 
-        console.error("[API] CRITICAL: Hardened invoice creation failed!", invErr);
-        // If invoice fails, we should probably throw an error so the client knows
-        throw new Error(`Invoice Creation Failed: ${invErr.message || 'Database error'}`);
-    }
+        // Check if it's a multi-application request
+        const isMulti = Array.isArray(rawBody.applications);
+        const appsToProcess = isMulti 
+            ? MultiApplicationSchema.parse(rawBody).applications 
+            : [ApplicationSchema.parse(rawBody)];
 
-        // --- 4.5 REALTIME BROADCAST TO ADMIN ---
-        try {
-            const supabaseAdmin = createClient(); // Use common client for broadcast
-            // We use the same channel name as the admin dashboard listener
-            await (await supabaseAdmin).channel('admin_dashboard_global').send({
-                type: 'broadcast',
-                event: 'NEW_ORDER',
-                payload: {
-                    id: result.id,
-                    guestName: result.guestName,
-                    guestEmail: result.guestEmail,
-                    visaName: result.visaName,
-                    appliedAt: now,
-                    slug: slug
+        const results = await prisma.$transaction(async (tx) => {
+            const createdData = [];
+
+            for (const body of appsToProcess) {
+                const {
+                    userId, visaId, visaName, status,
+                    guestName, guestEmail, guestAddress, paymentMethod, customAmount,
+                    verificationId, appliedAt,
+                    paymentReference, adminNotes, documents, attribution, quantity
+                } = body;
+
+                const finalUserId = (userId && userId.trim() !== "") ? userId : undefined;
+                const id = crypto.randomUUID();
+                const now = appliedAt ? new Date(appliedAt).toISOString() : new Date().toISOString();
+
+                // --- 1. GENERATE SLUG ---
+                let namePart = "guest";
+                if (finalUserId) {
+                    const u = await tx.user.findUnique({ where: { id: finalUserId } });
+                    if (u && u.name) namePart = u.name.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                } else if (guestName) {
+                    namePart = guestName.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
                 }
-            });
-        } catch (realtimeErr) { console.error("Admin realtime broadcast failed", realtimeErr); }
 
-        // --- 5. AUDIT LOG ---
-        if (actor) {
-            // Assume Admin if accessing this route to create
-            // If checking role is hard, we log anyway
-            await logAdminAction(actor.id, "CREATE_APPLICATION", "Application", id, { slug, status, userId: finalUserId });
-        }
+                let passportPart = crypto.randomBytes(2).toString('hex').toLowerCase();
+                if (verificationId) {
+                    const verif = await tx.$queryRawUnsafe(`SELECT * FROM "Verification" WHERE id = $1`, verificationId) as any[];
+                    if (verif && verif.length > 0) {
+                        passportPart = verif[0].passportNumber?.slice(-3).toLowerCase() || passportPart;
+                    }
+                }
 
-        // --- 6. SEND CONFIRMATION EMAIL ---
-        if (guestEmail || finalUserId) {
-            const recipientEmail = guestEmail || (await prisma.user.findUnique({ where: { id: finalUserId } }))?.email;
+                const visaPart = visaId === 'custom' ? 'cust' : visaId.slice(0, 4).toLowerCase();
+                let slug = `${namePart}-${passportPart}-${visaPart}`;
+
+                const checkSlug = await tx.$queryRawUnsafe(`SELECT id FROM "visa_applications" WHERE slug = $1`, slug) as any[];
+                if (checkSlug.length > 0) slug = `${slug}-${crypto.randomBytes(1).toString('hex')}`;
+
+                // --- 1.5 AUTO-CREATE VERIFICATION (If not provided) ---
+                let finalVerificationId = verificationId;
+                if (!finalVerificationId) {
+                    const newVerifId = crypto.randomUUID();
+                    const verifSlug = crypto.randomBytes(4).toString('hex');
+                    const passportNum = `DUMMY-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
+                    const guestNameFinal = guestName || (finalUserId ? (await tx.user.findUnique({ where: { id: finalUserId } }))?.name : null) || "Guest";
+
+                    await tx.$executeRawUnsafe(`
+                        INSERT INTO "Verification" (
+                            "id", "userId", "fullName", "passportNumber", "visaType", 
+                            "status", "slug", "createdAt", "updatedAt", "issuedDate", "expiresAt"
+                        ) VALUES (
+                            $1, $2, $3, $4, $5, 
+                            $6, $7, $8::timestamptz, $8::timestamptz, $8::timestamptz, NULL
+                        )
+                    `, newVerifId, finalUserId || null, guestNameFinal, passportNum, visaName || visaId || 'Visa', status === 'Approved' || status === 'Active' ? 'VALID' : 'PENDING', verifSlug, now);
+
+                    finalVerificationId = newVerifId;
+                }
+
+                // --- 2. CREATE APPLICATION ---
+                const application = await (tx.visaApplication as any).create({
+                    data: {
+                        id,
+                        userId: finalUserId,
+                        visaId,
+                        visaName,
+                        status: status || 'Apply to Agent',
+                        guestName,
+                        guestEmail,
+                        paymentMethod,
+                        customAmount: customAmount ? String(customAmount) : null,
+                        verificationId: finalVerificationId,
+                        slug,
+                        documents: documents || null,
+                        attribution: attribution || null,
+                        quantity: quantity || 1,
+                    }
+                });
+
+                // --- 3. AUTO-CREATE DOCUMENT (Users Only) ---
+                if (finalUserId) {
+                    const webUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com'}/invoice/${slug}`;
+                    const docId = crypto.randomUUID();
+                    await tx.$executeRawUnsafe(`
+                        INSERT INTO "Document" ("id", "userId", "name", "url", "type", "size", "createdAt", "updatedAt")
+                        VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz, $7::timestamptz)
+                    `, docId, finalUserId, `INVOICE: ${visaName || visaId}`, webUrl, 'application/invoice', 'LINK', now);
+                }
+
+                // --- 4. HARDENED INVOICE ---
+                const baseServiceAmount = customAmount ? parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) : 0;
+                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(baseServiceAmount, paymentMethod || 'Manual');
+
+                const invoice = await (tx.invoice as any).create({
+                    data: {
+                        id: slug,
+                        userId: finalUserId || null,
+                        applicationId: id,
+                        amount: totalAmount,
+                        serviceFee,
+                        gatewayFee,
+                        pph23Amount,
+                        currency: "IDR",
+                        status: (status === 'Paid' || status === 'Active') ? 'PAID' : 'UNPAID',
+                        paymentMethod: paymentMethod || 'Manual',
+                        paymentReference,
+                        adminNotes: adminNotes || `Auto-generated from Application ${slug}`,
+                        quantity: quantity || 1,
+                        createdAt: now,
+                        updatedAt: now
+                    }
+                });
+
+                createdData.push({ application, invoice, slug, actor });
+            }
+            return createdData;
+        });
+
+        // --- SIDE EFFECTS (Post-Transaction) ---
+        for (const data of results) {
+            const { application, invoice, slug, actor } = data;
+            
+            // 4.5 REALTIME BROADCAST
+            try {
+                const supabaseAdmin = await createClient();
+                await supabaseAdmin.channel('admin_dashboard_global').send({
+                    type: 'broadcast',
+                    event: 'NEW_ORDER',
+                    payload: {
+                        id: application.id,
+                        guestName: application.guestName,
+                        guestEmail: application.guestEmail,
+                        visaName: application.visaName,
+                        appliedAt: application.appliedAt,
+                        slug
+                    }
+                });
+            } catch (realtimeErr) { console.error("Broadcast failed", realtimeErr); }
+
+            // 5. AUDIT LOG
+            if (actor) {
+                await logAdminAction(actor.id, "CREATE_APPLICATION", "Application", application.id, { slug, status: application.status, userId: application.userId });
+            }
+
+            // 6. EMAILS
+            const recipientEmail = application.guestEmail || (application.userId ? (await prisma.user.findUnique({ where: { id: application.userId } }))?.email : null);
             if (recipientEmail) {
                 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
-                const invoiceUrl = `${appUrl}/invoice/${slug}`;
-                
                 await sendConfirmationEmail(recipientEmail, {
-                    applicantName: guestName || (await prisma.user.findUnique({ where: { id: finalUserId! } }))?.name || 'Applicant',
-                    visaType: visaName || visaId,
-                    invoiceUrl: invoiceUrl,
+                    applicantName: application.guestName || 'Applicant',
+                    visaType: application.visaName || application.visaId,
+                    invoiceUrl: `${appUrl}/invoice/${slug}`,
                     orderId: slug,
-                    isPayPal: paymentMethod?.toLowerCase().includes('paypal')
+                    isPayPal: application.paymentMethod?.toLowerCase().includes('paypal')
                 });
             }
-        }
 
-        // --- 6.5 SEND USER IN-APP NOTIFICATION ---
-        if (finalUserId) {
+            // 7. NOTIFICATIONS
+            if (application.userId) {
+                try {
+                    await prisma.notification.create({
+                        data: {
+                            id: crypto.randomUUID(),
+                            userId: application.userId,
+                            title: "Application Received",
+                            message: `We received your application for ${application.visaName}.`,
+                            type: "info",
+                            actionLink: `/invoice/${slug}`,
+                            actionText: "View Invoice"
+                        }
+                    });
+                } catch (err) { console.error("Notification failed", err); }
+            }
+
+            // ADMIN EMAIL
             try {
-                await prisma.$executeRawUnsafe(`
-                    INSERT INTO "Notification" ("id", "userId", "title", "message", "type", "actionLink", "actionText", "createdAt")
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8::timestamptz)
-                `, crypto.randomUUID(), finalUserId, "Application Received", `We received your application for ${visaName || visaId}. Please review your invoice.`, "info", `/invoice/${slug}`, "View Invoice", now);
-            } catch (err) { console.error("User in-app notification failed", err); }
+                const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+                await sendAdminOrderNotification({
+                    orderType: "Visa Application / Invoice",
+                    applicantName: application.guestName || "System User",
+                    applicantEmail: application.guestEmail || "-",
+                    visaType: application.visaName || application.visaId,
+                    amount: application.customAmount || "Standard Rate",
+                    invoiceUrl: `${appUrl}/invoice/${slug}`,
+                    details: application.adminNotes || "No additional notes."
+                });
+            } catch (e) { console.error("Admin notification failed", e); }
         }
 
-        // --- 7. SEND ADMIN NOTIFICATION ---
-        try {
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
-            await sendAdminOrderNotification({
-                orderType: "Visa Application / Invoice",
-                applicantName: guestName || "System User",
-                applicantEmail: guestEmail || "-",
-                visaType: visaName || visaId,
-                amount: customAmount ? `${customAmount}` : "Standard Rate",
-                invoiceUrl: `${appUrl}/invoice/${slug}`,
-                details: body.adminNotes || "No additional notes."
-            });
-        } catch (e) { console.error("Admin notification failed", e); }
-
-        return NextResponse.json({
-            application: result,
-            invoice: createdInvoice
-        });
+        return NextResponse.json(isMulti ? { results } : results[0]);
 
     } catch (error: any) {
+        if (error.name === 'ZodError') {
+            return NextResponse.json({ error: "Validation Failed", details: error.errors }, { status: 400 });
+        }
         console.error("Create application error:", error);
         return NextResponse.json({ error: error.message || "Failed to create" }, { status: 500 });
     }

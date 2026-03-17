@@ -9,12 +9,13 @@ import { motion } from 'framer-motion';
 const ADDONS = [
     {
         id: 'idiv-card',
+        sku: 'idiv-card',
         title: 'Physical IDiv Card™',
         subtitle: 'The Gold Standard of Visa Identification',
         price: '20.00',
         currency: 'USD',
         description: 'Get a premium physical or digital IDiv card that mirrors your visa data. Features 3D anti-counterfeit effects, Smart QR verification, and instant authenticity checks.',
-        image: '/images/IndonesianVisas/IDiv-Mockup.webp', // Assuming this exists or will be generated
+        image: '/images/IndonesianVisas/IDiv-Mockup.webp', 
         features: [
             'Instant QR Verification',
             '3D Anti-Counterfeit Layer',
@@ -27,6 +28,7 @@ const ADDONS = [
     },
     {
         id: 'fast-track',
+        sku: 'fast-track',
         title: 'VIP Fast-Track Approval',
         subtitle: 'Skip the Queue & Get Approved Faster',
         price: '45.00',
@@ -42,10 +44,94 @@ const ADDONS = [
         cta: 'Add VIP Fast-Track',
         link: '/apply',
         hot: false
+    },
+    {
+        id: 'concierge',
+        sku: 'concierge',
+        title: 'Business Concierge',
+        subtitle: 'Full Service Legal & Local Support',
+        price: '150.00',
+        currency: 'USD',
+        description: 'Dedicated legal concierge for high-net-worth individuals and business investors. Includes airport pickup, local banking setup, and 1-on-1 legal consulting.',
+        image: '/images/IndonesianVisas/Concierge.webp',
+        features: [
+            'Airport VIP Meet & Greet',
+            'Local Banking Setup',
+            'Legal Consultation',
+            'Property Search Aid'
+        ],
+        cta: 'Select Concierge',
+        link: '/apply',
+        hot: false
+    },
+    {
+        id: 'courier',
+        sku: 'courier',
+        title: 'Express Courier Service',
+        subtitle: 'Secure Passport & Document Handling',
+        price: '35.00',
+        currency: 'USD',
+        description: 'Safety first! We provide secure door-to-door courier service for your passport and important documents across Bali and Jakarta.',
+        image: '/images/IndonesianVisas/Courier.webp',
+        features: [
+            'Door-to-Door Pickup',
+            'Real-time Tracking',
+            'Secured Packaging',
+            'Insured Handling'
+        ],
+        cta: 'Book Courier',
+        link: '/apply',
+        hot: false
     }
 ];
 
+import { useApplication } from '@/components/application/ApplicationContext';
+
 export default function AddOnPage() {
+    const { openPanel } = useApplication();
+    const [dynamicAddons, setDynamicAddons] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchAddons = async () => {
+            try {
+                const res = await fetch('/api/addons');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        setDynamicAddons(data);
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to fetch addons", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAddons();
+    }, []);
+
+    // Merge static descriptions with dynamic price/status if SKU matches
+    const displayedAddons = dynamicAddons.length > 0 
+        ? dynamicAddons.filter(a => a.isActive).map(a => {
+            const staticMatch = ADDONS.find(s => s.id === a.sku);
+            return {
+                id: a.id,
+                sku: a.sku,
+                title: a.name || staticMatch?.title,
+                subtitle: a.shortDesc || staticMatch?.subtitle,
+                price: String(a.price),
+                currency: 'IDR',
+                description: a.description || staticMatch?.description,
+                image: staticMatch?.image || '/images/IndonesianVisas/IDiv-Mockup.webp',
+                features: staticMatch?.features || ['Priority Processing', 'Premium Support'],
+                cta: staticMatch?.cta || 'Order Now',
+                link: '/apply',
+                hot: a.category === 'Identity'
+            };
+        })
+        : ADDONS;
+
     return (
         <Box sx={{ minHeight: '100vh', pt: { xs: 12, md: 16 }, pb: 10, bgcolor: 'background.default' }}>
             <Container maxWidth="lg">
@@ -59,7 +145,7 @@ export default function AddOnPage() {
                 </Box>
 
                 <Grid container spacing={4}>
-                    {ADDONS.map((item, index) => (
+                    {displayedAddons.map((item, index) => (
                         <Grid size={{ xs: 12, md: 6 }} key={item.id}>
                             <motion.div
                                 initial={{ opacity: 0, y: 30 }}
@@ -97,7 +183,7 @@ export default function AddOnPage() {
                                     )}
                                     <Box sx={{ height: 240, bgcolor: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         {/* Fallback icon if image doesn't exist */}
-                                        {item.id === 'idiv-card' ? (
+                                        {item.sku === 'idiv-card' ? (
                                             <CreditCard size={80} color="#0369a1" />
                                         ) : (
                                             <ShieldCheck size={80} color="#0369a1" />
@@ -122,24 +208,25 @@ export default function AddOnPage() {
                                         <Box display="flex" justifyContent="space-between" alignItems="center">
                                             <Box>
                                                 <Typography variant="caption" sx={{ color: 'text.secondary', letterSpacing: 1 }}>STARTING FROM</Typography>
-                                                <Typography variant="h4" fontWeight="900" sx={{ color: 'text.primary' }}>${item.price}</Typography>
+                                                <Typography variant="h4" fontWeight="900" sx={{ color: 'text.primary' }}>
+                                                    {item.currency === 'USD' ? '$' : 'IDR '}{item.currency === 'IDR' ? Number(item.price).toLocaleString() : item.price}
+                                                </Typography>
                                             </Box>
-                                            <Link href={item.link} passHref legacyBehavior>
-                                                <Button 
-                                                    variant="contained" 
-                                                    size="large"
-                                                    endIcon={<ArrowRight size={18} />}
-                                                    sx={{ 
-                                                        borderRadius: 4, 
-                                                        px: 3, 
-                                                        py: 1.5,
-                                                        bgcolor: '#0369a1',
-                                                        '&:hover': { bgcolor: '#075985' }
-                                                    }}
-                                                >
-                                                    Order Now
-                                                </Button>
-                                            </Link>
+                                            <Button 
+                                                variant="contained" 
+                                                size="large"
+                                                onClick={openPanel}
+                                                endIcon={<ArrowRight size={18} />}
+                                                sx={{ 
+                                                    borderRadius: 4, 
+                                                    px: 3, 
+                                                    py: 1.5,
+                                                    bgcolor: '#0369a1',
+                                                    '&:hover': { bgcolor: '#075985' }
+                                                }}
+                                            >
+                                                Order Now
+                                            </Button>
                                         </Box>
                                     </CardContent>
                                 </Card>

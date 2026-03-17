@@ -105,7 +105,7 @@ export default function InvoicePage() {
     // --- PAYMENT DATA LOGIC ---
     // If unpaid, show all options or specific instruction.
     // If paid, maybe show payment method used if captured, or just PAID status.
-    const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Approved"].includes(invoiceData.status);
+    const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(invoiceData.status);
 
 
     const handleDownloadPDF = async () => {
@@ -414,6 +414,25 @@ export default function InvoicePage() {
                                     }
                                 </Typography>
                             </Box>
+                        </Box>
+                    </Box>
+
+                    {/* v3.9 - APPLICATION STATUS BADGE */}
+                    <Box sx={{ mt: 4, mb: 1, display: 'flex', justifyContent: 'flex-start' }}>
+                        <Box sx={{ 
+                            px: 3, 
+                            py: 1, 
+                            bgcolor: 'rgba(3, 105, 161, 0.1)', 
+                            borderRadius: 2, 
+                            borderLeft: '4px solid #0369a1',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1.5
+                        }}>
+                            <Box sx={{ width: 8, height: 8, bgcolor: '#0369a1', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
+                            <Typography variant="subtitle2" fontWeight="800" sx={{ color: '#0369a1', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                Application Status: {invoiceData.status || 'Processing'}
+                            </Typography>
                         </Box>
                     </Box>
 

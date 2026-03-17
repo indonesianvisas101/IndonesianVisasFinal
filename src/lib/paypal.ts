@@ -56,7 +56,7 @@ export async function createPayPalOrder(amount: number, currency: string = 'USD'
                     reference_id: invoiceId,
                     amount: {
                         currency_code: currency,
-                        value: amount.toFixed(2),
+                        value: currency === 'IDR' ? Math.round(amount).toString() : amount.toFixed(2),
                     },
                     description: `Indonesian Visa Services - Invoice #${invoiceId}`,
                 },

@@ -85,7 +85,7 @@ const HowItWorks = ({ dict }: { dict?: any }) => {
                     {[
                         { icon: FileText, title: t.step1_title || "1. Fill Application", desc: t.step1_desc || "Complete our simple online form with your travel details. Our smart form guides you through each step, ensuring you provide all necessary information correctly." },
                         { icon: Search, title: t.step2_title || "2. We Process", desc: t.step2_desc || "Our expert team reviews and submits your application. We handle all communication with immigration authorities and keep you updated every step of the way." },
-                        { icon: Plane, title: t.step3_title || "3. Travel Ready", desc: t.step3_desc || "Receive your approved visa via email. Print or save digitally - you're ready to explore Indonesia! We also provide post-approval support if needed." }
+                        { icon: Plane, title: t.step3_title || "3. Digital Delivery", desc: t.step3_desc || "Your e-Visa is delivered directly to your email and IDiv dashboard. Our support continues after approval to ensure a smooth entry and stay in Indonesia." }
                     ].map((step, idx) => (
                         <motion.div 
                             key={idx}

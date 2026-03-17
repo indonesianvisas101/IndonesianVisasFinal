@@ -59,7 +59,8 @@ export default function CentralInfoPopup({ isOpen, onClose, info }: CentralInfoP
                                         boxShadow: '0 30px 60px rgba(0,0,0,0.2)',
                                         p: { xs: 4, sm: 6 },
                                         position: 'relative',
-                                        overflow: 'hidden'
+                                        overflowY: 'auto',
+                                        maxHeight: { xs: '60vh', sm: '85vh' }
                                     }}
                                 >
                                     <IconButton
@@ -69,6 +70,7 @@ export default function CentralInfoPopup({ isOpen, onClose, info }: CentralInfoP
                                             top: 20, 
                                             right: 20, 
                                             bgcolor: 'rgba(0,0,0,0.03)',
+                                            zIndex: 100,
                                             '&:hover': { bgcolor: 'rgba(0,0,0,0.08)' }
                                         }}
                                     >

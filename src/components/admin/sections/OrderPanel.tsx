@@ -27,6 +27,7 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import { formatCurrency } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 import DocumentViewer from "../DocumentViewer";
+import { COUNTRY_DATA } from "@/constants/countries";
 
 export default function OrderPanel() {
     const [orders, setOrders] = useState<any[]>([]);
@@ -65,8 +66,9 @@ export default function OrderPanel() {
             (order.visaName || "").toLowerCase().includes(searchQuery.toLowerCase());
         
         if (filter === "all") return matchesSearch;
-        if (filter === "pending") return matchesSearch && order.status === "Pending";
-        if (filter === "paid") return matchesSearch && ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Approved"].includes(order.status);
+        if (filter === "all") return matchesSearch;
+        if (filter === "pending") return matchesSearch && (order.status === "Pending" || order.status === "Apply to Agent" || order.status === "Draft");
+        if (filter === "paid") return matchesSearch && ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(order.status);
         return matchesSearch;
     });
 
@@ -162,7 +164,7 @@ export default function OrderPanel() {
                                 </TableCell>
                             </TableRow>
                         ) : filteredOrders.map((order) => {
-                            const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Approved"].includes(order.status);
+                            const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(order.status);
                             const date = new Date(order.appliedAt || order.created_at).toLocaleDateString();
                             
                             return (
@@ -198,9 +200,27 @@ export default function OrderPanel() {
                                     <TableCell>
                                         <Chip
                                             label={order.status}
-                                            color={isPaid ? 'success' : order.status === 'Rejected' ? 'error' : 'warning'}
+                                            color={isPaid ? 'success' : order.status === 'Reject' || order.status === 'Rejected' ? 'error' : 'warning'}
                                             size="small"
                                         />
+                                        {(() => {
+                                            const countryInfo = COUNTRY_DATA.find(c => c.name === order.country);
+                                            if (countryInfo?.isSpecial) {
+                                                return (
+                                                    <Box sx={{ mt: 0.5 }}>
+                                                        <Chip label="CALLING VISA" size="small" sx={{ bgcolor: '#ef4444', color: 'white', fontWeight: 'bold', fontSize: '10px', height: 20 }} />
+                                                    </Box>
+                                                );
+                                            }
+                                            if (countryInfo?.isUnregistered) {
+                                                return (
+                                                    <Box sx={{ mt: 0.5 }}>
+                                                        <Chip label="UNREGISTERED" size="small" sx={{ bgcolor: '#f97316', color: 'white', fontWeight: 'bold', fontSize: '10px', height: 20 }} />
+                                                    </Box>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
                                     </TableCell>
                                     <TableCell>
                                         {order.documents && (() => {

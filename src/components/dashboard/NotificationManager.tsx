@@ -104,7 +104,7 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ userId }) => 
         <div className="flex gap-3 mt-6">
           <button
             onClick={handleRequest}
-            className="flex-1 bg-primary text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+            className="flex-1 bg-[#0369a1] text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#075985] transition-all shadow-lg shadow-blue-500/20"
           >
             {step === 1 ? "Yes, Keep Me Updated" : "Allow in Browser"}
             <Check size={18} />

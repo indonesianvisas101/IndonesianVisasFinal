@@ -59,7 +59,7 @@ export default function InvoicingTab() {
         paymentMethod: "",
         description: "",
         verificationId: "",
-        status: "Pending", // Default
+        status: "Apply to Agent", // Default
         appliedAt: "", // For backdating
         // New
         paymentReference: "",
@@ -209,8 +209,8 @@ export default function InvoicingTab() {
         const linkedInvoice = inv.invoice || inv; // Handle raw invoice or nested invoice
         setEditingInvoice(inv); // FIX: Must set editing invoice state for handleUpdate to proceed
         setEditFormData({
-            status: inv.status || "Pending",
-            paymentStatus: linkedInvoice.status === 'Paid' || linkedInvoice.status === 'Active' || linkedInvoice.status === 'PAID' ? 'PAID' : 'UNPAID', // Heuristic
+            status: inv.status || "Apply to Agent",
+            paymentStatus: ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved", "PAID"].includes(inv.status) || linkedInvoice.status === 'PAID' ? 'PAID' : 'UNPAID', // Heuristic
             paymentReference: linkedInvoice.paymentReference || '',
             adminNotes: linkedInvoice.adminNotes || '',
             guestName: inv.guestName || inv.user?.name || '',
@@ -259,7 +259,7 @@ export default function InvoicingTab() {
             paymentMethod: "",
             description: "",
             verificationId: "",
-            status: "Pending",
+            status: "Apply to Agent",
             appliedAt: "",
             paymentReference: "",
             adminNotes: ""
@@ -311,7 +311,7 @@ export default function InvoicingTab() {
                             ) : invoices.map((inv) => {
                                 const customerName = inv.user?.name || inv.guestName || "Guest Customer";
                                 const customerEmail = inv.user?.email || inv.guestEmail || "-";
-                                const isPaid = inv.status === 'Paid' || inv.status === 'Active';
+                                const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(inv.status);
                                 return (
                                     <TableRow key={inv.id} hover>
                                         <TableCell>
@@ -332,7 +332,7 @@ export default function InvoicingTab() {
                                         <TableCell>
                                             <Chip
                                                 label={inv.status}
-                                                color={isPaid ? 'success' : inv.status === 'Rejected' ? 'error' : 'warning'}
+                                            color={isPaid ? 'success' : inv.status === 'Reject' || inv.status === 'Rejected' ? 'error' : 'warning'}
                                                 size="small"
                                             />
                                         </TableCell>
@@ -492,9 +492,17 @@ export default function InvoicingTab() {
                                 value={formData.status}
                                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                             >
-                                <MenuItem value="Pending">Pending</MenuItem>
-                                <MenuItem value="Paid">Paid</MenuItem>
+                                <MenuItem value="Apply to Agent">Apply to Agent</MenuItem>
+                                <MenuItem value="Draft">Draft</MenuItem>
+                                <MenuItem value="Review by Agent">Review by Agent</MenuItem>
+                                <MenuItem value="On Going">On Going</MenuItem>
+                                <MenuItem value="Preparing for submission">Preparing for submission</MenuItem>
+                                <MenuItem value="Submited">Submited</MenuItem>
+                                <MenuItem value="Process by Immigration">Process by Immigration</MenuItem>
+                                <MenuItem value="Approved">Approved</MenuItem>
+                                <MenuItem value="Reject">Reject</MenuItem>
                                 <MenuItem value="Active">Active</MenuItem>
+                                <MenuItem value="Expired">Expired</MenuItem>
                             </TextField>
                         </Stack>
 
@@ -559,14 +567,16 @@ export default function InvoicingTab() {
                             value={editFormData.status}
                             onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
                         >
-                            <MenuItem value="Pending">Pending</MenuItem>
+                            <MenuItem value="Apply to Agent">Apply to Agent</MenuItem>
+                            <MenuItem value="Draft">Draft</MenuItem>
                             <MenuItem value="Review by Agent">Review by Agent</MenuItem>
                             <MenuItem value="On Going">On Going</MenuItem>
                             <MenuItem value="Preparing for submission">Preparing for submission</MenuItem>
                             <MenuItem value="Submited">Submited</MenuItem>
+                            <MenuItem value="Process by Immigration">Process by Immigration</MenuItem>
                             <MenuItem value="Approved">Approved</MenuItem>
-                            <MenuItem value="Active">Active (Complete)</MenuItem>
                             <MenuItem value="Reject">Reject</MenuItem>
+                            <MenuItem value="Active">Active</MenuItem>
                             <MenuItem value="Expired">Expired</MenuItem>
                         </TextField>
 

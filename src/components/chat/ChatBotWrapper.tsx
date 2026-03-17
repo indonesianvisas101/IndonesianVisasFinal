@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import React from 'react';
 import { runWhenIdle } from '@/utils/scheduler';
+import { usePathname } from 'next/navigation';
 
 const ChatBot = dynamic(() => import('./ChatBot'), {
     ssr: false,
@@ -12,6 +13,7 @@ const ChatBot = dynamic(() => import('./ChatBot'), {
 export default function ChatBotWrapper() {
     const [shouldLoad, setShouldLoad] = React.useState(false);
     const [opacity, setOpacity] = React.useState(0);
+    const pathname = usePathname();
 
     React.useEffect(() => {
         // Strict 5-second delay to ensure it avoids blocking the main thread during PageSpeed Insights testing
@@ -26,6 +28,10 @@ export default function ChatBotWrapper() {
     }, []);
 
     if (!shouldLoad) return null;
+
+    // Only show on home page (various locales)
+    const isHome = pathname === '/' || pathname === '/en' || pathname === '/id';
+    if (!isHome) return null;
 
     return (
         <div style={{ opacity: opacity, transition: 'opacity 3s ease-in-out' }}>

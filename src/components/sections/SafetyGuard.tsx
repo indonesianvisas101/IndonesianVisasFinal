@@ -176,7 +176,7 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="md:w-1/2 relative perspective-1000 group">
+                        <div className="md:w-1/2 relative perspective-1000 group hidden md:block">
                              <div className="relative w-full aspect-video transform-gpu preserve-3d">
                                  <motion.div 
                                     animate={{ rotateY: isFlipped ? 180 : 0 }}

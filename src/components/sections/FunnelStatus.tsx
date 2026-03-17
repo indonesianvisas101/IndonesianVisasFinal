@@ -7,37 +7,97 @@ import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
 import { Info, BarChart3, Users, Zap, Search } from "lucide-react";
 
 const FunnelStatus = ({ dict }: { dict?: any }) => {
-    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
+    const [activePopup, setActivePopup] = React.useState<StaticPopupInfo | null>(null);
 
-    const funnelInfo: StaticPopupInfo = {
-        id: 'funnel-status-info',
-        title: 'Live Application Funnel',
-        icon: <BarChart3 size={32} />,
-        content: (
-            <div className="space-y-4">
-                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Real-Time Processing</p>
-                <p className="text-base leading-relaxed">
-                    Our **Live Funnel** shows the current operational load of our system. We maintain transparency to ensure you know exactly where your application stands.
-                </p>
-                <div className="space-y-3">
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex gap-3 items-start">
-                        <Users size={18} className="text-blue-500 mt-1" />
-                        <div>
-                            <p className="text-sm font-bold">Queue Management</p>
-                            <p className="text-xs text-slate-500">We balance load across multiple immigration officers to maintain sub-4-hour processing times.</p>
-                        </div>
-                    </div>
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex gap-3 items-start">
-                        <Zap size={18} className="text-green-500 mt-1" />
-                        <div>
-                            <p className="text-sm font-bold">Priority Processing</p>
-                            <p className="text-xs text-slate-500">Golden/VIP applications are funneled through specialized high-speed lanes.</p>
-                        </div>
+    const t = dict?.funnel_status || {
+        title: "Live Application Funnel",
+        subtitle: "How we process thousands of successful visas every month",
+        stages: [
+            {
+                title: "Pre-Screening",
+                desc: "Every document is manually checked by our experts within 30 minutes of submission.",
+                stats: "99.9% Accuracy"
+            },
+            {
+                title: "Verification",
+                desc: "Identity and document authenticity verification with Indonesian Immigration database.",
+                stats: "Secure Check"
+            },
+            {
+                title: "Immigration Process",
+                desc: "Direct submission to the official system. We monitor status updates every 4 hours.",
+                stats: "Fast Processing"
+            },
+            {
+                title: "Visa Issued",
+                desc: "Digital visa delivery directly to your email and dashboard. Ready to fly!",
+                stats: "Success Guaranteed"
+            }
+        ],
+        live_label: "Live Processing Status",
+        queue_label: "In Processing Queue",
+        issued_label: "Last Issued",
+        live_active_template: "{n} Applications currently in queue",
+        live_last_issued_template: "Last visa issued {t}"
+    };
+    const pt = t.popups || {};
+
+    const stagePopups: Record<number, StaticPopupInfo> = {
+        0: {
+            id: 'funnel-stage-1',
+            title: pt.stage1?.title || 'Rapid Document Audit',
+            icon: <ClipboardCheck size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Pre-Screening Quality</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.stage1?.content || 'Every file you upload is reviewed by our compliance bots and human experts within 30 minutes.'}
+                    </p>
+                </div>
+            )
+        },
+        1: {
+            id: 'funnel-stage-2',
+            title: pt.stage2?.title || 'Official Database Sync',
+            icon: <ShieldEllipsis size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-purple-600 uppercase tracking-widest">Identity Verification</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.stage2?.content || 'We cross-check your identity against the official immigration database.'}
+                    </p>
+                </div>
+            )
+        },
+        2: {
+            id: 'funnel-stage-3',
+            title: pt.stage3?.title || 'Real-Time Submission',
+            icon: <Clock size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-amber-600 uppercase tracking-widest">Active Processing</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.stage3?.content || 'Your application is injected directly into the official portal as a verified draft.'}
+                    </p>
+                </div>
+            )
+        },
+        3: {
+            id: 'funnel-stage-4',
+            title: 'IDIV Activation',
+            icon: <CheckCircle2 size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-green-600 uppercase tracking-widest">Final Issuance</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.stage4?.content || 'Upon approval, your digital visa is generated and your **Official Sponsor ID (IDIV)** is activated. You receive a secure PDF and a permanent record.'}
+                    </p>
+                    <div className="p-4 bg-green-50 rounded-2xl border border-green-100 text-sm">
+                        <CheckCircle2 size={16} className="inline mr-1 text-green-500" /> Success Guaranteed and Verified.
                     </div>
                 </div>
-                <p className="text-xs text-slate-400 italic">Data is synchronized with the Indonesian General Directorate of Immigration every 5 minutes.</p>
-            </div>
-        )
+            )
+        }
     };
 
     const [stats, setStats] = React.useState({ queue: 0, lastIssued: "" });
@@ -81,49 +141,19 @@ const FunnelStatus = ({ dict }: { dict?: any }) => {
         <CheckCircle2 size={32} key="4" />
     ];
 
-    // Falls back to English if dictionary items are missing
-    const t = dict?.funnel_status || {
-        title: "Live Application Funnel",
-        subtitle: "How we process thousands of successful visas every month",
-        stages: [
-            {
-                title: "Pre-Screening",
-                desc: "Every document is manually checked by our experts within 30 minutes of submission.",
-                stats: "99.9% Accuracy"
-            },
-            {
-                title: "Verification",
-                desc: "Identity and document authenticity verification with Indonesian Immigration database.",
-                stats: "Secure Check"
-            },
-            {
-                title: "Immigration Process",
-                desc: "Direct submission to the official system. We monitor status updates every 4 hours.",
-                stats: "Fast Processing"
-            },
-            {
-                title: "Visa Issued",
-                desc: "Digital visa delivery directly to your email and dashboard. Ready to fly!",
-                stats: "Success Guaranteed"
-            }
-        ],
-        live_label: "Live Processing Status",
-        live_active_template: "{n} Applications currently in queue",
-        live_last_issued_template: "Last visa issued {t}"
-    };
+
 
     return (
         <section className={styles.funnelSection}>
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
                     <h2 
-                        className="text-3xl md:text-5xl font-black mode-aware-text cursor-help flex items-center justify-center gap-3 group"
-                        onClick={() => setIsPopupOpen(true)}
+                        className="text-3xl md:text-5xl font-black mode-aware-text"
                     >
-                        {t.title} <Info size={24} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                        {t.title}
                     </h2>
                     
-                    <CentralInfoPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} info={funnelInfo} />
+                    <CentralInfoPopup isOpen={!!activePopup} onClose={() => setActivePopup(null)} info={activePopup} />
                     <p className="text-lg mode-aware-subtext">
                         {t.subtitle}
                     </p>
@@ -131,12 +161,19 @@ const FunnelStatus = ({ dict }: { dict?: any }) => {
 
                 <div className={styles.funnelGrid}>
                     {t.stages.map((stage: any, index: number) => (
-                        <div key={index} className={`${styles.funnelCard} glass-card`}>
+                        <div 
+                            key={index} 
+                            onClick={() => setActivePopup(stagePopups[index])}
+                            className={`${styles.funnelCard} glass-card cursor-help group`}
+                        >
                             <div className={styles.iconWrapper}>
                                 {icons[index]}
                                 <div className={styles.stepNumber}>{index + 1}</div>
                             </div>
-                            <h3 className="text-xl font-bold mode-aware-text mt-6 mb-3">{stage.title}</h3>
+                            <h3 className="text-xl font-bold mode-aware-text mt-6 mb-3 flex items-center justify-between gap-2">
+                                {stage.title}
+                                <Info size={16} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </h3>
                             <p className="text-sm mode-aware-subtext leading-relaxed mb-4">
                                 {stage.desc}
                             </p>

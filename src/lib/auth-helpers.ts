@@ -32,7 +32,7 @@ export async function getAdminAuth() {
     // Try to find user in our public.users table
     let dbUser = await prisma.user.findUnique({
         where: { id: user.id },
-        select: { role: true, email: true }
+        select: { id: true, role: true, email: true }
     });
 
     // AUTO-PROVISIONING: If found in auth but not in public.users, or if role is wrong but it's the boss

@@ -1,0 +1,20 @@
+export const IDIV_DOC_PATHS = [
+    '/idiv',
+    '/Digital-Visa-Identity-Platform',
+    '/how-the-visa-identity-system-works',
+    '/sponsor-id-system',
+    '/visa-identity-card',
+    '/issued-and-expiry-validation',
+    '/visa-sponsor-verification',
+    '/qr-verification-system',
+    '/online-verification-page',
+    '/how-to-verify-a-visa-sponsor',
+    '/why-travelers-need-a-sponsor-id',
+    '/using-sponsor-id-for-villa-rental',
+    '/using-sponsor-id-for-vehicle-rentals',
+    '/using-sponsor-id-for-business-meetings',
+    '/visa-identity-security',
+    '/how-qr-validation-prevents-fraud',
+    '/visa-identity-validity-rules',
+    '/visa-sponsor-system-explained'
+];

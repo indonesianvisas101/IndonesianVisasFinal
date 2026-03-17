@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: "Indonesian Visas | Fast & Reliable Application Service",
     description: "Apply for your Indonesia Visa online. Tourist VOA, B211A, KITAS and more. Trusted agents with 99% success rate based in Bali.",
     alternates: {
-      canonical: `https://indonesianvisas.com/${locale}`,
+      canonical: locale === 'en' ? 'https://indonesianvisas.com' : `https://indonesianvisas.com/${locale}`,
     },
     openGraph: {
       title: "Indonesian Visas | Fast Office Bali",

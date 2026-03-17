@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import type { Visa } from '@prisma/client';
 import { logAdminAction } from '@/lib/auditLogger';
+import { getAdminAuth } from '@/lib/auth-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -95,6 +96,9 @@ export async function GET() {
 // ---------- POST ----------
 export async function POST(request: Request) {
     try {
+        const { authorized, error, status, dbUser } = await getAdminAuth();
+        if (!authorized) return NextResponse.json({ error }, { status });
+
         const body = await request.json();
 
         const newVisa = await prisma.visa.create({
@@ -130,6 +134,9 @@ export async function POST(request: Request) {
 // ---------- PUT ----------
 export async function PUT(request: Request) {
     try {
+        const { authorized, error, status, dbUser } = await getAdminAuth();
+        if (!authorized) return NextResponse.json({ error }, { status });
+
         const body = await request.json();
 
         if (!body.id) {
@@ -150,13 +157,15 @@ export async function PUT(request: Request) {
         // SECTION 4 - PRICE OVERRIDE LOGIC
         if (existingVisa && existingVisa.price !== safePrice) {
             // Log the override strictly using AuditLog
-            await logAdminAction(
-                'admin', // Or get current user ID if available, but 'admin' is safe here given the context
-                'PRICE_OVERRIDE_BY_BOSS',
-                'Visa',
-                body.id,
-                { oldPrice: existingVisa.price, newPrice: safePrice }
-            );
+            if (dbUser) {
+                await logAdminAction(
+                    dbUser.id,
+                    'PRICE_OVERRIDE_BY_BOSS',
+                    'Visa',
+                    body.id,
+                    { oldPrice: existingVisa.price, newPrice: safePrice }
+                );
+            }
         }
 
         const updatedVisa = await prisma.visa.upsert({
@@ -205,6 +214,9 @@ export async function PUT(request: Request) {
 // ---------- DELETE ----------
 export async function DELETE(request: Request) {
     try {
+        const { authorized, error, status, dbUser } = await getAdminAuth();
+        if (!authorized) return NextResponse.json({ error }, { status });
+
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
@@ -216,6 +228,10 @@ export async function DELETE(request: Request) {
         }
 
         await prisma.visa.delete({ where: { id } });
+
+        if (dbUser) {
+            await logAdminAction(dbUser.id, "DELETE_VISA", "Visa", id, {});
+        }
 
         return NextResponse.json({ success: true });
     } catch {

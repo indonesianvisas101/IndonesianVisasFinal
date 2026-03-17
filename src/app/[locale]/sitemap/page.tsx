@@ -71,6 +71,8 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             links: [
                 { name: "Company Registration", href: `/${locale}/company-formation` },
                 { name: "Travel Hub", href: `/${locale}/travel` },
+                { name: "Guide Business Bali", href: "https://bali.enterprises/strategic-entry-blueprint-bali" },
+                { name: "Ultimate Start Business Bali", href: "https://bali.enterprises/starting-business-bali-guide" },
                 { name: "Affiliate Program", href: `/${locale}/affiliate` }
             ]
         },
@@ -173,23 +175,29 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             ]
         },
         {
-            title: "Visa Process",
-            icon: FileText,
+            title: "IDIV Platform Docs",
+            icon: BookOpen,
             links: [
-                { name: "Processing Times", href: `/${locale}/visa-process/visa-processing-time-indonesia` },
-                { name: "Visa Costs", href: `/${locale}/visa-process/visa-cost-indonesia` },
-                { name: "Extension Costs", href: `/${locale}/visa-process/visa-extension-cost-bali` },
-                { name: "How to Apply", href: `/${locale}/visa-process/how-to-apply-indonesia-visa` }
+                { name: "Platform Overview", href: `/${locale}/idiv` },
+                { name: "Identity Platform Manual", href: `/${locale}/Digital-Visa-Identity-Platform` },
+                { name: "How the System Works", href: `/${locale}/how-the-visa-identity-system-works` },
+                { name: "Sponsor ID Card", href: `/${locale}/visa-identity-card` },
+                { name: "QR Verification Guide", href: `/${locale}/qr-verification-system` },
+                { name: "Verification Operator Guide", href: `/${locale}/how-to-verify-a-visa-sponsor` },
+                { name: "Identity Security Hub", href: `/${locale}/visa-identity-security` }
             ]
         },
         {
-            title: "Immigration System",
-            icon: Landmark,
+            title: "Identity Use Cases",
+            icon: Users,
             links: [
-                { name: "System Overview", href: `/${locale}/immigration-system/indonesia-immigration-system` },
-                { name: "Types of Visas", href: `/${locale}/immigration-system/types-of-indonesia-visas` },
-                { name: "Bali Entry Requirements", href: `/${locale}/immigration-system/bali-entry-requirements` },
-                { name: "Visa Requirements", href: `/${locale}/immigration-system/indonesia-visa-requirements` }
+                { name: "Villa Rental Guide", href: `/${locale}/using-sponsor-id-for-villa-rental` },
+                { name: "Vehicle Rental Guide", href: `/${locale}/using-sponsor-id-for-vehicle-rentals` },
+                { name: "Business Meetings", href: `/${locale}/using-sponsor-id-for-business-meetings` },
+                { name: "Why You Need a Sponsor ID", href: `/${locale}/why-travelers-need-a-sponsor-id` },
+                { name: "Visa Sponsor Explained", href: `/${locale}/visa-sponsor-system-explained` },
+                { name: "Anti-Fraud Protocols", href: `/${locale}/how-qr-validation-prevents-fraud` },
+                { name: "Validity Rules", href: `/${locale}/visa-identity-validity-rules` }
             ]
         }
     ];

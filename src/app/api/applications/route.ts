@@ -6,6 +6,7 @@ import { logAdminAction } from '@/lib/auditLogger';
 import { createClient } from '@/utils/supabase/server'; // Use server client
 import { sendConfirmationEmail, sendAdminOrderNotification } from '@/lib/email';
 import { calculateOrderFees } from '@/utils/feeCalculator';
+import { getAdminAuth } from '@/lib/auth-helpers';
 
 // GET /api/applications?userId=... OR ?id=... OR ?slug=... OR (no params for all)
 export async function GET(request: Request) {
@@ -381,43 +382,17 @@ export async function POST(request: Request) {
 // PATCH /api/applications (Update Application/Invoice)
 export async function PATCH(request: Request) {
     try {
-        const supabase = await createClient();
-        let actor = null;
-
-        // 1. Try cookie-based session first
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            actor = user;
-        } catch { /* ignored */ }
-
-        // 2. Fallback: read Bearer token from Authorization header
-        if (!actor) {
-            const authHeader = request.headers.get('authorization');
-            const token = authHeader?.replace('Bearer ', '').trim();
-            if (token) {
-                try {
-                    const { createClient: createBrowserClient } = await import('@supabase/supabase-js');
-                    const anonClient = createBrowserClient(
-                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-                    );
-                    const { data: { user } } = await anonClient.auth.getUser(token);
-                    actor = user;
-                } catch { /* ignored */ }
-            }
-        }
-
-        // Simple Admin Check (Optional: enforce role)
-        if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        const { authorized, error, status } = await getAdminAuth();
+        if (!authorized) return NextResponse.json({ error }, { status });
 
         const body = await request.json();
-        const { id, status, paymentReference, adminNotes, paymentMethod, paymentStatus, guestName, guestEmail, visaName, customAmount, userId, quantity } = body;
+        const { id: targetId, status: newStatus, paymentReference, adminNotes, paymentMethod, paymentStatus, guestName, guestEmail, visaName, customAmount, userId, quantity } = body;
 
-        if (!id) return NextResponse.json({ error: "ID Required" }, { status: 400 });
+        if (!targetId) return NextResponse.json({ error: "ID Required" }, { status: 400 });
 
         // 1. Update Application Core Info
         const appUpdateData: any = {};
-        if (status !== undefined) appUpdateData.status = status;
+        if (newStatus !== undefined) appUpdateData.status = newStatus;
         if (guestName !== undefined) appUpdateData.guestName = guestName;
         if (guestEmail !== undefined) appUpdateData.guestEmail = guestEmail;
         if (visaName !== undefined) appUpdateData.visaName = visaName;
@@ -427,7 +402,7 @@ export async function PATCH(request: Request) {
 
         if (Object.keys(appUpdateData).length > 0) {
             await prisma.visaApplication.update({
-                where: { id: id },
+                where: { id: targetId },
                 data: appUpdateData
             });
         }
@@ -435,7 +410,7 @@ export async function PATCH(request: Request) {
         // 2. Update Linked Invoice (if exists)
         if (paymentStatus !== undefined || paymentReference !== undefined || adminNotes !== undefined || customAmount !== undefined || paymentMethod !== undefined) {
             // Find invoice
-            const invoice = await prisma.invoice.findFirst({ where: { applicationId: id } });
+            const invoice = await prisma.invoice.findFirst({ where: { applicationId: targetId } });
             if (invoice) {
                 const dataToUpdate: any = {};
                 if (paymentStatus !== undefined) dataToUpdate.status = paymentStatus;
@@ -465,19 +440,22 @@ export async function PATCH(request: Request) {
         }
 
         // 3. Audit Log
-        await logAdminAction(
-            actor.id,
-            "UPDATE_APPLICATION",
-            "Application",
-            id,
-            { ...appUpdateData, paymentStatus, paymentReference, adminNotes }
-        );
+        const authData = await getAdminAuth();
+        if (authData.dbUser) {
+            await logAdminAction(
+                authData.dbUser.id,
+                "UPDATE_APPLICATION",
+                "Application",
+                targetId,
+                { ...appUpdateData, paymentStatus, paymentReference, adminNotes }
+            );
+        }
 
         // 4. Send User In-App Notification if Status or PaymentStatus changed
-        if (status || paymentStatus) {
+        if (newStatus || paymentStatus) {
             try {
                 // Find user associated with this application
-                const appRow: any[] = await prisma.$queryRawUnsafe(`SELECT "user_id", "visaName", "slug" FROM "visa_applications" WHERE id = $1`, id);
+                const appRow: any[] = await prisma.$queryRawUnsafe(`SELECT "user_id", "visaName", "slug" FROM "visa_applications" WHERE id = $1`, targetId);
                 if (appRow.length > 0 && appRow[0].user_id) {
                     const uId = appRow[0].user_id;
                     const vName = appRow[0].visaName || "Visa";
@@ -486,9 +464,9 @@ export async function PATCH(request: Request) {
                     let notifTitle = "Application Updated";
                     let notifMsg = `Your application for ${vName} has been updated.`;
                     
-                    if (status) {
-                        notifTitle = `Visa Status: ${status}`;
-                        notifMsg = `Your visa application status is now ${status}.`;
+                    if (newStatus) {
+                        notifTitle = `Visa Status: ${newStatus}`;
+                        notifMsg = `Your visa application status is now ${newStatus}.`;
                     } else if (paymentStatus) {
                         notifTitle = `Payment Status: ${paymentStatus}`;
                         notifMsg = `Your invoice payment status is now ${paymentStatus}.`;
@@ -513,14 +491,13 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
     try {
-        const supabase = await createClient();
-        const { data: { user: actor } } = await supabase.auth.getUser();
+        const { authorized, error, status, dbUser } = await getAdminAuth();
+        if (!authorized) return NextResponse.json({ error }, { status });
 
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
-        if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         await prisma.$queryRawUnsafe(`DELETE FROM "visa_applications" WHERE "id" = $1`, id);
 
@@ -528,7 +505,9 @@ export async function DELETE(request: Request) {
         await prisma.invoice.deleteMany({ where: { applicationId: id } });
 
         // Audit Log
-        await logAdminAction(actor.id, "DELETE_APPLICATION", "Application", id, {});
+        if (dbUser) {
+            await logAdminAction(dbUser.id, "DELETE_APPLICATION", "Application", id, {});
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {

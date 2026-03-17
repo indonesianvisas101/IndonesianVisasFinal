@@ -27,7 +27,7 @@ const StepPayment = () => {
     const { 
         setStep, country, visaType, personalInfo, completedSteps, 
         markStepComplete, resetApplication, closePanel, documents, 
-        visas, numPeople, travelers, upsells, toggleUpsell 
+        visas, numPeople, travelers, upsells, toggleUpsell, addons
     } = useApplication();
     const params = useParams();
     const locale = params?.locale || 'en';
@@ -74,10 +74,15 @@ const StepPayment = () => {
 
         totalAmount = (baseAmount + feeAmount) * numPeople;
 
-        if (upsells.express) totalAmount += 800000;
-        if (upsells.insurance) totalAmount += 500000;
-        if (upsells.vip) totalAmount += 1500000;
-        if (upsells.idiv) totalAmount += (20 * 16250) * numPeople; // $20 in IDR
+        const getAddonPrice = (sku: string) => {
+            const addon = addons?.find(a => a.sku === sku);
+            return addon ? Number(addon.price) : 0;
+        };
+
+        if (upsells.express) totalAmount += getAddonPrice('EXPRESS');
+        if (upsells.insurance) totalAmount += getAddonPrice('INSURANCE');
+        if (upsells.vip) totalAmount += getAddonPrice('VIP');
+        if (upsells.idiv) totalAmount += getAddonPrice('IDIV') * numPeople;
     }
 
     const pph23Amount = Math.round(totalAmount * 0.02);
@@ -138,7 +143,7 @@ const StepPayment = () => {
                     guestName: `${personalInfo.firstName} ${personalInfo.lastName}`,
                     guestEmail: personalInfo.email,
                     paymentMethod: selectedMethod,
-                    customAmount: totalAmount.toString(),
+                    customAmount: totalAmount.toString(), // Base + Upsells
                     quantity: numPeople,
                     documents: uploadedDocs,
                     upsells: upsells, 
@@ -147,38 +152,36 @@ const StepPayment = () => {
                         : "") + (Object.values(upsells).some(v => v) ? `\n\nAdd-ons Selected: ${Object.entries(upsells).filter(([k,v]) => v).map(([k,v]) => k.toUpperCase()).join(', ')}` : "")
                 })
             });
-
+ 
             const appData = await appRes.json();
             if (!appRes.ok) throw new Error(appData.error || "Failed to create application");
             
             const invoiceId = appData.invoice?.id;
-            console.log("[CHECKOUT] Invoice Created:", invoiceId);
-
-            // Optional: Background sync to Formspree
-            // ... (keep formspree sync)
-
+            const finalInvoiceAmount = appData.invoice?.amount || grandTotal; // Use verified server amount
+            console.log("[CHECKOUT] Invoice Created:", invoiceId, "Amount:", finalInvoiceAmount);
+ 
             // 2. Trigger Payment Gateway
             if (selectedMethod === 'PayPal') {
                 if (!invoiceId) {
                     console.error("[CHECKOUT] PayPal missing Invoice ID in response:", appData);
-                    throw new Error("Invoice ID missing for PayPal. Server returned " + JSON.stringify(appData));
+                    throw new Error("Invoice ID missing for PayPal.");
                 }
                 const usdRate = CURRENCIES.find(c => c.code === 'USD')?.rate || 16250;
-                const grandTotalUSD = Math.ceil(grandTotal / usdRate);
-                console.log("[CHECKOUT] Redirecting to PayPal flow:", invoiceId);
+                const grandTotalUSD = Math.ceil(finalInvoiceAmount / usdRate);
+                console.log("[CHECKOUT] Redirecting to PayPal flow:", invoiceId, "USD:", grandTotalUSD);
                 window.location.href = `/${locale}/payment?invoice=${invoiceId}&amount=${grandTotalUSD}&currency=USD`;
                 return;
             } 
             
             if (selectedMethod === 'DOKU') {
-                if (!invoiceId) throw new Error("Invoice ID missing for DOKU. Please contact support.");
+                if (!invoiceId) throw new Error("Invoice ID missing for DOKU.");
                 
                 const checkoutRes = await fetch("/api/payments/doku/checkout", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         invoiceId,
-                        amount: totalAmount,
+                        amount: finalInvoiceAmount, 
                         customerDetails: {
                             first_name: personalInfo.firstName,
                             last_name: personalInfo.lastName,
@@ -187,13 +190,13 @@ const StepPayment = () => {
                         }
                     })
                 });
-
+ 
                 if (!checkoutRes.ok) {
                     const errorDetail = await checkoutRes.json();
                     throw new Error(errorDetail.error || "Failed to fetch DOKU payment URL");
                 }
                 const { paymentUrl } = await checkoutRes.json();
-
+ 
                 // Redirect to DOKU Checkout
                 window.location.href = paymentUrl;
                 return;
@@ -334,7 +337,9 @@ const StepPayment = () => {
                                 <p className="text-sm font-bold">🚀 Express Processing</p>
                                 <p className="text-[10px] text-gray-500">Legal review in 4 hours & priority queue.</p>
                             </div>
-                            <span className="text-sm font-bold text-primary">+IDR 800k</span>
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {(addons?.find(a => a.sku === 'EXPRESS')?.price || 800000).toLocaleString()}
+                            </span>
                         </div>
 
                         <div 
@@ -345,7 +350,9 @@ const StepPayment = () => {
                                 <p className="text-sm font-bold">🛡️ Medical Insurance</p>
                                 <p className="text-[10px] text-gray-500">Full Bali nomad health coverage (30 days).</p>
                             </div>
-                            <span className="text-sm font-bold text-primary">+IDR 500k</span>
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {(addons?.find(a => a.sku === 'INSURANCE')?.price || 500000).toLocaleString()}
+                            </span>
                         </div>
 
                         <div 
@@ -356,7 +363,22 @@ const StepPayment = () => {
                                 <p className="text-sm font-bold">💎 VIP Airport Transfer</p>
                                 <p className="text-[10px] text-gray-500">Private luxury pickup from DPS Airport.</p>
                             </div>
-                            <span className="text-sm font-bold text-primary">+IDR 1.5M</span>
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {(addons?.find(a => a.sku === 'VIP')?.price || 1500000).toLocaleString()}
+                            </span>
+                        </div>
+
+                        <div 
+                            className={`${styles.upsellItem} ${upsells.idiv ? styles.upsellActive : ''}`}
+                            onClick={() => toggleUpsell('idiv')}
+                        >
+                            <div className="flex-grow">
+                                <p className="text-sm font-bold">💳 IDIV Digital Processing</p>
+                                <p className="text-[10px] text-gray-500">Mandatory digital verification & processing.</p>
+                            </div>
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {(addons?.find(a => a.sku === 'IDIV')?.price || 325000).toLocaleString()}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -467,6 +489,14 @@ const StepPayment = () => {
                         {selectedMethod === 'DOKU' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>
                 </div>
+            </div>
+
+            {/* Action Disclaimer */}
+            <div className="mb-4 px-4 py-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/20 rounded-xl flex items-start gap-3">
+                <Info size={16} className="text-amber-600 mt-0.5 flex-shrink-0" />
+                <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-400 font-medium">
+                    By making this payment, you agree that you have read and accepted our <span className="underline cursor-pointer">Terms & Conditions</span> and <span className="underline cursor-pointer">Refund Policy</span>.
+                </p>
             </div>
 
             {/* Action Buttons */}

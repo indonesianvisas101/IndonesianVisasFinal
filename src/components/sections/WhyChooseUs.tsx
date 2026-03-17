@@ -7,40 +7,66 @@ import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
 import { Info, ShieldCheck, CheckCircle, Zap, PhoneCallIcon, Clock, Star } from "lucide-react";
 
 const WhyChooseUs = ({ dict }: { dict?: any }) => {
-    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
-
-    const whyChooseUsInfo: StaticPopupInfo = {
-        id: 'why-choose-us-info',
-        title: 'Why We Are Number 1',
-        icon: <Star size={32} />,
-        content: (
-            <div className="space-y-4">
-                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">16 Years of Excellence</p>
-                <p className="text-base leading-relaxed">
-                    IndonesianVisas.com stands apart through a combination of proprietary technology and deep local expertise.
-                </p>
-                <div className="grid grid-cols-1 gap-3">
-                    <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3">
-                        <Clock size={24} className="text-amber-600 shrink-0" />
-                        <div>
-                            <p className="text-sm font-bold">Unrivaled Experience</p>
-                            <p className="text-xs text-slate-500">Founded in 2010, we've navigated every policy shift in Indonesian immigration history.</p>
-                        </div>
-                    </div>
-                    <div className="p-4 bg-green-50 rounded-2xl border border-green-100 flex gap-3">
-                        <CheckCircle size={24} className="text-green-600 shrink-0" />
-                        <div>
-                            <p className="text-sm font-bold">The 99% Promise</p>
-                            <p className="text-xs text-slate-500">We don't just submit; we pre-screen and draft to guarantee your approval before final submission.</p>
-                        </div>
-                    </div>
-                </div>
-                <p className="text-xs text-slate-400 italic">Trusted by 10,000+ digital nomads, families, and corporations worldwide.</p>
-            </div>
-        )
-    };
+    const [activePopup, setActivePopup] = React.useState<StaticPopupInfo | null>(null);
 
     const t = dict?.why_choose_us || {};
+    const pt = t.popups || {};
+
+    const featurePopups: Record<number, StaticPopupInfo> = {
+        0: {
+            id: 'why-choose-us-fast',
+            title: pt.feature1?.title || 'Express Processing Lane',
+            icon: <Zap size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-amber-600 uppercase tracking-widest">Speed & Priority</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.feature1?.content || 'We offer 1-4 hour turnaround times for eligible applications.'}
+                    </p>
+                </div>
+            )
+        },
+        1: {
+            id: 'why-choose-us-secure',
+            title: pt.feature2?.title || 'Bank-Level Protection',
+            icon: <ShieldCheck size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">AES-256 Encryption</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.feature2?.content || 'Your data is protected by the same security standards used by global financial institutions.'}
+                    </p>
+                </div>
+            )
+        },
+        2: {
+            id: 'why-choose-us-success',
+            title: pt.feature3?.title || 'The Draft System™',
+            icon: <CheckCircle size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-green-600 uppercase tracking-widest">99% Approval Rate</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.feature3?.content || 'We maintain an industry-leading success rate by pre-verifying every application.'}
+                    </p>
+                </div>
+            )
+        },
+        3: {
+            id: 'why-choose-us-support',
+            title: pt.feature4?.title || 'Multi-Lingual Experts',
+            icon: <PhoneCallIcon size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">24/7 Global Support</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.feature4?.content || 'Access our dedicated support team via WhatsApp, Telegram, or Email around the clock.'}
+                    </p>
+                </div>
+            )
+        }
+    };
+
 
     return (
         <section className={styles.section}>
@@ -49,13 +75,12 @@ const WhyChooseUs = ({ dict }: { dict?: any }) => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-extrabold mb-6 mode-aware-text text-center cursor-help flex items-center justify-center gap-3 group"
-                    onClick={() => setIsPopupOpen(true)}
+                    className="text-3xl md:text-4xl font-extrabold mb-6 mode-aware-text text-center"
                 >
-                    {t.title || "Why Choose Us?"} <Info size={24} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    {t.title || "Why Choose Us?"}
                 </motion.h2>
 
-                <CentralInfoPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} info={whyChooseUsInfo} />
+                <CentralInfoPopup isOpen={!!activePopup} onClose={() => setActivePopup(null)} info={activePopup} />
                 <motion.p 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -80,12 +105,16 @@ const WhyChooseUs = ({ dict }: { dict?: any }) => {
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.15 }}
                             whileHover={{ y: -12, scale: 1.02 }}
-                            className={`glass-card ${styles.featureCard} group`}
+                            onClick={() => setActivePopup(featurePopups[idx])}
+                            className={`glass-card ${styles.featureCard} group cursor-help`}
                         >
                             <div className="text-primary mb-4 mx-auto group-hover:scale-110 transition-transform duration-500">
                                 {feature.icon}
                             </div>
-                            <h3 className="text-xl font-bold mb-2 mode-aware-text">{feature.title}</h3>
+                            <h3 className="text-xl font-bold mb-2 mode-aware-text flex items-center justify-between gap-2">
+                                {feature.title}
+                                <Info size={16} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </h3>
                             <p className="text-sm mode-aware-subtext leading-relaxed">{feature.desc}</p>
                         </motion.div>
                     ))}

@@ -73,6 +73,8 @@ interface ApplicationState {
         vip: boolean;
         idiv: boolean; // NEW: ID Indonesian Visas
     };
+    // New: Dynamic Addons from DB
+    addons: any[];
 }
 
 export interface AppNotification {
@@ -117,6 +119,9 @@ interface ApplicationContextType extends ApplicationState {
     adminUsers: AdminUser[];
     updateAdminUser: (user: AdminUser) => void;
     selectVisa: (visaId: string) => void;
+    // Addons
+    addons: any[];
+    refreshAddons: () => Promise<void>;
 }
 
 const defaultState: ApplicationState = {
@@ -153,7 +158,8 @@ const defaultState: ApplicationState = {
         insurance: false,
         vip: false,
         idiv: false
-    }
+    },
+    addons: []
 };
 
 // Types
@@ -197,6 +203,20 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
     }, [state.adminUsers, state.notifications, state.userDocuments, state.announcement]);
 
     const [visas, setVisas] = useState<VisaType[]>([]);
+    const [addons, setAddons] = useState<any[]>([]);
+
+    // Fetch Addons
+    const refreshAddons = React.useCallback(async () => {
+        try {
+            const res = await fetch('/api/addons', { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                setAddons(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch addons in context", error);
+        }
+    }, []);
 
     // Listen for the custom event from Hero/Overview or other trigger points
     useEffect(() => {
@@ -220,6 +240,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         refreshVisas();
+        refreshAddons();
 
         // Handle Deep Linking / Auto-selection from URL
         if (typeof window !== 'undefined') {
@@ -237,7 +258,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 openPanel();
             }
         }
-    }, [refreshVisas]);
+    }, [refreshVisas, refreshAddons]);
 
     const openPanel = () => setState((prev) => ({ ...prev, isPanelOpen: true }));
     const closePanel = () => setState((prev) => ({ ...prev, isPanelOpen: false }));
@@ -484,7 +505,9 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 adminUsers: state.adminUsers,
                 updateAdminUser,
                 selectVisa,
-                toggleUpsell
+                toggleUpsell,
+                addons,
+                refreshAddons
             }}
         >
             {children}

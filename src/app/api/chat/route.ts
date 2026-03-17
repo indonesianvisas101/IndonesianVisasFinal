@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { VISA_DATABASE } from '@/constants/visas';
 import { COUNTRY_DATA } from '@/constants/countries';
 import prisma from '@/lib/prisma';
+import { getKnowledgeForAI } from '@/utils/siteKnowledge';
 
 export async function HEAD(req: Request) {
    return new Response(null, { status: 200 });
@@ -112,17 +113,7 @@ export async function POST(req: Request) {
       addressRule = `RULE: Address the user politely as a customer. DO NOT use the term "Boss".`;
    }
 
-   const WEBPAGE_KNOWLEDGE = `
-   🏛 COMPANY INFO
-   - Office: Jl. Tibung Sari 11C, Bali. WhatsApp: +61 423 854 701 (24/7).
-   - Experience: 16+ Years, 10,000+ Visas.
-   
-   🔗 NEWEST PAGES & UPDATES:
-   - /travel: Huge 15-section travel guide with Top 20 Nationalities and Integrated CTA cards.
-   - /verification-explained: Deep dive into the Barcode Ecosystem & Corporate Sponsorship.
-   - /sitemap: Complete site structure.
-   - User Dashboard: Integrated Safety Hub, Emergency Panel, and 24/7 Support.
-   `;
+   const WEBPAGE_KNOWLEDGE = getKnowledgeForAI();
 
    const systemPrompts: Record<string, string> = {
       seller: `You are "Ai_Seller", the voice of Indonesian Visas. 

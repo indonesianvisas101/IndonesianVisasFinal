@@ -32,6 +32,7 @@
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.26.2",
+    "fuse.js": "^7.1.0",
     "html-to-image": "^1.11.13",
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.7",

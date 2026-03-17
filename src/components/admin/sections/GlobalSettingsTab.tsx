@@ -15,7 +15,9 @@ export default function GlobalSettingsTab() {
     const [popupConfig, setPopupConfig] = useState<any>({
         title: '',
         description: '',
-        isActive: false
+        isActive: false,
+        trimTime: 3000,
+        stayTime: 10000
     });
     const [popupEnabled, setPopupEnabled] = useState(false);
 
@@ -122,6 +124,30 @@ export default function GlobalSettingsTab() {
                             }
                             label="Live Status (Active for all sessions)"
                         />
+
+                        <Divider sx={{ my: 1 }} />
+                        <Typography variant="body2" color="text.secondary" fontWeight="bold">Popup Timing Controls (Milliseconds)</Typography>
+                        
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                            <TextField 
+                                label="Trim Time (Delay before show)" 
+                                type="number"
+                                fullWidth 
+                                value={popupConfig.trimTime || 3000} 
+                                disabled={!popupEnabled}
+                                onChange={(e) => setPopupConfig({...popupConfig, trimTime: parseInt(e.target.value) || 0})}
+                                helperText="e.g., 3000 = 3 seconds delay"
+                            />
+                            <TextField 
+                                label="Stay Time (Visibility duration)" 
+                                type="number"
+                                fullWidth 
+                                value={popupConfig.stayTime || 10000} 
+                                disabled={!popupEnabled}
+                                onChange={(e) => setPopupConfig({...popupConfig, stayTime: parseInt(e.target.value) || 0})}
+                                helperText="e.g., 10000 = 10 seconds duration"
+                            />
+                        </Stack>
                     </Stack>
                     
                     <Box mt={2}>

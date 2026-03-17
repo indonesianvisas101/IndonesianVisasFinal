@@ -39,10 +39,13 @@ export default function GlobalInfoPopup({ locale }: { locale: string }) {
                             setConfig(val);
                             const suppressed = localStorage.getItem('popup_suppressed_v1');
                             if (!suppressed) {
+                                const trimTime = val.trimTime || 3000;
+                                const stayTime = val.stayTime || 20000;
+
                                 setTimeout(() => {
                                     setIsVisible(true);
-                                    setTimeout(() => setIsVisible(false), 20000); // 20s for long text
-                                }, 3000);
+                                    setTimeout(() => setIsVisible(false), stayTime);
+                                }, trimTime);
                             }
                         }
                     }

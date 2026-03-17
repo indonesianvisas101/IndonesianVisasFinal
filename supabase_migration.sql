@@ -4,18 +4,18 @@
 -- 2. CREATES all tables correctly (matching your website code).
 -- 3. SECURES everything (Enables RLS policies).
 
--- STEP 0: CLEANUP (Drop existing tables to avoid conflicts)
-DROP TABLE IF EXISTS public.notifications CASCADE;
-DROP TABLE IF EXISTS public.faqs CASCADE;
-DROP TABLE IF EXISTS public.content_blocks CASCADE;
-DROP TABLE IF EXISTS public.application_documents CASCADE;
-DROP TABLE IF EXISTS public.user_documents CASCADE;
-DROP TABLE IF EXISTS public.payments CASCADE;
-DROP TABLE IF EXISTS public.visa_applications CASCADE;
-DROP TABLE IF EXISTS public.visa_requirements CASCADE;
-DROP TABLE IF EXISTS public.visa_pricing_options CASCADE;
-DROP TABLE IF EXISTS public.visas CASCADE;
-DROP TABLE IF EXISTS public.users CASCADE;
+-- STEP 0: CLEANUP (DISABLED FOR SAFETY - Do not drop tables in production)
+-- DROP TABLE IF EXISTS public.notifications CASCADE;
+-- DROP TABLE IF EXISTS public.faqs CASCADE;
+-- DROP TABLE IF EXISTS public.content_blocks CASCADE;
+-- DROP TABLE IF EXISTS public.application_documents CASCADE;
+-- DROP TABLE IF EXISTS public.user_documents CASCADE;
+-- DROP TABLE IF EXISTS public.payments CASCADE;
+-- DROP TABLE IF EXISTS public.visa_applications CASCADE;
+-- DROP TABLE IF EXISTS public.visa_requirements CASCADE;
+-- DROP TABLE IF EXISTS public.visa_pricing_options CASCADE;
+-- DROP TABLE IF EXISTS public.visas CASCADE;
+-- DROP TABLE IF EXISTS public.users CASCADE;
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

@@ -8,41 +8,55 @@ import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
 import { Info, ListChecks, CheckCircle2, ShieldCheck, Mail, Zap } from "lucide-react";
 
 const HowItWorks = ({ dict }: { dict?: any }) => {
-    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
-
-    const howItWorksInfo: StaticPopupInfo = {
-        id: 'how-it-works-info',
-        title: 'Our Proven Workflow',
-        icon: <ListChecks size={32} />,
-        content: (
-            <div className="space-y-4">
-                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Efficiency & Accuracy</p>
-                <p className="text-base leading-relaxed">
-                    Our process is refined over 16 years of operation to ensure maximum speed without sacrificing compliance.
-                </p>
-                <div className="grid grid-cols-1 gap-2">
-                    {[
-                        { label: 'Step 1: Smart Form Submission', icon: ListChecks },
-                        { label: 'Step 2: AI Pre-Verification', icon: Zap },
-                        { label: 'Step 3: Human Expert Audit', icon: CheckCircle2 },
-                        { label: 'Step 4: Secure Data Deletion', icon: ShieldCheck },
-                    ].map((step, id) => (
-                        <div key={id} className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-400">
-                                <step.icon size={16} />
-                            </div>
-                            <span className="text-sm font-bold text-slate-700">{step.label}</span>
-                        </div>
-                    ))}
-                </div>
-                <p className="text-xs text-slate-400 border-t pt-3 mt-2">
-                    Every application follows this strict protocol to maintain our 99% success rate.
-                </p>
-            </div>
-        )
-    };
+    const [activePopup, setActivePopup] = React.useState<StaticPopupInfo | null>(null);
 
     const t = dict?.how_it_works || {};
+    const pt = t.popups || {};
+
+    const stepPopups: Record<number, StaticPopupInfo> = {
+        0: {
+            id: 'how-it-works-step-1',
+            title: pt.step1?.title || 'Smart Application Intake',
+            icon: <FileText size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Efficiency & Accuracy</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.step1?.content || 'Our smart form validates your data in real-time as you type, ensuring no missing fields or common errors delay your submission.'}
+                    </p>
+                </div>
+            )
+        },
+        1: {
+            id: 'how-it-works-step-2',
+            title: pt.step2?.title || 'Expert Auditing & Submission',
+            icon: <Search size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-amber-600 uppercase tracking-widest">Compliance First</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.step2?.content || 'Every application is cross-referenced by our legal team against the latest Indonesian Immigration circulars, ensuring 100% compliance.'}
+                    </p>
+                </div>
+            )
+        },
+        2: {
+            id: 'how-it-works-step-3',
+            title: pt.step3?.title || 'Digital Delivery & Activation',
+            icon: <Plane size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-green-600 uppercase tracking-widest">Instant Results</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.step3?.content || 'Once approved, your e-Visa is synchronized to your IDIV dashboard and delivered via encrypted email.'}
+                    </p>
+                    <div className="p-4 bg-green-50 rounded-2xl border border-green-100 text-sm text-green-700">
+                        <CheckCircle2 size={16} className="inline mr-1" /> Ready for immediate travel.
+                    </div>
+                </div>
+            )
+        }
+    };
 
     return (
         <section className={styles.section}>
@@ -51,13 +65,12 @@ const HowItWorks = ({ dict }: { dict?: any }) => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-extrabold mb-6 mode-aware-text text-center cursor-help flex items-center justify-center gap-3 group"
-                    onClick={() => setIsPopupOpen(true)}
+                    className="text-3xl md:text-4xl font-extrabold mb-6 mode-aware-text text-center"
                 >
-                    {t.title || "How It Works"} <Info size={24} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    {t.title || "How It Works"}
                 </motion.h2>
 
-                <CentralInfoPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} info={howItWorksInfo} />
+                <CentralInfoPopup isOpen={!!activePopup} onClose={() => setActivePopup(null)} info={activePopup} />
                 <motion.p 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -81,12 +94,16 @@ const HowItWorks = ({ dict }: { dict?: any }) => {
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.2 }}
                             whileHover={{ scale: 1.03 }}
-                            className={`glass-card ${styles.card} group`}
+                            onClick={() => setActivePopup(stepPopups[idx])}
+                            className={`glass-card ${styles.card} group cursor-help`}
                         >
                             <div className={`${styles.iconWrapper} group-hover:rotate-6 transition-transform duration-500`}>
                                 <step.icon size={56} className="text-primary" />
                             </div>
-                            <h3 className="text-xl font-bold mb-4 mode-aware-text">{step.title}</h3>
+                            <h3 className="text-xl font-bold mb-4 mode-aware-text flex items-center justify-between">
+                                {step.title}
+                                <Info size={16} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </h3>
                             <p className="text-base mode-aware-subtext leading-relaxed">{step.desc}</p>
                         </motion.div>
                     ))}

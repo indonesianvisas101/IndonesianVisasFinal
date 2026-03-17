@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
       'date-fns',
       '@mui/material',
       '@mui/icons-material',
+      '@mui/lab',
+      '@mui/x-date-pickers',
       'lodash',
       'clsx',
       'tailwind-merge'

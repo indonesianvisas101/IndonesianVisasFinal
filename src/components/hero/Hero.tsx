@@ -42,6 +42,7 @@ const Hero = ({ dict }: { dict: any }) => {
                     <div className={styles.right}>
                         {/* Interactive Client Component - Pass dict if needed, or keep static specific parts */}
                         <HeroSteps
+                            dict={dict}
                             title={steps.title || "Simple 4-Step Process"}
                             labels={{
                                 step1: steps.step1 || "Select Country",

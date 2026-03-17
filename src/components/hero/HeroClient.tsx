@@ -187,6 +187,7 @@ export const HeroStats = ({ company, processed, success }: { company: string; pr
 // 3. The Rights Steps Card (Client)
 interface HeroStepsProps {
     title: string;
+    dict?: any;
     labels?: {
         step1: string;
         step1_desc: string;
@@ -199,7 +200,7 @@ interface HeroStepsProps {
     }
 }
 
-export const HeroSteps = ({ title, labels }: HeroStepsProps) => {
+export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
     const { completedSteps } = useApplication();
     const [activeIdleStep, setActiveIdleStep] = React.useState<number>(0);
     const [isInitialAnimation, setIsInitialAnimation] = React.useState(true);
@@ -227,40 +228,75 @@ export const HeroSteps = ({ title, labels }: HeroStepsProps) => {
         return completedSteps.includes(step);
     };
 
-    const processInfo: StaticPopupInfo = {
-        id: 'hero-process',
-        title: 'Simple 4-Step Process',
-        icon: <ListChecks size={32} />,
-        content: (
-            <div className="space-y-4">
-                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">How It Works</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {[
-                        { label: 'Submit / Order', icon: ArrowRight },
-                        { label: 'Verified Payment', icon: Lock },
-                        { label: 'Order Status (Active)', icon: RefreshCcw },
-                        { label: 'Review Document', icon: ListChecks },
-                        { label: 'Visa Process', icon: Globe },
-                        { label: 'Approval/Delayed', icon: ShieldCheck },
-                        { label: 'Email Result', icon: Mail },
-                        { label: 'Integrated Verification', icon: Zap },
-                        { label: 'End Permits Management', icon: ShieldCheck },
-                    ].map((item, id) => (
-                        <div key={id} className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
-                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
-                                <item.icon size={16} />
-                            </div>
-                            <span className="text-sm font-bold text-slate-700">{item.label}</span>
-                        </div>
-                    ))}
+    const [activePopup, setActivePopup] = React.useState<StaticPopupInfo | null>(null);
+
+    const t = dict?.hero?.steps || {};
+    const pt = t.popups || {};
+
+    const stepPopups: Record<number, StaticPopupInfo> = {
+        1: {
+            id: 'step-1-info',
+            title: pt.step1?.title || 'Global Eligibility & Filtering',
+            icon: <Globe size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">{pt.step1?.subtitle || 'Step 1: Universal Access'}</p>
+                    <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                        {pt.step1?.content || 'We support travelers from over **97 countries**. Our system automatically filters the latest immigration regulations based on your nationality and travel purpose.'}
+                    </Typography>
                 </div>
-                <p className="text-xs text-slate-400 pt-2 border-t">Our system ensures every stage is handled with bank-level security and real-time immigration sync.</p>
-            </div>
-        )
+            )
+        },
+        2: {
+            id: 'step-2-info',
+            title: pt.step2?.title || 'Secure Data Handling',
+            icon: <Lock size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-purple-600 uppercase tracking-widest">{pt.step2?.subtitle || 'Step 2: Privacy First'}</p>
+                    <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                        {pt.step2?.content || 'Your personal information is protected by industry-standard **AES-256 bit encryption**. We collect only what is legally required for your visa sponsorship.'}
+                    </Typography>
+                </div>
+            )
+        },
+        3: {
+            id: 'step-3-info',
+            title: pt.step3?.title || 'AI Pre-Verification',
+            icon: <RefreshCcw size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-amber-600 uppercase tracking-widest">{pt.step3?.subtitle || 'Step 3: Document Accuracy'}</p>
+                    <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                        {pt.step3?.content || 'Once uploaded, our **AI Agent** perform a pre-screening of your passport and documents to ensure 100% compliance with Indonesian Immigration standards.'}
+                    </Typography>
+                </div>
+            )
+        },
+        4: {
+            id: 'step-4-info',
+            title: pt.step4?.title || 'Payment & ID Activation',
+            icon: <Zap size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-green-600 uppercase tracking-widest">{pt.step4?.subtitle || 'Step 4: Final Confirmation'}</p>
+                    <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                        {pt.step4?.content || 'Complete your transaction via world-class secure payment gateways. The moment payment is verified, your **ID Tracker** is activated.'}
+                    </Typography>
+                    <Box sx={{ p: 3, bgcolor: 'rgba(34, 197, 94, 0.05)', borderRadius: 4, border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+                        <ul className="space-y-2 text-sm">
+                            <li className="flex gap-2"><strong>+</strong> Receive Your email Confirmation</li>
+                            <li className="flex gap-2"><strong>+</strong> Unique ID Tracker Order Activation</li>
+                            <li className="flex gap-2"><strong>+</strong> Official Sponsor Guarantee</li>
+                        </ul>
+                    </Box>
+                </div>
+            )
+        }
     };
 
     return (
-        <div className={`glass-card ${styles.card} cursor-help group`} onClick={() => setIsPopupOpen(true)}>
+        <div className={`glass-card ${styles.card} group`}>
             <div className="flex items-center justify-between mb-2">
                 <h3 className={styles.cardTitle}>{title || "Simple 4-Step Process"}</h3>
                 <div className="p-1.5 bg-slate-100 dark:bg-white/10 rounded-full text-slate-400 group-hover:text-primary transition-colors">
@@ -269,28 +305,40 @@ export const HeroSteps = ({ title, labels }: HeroStepsProps) => {
             </div>
 
             <div className={styles.stepList}>
-                <div className={`${styles.stepItem} ${isStepActive(1) ? styles.stepGlow : ''} ${completedSteps.includes(1) ? styles.stepDone : ''}`}>
+                <div 
+                    onClick={() => setActivePopup(stepPopups[1])}
+                    className={`${styles.stepItem} cursor-help ${isStepActive(1) ? styles.stepGlow : ''} ${completedSteps.includes(1) ? styles.stepDone : ''}`}
+                >
                     <div className={styles.stepCircle}>1</div>
                     <div>
                         <h4 className={styles.stepHeading}>{labels?.step1 || "Select Country"}</h4>
                         <p className={styles.stepDesc}>{labels?.step1_desc || "Choose from 97 eligible countries"}</p>
                     </div>
                 </div>
-                <div className={`${styles.stepItem} ${isStepActive(2) ? styles.stepGlow : ''} ${completedSteps.includes(2) ? styles.stepDone : ''}`}>
+                <div 
+                    onClick={() => setActivePopup(stepPopups[2])}
+                    className={`${styles.stepItem} cursor-help ${isStepActive(2) ? styles.stepGlow : ''} ${completedSteps.includes(2) ? styles.stepDone : ''}`}
+                >
                     <div className={styles.stepCircle}>2</div>
                     <div>
-                        <h4 className={styles.stepHeading}>{labels?.step2 || "Choose Your Visa Type"}</h4>
-                        <p className={styles.stepDesc}>{labels?.step2_desc || "Select the visa that fits your needs"}</p>
+                        <h4 className={styles.stepHeading}>{labels?.step2 || "Input Personal Info"}</h4>
+                        <p className={styles.stepDesc}>{labels?.step2_desc || "Input your data here, save and secured"}</p>
                     </div>
                 </div>
-                <div className={`${styles.stepItem} ${isStepActive(3) ? styles.stepGlow : ''} ${completedSteps.includes(3) ? styles.stepDone : ''}`}>
+                <div 
+                    onClick={() => setActivePopup(stepPopups[3])}
+                    className={`${styles.stepItem} cursor-help ${isStepActive(3) ? styles.stepGlow : ''} ${completedSteps.includes(3) ? styles.stepDone : ''}`}
+                >
                     <div className={styles.stepCircle}>3</div>
                     <div>
                         <h4 className={styles.stepHeading}>{labels?.step3 || "Upload Documents"}</h4>
                         <p className={styles.stepDesc}>{labels?.step3_desc || "Submit passport & required documents"}</p>
                     </div>
                 </div>
-                <div className={`${styles.stepItem} ${isStepActive(4) ? styles.stepGlow : ''} ${completedSteps.includes(4) ? styles.stepDone : ''}`}>
+                <div 
+                    onClick={() => setActivePopup(stepPopups[4])}
+                    className={`${styles.stepItem} cursor-help ${isStepActive(4) ? styles.stepGlow : ''} ${completedSteps.includes(4) ? styles.stepDone : ''}`}
+                >
                     <div className={styles.stepCircle}>4</div>
                     <div>
                         <h4 className={styles.stepHeading}>{labels?.step4 || "Make Payment"}</h4>
@@ -319,9 +367,9 @@ export const HeroSteps = ({ title, labels }: HeroStepsProps) => {
             </div>
 
             <CentralInfoPopup 
-                isOpen={isPopupOpen} 
-                onClose={() => setIsPopupOpen(false)} 
-                info={processInfo} 
+                isOpen={!!activePopup} 
+                onClose={() => setActivePopup(null)} 
+                info={activePopup} 
             />
         </div>
     );

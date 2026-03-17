@@ -29,25 +29,10 @@ export function calculateOrderFees(baseAmount: number, channel: PaymentChannel):
 
     const normalizedChannel = channel?.toUpperCase() || 'MANUAL';
 
-    if (normalizedChannel.includes('PAYPAL')) {
-        // PayPal: 5.4% + 5,000 IDR
-        gatewayFee = Math.round((subtotal * 0.054) + 5000);
-    } else if (normalizedChannel.includes('DOKU_CC') || normalizedChannel === 'CREDIT_CARD') {
-        // DOKU Credit Card: 2.9% + 2,000 IDR
-        gatewayFee = Math.round((subtotal * 0.029) + 2000);
-    } else if (normalizedChannel.includes('DOKU_VA') || normalizedChannel === 'VIRTUAL_ACCOUNT') {
-        // DOKU Virtual Account: 4,500 IDR Flat
-        gatewayFee = 4500;
-    } else if (normalizedChannel.includes('DOKU_QRIS') || normalizedChannel === 'QRIS') {
-        // DOKU QRIS: 0.7%
-        gatewayFee = Math.round(subtotal * 0.007);
-    } else if (normalizedChannel.includes('DOKU_WALLET') || normalizedChannel === 'GOPAY' || normalizedChannel === 'SHOPEEPAY') {
-        // DOKU E-Wallet: 2%
-        gatewayFee = Math.round(subtotal * 0.02);
-    } else if (normalizedChannel.includes('DOKU')) {
-        // Fallback for general DOKU channel (e.g. redirected checkout)
-        // Default to a safe average or CC rate if unknown
-        gatewayFee = Math.round((subtotal * 0.029) + 2000);
+    if (normalizedChannel !== 'MANUAL' && normalizedChannel !== 'NONE') {
+        // Standardized for 3rd Party Payments (DOKU/PayPal)
+        // Platform Fee = 4%
+        gatewayFee = Math.round((subtotal * 0.04));
     }
 
     return {

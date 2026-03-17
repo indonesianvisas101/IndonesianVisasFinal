@@ -90,8 +90,9 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
             <Box 
                 sx={{ 
                     perspective: '1200px', 
-                    width: { xs: '320px', sm: '420px' }, 
-                    height: { xs: '200px', sm: '260px' },
+                    width: { xs: '100%', sm: '420px' }, 
+                    maxWidth: { xs: '340px', sm: '420px' },
+                    height: { xs: '215px', sm: '270px' },
                     margin: '0 auto',
                     cursor: 'pointer',
                     position: 'relative',
@@ -125,15 +126,17 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             width: '100%',
                             height: '100%',
                             backfaceVisibility: 'hidden',
-                            borderRadius: 0, 
+                            borderRadius: '16px', // Rounded corners for premium feel
                             overflow: 'hidden',
-                            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
+                            background: '#f0f9ff', // Solid base to prevent bleed
+                            backgroundLinear: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
                             boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
                             border: '1px solid rgba(255,255,255,0.6)',
                             display: 'flex',
                             flexDirection: 'column',
                             p: { xs: 2, sm: 2.5 },
-                            color: '#1e293b'
+                            color: '#1e293b',
+                            transform: 'translateZ(1px)' // Force layer separation
                         }}
                     >
                         {/* Gloss Overlay */}
@@ -270,15 +273,16 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             width: '100%',
                             height: '100%',
                             backfaceVisibility: 'hidden',
-                            borderRadius: 0, 
+                            borderRadius: '16px', 
                             overflow: 'hidden',
-                            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                            background: '#ffffff', // Opaque base
+                            backgroundLinear: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                             boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
                             border: '1px solid rgba(0,0,0,0.08)',
                             display: 'flex',
                             flexDirection: 'column',
                             p: { xs: 2.5, sm: 3 },
-                            transform: 'rotateY(180deg)',
+                            transform: 'rotateY(180deg) translateZ(1px)', // Force layer separation
                             color: '#1e293b'
                         }}
                     >

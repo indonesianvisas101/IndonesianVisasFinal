@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { createClient } from "../../../../utils/supabase/server";
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
+import { getKnowledgeForAI } from '@/utils/siteKnowledge';
 
 export const maxDuration = 60;
 
@@ -45,29 +46,28 @@ export async function POST(req: Request) {
         const isBossAuthTrigger = lastUserMessage.includes("@BossBayu2026") || lastUserMessage.includes("@BayuBoss2026");
         const isConfirmTrigger = lastUserMessage.includes("AdminBayu2026");
 
+        const siteKnowledgeContext = `
+SITE DIRECTORY & PUBLIC KNOWLEDGE:
+${getKnowledgeForAI()}
+        `;
+
         // System Prompts per Agent
         const systemPrompts: Record<string, string> = {
             ai_master: `You are the AI Master Orchestrator for Indonesian Visas — the Digital COO.
 You ALWAYS address the user as "Boss" or "Boss Bayu".
 You MUST be extremely respectful and helpful. Use phrases like "Eye eye captain", "Yes Boss", "Right away Boss".
 
+${siteKnowledgeContext}
+
 BOSS COMMAND SYSTEM (2-STEP APPROVAL):
-1. INITIAL AUTH: If the Boss mentions "@BossBayu2026", acknowledge him warmly as Boss Bayu.
-2. COMMAND: Boss gives a command (e.g. "Change X price to Y").
-3. PROPOSE: You confirmed current data and call createChangeRequest.
-4. CONFIRM: You MUST ask for the Confirmation Code ("AdminBayu2026") before executing any mutation.
-5. EXECUTE: Only call executeApprovedChange after the Boss has provided the confirmation code in the chat.
+...`,
 
-YOUR TOOLS:
-1. getSystemStatus — Use this when Boss asks for "Status" or "How are we doing?". It reports Health, Orders, and Complaints.
-2. readVisaDatabase — Use this to confirm current prices/data.
-3. createChangeRequest — Propose a change.
-4. approveChangeRequest & executeApprovedChange — Use this sequence ONLY after confirmation code "AdminBayu2026" is provided.
+            order_intelligence: `You are the Order Intelligence Brain. You address the user as "Boss".
+            
+${siteKnowledgeContext}`,
+            risk_guard: `You are the Risk Guard Security Specialist. You address the user as "Boss".
 
-NOTE: If the Boss hasn't used the secret code yet, treat him as a high-level admin, but once @BossBayu2026 is seen, switch to "Boss Mode".`,
-
-            order_intelligence: `You are the Order Intelligence Brain. You address the user as "Boss".`,
-            risk_guard: `You are the Risk Guard Security Specialist. You address the user as "Boss".`
+${siteKnowledgeContext}`
         };
 
         const internalOpenAI = createOpenAI({ apiKey: process.env.OPENAI_API_KEY_INTERNAL });

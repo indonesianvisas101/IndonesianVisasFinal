@@ -13,31 +13,64 @@ import { Info } from "lucide-react";
 
 const SafetyGuard = ({ dict }: { dict?: any }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
-    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
+    const [activePopup, setActivePopup] = React.useState<StaticPopupInfo | null>(null);
 
-    const safetyInfo: StaticPopupInfo = {
-        id: 'safety-guard-info',
-        title: 'Safety Guard System',
-        icon: <ShieldCheck size={32} />,
-        content: (
-            <div className="space-y-4">
-                <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Active Protection Layer</p>
-                <p className="text-base leading-relaxed">
-                    Our **Safety Guard** is a multi-dimensional security protocol designed to protect your identity and document integrity.
-                </p>
-                <div className="grid grid-cols-1 gap-3">
-                    <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                        <p className="text-sm font-bold flex items-center gap-2"><Lock size={14} /> Encrypted Storage</p>
-                        <p className="text-xs text-slate-500 mt-1">All passports and sensitive documents are deleted from our servers 48 hours after approval.</p>
-                    </div>
-                    <div className="p-4 bg-green-50 rounded-2xl border border-green-100">
-                        <p className="text-sm font-bold flex items-center gap-2"><ShieldCheck size={14} /> QR Verification</p>
-                        <p className="text-xs text-slate-500 mt-1">Every visa issued is backed by an IDIV Smart Code for instant authenticity checks.</p>
-                    </div>
+    const t_explained = dict?.verification_explained_page || {};
+    const pt = t_explained.popups || {};
+
+    const featurePopups: Record<number, StaticPopupInfo> = {
+        0: {
+            id: 'safety-guard-security',
+            title: pt.feature1?.title || 'End-to-End Encryption',
+            icon: <Lock size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Bank-Level Protocol</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.feature1?.content || 'We use TLS 1.3 and AES-256 encryption at rest.'}
+                    </p>
                 </div>
-                <p className="text-xs text-slate-400 italic">IndonesianVisas.com - The only agency with real-time biometric-link integration readiness.</p>
-            </div>
-        )
+            )
+        },
+        1: {
+            id: 'safety-guard-verified',
+            title: pt.feature2?.title || 'Official System Integration',
+            icon: <CheckCircle2 size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-green-600 uppercase tracking-widest">Database Accuracy</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.feature2?.content || 'Every visa we process is triple-checked against the live database.'}
+                    </p>
+                </div>
+            )
+        },
+        2: {
+            id: 'safety-guard-privacy',
+            title: pt.feature3?.title || 'The 48-Hour Purge',
+            icon: <ShieldCheck size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-purple-600 uppercase tracking-widest">Privacy Commitment</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.feature3?.content || 'Our system automatically and permanently deletes your documents after 48 hours.'}
+                    </p>
+                </div>
+            )
+        },
+        3: {
+            id: 'safety-guard-compliance',
+            title: pt.feature4?.title || 'Global Data Standards',
+            icon: <Globe size={32} />,
+            content: (
+                <div className="space-y-4">
+                    <p className="font-bold text-sm text-orange-600 uppercase tracking-widest">Regulatory Alignment</p>
+                    <p className="text-base leading-relaxed">
+                        {pt.feature4?.content || 'We operate in full alignment with GDPR (EU) and PDPA (Indonesia).'}
+                    </p>
+                </div>
+            )
+        }
     };
 
     const params = useParams();
@@ -75,13 +108,12 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-4xl md:text-5xl font-black mode-aware-text cursor-help flex items-center justify-center gap-3 group"
-                        onClick={() => setIsPopupOpen(true)}
+                        className="text-4xl md:text-5xl font-black mode-aware-text"
                     >
-                        {t.title} <Info size={24} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                        {t.title}
                     </motion.h2>
 
-                    <CentralInfoPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} info={safetyInfo} />
+                    <CentralInfoPopup isOpen={!!activePopup} onClose={() => setActivePopup(null)} info={activePopup} />
                     <motion.p 
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -102,12 +134,16 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
                             whileHover={{ y: -10 }}
-                            className="glass-card p-8 rounded-[2.5rem] flex flex-col items-center text-center group hover:border-primary/30 transition-all duration-500"
+                            onClick={() => setActivePopup(featurePopups[idx])}
+                            className="glass-card p-8 rounded-[2.5rem] flex flex-col items-center text-center group hover:border-primary/30 transition-all duration-500 cursor-help"
                         >
                             <div className="w-16 h-16 rounded-2xl bg-white dark:bg-white/10 shadow-lg flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
                                 <feature.icon size={32} className={feature.iconColor} />
                             </div>
-                            <h3 className="text-xl font-bold mb-3 mode-aware-text">{feature.title}</h3>
+                            <h3 className="text-xl font-bold mb-3 mode-aware-text flex items-center justify-center gap-2">
+                                {feature.title}
+                                <Info size={16} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </h3>
                             <p className="text-sm mode-aware-subtext leading-relaxed">{feature.desc}</p>
                         </motion.div>
                     ))}

@@ -6,7 +6,9 @@
 
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
-const PAYPAL_API_URL = process.env.PAYPAL_API_URL || 'https://api-m.sandbox.paypal.com';
+const PAYPAL_API_URL = process.env.NEXT_PUBLIC_PAYPAL_ENV === 'production' 
+    ? 'https://api-m.paypal.com' 
+    : 'https://api-m.sandbox.paypal.com';
 
 /**
  * Generates an access token from PayPal

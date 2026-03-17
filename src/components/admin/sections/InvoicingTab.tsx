@@ -207,6 +207,7 @@ export default function InvoicingTab() {
 
     const handleEditClick = (inv: any) => {
         const linkedInvoice = inv.invoice || inv; // Handle raw invoice or nested invoice
+        setEditingInvoice(inv); // FIX: Must set editing invoice state for handleUpdate to proceed
         setEditFormData({
             status: inv.status || "Pending",
             paymentStatus: linkedInvoice.status === 'Paid' || linkedInvoice.status === 'Active' || linkedInvoice.status === 'PAID' ? 'PAID' : 'UNPAID', // Heuristic

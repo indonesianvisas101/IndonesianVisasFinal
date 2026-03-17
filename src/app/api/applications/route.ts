@@ -386,7 +386,12 @@ export async function PATCH(request: Request) {
         if (!authorized) return NextResponse.json({ error }, { status });
 
         const body = await request.json();
-        const { id: targetId, status: newStatus, paymentReference, adminNotes, paymentMethod, paymentStatus, guestName, guestEmail, visaName, customAmount, userId, quantity } = body;
+        const { 
+            id: targetId, status: newStatus, paymentReference, adminNotes, 
+            paymentMethod, paymentStatus, guestName, guestEmail, 
+            visaName, customAmount, userId, quantity, 
+            attribution // FIX: Support attribution edits from frontend
+        } = body;
 
         if (!targetId) return NextResponse.json({ error: "ID Required" }, { status: 400 });
 
@@ -399,6 +404,7 @@ export async function PATCH(request: Request) {
         if (customAmount !== undefined) appUpdateData.customAmount = String(customAmount).replace(/[^0-9.-]+/g, '');
         if (userId !== undefined) appUpdateData.userId = userId ? userId : null;
         if (quantity !== undefined) appUpdateData.quantity = parseInt(String(quantity)) || 1;
+        if (attribution !== undefined) appUpdateData.attribution = attribution; // FIX: Update attribution
 
         if (Object.keys(appUpdateData).length > 0) {
             await prisma.visaApplication.update({

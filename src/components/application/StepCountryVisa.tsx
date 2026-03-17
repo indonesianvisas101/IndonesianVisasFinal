@@ -48,8 +48,10 @@ const StepCountryVisa = () => {
     };
 
     const handleVisaSelect = (visaName: string) => {
-        updateData("visaType", visaName);
-        updateData("priceTier", null); // Reset tier selection when visa changes
+        if (visaType !== visaName) { // FIX: Only reset tier selection if visa actually changed
+            updateData("visaType", visaName);
+            updateData("priceTier", null); 
+        }
         setValidationError(null);
         // Auto-scroll to CTA
         setTimeout(() => {

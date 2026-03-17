@@ -82,7 +82,8 @@ export default function InvoicingTab() {
         attribution: {
             phone: "",
             country: ""
-        }
+        },
+        verificationAddress: ""
     });
 
     useEffect(() => {
@@ -191,6 +192,21 @@ export default function InvoicingTab() {
             });
 
             if (res.ok) {
+                // Also Sync Address to Verification if linked
+                if (editingInvoice.verificationId && editFormData.verificationAddress) {
+                    await fetch('/api/verification', {
+                        method: 'POST', // API uses POST for update too
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            id: editingInvoice.verificationId,
+                            address: editFormData.verificationAddress
+                        })
+                    });
+                }
+
                 await fetchInvoices(); // Refresh to get populated user/invoice data
                 setOpenEditDialog(false);
                 setEditingInvoice(null);
@@ -222,7 +238,8 @@ export default function InvoicingTab() {
             attribution: {
                 phone: inv.attribution?.phone || '',
                 country: inv.attribution?.country || ''
-            }
+            },
+            verificationAddress: inv.verification?.address || ''
         });
         setOpenEditDialog(true);
     };
@@ -666,6 +683,15 @@ export default function InvoicingTab() {
                                         ...editFormData, 
                                         attribution: { ...editFormData.attribution, country: e.target.value } 
                                     })}
+                                />
+                                <TextField
+                                    label="Indonesian Address (IDiv Card)"
+                                    fullWidth
+                                    size="small"
+                                    multiline
+                                    rows={2}
+                                    value={editFormData.verificationAddress}
+                                    onChange={(e) => setEditFormData({ ...editFormData, verificationAddress: e.target.value })}
                                 />
                             </Stack>
                         </Box>

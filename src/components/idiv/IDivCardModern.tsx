@@ -126,7 +126,7 @@ export default function IDivCardModern({
 
     const handleShare = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const shareUrl = `${window.location.origin}/${isIDG ? 'id-guide' : 'id-indonesian-visas'}?id=${cardData.order_id}`;
+        const shareUrl = `${window.location.origin}/verify/${cardData.order_id}`;
         navigator.clipboard.writeText(shareUrl);
         alert("Verification link copied to clipboard!");
     };
@@ -450,10 +450,10 @@ export default function IDivCardModern({
                                 </Typography>
                             </Box>
 
-                            <Box sx={{ flex: 1, display: 'flex', gap: { xs: 2, sm: 3 }, alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
+                            <Box sx={{ flex: 1, display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
                                 {/* QR Code Section */}
                                 <Box sx={{ 
-                                    p: 1.5, 
+                                    p: { xs: 1, sm: 1.5 }, 
                                     bgcolor: 'white', 
                                     borderRadius: 3, 
                                     boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
@@ -461,17 +461,17 @@ export default function IDivCardModern({
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    gap: 1
+                                    gap: { xs: 0.2, sm: 1 }
                                 }}>
                                     {isMounted && (
                                         <QRCodeSVG 
                                             value={`${window.location.origin}/verify/${cardData.order_id}`} 
-                                            size={isMounted && window.innerWidth < 640 ? 80 : 100}
+                                            size={isMounted && typeof window !== 'undefined' && window.innerWidth < 640 ? 75 : 100}
                                             level="H"
                                             includeMargin={false}
                                         />
                                     )}
-                                    <Typography sx={{ fontSize: '0.55rem', fontWeight: 900, letterSpacing: 1, color: currentColors.accent, fontFamily: 'monospace', mt: 0.5 }}>
+                                    <Typography sx={{ fontSize: '0.5rem', fontWeight: 900, letterSpacing: 0.5, color: currentColors.accent, fontFamily: 'monospace', mt: 0.2 }}>
                                         {cardData.order_id}
                                     </Typography>
                                 </Box>

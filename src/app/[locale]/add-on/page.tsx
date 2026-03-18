@@ -6,103 +6,58 @@ import { CreditCard, ShieldCheck, Zap, ArrowRight, Download, Share2, Star } from
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
-const ADDONS = [
-    {
-        id: 'idiv-card',
-        sku: 'idiv-card',
-        title: 'Physical IDiv Card™',
+const ADDON_TEMPLATES: Record<string, any> = {
+    'IDIV': {
         subtitle: 'The Gold Standard of Visa Identification',
-        price: '20.00',
-        currency: 'USD',
-        description: 'Get a premium physical or digital IDiv card that mirrors your visa data. Features 3D anti-counterfeit effects, Smart QR verification, and instant authenticity checks.',
-        image: '/images/IndonesianVisas/IDiv-Mockup.webp', 
+        image: '/images/IndonesianVisas/IDiv-Mockup.webp',
         features: [
             'Instant QR Verification',
             '3D Anti-Counterfeit Layer',
             'Legal Sponsor Residency ID',
             'High-DPI PDF/PNG Export'
-        ],
-        cta: 'Get Your IDiv Now',
-        link: '/apply',
-        hot: true
+        ]
     },
-    {
-        id: 'idg-card',
-        sku: 'idg-card',
-        title: 'Indonesian ID Guide (IDg)™',
-        subtitle: '24/7 Digital Assistant & Help Desk',
-        price: '10.00',
-        currency: 'USD',
-        description: 'Your verified digital companion for Indonesia. Includes 24/7 live assistance for local rules, disputes, emergency guidance, and Digital Nomad tips. No sponsor needed.',
-        image: '/images/IndonesianVisas/IDg-Card.webp',
-        features: [
-            '24/7 Live Support Access',
-            'Verified Guide Digital ID',
-            'Emergency & Local Aid',
-            'Digital Nomad Work Tips'
-        ],
-        cta: 'Get Your IDg Now',
-        link: '/id-guide',
-        hot: true
-    },
-    {
-        id: 'fast-track',
-        sku: 'fast-track',
-        title: 'VIP Fast-Track Approval',
+    'EXPRESS': {
         subtitle: 'Skip the Queue & Get Approved Faster',
-        price: '45.00',
-        currency: 'USD',
-        description: 'Prioritize your application in our system. Ideal for urgent travelers who need their visa processed with maximum speed and dedicated agent review.',
         image: '/images/IndonesianVisas/VIP-FastTrack.webp',
         features: [
             '24-Hour Review Cycle',
             'Priority Queue Status',
             'Direct Agent Line',
             'Express Notification'
-        ],
-        cta: 'Add VIP Fast-Track',
-        link: '/apply',
-        hot: false
+        ]
     },
-    {
-        id: 'concierge',
-        sku: 'concierge',
-        title: 'Business Concierge',
-        subtitle: 'Full Service Legal & Local Support',
-        price: '150.00',
-        currency: 'USD',
-        description: 'Dedicated legal concierge for high-net-worth individuals and business investors. Includes airport pickup, local banking setup, and 1-on-1 legal consulting.',
-        image: '/images/IndonesianVisas/Concierge.webp',
+    'INSURANCE': {
+        subtitle: 'Comprehensive Medical Coverage for Bali',
+        image: '/images/IndonesianVisas/Insurance.webp',
         features: [
-            'Airport VIP Meet & Greet',
-            'Local Banking Setup',
-            'Legal Consultation',
-            'Property Search Aid'
-        ],
-        cta: 'Select Concierge',
-        link: '/apply',
-        hot: false
+            'COVID-19 & General Medical',
+            'Local Hospital Coverages',
+            'Instant Digital Policy',
+            '24/7 Claim Support'
+        ]
     },
-    {
-        id: 'courier',
-        sku: 'courier',
-        title: 'Express Courier Service',
-        subtitle: 'Secure Passport & Document Handling',
-        price: '35.00',
-        currency: 'USD',
-        description: 'Safety first! We provide secure door-to-door courier service for your passport and important documents across Bali and Jakarta.',
-        image: '/images/IndonesianVisas/Courier.webp',
+    'VIP': {
+        subtitle: 'Luxury Pickup & Skip Airport Hassle',
+        image: '/images/IndonesianVisas/VIP-Transfer.webp',
         features: [
-            'Door-to-Door Pickup',
-            'Real-time Tracking',
-            'Secured Packaging',
-            'Insured Handling'
-        ],
-        cta: 'Book Courier',
-        link: '/apply',
-        hot: false
+            'Private Luxury Chauffeur',
+            'Luggage Assistance Support',
+            'No Airport Taxi Haggles',
+            'Water & Snacks aboard'
+        ]
+    },
+    'IDG': {
+        subtitle: '24/7 Digital Assistant & Help Desk',
+        image: '/images/IndonesianVisas/IDg-Card.webp',
+        features: [
+            '24/7 Live Support Access',
+            'Verified Guide Digital ID',
+            'Emergency & Local Aid',
+            'Digital Nomad Work Tips'
+        ]
     }
-];
+};
 
 import { useApplication } from '@/components/application/ApplicationContext';
 
@@ -130,22 +85,23 @@ export default function AddOnPage() {
         fetchAddons();
     }, []);
 
-    // Merge static descriptions with dynamic price/status if SKU matches
-    const displayedAddons = ADDONS.map(staticItem => {
-        const dynamicMatch = dynamicAddons.find(a => a.sku === staticItem.id);
-        if (dynamicMatch) {
-            return {
-                ...staticItem,
-                price: String(dynamicMatch.price),
-                title: dynamicMatch.name || staticItem.title,
-                subtitle: dynamicMatch.shortDesc || staticItem.subtitle,
-                description: dynamicMatch.description || staticItem.description,
-                isActive: dynamicMatch.isActive,
-                hot: dynamicMatch.category === 'Identity'
-            };
-        }
-        return { ...staticItem, isActive: true }; // Fallback static items active by default
-    }).filter(item => item.isActive);
+    // Map dynamic items using templates
+    const displayedAddons = dynamicAddons.map(dyn => {
+        const template = ADDON_TEMPLATES[dyn.sku.toUpperCase()] || {};
+        return {
+            id: dyn.id,
+            sku: dyn.sku,
+            title: dyn.name,
+            subtitle: template.subtitle || 'Premium Service Add-on',
+            description: dyn.description || 'Enhance your legal visa journey with descriptive assistance packages.',
+            price: dyn.price,
+            currency: dyn.currency || 'IDR',
+            image: template.image || '/images/placeholder.webp',
+            features: template.features || ['Local Assistance Support'],
+            hot: dyn.sku.toUpperCase() === 'IDIV' || dyn.sku.toUpperCase() === 'IDG',
+            isActive: dyn.isActive
+        };
+    }).filter(i => i.isActive);
 
     return (
         <Box sx={{ minHeight: '100vh', pt: { xs: 12, md: 16 }, pb: 10, bgcolor: 'background.default' }}>
@@ -210,7 +166,7 @@ export default function AddOnPage() {
                                         <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>{item.description}</Typography>
                                         
                                         <Stack spacing={1.5} mb={4}>
-                                            {item.features.map(f => (
+                                            {item.features.map((f: string) => (
                                                 <Box key={f} display="flex" alignItems="center" gap={1.5}>
                                                     <Box sx={{ width: 18, height: 18, borderRadius: '50%', bgcolor: 'rgba(3,105,161,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                         <Zap size={10} color="#0369a1" />

@@ -1,6 +1,6 @@
 
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import prisma from "@/lib/prisma";
 
 const ADMIN_EMAILS = [
@@ -11,17 +11,44 @@ const ADMIN_EMAILS = [
 
 export async function getAdminAuth() {
     const cookieStore = await cookies();
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return cookieStore.get(name)?.value; },
-            },
-        }
-    );
+    const headerList = await headers();
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const authHeader = headerList.get("Authorization");
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : null;
+
+    let user = null;
+    let authError = null;
+
+    if (token) {
+        // Option A: Use Bearer Token from Header
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseHeader = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                auth: { persistSession: false },
+                global: { headers: { Authorization: `Bearer ${token}` } }
+            }
+        );
+        const { data } = await supabaseHeader.auth.getUser();
+        user = data.user;
+    }
+
+    if (!user) {
+        // Option B: Fallback to Cookie
+        const supabaseCookie = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    get(name: string) { return cookieStore.get(name)?.value; },
+                },
+            }
+        );
+        const { data, error } = await supabaseCookie.auth.getUser();
+        user = data.user;
+        authError = error;
+    }
 
     if (authError || !user) {
         return { authorized: false, error: "Unauthorized", status: 401 };

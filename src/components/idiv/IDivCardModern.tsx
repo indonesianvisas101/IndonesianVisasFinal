@@ -463,13 +463,15 @@ export default function IDivCardModern({
                                     alignItems: 'center',
                                     gap: { xs: 0.2, sm: 1 }
                                 }}>
-                                    {isMounted && (
+                                    {isMounted ? (
                                         <QRCodeSVG 
                                             value={`${window.location.origin}/verify/${cardData.order_id}`} 
-                                            size={isMounted && typeof window !== 'undefined' && window.innerWidth < 640 ? 75 : 100}
+                                            size={typeof window !== 'undefined' && window.innerWidth < 640 ? 75 : 100}
                                             level="H"
                                             includeMargin={false}
                                         />
+                                    ) : (
+                                        <Box sx={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
                                     )}
                                     <Typography sx={{ fontSize: '0.5rem', fontWeight: 900, letterSpacing: 0.5, color: currentColors.accent, fontFamily: 'monospace', mt: 0.2 }}>
                                         {cardData.order_id}

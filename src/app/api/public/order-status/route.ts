@@ -36,8 +36,10 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { order_id, invoice_number, email, passport_number } = body;
 
-        if (!order_id && !invoice_number && (!email || !passport_number)) {
-            return NextResponse.json({ error: "Insufficient search parameters provided." }, { status: 400 });
+        // COUNT PROVIDED CRITERIA (Harden security: require >= 2 fields)
+        const providedFields = [order_id, invoice_number, email, passport_number].filter(f => f && String(f).trim() !== "");
+        if (providedFields.length < 2) {
+            return NextResponse.json({ error: "Please provide at least 2 search criteria to track securely." }, { status: 400 });
         }
 
         let application: any = null;
@@ -46,7 +48,7 @@ export async function POST(req: Request) {
         if (order_id) {
             application = await prisma.visaApplication.findFirst({
                 where: { OR: [{ id: order_id }, { slug: order_id }] },
-                include: { user: { select: { name: true } } }
+                include: { user: { select: { name: true, email: true } } }
             });
         }
 
@@ -55,7 +57,7 @@ export async function POST(req: Request) {
             const shortId = invoice_number.replace('INV-', '').toLowerCase();
             const invoices = await (prisma.invoice as any).findMany({
                 where: { id: { endsWith: shortId } },
-                include: { visaApplication: { include: { user: { select: { name: true } } } } }
+                include: { visaApplication: { include: { user: { select: { name: true, email: true } } } } }
             });
             if (invoices.length > 0) {
                 application = invoices[0].visaApplication;
@@ -75,6 +77,7 @@ export async function POST(req: Request) {
             if (verification && verification.userId) {
                 application = await prisma.visaApplication.findFirst({
                     where: { userId: verification.userId },
+                    include: { user: { select: { name: true, email: true } } },
                     orderBy: { appliedAt: 'desc' }
                 });
             }
@@ -86,10 +89,31 @@ export async function POST(req: Request) {
                         guestEmail: { equals: email, mode: 'insensitive' },
                         status: { not: 'Deleted' }
                     },
+                    include: { user: { select: { name: true, email: true } } },
                     orderBy: { appliedAt: 'desc' }
                 });
-                // Note: We can't easily verify passport without documents join if not in verification table
-                // But we'll trust the email match for guest status lookup if needed.
+            }
+        }
+
+        if (!application) {
+            return NextResponse.json({ error: "Order not found. Please verify your details." }, { status: 404 });
+        }
+
+        // --- HARDENED CROSS-VALIDATION PAIR CHECK ---
+        const appEmail = application.guestEmail || application.user?.email || "";
+        
+        if (email && appEmail.toLowerCase() !== email.toLowerCase()) {
+            return NextResponse.json({ error: "Verification failed. Details do not match." }, { status: 403 });
+        }
+
+        if (passport_number) {
+            let matchesPassport = false;
+            if (application.verificationId) {
+                const verif = await prisma.verification.findUnique({ where: { id: application.verificationId } });
+                if (verif && verif.passportNumber?.toLowerCase().includes(passport_number.toLowerCase())) matchesPassport = true;
+            }
+            if (!matchesPassport) {
+                return NextResponse.json({ error: "Passport verification failed." }, { status: 403 });
             }
         }
 

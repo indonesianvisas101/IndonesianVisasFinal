@@ -324,8 +324,10 @@ function AdminDashboardContent() {
                 setGlobalApiLoading(false);
             }
         };
-        fetchUsers();
-    }, []);
+        if (!authLoading && user && user.role === 'admin') {
+            fetchUsers();
+        }
+    }, [user, authLoading]);
 
     // RESTORED: Sync Stats with Users List
     useEffect(() => {
@@ -373,8 +375,10 @@ function AdminDashboardContent() {
                 setGlobalApiLoading(false);
             }
         };
-        fetchAdminData();
-    }, []);
+        if (!authLoading && user && user.role === 'admin') {
+            fetchAdminData();
+        }
+    }, [user, authLoading]);
 
     // NEW: Realtime Chat Listener (Admin Side)
     useEffect(() => {
@@ -521,8 +525,10 @@ function AdminDashboardContent() {
                 setIsLoading(false);
             }
         };
-        fetchVisas();
-    }, []);
+        if (!authLoading && user && user.role === 'admin') {
+            fetchVisas();
+        }
+    }, [user, authLoading]);
 
 
 
@@ -1039,12 +1045,12 @@ function AdminDashboardContent() {
             }
         };
 
-        if (activeTab === 'dashboard') {
+        if (activeTab === 'dashboard' && !authLoading && user && user.role === 'admin') {
             fetchRealStats(); // Initial fetch
             const interval = setInterval(fetchRealStats, 30000); // Realtime Polling every 30s
             return () => clearInterval(interval);
         }
-    }, [activeTab]);
+    }, [activeTab, user, authLoading]);
 
     if (authLoading || !user || user.role !== 'admin') {
         return (

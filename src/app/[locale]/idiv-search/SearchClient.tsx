@@ -82,7 +82,7 @@ export default function SearchClient({ locale }: { locale: string }) {
                     <button 
                         type="submit"
                         disabled={isLoading}
-                        className="absolute right-3 top-3 bottom-3 bg-primary text-white px-8 rounded-full font-black uppercase italic tracking-widest flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all z-20 disabled:opacity-50"
+                        className="absolute right-3 top-3 bottom-3 bg-slate-950 text-white dark:bg-white dark:text-slate-950 px-8 rounded-full font-black uppercase italic tracking-widest flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all z-20 disabled:opacity-50 shadow-xl"
                     >
                         {isLoading ? <Loader2 className="animate-spin" size={20} /> : <Search size={20} />}
                         Search
@@ -161,6 +161,7 @@ export default function SearchClient({ locale }: { locale: string }) {
                                      order_id: result.slug || result.application?.slug || "N/A"
                                  }} 
                                  autoRotate={true} 
+                                 showDownload={false}
                              />
                              
                              <div className="p-8 bg-slate-900 dark:bg-white/10 rounded-[2.5rem] text-white space-y-4">
@@ -201,31 +202,6 @@ export default function SearchClient({ locale }: { locale: string }) {
                                             </div>
                                         ))}
                                     </div>
-
-                                    {result.invoice && (
-                                        <motion.div 
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            className="p-6 bg-slate-50 dark:bg-white/10 rounded-2xl border border-dashed border-slate-300 dark:border-white/10 flex justify-between items-center"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                                                    <FileText size={24} />
-                                                </div>
-                                                <div>
-                                                    <div className="text-[10px] font-black uppercase tracking-widest text-primary">Financial Integration</div>
-                                                    <div className="text-sm font-bold mode-aware-text">Order: {result.application?.slug || "Unified"}</div>
-                                                </div>
-                                            </div>
-                                            <a 
-                                                href={result.invoice.url} 
-                                                target="_blank"
-                                                className="text-xs font-black text-primary hover:underline flex items-center gap-1"
-                                            >
-                                                VIEW INVOICE <ArrowRight size={14} />
-                                            </a>
-                                        </motion.div>
-                                    )}
                                 </div>
                             </div>
 

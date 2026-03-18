@@ -23,7 +23,9 @@ import {
     IconButton,
     MenuItem,
     Alert,
-    CircularProgress
+    CircularProgress,
+    Tabs,
+    Tab
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import QrCodeIcon from "@mui/icons-material/QrCode";
@@ -52,6 +54,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
     const [openQRDialog, setOpenQRDialog] = useState(false);
     const [openCardDialog, setOpenCardDialog] = useState(false);
     const [verificationMode, setVerificationMode] = useState<'linked' | 'manual'>('manual');
+    const [previewCardMode, setPreviewCardMode] = useState<'IDIV' | 'IDG'>('IDIV');
     const [selectedUserId, setSelectedUserId] = useState("");
 
     // Form State
@@ -386,7 +389,11 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                 size="small"
                                                 title="Preview IDiv Card"
                                                 aria-label="Preview IDiv Card"
-                                                onClick={() => { setSelectedItem(item); setOpenCardDialog(true); }}
+                                                onClick={() => { 
+                                                    setSelectedItem(item); 
+                                                    setPreviewCardMode(item.visaType?.toUpperCase().includes('IDG') || item.visaType?.toUpperCase().includes('GUIDE') ? 'IDG' : 'IDIV');
+                                                    setOpenCardDialog(true); 
+                                                }}
                                             >
                                                 <RemoveRedEyeIcon />
                                             </IconButton>
@@ -684,9 +691,18 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                     <Box display="flex" flexDirection="column" alignItems="center" py={4}>
                         {selectedItem && (
                             <>
+                                <Tabs 
+                                    value={previewCardMode} 
+                                    onChange={(e, newVal) => setPreviewCardMode(newVal)}
+                                    sx={{ mb: 3 }}
+                                >
+                                    <Tab label="IDiv Card" value="IDIV" />
+                                    <Tab label="IDg Card" value="IDG" />
+                                </Tabs>
+
                                 <IDivCardModern 
-                                    mode={selectedItem.visaType?.toUpperCase().includes('IDG') || selectedItem.visaType?.toUpperCase().includes('GUIDE') ? 'IDG' : 'IDIV'}
-                                    variant="purple"
+                                    mode={previewCardMode}
+                                    variant={previewCardMode === 'IDG' ? 'purple' : 'purple'}
                                     data={{
                                         id_number: selectedItem.id,
                                         name: selectedItem.fullName,
@@ -696,6 +712,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                         issue_date: selectedItem.issuedDate ? new Date(selectedItem.issuedDate).toLocaleDateString() : 'N/A',
                                         address: selectedItem.address || "",
                                         order_id: selectedItem.slug || "N/A",
+                                        photoUrl: selectedItem.photoUrl,
                                         sponsor: "INDONESIAN VISAS AGENCY"
                                     }} 
                                 />

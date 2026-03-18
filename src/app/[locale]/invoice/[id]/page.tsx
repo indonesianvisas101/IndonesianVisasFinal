@@ -349,6 +349,13 @@ export default function InvoicePage() {
                                             </Box>
                                         )}
 
+                                        {/* Itemized Upsells inside Description */}
+                                        {invoiceData.attribution?.upsells && Object.entries(invoiceData.attribution.upsells).filter(([_, v]) => v).map(([k, _]) => (
+                                            <Typography key={k} variant="caption" color="primary" sx={{ display: 'block', mt: 0.5, fontWeight: 600 }}>
+                                                + {String(k).toUpperCase() === 'IDIV' ? 'ID Indonesian Visa' : String(k).toUpperCase() === 'IDG' ? 'Indonesian ID Guide' : String(k).toUpperCase()} Add-on
+                                            </Typography>
+                                        ))}
+
                                         {/* INVOICE DESCRIPTION (From Admin) */}
                                         {(invoiceData.invoice?.description || invoiceData.description) && (
                                             <Typography variant="body2" sx={{ mt: 1.5, color: '#4B5563', whiteSpace: 'pre-wrap', bgcolor: '#F9FAFB', p: 1.5, borderRadius: 1.5, border: '1px solid #E5E7EB' }}>
@@ -391,9 +398,9 @@ export default function InvoicePage() {
                                         </Box>
                                         
                                         {/* Add-ons list if stored in metadata/upsells */}
-                                        {invoiceData.upsells && Object.entries(invoiceData.upsells).filter(([_,v]) => v).map(([k, _]) => (
+                                        {invoiceData.attribution?.upsells && Object.entries(invoiceData.attribution.upsells).filter(([_,v]) => v).map(([k, _]) => (
                                             <Box key={k} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                                <Typography variant="caption" color="text.secondary">+ {k.toUpperCase()} Add-on:</Typography>
+                                                <Typography variant="caption" color="text.secondary">+ {String(k).toUpperCase()} Add-on:</Typography>
                                                 <Typography variant="caption" fontWeight="600">Included</Typography>
                                             </Box>
                                         ))}

@@ -35,6 +35,8 @@ interface IDivCardProps {
     onDownload?: () => void;
     privacyMode?: boolean;
     showActions?: boolean;
+    showDownload?: boolean;
+    shareUrl?: string;
 }
 
 export default function IDivCardModern({ 
@@ -43,7 +45,9 @@ export default function IDivCardModern({
     variant = 'purple',
     autoRotate = true, 
     privacyMode = false, 
-    showActions = true 
+    showActions = true,
+    showDownload = true,
+    shareUrl
 }: IDivCardProps) {
     const [isFlipped, setIsFlipped] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
@@ -126,8 +130,8 @@ export default function IDivCardModern({
 
     const handleShare = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const shareUrl = `${window.location.origin}/verify/${cardData.order_id}`;
-        navigator.clipboard.writeText(shareUrl);
+        const urlToShare = shareUrl || `${window.location.origin}/verify/${cardData.order_id}`;
+        navigator.clipboard.writeText(urlToShare);
         alert("Verification link copied to clipboard!");
     };
 
@@ -323,7 +327,7 @@ export default function IDivCardModern({
                              {/* Details Container */}
                              <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0, width: '100%' }}>
                                  {/* Data Fields */}
-                                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.8, justifyContent: 'center', pl: 0.8, textAlign: 'left', alignItems: 'flex-start' }}>
+                                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.8, justifyContent: 'center', pl: 0.8, textAlign: 'left', alignItems: 'flex-start', mt: -1 }}>
                                      <Box sx={{ minHeight: '1.2rem' }}>
                                          <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
                                          <Typography sx={{ fontSize: { xs: '0.65rem', sm: '0.8rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
@@ -500,23 +504,25 @@ export default function IDivCardModern({
                     position: 'relative',
                     zIndex: 20
                 }}>
-                    <Button
-                        variant="contained"
-                        startIcon={<Download size={18} />}
-                        onClick={handleDownload}
-                        sx={{ 
-                            borderRadius: 4, 
-                            bgcolor: isIDG ? currentColors.secondary : '#0369a1', 
-                            '&:hover': { bgcolor: isIDG ? currentColors.accent : '#075985' },
-                            px: 4,
-                            py: 1.2,
-                            fontWeight: 'bold',
-                            textTransform: 'none',
-                            fontSize: '0.9rem'
-                        }}
-                    >
-                        Download {isIDG ? 'IDg' : 'IDiv'}
-                    </Button>
+                    {showDownload && (
+                        <Button
+                            variant="contained"
+                            startIcon={<Download size={18} />}
+                            onClick={handleDownload}
+                            sx={{ 
+                                borderRadius: 4, 
+                                bgcolor: isIDG ? currentColors.secondary : '#0369a1', 
+                                '&:hover': { bgcolor: isIDG ? currentColors.accent : '#075985' },
+                                px: 4,
+                                py: 1.2,
+                                fontWeight: 'bold',
+                                textTransform: 'none',
+                                fontSize: '0.9rem'
+                            }}
+                        >
+                            Download {isIDG ? 'IDg' : 'IDiv'}
+                        </Button>
+                    )}
                     <Button
                         variant="outlined"
                         startIcon={<Share2 size={18} />}

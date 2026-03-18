@@ -232,7 +232,7 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                    <div className="mt-1 bg-blue-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-none flex flex-col md:flex-row items-center gap-12">
                         <div className="md:w-1/2 flex justify-center">
                             <div className="scale-90 md:scale-100">
-                                <IDivCardModern />
+                                <IDivCardModern showDownload={false} shareUrl="https://indonesianvisas.com/id-indonesian-visas" />
                             </div>
                         </div>
                         <div className="md:w-1/2 space-y-6">
@@ -269,7 +269,7 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                    <div className="mt-1 bg-purple-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-b-[2.9rem] flex flex-col md:flex-row-reverse items-center gap-12">
                         <div className="md:w-1/2 flex justify-center">
                             <div className="scale-90 md:scale-100">
-                                <IDivCardModern mode="IDG" variant="purple" />
+                                <IDivCardModern mode="IDG" variant="purple" showDownload={false} shareUrl="https://indonesianvisas.com/id-guide" />
                             </div>
                         </div>
                         <div className="md:w-1/2 space-y-6">

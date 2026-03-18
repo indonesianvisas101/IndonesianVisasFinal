@@ -153,7 +153,7 @@ export default async function LocaleLayout({
                 </a>
                 <Header dict={dict} locale={currentLocale} />
                 <GlobalInfoPopup locale={currentLocale} />
-                <main id="main-content" className="flex-grow min-h-screen">
+                <main id="main-content" className="flex-grow min-h-screen" suppressHydrationWarning={true}>
                   {children}
                 </main>
                 <Footer dict={dict} locale={currentLocale} />

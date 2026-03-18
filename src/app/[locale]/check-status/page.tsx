@@ -34,6 +34,13 @@ export default function CheckStatusPage() {
         setError("");
         setResult(null);
 
+        const providedCount = [searchData.order_id, searchData.invoice_number, searchData.email, searchData.passport_number].filter(f => f && f.trim() !== "").length;
+        if (providedCount < 2) {
+            setError("Please provide at least 2 search criteria to track securely (e.g., Order ID + Email).");
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await fetch('/api/public/order-status', {
                 method: 'POST',
@@ -77,7 +84,7 @@ export default function CheckStatusPage() {
                         Check Order Status
                     </Typography>
                     <Typography className="text-slate-600 dark:text-gray-400 max-w-xl mx-auto">
-                        Track your visa application progress in real-time. Enter your order details below to get an instant update.
+                        Track your visa application progress securely. Enter <strong>at least any 2 details</strong> below (e.g., Order ID + Email) to get an instant update.
                     </Typography>
                 </div>
 

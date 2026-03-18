@@ -67,7 +67,7 @@ export default function IDGPage() {
                                 }} />
                                 
                                 <Stack spacing={4} alignItems="center">
-                                    <IDivCardModern mode="IDG" variant="purple" />
+                                   <IDivCardModern mode="IDG" variant="purple" showDownload={false} shareUrl="https://indonesianvisas.com/id-guide" />
                                     <Box textAlign="center">
                                         <Typography variant="caption" color="text.secondary" textAlign="center" sx={{ display: 'block', maxWidth: 300, mb: 2 }}>
                                             The IDg Card is a digital facilitation document provided by IndonesianVisas.agency for guidance purposes.

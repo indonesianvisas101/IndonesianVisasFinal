@@ -67,7 +67,7 @@ export default function IDIVPage() {
                                 }} />
                                 
                                 <Stack spacing={4} alignItems="center">
-                                    <IDivCardModern />
+                                    <IDivCardModern showDownload={false} shareUrl="https://indonesianvisas.com/id-indonesian-visas" />
                                     <Box textAlign="center">
                                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', maxWidth: 300, mb: 2 }}>
                                             The IDIV Card is a digital facilitation document provided by IndonesianVisas.agency and does not replace official passports.

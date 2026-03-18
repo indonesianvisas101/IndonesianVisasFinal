@@ -76,14 +76,19 @@ export const downloadIDivDual = async (
     try {
         const options = { pixelRatio: 3, backgroundColor: '#ffffff', cacheBust: true };
         
-        // Temporarily add capture-mode class to back element to fix mirroring
-        backEl.classList.add('capture-mode');
+        // Temporarily override styles to fix mirroring for flat 2D capture
+        const originalTransform = backEl.style.transform;
+        const originalBackfaceVisibility = backEl.style.backfaceVisibility;
+        
+        backEl.style.transform = 'none'; 
+        backEl.style.backfaceVisibility = 'visible';
         
         const frontDataUrl = await toPng(frontEl, options);
         const backDataUrl = await toPng(backEl, options);
 
-        // Remove the class after capture
-        backEl.classList.remove('capture-mode');
+        // Restore original flip transform
+        backEl.style.transform = originalTransform;
+        backEl.style.backfaceVisibility = originalBackfaceVisibility;
 
         if (format === 'pdf') {
             const pdf = new jsPDF({

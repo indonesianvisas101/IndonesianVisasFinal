@@ -159,6 +159,7 @@ export default function VerificationPage() {
                             }}
                             privacyMode={false} 
                             autoRotate={false}
+                            showDownload={false}
                         />
                     </Box>
 

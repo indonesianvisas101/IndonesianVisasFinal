@@ -185,7 +185,7 @@ export async function POST(request: Request) {
                     userId, visaId, visaName, status,
                     guestName, guestEmail, guestAddress, paymentMethod, customAmount,
                     verificationId, appliedAt, visaAmount, addonsAmount,
-                    paymentReference, adminNotes, documents, attribution, quantity
+                    paymentReference, adminNotes, documents, attribution, quantity, upsells
                 } = body;
 
                 const finalUserId = (userId && userId.trim() !== "") ? userId : undefined;
@@ -251,7 +251,7 @@ export async function POST(request: Request) {
                         verificationId: finalVerificationId,
                         slug,
                         documents: documents || null,
-                        attribution: attribution || null,
+                        attribution: attribution ? { ...attribution, upsells: upsells || {} } : { upsells: upsells || {} },
                         quantity: quantity || 1,
                     }
                 });
@@ -267,9 +267,9 @@ export async function POST(request: Request) {
                 }
 
                 // --- 4. HARDENED INVOICE ---
-                const baseServiceAmount = customAmount ? parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) : 0;
-                const visaAmt = visaAmount ? parseFloat(String(visaAmount).replace(/[^0-9.-]+/g, '')) : baseServiceAmount;
-                const addonsAmt = addonsAmount ? parseFloat(String(addonsAmount).replace(/[^0-9.-]+/g, '')) : 0;
+                const baseServiceAmount = customAmount ? parseFloat(String(customAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '')) : 0;
+                const visaAmt = visaAmount ? parseFloat(String(visaAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '')) : baseServiceAmount;
+                const addonsAmt = addonsAmount ? parseFloat(String(addonsAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '')) : 0;
                 
                 const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(visaAmt, paymentMethod || 'Manual', addonsAmt);
 
@@ -402,7 +402,7 @@ export async function PATCH(request: Request) {
         if (guestName !== undefined) appUpdateData.guestName = guestName;
         if (guestEmail !== undefined) appUpdateData.guestEmail = guestEmail;
         if (visaName !== undefined) appUpdateData.visaName = visaName;
-        if (customAmount !== undefined) appUpdateData.customAmount = String(customAmount).replace(/[^0-9.-]+/g, '');
+        if (customAmount !== undefined) appUpdateData.customAmount = String(customAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '');
         if (userId !== undefined) appUpdateData.userId = userId ? userId : null;
         if (quantity !== undefined) appUpdateData.quantity = parseInt(String(quantity)) || 1;
         if (attribution !== undefined) appUpdateData.attribution = attribution; // FIX: Update attribution
@@ -427,7 +427,7 @@ export async function PATCH(request: Request) {
                 // Recalculate fees if amount or method changes
                 const methodToUse = paymentMethod || invoice.paymentMethod || 'Manual';
                 let amountToUse = customAmount !== undefined 
-                    ? parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) 
+                    ? parseFloat(String(customAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '')) 
                     : Number((invoice as any).serviceFee || invoice.amount);
                 
                 if (isNaN(amountToUse)) {

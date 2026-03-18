@@ -592,6 +592,7 @@ const UserDashboard = () => {
                                     <IDivCardModern 
                                         mode={verification.visaType?.toUpperCase().includes('IDG') || verification.visaType?.toUpperCase().includes('GUIDE') ? 'IDG' : 'IDIV'}
                                         variant="purple"
+                                        showActions={false}
                                         data={{
                                             id_number: verification.id?.substring(0, 18),
                                             name: verification.fullName,

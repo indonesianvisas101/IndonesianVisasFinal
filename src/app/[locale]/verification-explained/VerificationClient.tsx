@@ -147,7 +147,7 @@ export default function VerificationClient({ t }: { t: any }) {
                             transition={{ type: "spring", damping: 20 }}
                             className="relative z-10"
                         >
-                            <IDivCardModern autoRotate={true} />
+                            <IDivCardModern autoRotate={true} showDownload={false} />
                         </motion.div>
                         
                         {/* Interactive Tooltips */}

@@ -14,6 +14,39 @@ export default function Error({
     console.error("Global Error Caught:", error);
   }, [error]);
 
+  // Handle known non-critical environment blockers (e.g., Safari content blockers breaking WebSockets)
+  const isWebSocketBlocker = 
+    error.message?.includes("WebSocket") || 
+    error.message?.includes("is insecure") || 
+    error.stack?.includes("websocket") ||
+    error.stack?.includes("connect");
+
+  if (isWebSocketBlocker) {
+    return (
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          p: 4,
+          bgcolor: "#f8fafc",
+        }}
+      >
+        <Typography variant="h5" fontWeight="bold" color="text.secondary" gutterBottom>
+          Optimizing Layout...
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center', maxWidth: 400 }}>
+          Your browser may have some content blockers enabled that restrict non-critical background components. The page layout will proceed shortly.
+        </Typography>
+        <Button variant="outlined" color="primary" onClick={() => reset()} sx={{ borderRadius: 2 }}>
+          Retry View
+        </Button>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{

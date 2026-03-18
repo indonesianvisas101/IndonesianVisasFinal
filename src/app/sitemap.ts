@@ -48,6 +48,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 3. Generate for each locale
     for (const locale of locales) {
+        const localePrefix = locale === 'en' ? '' : `/${locale}`;
+
         // Static Pages
         pages.forEach(page => {
             let priority = 0.8;
@@ -56,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             else if (page.startsWith('/indonesia-visa-guide')) priority = 0.9;
 
             sitemapEntries.push({
-                url: `${baseUrl}/${locale}${page}`,
+                url: `${baseUrl}${localePrefix}${page}`,
                 lastModified: new Date(),
                 changeFrequency: 'weekly',
                 priority,
@@ -66,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         // Visa Service Pages
         Object.keys(VISA_DETAILS).forEach(id => {
             sitemapEntries.push({
-                url: `${baseUrl}/${locale}/services/${id}`,
+                url: `${baseUrl}${localePrefix}/services/${id}`,
                 lastModified: new Date(),
                 changeFrequency: 'weekly',
                 priority: 0.9,
@@ -77,7 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         knowledgePages.forEach((kp: any) => {
             const isCore = kp.category === 'core' || kp.slug.includes('guide');
             sitemapEntries.push({
-                url: `${baseUrl}/${locale}/visa-knowledge/${kp.slug}`,
+                url: `${baseUrl}${localePrefix}/visa-knowledge/${kp.slug}`,
                 lastModified: kp.updatedAt,
                 changeFrequency: 'weekly',
                 priority: isCore ? 0.9 : 0.7,
@@ -87,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         // Immigration News Updates
         immigrationUpdates.forEach((iu: any) => {
             sitemapEntries.push({
-                url: `${baseUrl}/${locale}/indonesia-visa-updates/${iu.slug}`,
+                url: `${baseUrl}${localePrefix}/indonesia-visa-updates/${iu.slug}`,
                 lastModified: iu.updatedAt,
                 changeFrequency: 'weekly',
                 priority: 0.6,

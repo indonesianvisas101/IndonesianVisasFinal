@@ -57,10 +57,26 @@ export default function CentralInfoPopup({ isOpen, onClose, info }: CentralInfoP
                                         borderRadius: 8,
                                         border: '1px solid rgba(255, 255, 255, 0.5)',
                                         boxShadow: '0 30px 60px rgba(0,0,0,0.2)',
-                                        p: { xs: 4, sm: 6 },
+                                        p: { xs: 3, sm: 6 },
                                         position: 'relative',
                                         overflowY: 'auto',
-                                        maxHeight: { xs: '50vh', sm: '85vh' }
+                                        maxHeight: { xs: '45vh', sm: '85vh' },
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        '&::-webkit-scrollbar': {
+                                            width: '6px',
+                                        },
+                                        '&::-webkit-scrollbar-track': {
+                                            background: 'rgba(0,0,0,0.02)',
+                                            borderRadius: '10px',
+                                        },
+                                        '&::-webkit-scrollbar-thumb': {
+                                            background: 'rgba(3, 105, 161, 0.2)',
+                                            borderRadius: '10px',
+                                            '&:hover': {
+                                                background: 'rgba(3, 105, 161, 0.3)',
+                                            }
+                                        }
                                     }}
                                 >
                                     <IconButton

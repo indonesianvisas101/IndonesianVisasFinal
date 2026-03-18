@@ -95,5 +95,5 @@ Targeted landing pages for major expat demographics.
 - `/visa-indonesia-for-uk-citizens`
 
 ---
-**Document Status:** Verified Production v3.9.0 (Multi-Traveler Split & Corporate BCA)
+**Document Status:** Verified Production v4.0.0 (Hardened UI & Mobile Optimized)
 *(Reflects 100% of routes in `src/app/[locale]`)*

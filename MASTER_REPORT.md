@@ -1,6 +1,6 @@
 # 🧠 INDONESIAN VISAS: COMPREHENSIVE MASTER INTELLIGENCE REPORT
-**Version:** 3.9.0 (Multi-Traveler Split & Account Hub) | **Date:** March 17, 2026
-**Status:** Production Optimized | **Confidentiality:** Boss Bayu Authorized
+**Version:** 4.0.0 (Premium UI Hardening & Layout Standardization) | **Date:** March 18, 2026
+**Status:** Hardened & Production Ready | **Confidentiality:** Boss Bayu Authorized
 
 ---
 
@@ -77,6 +77,7 @@ The **IDiv Advanced Safety System™** is the crown jewel of platform trust.
 
 ### 4.1 The IDiv Card System
 - **Modern 3D Card**: A premium UI component (`IDivCardModern.tsx`) showing the issued visa.
+- **Layout Standardization**: Locked vertical positions for all data fields (`minHeight`) and truncated Smart IDs (header) ensuring 1:1 visual parity with the "Perfect" sample across all data lengths.
 - **3D Effect**: Users can click to flip the card in a 3D space.
 - **Back Side**: Contains the **Smart QR Code** and official security holograms.
 - **Smart QR**: When scanned, it redirects the user (or immigration officer) to the official verification page (`/verify/[slug]`).

@@ -3776,7 +3776,26 @@ If any test fails:
 
 ---
 
-***PHASE 50 COMPLETE — SYSTEM OPTIMIZED & PUSHED TO MAIN***
+***PHASE 52 — PREMIUM UI & LAYOUT HARDENING (MARCH 18, 2026)***
+
+#### 💳 IDiv Card Layout Standardization
+- **UUID Display Truncation**: Implemented logic to truncate `SMART ID` (Order ID) for display in the card header, preventing layout collisions.
+- **Vertical Row Locking**: Applied `minHeight` constraints to all data rows (Name, Visa Type, Address, Dates) ensuring consistent vertical positioning across all data lengths.
+- **Alignment Perfection**: Forced explicit left-alignment for all body text to match the "Perfect" sample card precisely.
+- **Header Protection**: Restricted maximum width and implemented overflow ellipsis for Province names to maintain header integrity.
+
+#### 📱 Mobile Info Popup Optimization
+- **Non-Blocking Display**: Restricted `CentralInfoPopup` and `GlobalInfoPopup` to a strict `45vh` maximum height on mobile screens.
+- **Enhanced Scrolability**: Implemented custom vertical scrollbars in the description area for instant accessibility and navigation of long content on mobile.
+- **Padding Refinement**: Optimized internal padding for smaller screens to maximize usable real estate while maintaining a premium aesthetic.
+
+#### 📍 Address Integration Hardening
+- **Universal Address Data**: Ensured the Indonesian address is correctly passed through to the IDiv Card, Verify Page, and Invoicing systems.
+- **Province Detection**: Updated `getProvinceFromAddress` to include specialized handling for "MANADO" as "SULAWESI UTARA".
+
+---
+
+***PHASE 52 COMPLETE — UI STANDARDIZED & HARDENED***
 
 ---
 

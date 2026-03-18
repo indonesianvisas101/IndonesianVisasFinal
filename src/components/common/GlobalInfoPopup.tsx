@@ -123,11 +123,29 @@ export default function GlobalInfoPopup({ locale }: { locale: string }) {
                                     {config.title}
                                 </Typography>
                                 
-                                <Typography variant="body1" sx={{ color: '#444', lineHeight: 1.6, mb: 3, textAlign: 'left' }}>
-                                    {config.description}
-                                </Typography>
+                                <Box sx={{ 
+                                    maxHeight: { xs: '20vh', sm: '40vh' }, 
+                                    overflowY: 'auto', 
+                                    mb: 3, 
+                                    pr: 1,
+                                    '&::-webkit-scrollbar': {
+                                        width: '4px',
+                                    },
+                                    '&::-webkit-scrollbar-track': {
+                                        background: 'rgba(0,0,0,0.02)',
+                                        borderRadius: '10px',
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                        background: 'rgba(145, 85, 253, 0.2)',
+                                        borderRadius: '10px',
+                                    }
+                                }}>
+                                    <Typography variant="body1" sx={{ color: '#444', lineHeight: 1.6, textAlign: 'left' }}>
+                                        {config.description}
+                                    </Typography>
+                                </Box>
 
-                                <Box display="flex" gap={2} justifyContent="center">
+                                <Box display="flex" gap={2} justifyContent="center" sx={{ flexWrap: 'wrap' }}>
                                     <Button
                                         variant="contained"
                                         component={Link}

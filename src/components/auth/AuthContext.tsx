@@ -123,8 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (data && !data.error) {
                 console.log("Profile found via API for UID:", userId, data.name);
                 
-                // SAFETY: Force admin role for the primary admin email
-                const rawRole = (email.toLowerCase() === 'damnbayu@gmail.com') ? 'admin' : data.role;
+                const rawRole = ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(email.toLowerCase()) ? 'admin' : data.role;
 
                 profile = {
                     id: data.id,
@@ -162,7 +161,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 name: '',
                 email: email,
                 whatsapp: '',
-                role: (email.toLowerCase() === 'damnbayu@gmail.com') ? 'admin' : 'user',
+                role: ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(email.toLowerCase()) ? 'admin' : 'user',
                 joinedAt: new Date().toISOString(),
                 status: 'active'
             };
@@ -277,7 +276,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     data: {
                         name: data.name,
                         whatsapp: data.whatsapp,
-                        role: (data.email?.trim()?.toLowerCase() === 'damnbayu@gmail.com') ? 'admin' : 'user', // Strict role check
+                        role: (data.email && ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(data.email.trim().toLowerCase())) ? 'admin' : 'user', // Strict role check
                     },
                     emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
                 }
@@ -299,7 +298,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (authData.user) {
                 const trimmedEmail = (data.email?.trim() || '').toLowerCase();
                 // ONLY damnbayu@gmail.com is allowed to be admin. Everyone else is a user.
-                const finalRole = trimmedEmail === 'damnbayu@gmail.com' ? 'admin' : 'user';
+                const finalRole = ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(trimmedEmail) ? 'admin' : 'user';
 
                 const { error: profileError } = await supabase
                     .from('users')

@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 
 const ADMIN_EMAILS = [
     'damnbayu@gmail.com',
+    'bayu@indonesianvisas.com',
     'damnbayu@bali.enterprises' // Backup admin if exists
 ];
 

@@ -589,17 +589,21 @@ const UserDashboard = () => {
                         {verification && (verification.status === 'VALID' || verification.status === 'Active') ? (
                             <>
                                 <div className="mb-6 w-full transform scale-[0.85] origin-top">
-                                    <IDivCardModern data={{
-                                        id_number: verification.id?.substring(0, 18),
-                                        name: verification.fullName,
-                                        nationality: verification.nationality,
-                                        visa_type: verification.visaType,
-                                        expiry_date: verification.expiresAt ? new Date(verification.expiresAt).toLocaleDateString() : 'N/A',
-                                        issue_date: verification.issuedDate ? new Date(verification.issuedDate).toLocaleDateString() : 'N/A',
-                                        address: verification.address,
-                                        photoUrl: verification.photoUrl,
-                                        order_id: verification.slug
-                                    }} />
+                                    <IDivCardModern 
+                                        mode={verification.visaType?.toUpperCase().includes('IDG') || verification.visaType?.toUpperCase().includes('GUIDE') ? 'IDG' : 'IDIV'}
+                                        variant="purple"
+                                        data={{
+                                            id_number: verification.id?.substring(0, 18),
+                                            name: verification.fullName,
+                                            nationality: verification.nationality,
+                                            visa_type: verification.visaType,
+                                            expiry_date: verification.expiresAt ? new Date(verification.expiresAt).toLocaleDateString() : 'N/A',
+                                            issue_date: verification.issuedDate ? new Date(verification.issuedDate).toLocaleDateString() : 'N/A',
+                                            address: verification.address,
+                                            photoUrl: verification.photoUrl,
+                                            order_id: verification.slug
+                                        }} 
+                                    />
                                 </div>
 
                                 <div className="w-full space-y-3 z-20">

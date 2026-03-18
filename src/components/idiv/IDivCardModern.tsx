@@ -29,13 +29,22 @@ interface IDivCardProps {
         address?: string;
         order_id?: string;
     };
+    mode?: 'IDIV' | 'IDG';
+    variant?: 'purple' | 'indigo' | 'gold';
     autoRotate?: boolean;
     onDownload?: () => void;
     privacyMode?: boolean;
     showActions?: boolean;
 }
 
-export default function IDivCardModern({ data, autoRotate = true, privacyMode = false, showActions = true }: IDivCardProps) {
+export default function IDivCardModern({ 
+    data, 
+    mode = 'IDIV',
+    variant = 'purple',
+    autoRotate = true, 
+    privacyMode = false, 
+    showActions = true 
+}: IDivCardProps) {
     const [isFlipped, setIsFlipped] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
 
@@ -80,14 +89,44 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
         ? cardData.order_id.substring(0, 8) 
         : cardData.order_id;
 
+    const isIDG = mode === 'IDG';
+
+    const colorSchemes = {
+        purple: {
+            header: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
+            body: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
+            accent: '#4c1d95',
+            secondary: '#7c3aed'
+        },
+        indigo: {
+            header: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)',
+            body: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)',
+            accent: '#312e81',
+            secondary: '#4338ca'
+        },
+        gold: {
+            header: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
+            body: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+            accent: '#78350f',
+            secondary: '#b45309'
+        }
+    };
+
+    const currentColors = isIDG ? colorSchemes[variant] : {
+        header: 'transparent',
+        body: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
+        accent: '#0369a1',
+        secondary: '#64748b'
+    };
+
     const handleDownload = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        await downloadIDivDual('idiv-front', 'idiv-back', `IDiv-${cardData.name.replace(/\s+/g, '-')}-${cardData.order_id}`);
+        await downloadIDivDual('idiv-front', 'idiv-back', `${isIDG ? 'IDg' : 'IDiv'}-${cardData.name.replace(/\s+/g, '-')}-${cardData.order_id}`);
     };
 
     const handleShare = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const shareUrl = `${window.location.origin}/id-indonesian-visas?id=${cardData.order_id}`;
+        const shareUrl = `${window.location.origin}/${isIDG ? 'id-guide' : 'id-indonesian-visas'}?id=${cardData.order_id}`;
         navigator.clipboard.writeText(shareUrl);
         alert("Verification link copied to clipboard!");
     };
@@ -137,7 +176,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             backfaceVisibility: 'hidden',
                             borderRadius: '16px', 
                             overflow: 'hidden',
-                            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
+                            background: currentColors.body,
                             boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
                             border: '1px solid rgba(255,255,255,0.6)',
                             display: 'flex',
@@ -175,7 +214,27 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                         </Box>
 
                         {/* Header */}
-                        <Box display="flex" justifyContent="space-between" alignItems="start" mb={1} borderBottom="1px solid rgba(0,0,0,0.1)" pb={0.5} sx={{ zIndex: 2 }}>
+                        <Box 
+                            display="flex" 
+                            justifyContent="space-between" 
+                            alignItems="start" 
+                            mb={1} 
+                            borderBottom="1px solid rgba(0,0,0,0.1)" 
+                            pb={0.5} 
+                            sx={{ 
+                                zIndex: 2,
+                                ...(isIDG ? {
+                                    background: currentColors.header,
+                                    mx: -3,
+                                    px: 3,
+                                    mt: -3,
+                                    pt: 3,
+                                    mb: 2,
+                                    borderRadius: '16px 16px 0 0',
+                                    borderBottom: 'none'
+                                } : {})
+                            }}
+                        >
                             {/* Left Side: Flag & Province */}
                             <Box display="flex" alignItems="flex-start" gap={1}>
                                 <Box sx={{ 
@@ -195,33 +254,41 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                         fontSize: '0.65rem', 
                                         letterSpacing: 1.2, 
                                         lineHeight: 1, 
-                                        color: '#0369a1', 
+                                        color: isIDG ? '#fff' : '#0369a1', 
                                         display: 'block',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                         whiteSpace: 'nowrap',
                                         textAlign: 'left'
                                     }}>
-                                        PROVINSI {cardData.province.toUpperCase()}
+                                        {isIDG ? 'INDONESIAN GUIDE' : `PROVINSI ${cardData.province.toUpperCase()}`}
                                     </Typography>
-                                    <Typography variant="caption" sx={{ fontSize: '0.55rem', fontWeight: 600, letterSpacing: 0.5, color: '#64748b', lineHeight: 1, whiteSpace: 'nowrap', textAlign: 'left' }}>
-                                        INDONESIAN VISAS DIGITAL ID
+                                    <Typography variant="caption" sx={{ 
+                                        fontSize: '0.55rem', 
+                                        fontWeight: 600, 
+                                        letterSpacing: 0.5, 
+                                        color: isIDG ? 'rgba(255,255,255,0.8)' : '#64748b', 
+                                        lineHeight: 1, 
+                                        whiteSpace: 'nowrap', 
+                                        textAlign: 'left' 
+                                    }}>
+                                        {isIDG ? 'OFFICIAL DIGITAL GUIDE ID' : 'INDONESIAN VISAS DIGITAL ID'}
                                     </Typography>
                                 </Box>
                             </Box>
-
+ 
                             {/* Right Side: SMART ID Only */}
                             <Box sx={{ textAlign: 'right', pt: 0.2, flexShrink: 0, pl: 1 }}>
                                 <Typography sx={{ 
                                     fontSize: '0.55rem', 
-                                    color: '#64748b', 
+                                    color: isIDG ? '#fff' : '#64748b', 
                                     fontWeight: 800, 
                                     lineHeight: 1,
                                     opacity: 0.8,
                                     letterSpacing: 0.5,
                                     whiteSpace: 'nowrap'
                                 }}>
-                                    SMART ID: {displayOrderId}
+                                    IDg NO: {displayOrderId}
                                 </Typography>
                             </Box>
                         </Box>
@@ -246,11 +313,11 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                 pl: 0.8,
                                 textAlign: 'left',
                                 letterSpacing: { xs: 0.5, sm: 1.5 }, 
-                                color: '#0369a1', 
+                                color: currentColors.accent, 
                                 zIndex: 2,
                                 whiteSpace: 'nowrap'
                             }}>
-                                ID No : {displayId}
+                                {isIDG ? 'GUIDE NO' : 'ID No'} : {displayId}
                             </Typography>
 
                              {/* Details Container */}
@@ -266,8 +333,8 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                          <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
                                      </Box>
                                      <Box sx={{ minHeight: '1.2rem' }}>
-                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>JENIS VISA</Typography>
-                                         <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: '#0369a1', lineHeight: 1.1 }}>{cardData.visa_type}</Typography>
+                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>{isIDG ? 'GUIDE TYPE' : 'JENIS VISA'}</Typography>
+                                         <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: currentColors.secondary, lineHeight: 1.1 }}>{isIDG ? 'VISITOR GUIDE 24/7' : cardData.visa_type}</Typography>
                                      </Box>
                                      
                                      {/* INDONESIAN ADDRESS */}
@@ -341,8 +408,8 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
 
                                      {/* DESCRIPTIVE TEXT BENEATH IMAGE */}
                                      <Box sx={{ textAlign: 'center', width: '100%', mt: 0.5 }}>
-                                         <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, lineHeight: 1.1, color: '#0369a1', opacity: 0.9 }}>
-                                             Smart IDiv by:<br/>indonesianvisas.com
+                                         <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, lineHeight: 1.1, color: currentColors.accent, opacity: 0.9 }}>
+                                             {isIDG ? 'Smart Guide by:' : 'Smart IDiv by:'}<br/>indonesianvisas.com
                                          </Typography>
                                      </Box>
                                  </Box>
@@ -377,8 +444,8 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             flexDirection: 'column'
                         }}>
                             <Box display="flex" justifyContent="center" alignItems="center" gap={1} mb={1.5} borderBottom="1px solid #e2e8f0" pb={1}>
-                                <QrIcon size={16} className="text-blue-600" />
-                                <Typography variant="caption" fontWeight="900" sx={{ color: '#0369a1', letterSpacing: 1.5, fontSize: '0.65rem' }}>
+                                <QrIcon size={16} className={isIDG ? '' : 'text-blue-600'} color={currentColors.accent} />
+                                <Typography variant="caption" fontWeight="900" sx={{ color: currentColors.accent, letterSpacing: 1.5, fontSize: '0.65rem' }}>
                                     SMART VERIFICATION CODE
                                 </Typography>
                             </Box>
@@ -404,7 +471,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                                             includeMargin={false}
                                         />
                                     )}
-                                    <Typography sx={{ fontSize: '0.55rem', fontWeight: 900, letterSpacing: 1, color: '#0369a1', fontFamily: 'monospace', mt: 0.5 }}>
+                                    <Typography sx={{ fontSize: '0.55rem', fontWeight: 900, letterSpacing: 1, color: currentColors.accent, fontFamily: 'monospace', mt: 0.5 }}>
                                         {cardData.order_id}
                                     </Typography>
                                 </Box>
@@ -412,7 +479,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
 
                             <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center' }}>
                                 <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, color: '#64748b', opacity: 0.6, letterSpacing: 1.5, textAlign: 'center' }}>
-                                    OFFICIAL SPONSOR ID • SECURED VIA IDIV SYSTEM • INDONESIANVISAS.COM
+                                    {isIDG ? 'OFFICIAL GUIDE ID • SECURED VIA IDg SYSTEM • INDONESIANVISAS.COM' : 'OFFICIAL SPONSOR ID • SECURED VIA IDIV SYSTEM • INDONESIANVISAS.COM'}
                                 </Typography>
                             </Box>
                         </Box>
@@ -437,8 +504,8 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                         onClick={handleDownload}
                         sx={{ 
                             borderRadius: 4, 
-                            bgcolor: '#0369a1', 
-                            '&:hover': { bgcolor: '#075985' },
+                            bgcolor: isIDG ? currentColors.secondary : '#0369a1', 
+                            '&:hover': { bgcolor: isIDG ? currentColors.accent : '#075985' },
                             px: 4,
                             py: 1.2,
                             fontWeight: 'bold',
@@ -446,7 +513,7 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                             fontSize: '0.9rem'
                         }}
                     >
-                        Download
+                        Download {isIDG ? 'IDg' : 'IDiv'}
                     </Button>
                     <Button
                         variant="outlined"
@@ -454,9 +521,9 @@ export default function IDivCardModern({ data, autoRotate = true, privacyMode = 
                         onClick={handleShare}
                         sx={{ 
                             borderRadius: 4, 
-                            borderColor: '#0369a1', 
-                            color: '#0369a1',
-                            '&:hover': { borderColor: '#075985', bgcolor: 'rgba(3,105,161,0.05)' },
+                            borderColor: isIDG ? currentColors.secondary : '#0369a1', 
+                            color: isIDG ? currentColors.secondary : '#0369a1',
+                            '&:hover': { borderColor: isIDG ? currentColors.accent : '#075985', bgcolor: isIDG ? 'rgba(124,58,237,0.05)' : 'rgba(3,105,161,0.05)' },
                             px: 4, py: 1.2, fontWeight: 'bold', textTransform: 'none', fontSize: '0.9rem'
                         }}
                     >

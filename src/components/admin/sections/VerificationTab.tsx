@@ -684,17 +684,21 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                     <Box display="flex" flexDirection="column" alignItems="center" py={4}>
                         {selectedItem && (
                             <>
-                                <IDivCardModern data={{
-                                    id_number: selectedItem.id,
-                                    name: selectedItem.fullName,
-                                    nationality: selectedItem.nationality || "VERIFIED HOLDER",
-                                    visa_type: selectedItem.visaType,
-                                    expiry_date: selectedItem.expiresAt ? new Date(selectedItem.expiresAt).toLocaleDateString() : 'N/A',
-                                    issue_date: selectedItem.issuedDate ? new Date(selectedItem.issuedDate).toLocaleDateString() : 'N/A',
-                                    address: selectedItem.address || "",
-                                    order_id: selectedItem.slug || "N/A",
-                                    sponsor: "INDONESIAN VISAS AGENCY"
-                                }} />
+                                <IDivCardModern 
+                                    mode={selectedItem.visaType?.toUpperCase().includes('IDG') || selectedItem.visaType?.toUpperCase().includes('GUIDE') ? 'IDG' : 'IDIV'}
+                                    variant="purple"
+                                    data={{
+                                        id_number: selectedItem.id,
+                                        name: selectedItem.fullName,
+                                        nationality: selectedItem.nationality || "VERIFIED HOLDER",
+                                        visa_type: selectedItem.visaType,
+                                        expiry_date: selectedItem.expiresAt ? new Date(selectedItem.expiresAt).toLocaleDateString() : 'N/A',
+                                        issue_date: selectedItem.issuedDate ? new Date(selectedItem.issuedDate).toLocaleDateString() : 'N/A',
+                                        address: selectedItem.address || "",
+                                        order_id: selectedItem.slug || "N/A",
+                                        sponsor: "INDONESIAN VISAS AGENCY"
+                                    }} 
+                                />
                                 
                                 <Typography variant="caption" sx={{ mt: 3, color: 'text.secondary', textAlign: 'center' }}>
                                     Standard IDiv Digital Format (KTP Style)

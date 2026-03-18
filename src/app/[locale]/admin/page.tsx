@@ -185,6 +185,29 @@ function AdminDashboardContent() {
 
     // Data State
     const [visas, setVisas] = useState<VisaType[]>([]);
+    const [popularVisaIds, setPopularVisaIds] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const saved = localStorage.getItem('popular_visa_ids');
+            if (saved) {
+                setPopularVisaIds(JSON.parse(saved));
+            } else {
+                setPopularVisaIds(POPULAR_VISA_IDS);
+            }
+        }
+    }, []);
+
+    const handleTogglePopular = (id: string) => {
+        setPopularVisaIds(prev => {
+            const next = prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id];
+            if (typeof window !== "undefined") {
+                localStorage.setItem('popular_visa_ids', JSON.stringify(next));
+            }
+            return next;
+        });
+    };
+
     const [stats, setStats] = useState(INITIAL_STATS);
     const [latestNotification, setLatestNotification] = useState<any>(null);
     const [allNotifications, setAllNotifications] = useState<any[]>([]);
@@ -1719,6 +1742,14 @@ function AdminDashboardContent() {
                                                         </Avatar>
                                                     </TableCell>
                                                     <TableCell align="right">
+                                                        <IconButton 
+                                                            size="small" 
+                                                            onClick={() => handleTogglePopular(row.id)}
+                                                            color={popularVisaIds.includes(row.id) ? "secondary" : "default"}
+                                                            title={popularVisaIds.includes(row.id) ? "Remove from Popular" : "Add to Popular"}
+                                                        >
+                                                            <TrendingUpIcon fontSize="small" sx={{ color: popularVisaIds.includes(row.id) ? '#7c3aed' : 'inherit', opacity: popularVisaIds.includes(row.id) ? 1 : 0.4 }} />
+                                                        </IconButton>
                                                         <IconButton size="small" onClick={() => setEditingVisa(row)}>
                                                             <EditIcon fontSize="small" />
                                                         </IconButton>
@@ -1756,7 +1787,7 @@ function AdminDashboardContent() {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {visas.filter(v => POPULAR_VISA_IDS.includes(v.id)).map((row) => (
+                                            {visas.filter(v => popularVisaIds.includes(v.id)).map((row) => (
                                                 <TableRow key={row.id} hover>
                                                     <TableCell>
                                                         <Typography variant="subtitle2" fontWeight="bold">{row.name}</Typography>
@@ -1806,10 +1837,10 @@ function AdminDashboardContent() {
                                                         <Button
                                                             variant="outlined"
                                                             size="small"
-                                                            startIcon={<EditIcon />}
-                                                            onClick={() => setEditingVisa(row)}
+                                                            color="error"
+                                                            onClick={() => handleTogglePopular(row.id)}
                                                         >
-                                                            Edit
+                                                            Remove
                                                         </Button>
                                                     </TableCell>
                                                 </TableRow>

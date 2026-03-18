@@ -144,6 +144,8 @@ export default function VerificationPage() {
                     {/* IDIV CARD PREVIEW */}
                     <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
                         <IDivCardModern 
+                            mode={data.visaType?.toUpperCase().includes('IDG') || data.visaType?.toUpperCase().includes('GUIDE') ? 'IDG' : 'IDIV'}
+                            variant="purple"
                             data={{
                                 id_number: data.id,
                                 name: data.fullName,

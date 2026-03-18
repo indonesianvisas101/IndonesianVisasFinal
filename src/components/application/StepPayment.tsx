@@ -95,6 +95,7 @@ const StepPayment = () => {
         if (upsells.insurance) totalAmount += getAddonPrice('INSURANCE');
         if (upsells.vip) totalAmount += getAddonPrice('VIP');
         if (upsells.idiv) totalAmount += getAddonPrice('IDIV') * numPeople;
+        if (upsells.idg) totalAmount += getAddonPrice('IDG') * numPeople;
     }
 
     // Helper to get the correct photo for IDiv (Priority: Selfie from Step 3)
@@ -359,6 +360,19 @@ const StepPayment = () => {
                             +IDR {(addons?.find(a => a.sku === 'IDIV')?.price || 325000).toLocaleString()}
                         </span>
                     </div>
+
+                    <div 
+                        className={`${styles.upsellItem} ${upsells.idg ? styles.upsellActive : ''}`}
+                        onClick={() => toggleUpsell('idg')}
+                    >
+                        <div className="flex-grow">
+                            <p className="text-sm font-bold">💜 Indonesian ID Guide (IDg)</p>
+                            <p className="text-[10px] text-gray-500">24/7 Digital companion & expert guidance.</p>
+                        </div>
+                        <span className="text-sm font-bold text-primary">
+                            +IDR {(addons?.find(a => a.sku === 'IDG')?.price || 162500).toLocaleString()}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -409,9 +423,10 @@ const StepPayment = () => {
                     {/* Upsells List */}
                     {Object.entries(upsells).filter(([k,v]) => v).map(([k,v]) => (
                         <div key={k} className={styles.priceRow}>
-                            <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k} Add-on</span>
+                            <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k === 'idg' ? 'Indonesian ID Guide' : k} Add-on</span>
                             <span className="text-xs font-bold text-primary">
                                + IDR {k === 'idiv' ? (parseCurrency(addons?.find(a => a.sku === 'IDIV')?.price || "325000") * numPeople).toLocaleString() : 
+                                      k === 'idg' ? (parseCurrency(addons?.find(a => a.sku === 'IDG')?.price || "162500") * numPeople).toLocaleString() :
                                       k === 'express' ? parseCurrency(addons?.find(a => a.sku === 'EXPRESS')?.price || "800000").toLocaleString() : 
                                       k === 'insurance' ? parseCurrency(addons?.find(a => a.sku === 'INSURANCE')?.price || "500000").toLocaleString() : 
                                       parseCurrency(addons?.find(a => a.sku === 'VIP')?.price || "1500000").toLocaleString()}

@@ -147,16 +147,21 @@ export default function SearchClient({ locale }: { locale: string }) {
                              <div className="bg-primary/10 text-primary px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] font-black tracking-widest uppercase italic">
                                 <QrCode size={14} /> System Verified ID
                              </div>
-                             <IDivCardModern data={{
-                                 id_number: result.id,
-                                 name: result.fullName,
-                                 nationality: result.nationality || "VERIFIED HOLDER",
-                                 visa_type: result.visaType,
-                                 expiry_date: result.expiresAt ? new Date(result.expiresAt).toLocaleDateString() : 'N/A',
-                                 issue_date: result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A',
-                                 address: result.address || "",
-                                 order_id: result.slug || result.application?.slug || "N/A"
-                             }} autoRotate={true} />
+                             <IDivCardModern 
+                                 mode={result.visaType?.toUpperCase().includes('IDG') || result.visaType?.toUpperCase().includes('GUIDE') ? 'IDG' : 'IDIV'}
+                                 variant="purple"
+                                 data={{
+                                     id_number: result.id,
+                                     name: result.fullName,
+                                     nationality: result.nationality || "VERIFIED HOLDER",
+                                     visa_type: result.visaType,
+                                     expiry_date: result.expiresAt ? new Date(result.expiresAt).toLocaleDateString() : 'N/A',
+                                     issue_date: result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A',
+                                     address: result.address || "",
+                                     order_id: result.slug || result.application?.slug || "N/A"
+                                 }} 
+                                 autoRotate={true} 
+                             />
                              
                              <div className="p-8 bg-slate-900 dark:bg-white/10 rounded-[2.5rem] text-white space-y-4">
                                 <div className="flex items-center gap-2 text-[10px] font-black text-primary tracking-widest uppercase italic">

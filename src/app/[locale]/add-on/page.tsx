@@ -27,6 +27,25 @@ const ADDONS = [
         hot: true
     },
     {
+        id: 'idg-card',
+        sku: 'idg-card',
+        title: 'Indonesian ID Guide (IDg)™',
+        subtitle: '24/7 Digital Assistant & Help Desk',
+        price: '10.00',
+        currency: 'USD',
+        description: 'Your verified digital companion for Indonesia. Includes 24/7 live assistance for local rules, disputes, emergency guidance, and Digital Nomad tips. No sponsor needed.',
+        image: '/images/IndonesianVisas/IDg-Card.webp',
+        features: [
+            '24/7 Live Support Access',
+            'Verified Guide Digital ID',
+            'Emergency & Local Aid',
+            'Digital Nomad Work Tips'
+        ],
+        cta: 'Get Your IDg Now',
+        link: '/id-guide',
+        hot: true
+    },
+    {
         id: 'fast-track',
         sku: 'fast-track',
         title: 'VIP Fast-Track Approval',
@@ -112,25 +131,21 @@ export default function AddOnPage() {
     }, []);
 
     // Merge static descriptions with dynamic price/status if SKU matches
-    const displayedAddons = dynamicAddons.length > 0 
-        ? dynamicAddons.filter(a => a.isActive).map(a => {
-            const staticMatch = ADDONS.find(s => s.id === a.sku);
+    const displayedAddons = ADDONS.map(staticItem => {
+        const dynamicMatch = dynamicAddons.find(a => a.sku === staticItem.id);
+        if (dynamicMatch) {
             return {
-                id: a.id,
-                sku: a.sku,
-                title: a.name || staticMatch?.title,
-                subtitle: a.shortDesc || staticMatch?.subtitle,
-                price: String(a.price),
-                currency: 'IDR',
-                description: a.description || staticMatch?.description,
-                image: staticMatch?.image || '/images/IndonesianVisas/IDiv-Mockup.webp',
-                features: staticMatch?.features || ['Priority Processing', 'Premium Support'],
-                cta: staticMatch?.cta || 'Order Now',
-                link: '/apply',
-                hot: a.category === 'Identity'
+                ...staticItem,
+                price: String(dynamicMatch.price),
+                title: dynamicMatch.name || staticItem.title,
+                subtitle: dynamicMatch.shortDesc || staticItem.subtitle,
+                description: dynamicMatch.description || staticItem.description,
+                isActive: dynamicMatch.isActive,
+                hot: dynamicMatch.category === 'Identity'
             };
-        })
-        : ADDONS;
+        }
+        return { ...staticItem, isActive: true }; // Fallback static items active by default
+    }).filter(item => item.isActive);
 
     return (
         <Box sx={{ minHeight: '100vh', pt: { xs: 12, md: 16 }, pb: 10, bgcolor: 'background.default' }}>
@@ -240,9 +255,7 @@ export default function AddOnPage() {
                     <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4, maxWidth: '600px', mx: 'auto' }}>
                         Our agency offers customized legal and relocation services. Contact our support team for specialized requests or B2B volume orders.
                     </Typography>
-                    <Link href="/contact" passHref legacyBehavior>
-                        <Button variant="outlined" sx={{ borderRadius: 4, px: 4, py: 1.5 }}>Contact Agent Hub</Button>
-                    </Link>
+                    <Button component={Link} href="/contact" variant="outlined" sx={{ borderRadius: 4, px: 4, py: 1.5 }}>Contact Agent Hub</Button>
                 </Box>
             </Container>
         </Box>

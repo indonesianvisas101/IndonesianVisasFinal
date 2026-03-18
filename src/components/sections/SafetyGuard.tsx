@@ -229,7 +229,7 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                    </div>
 
                    {/* IDiv Explained Section */}
-                   <div className="mt-1 bg-blue-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-b-[2.9rem] flex flex-col md:flex-row items-center gap-12">
+                   <div className="mt-1 bg-blue-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-none flex flex-col md:flex-row items-center gap-12">
                         <div className="md:w-1/2 flex justify-center">
                             <div className="scale-90 md:scale-100">
                                 <IDivCardModern />
@@ -250,13 +250,53 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                                     <Typography variant="body2" fontWeight="bold" className="mode-aware-text">Integrated System</Typography>
                                 </Box>
                             </div>
-                            <div className="flex flex-col gap-3 mt-4 w-full">
-                                <Link href={`/${locale}/id-indonesian-visas`} className="w-full">
+                            <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
+                                <Link href={`/${locale}/id-indonesian-visas`} className="flex-1">
                                     <button className="cta-primary w-full justify-center">
                                         Learn More <ArrowRight size={18} className="ml-2" />
                                     </button>
                                 </Link>
-                                 <Link href={`/${locale}/idiv-search`} className="w-full">
+                                 <Link href={`/${locale}/idiv-search`} className="flex-1">
+                                    <button className="w-full justify-center py-4 rounded-full bg-transparent text-black dark:text-white font-black border-2 border-black dark:border-white/20 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex items-center gap-2 shadow-sm uppercase tracking-widest text-sm">
+                                        <Search size={18} /> Search ID
+                                    </button>
+                                </Link>
+                            </div>
+                        </div>
+                   </div>
+
+                   {/* IDg Explained Section (New) */}
+                   <div className="mt-1 bg-purple-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-b-[2.9rem] flex flex-col md:flex-row-reverse items-center gap-12">
+                        <div className="md:w-1/2 flex justify-center">
+                            <div className="scale-90 md:scale-100">
+                                <IDivCardModern mode="IDG" variant="purple" />
+                            </div>
+                        </div>
+                        <div className="md:w-1/2 space-y-6">
+                            <div className="inline-block px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs font-bold border border-purple-200 dark:border-purple-800">
+                                NEW: 24/7 SUPPORT COMPANION
+                            </div>
+                            <h3 className="text-3xl font-black mode-aware-text">Indonesian ID Guide (IDg)</h3>
+                            <p className="mode-aware-subtext text-lg">
+                                Your **Digital Support Hub** in Indonesia. Designed for short-term visitors and digital nomads who want 24/7 assistance with local rules, disputes, and emergency guidance without requiring a visa sponsor.
+                            </p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <Box className="p-4 bg-white dark:bg-black/20 rounded-2xl border border-slate-200 dark:border-white/10">
+                                    <Typography variant="caption" sx={{ color: '#7c3aed' }} fontWeight="bold">GUIDE SERVICE</Typography>
+                                    <Typography variant="body2" fontWeight="bold" className="mode-aware-text">24/7 Live Help</Typography>
+                                </Box>
+                                <Box className="p-4 bg-white dark:bg-black/20 rounded-2xl border border-slate-200 dark:border-white/10">
+                                    <Typography variant="caption" sx={{ color: '#7c3aed' }} fontWeight="bold">IDG SEARCH</Typography>
+                                    <Typography variant="body2" fontWeight="bold" className="mode-aware-text">Traceable System</Typography>
+                                </Box>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
+                                <Link href={`/${locale}/id-guide`} className="flex-1">
+                                    <button className="w-full justify-center py-4 rounded-full bg-[#7c3aed] text-white font-black hover:bg-[#6d28d9] transition-all flex items-center gap-2 shadow-lg uppercase tracking-widest text-sm">
+                                        Learn More <ArrowRight size={18} className="ml-2" />
+                                    </button>
+                                </Link>
+                                 <Link href={`/${locale}/idiv-search`} className="flex-1">
                                     <button className="w-full justify-center py-4 rounded-full bg-transparent text-black dark:text-white font-black border-2 border-black dark:border-white/20 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex items-center gap-2 shadow-sm uppercase tracking-widest text-sm">
                                         <Search size={18} /> Search ID
                                     </button>

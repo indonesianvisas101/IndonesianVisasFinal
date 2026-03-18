@@ -74,6 +74,7 @@ interface ApplicationState {
         insurance: boolean;
         vip: boolean;
         idiv: boolean; // NEW: ID Indonesian Visas
+        idg: boolean; // NEW: Indonesian ID Guide
     };
     // New: Dynamic Addons from DB
     addons: any[];
@@ -110,7 +111,7 @@ interface ApplicationContextType extends ApplicationState {
     // Notifications
     notifications: Record<string, AppNotification[]>;
     allNotifications: AppNotification[];
-    toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv') => void;
+    toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg') => void;
     pushNotification: (userId: string, message: string) => void;
     setNotifications: (userId: string, notifications: AppNotification[]) => void;
     setAllNotifications: (notifications: AppNotification[]) => void;
@@ -160,7 +161,8 @@ const defaultState: ApplicationState = {
         express: false,
         insurance: false,
         vip: false,
-        idiv: false
+        idiv: false,
+        idg: false
     },
     addons: []
 };
@@ -462,7 +464,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
-    const toggleUpsell = (key: 'express' | 'insurance' | 'vip' | 'idiv') => {
+    const toggleUpsell = (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg') => {
         setState(prev => ({
             ...prev,
             upsells: {

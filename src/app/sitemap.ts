@@ -14,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/about', '/faq', '/legal', '/apply', '/extend', '/login', '/register',
         '/forgot-password', '/privacy-policy', '/terms-and-conditions', '/refund',
         '/legal-experts', '/fast-approval', '/indonesia-visa-guide-2026',
-        '/verification-explained', '/idiv-search',
+        '/verification-explained', '/idiv-search', '/id-guide', '/id-indonesian-visas',
         ...IDIV_DOC_PATHS,
         '/visa-types/b211a-visa-indonesia', '/visa-types/visa-on-arrival-bali',
         '/visa-types/kitas-indonesia', '/visa-types/investor-visa-indonesia',

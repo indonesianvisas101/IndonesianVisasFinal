@@ -434,7 +434,21 @@ export async function PATCH(request: Request) {
                     amountToUse = Number((invoice as any).serviceFee || invoice.amount);
                 }
                 
-                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(amountToUse, methodToUse);
+                // BACKWARDS RECONSTRUCTION FOR ADD-ONS (Fixes dropping addonsAmt on update)
+                const prevPph23 = Number(invoice.pph23Amount || 0);
+                const prevServiceFee = Number((invoice as any).serviceFee || invoice.amount || 0);
+                
+                let visaAmount = prevPph23 * 50; 
+                let addonsAmount = prevServiceFee - visaAmount;
+
+                if (addonsAmount < 0) addonsAmount = 0; // Guard
+
+                if (customAmount !== undefined) {
+                    visaAmount = amountToUse; 
+                    addonsAmount = 0;
+                }
+
+                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(visaAmount, methodToUse, addonsAmount);
                 
                 dataToUpdate.amount = totalAmount;
                 dataToUpdate.serviceFee = serviceFee;

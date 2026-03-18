@@ -4,9 +4,7 @@ import { cookies, headers } from "next/headers";
 import prisma from "@/lib/prisma";
 
 const ADMIN_EMAILS = [
-    'damnbayu@gmail.com',
-    'bayu@indonesianvisas.com',
-    'damnbayu@bali.enterprises' // Backup admin if exists
+    'damnbayu@gmail.com'
 ];
 
 export async function getAdminAuth() {

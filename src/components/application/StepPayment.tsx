@@ -57,7 +57,9 @@ const StepPayment = () => {
 
     // Use current application amount
     const currentVisa = visas.find(v => v.name === visaType);
-    let totalAmount = 0;
+    let visaTotal = 0;
+    let addonsTotal = 0;
+
     if (currentVisa) {
         let baseAmount = 0;
         let feeAmount = 0;
@@ -84,30 +86,27 @@ const StepPayment = () => {
             feeAmount = parseCurrency(String(currentVisa.fee));
         }
 
-        totalAmount = (baseAmount + feeAmount) * numPeople;
+        visaTotal = (baseAmount + feeAmount) * numPeople;
 
         const getAddonPrice = (sku: string) => {
             const addon = addons?.find(a => a.sku === sku);
             return addon ? Number(addon.price) : 0;
         };
 
-        if (upsells.express) totalAmount += getAddonPrice('EXPRESS');
-        if (upsells.insurance) totalAmount += getAddonPrice('INSURANCE');
-        if (upsells.vip) totalAmount += getAddonPrice('VIP');
-        if (upsells.idiv) totalAmount += getAddonPrice('IDIV') * numPeople;
-        if (upsells.idg) totalAmount += getAddonPrice('IDG') * numPeople;
+        if (upsells.express) addonsTotal += getAddonPrice('EXPRESS');
+        if (upsells.insurance) addonsTotal += getAddonPrice('INSURANCE');
+        if (upsells.vip) addonsTotal += getAddonPrice('VIP');
+        if (upsells.idiv) addonsTotal += getAddonPrice('IDIV') * numPeople;
+        if (upsells.idg) addonsTotal += getAddonPrice('IDG') * numPeople;
     }
 
-    // Helper to get the correct photo for IDiv (Priority: Selfie from Step 3)
-    const getIdivPhoto = (index: number) => {
-        const docs = Array.isArray(documents) ? documents[index] : (index === 0 ? documents : null);
-        return docs?.recentPhoto || docs?.passportPhoto; // Priority to recentPhoto (selfie)
-    };
+    const totalAmount = visaTotal + addonsTotal; // Backward-compatible aggregate for processCheckout array division
 
-    const pph23Amount = Math.round(totalAmount * 0.02);
-    // 3rd Party Payment Fee (4%)
-    const platformFeeAmount = Math.round((totalAmount + pph23Amount) * 0.04);
-    const grandTotal = totalAmount + pph23Amount + platformFeeAmount;
+    // Tax (PPh 23) calculated ONLY on Visa total
+    const pph23Amount = Math.round(visaTotal * 0.02);
+    // Platform Fee = 4% on everything including tax?
+    const platformFeeAmount = Math.round((visaTotal + addonsTotal + pph23Amount) * 0.04);
+    const grandTotal = visaTotal + addonsTotal + pph23Amount + platformFeeAmount;
 
     const processCheckout = async () => {
         setIsSubmitting(true);
@@ -148,7 +147,9 @@ const StepPayment = () => {
             await Promise.all(uploadPromises);
 
             // 1. Calculate Split Amounts
-            const perPersonBaseAmount = totalAmount / numPeople;
+            const perPersonVisaAmount = visaTotal / numPeople;
+            const perPersonAddonsAmount = addonsTotal / numPeople;
+            const perPersonBaseAmount = totalAmount / numPeople; // Backward-compatible aggregate
             const applications = [];
 
             // 2. Aggregate Applications for each traveler
@@ -172,6 +173,8 @@ const StepPayment = () => {
                     guestEmail: email,
                     paymentMethod: selectedMethod || 'Manual',
                     customAmount: perPersonBaseAmount.toFixed(0), 
+                    visaAmount: perPersonVisaAmount.toFixed(0), // Decoupled Visa weight
+                    addonsAmount: perPersonAddonsAmount.toFixed(0), // Decoupled Addons weight
                     quantity: 1,
                     documents: travelerDocs[i] || {},
                     upsells: upsells,

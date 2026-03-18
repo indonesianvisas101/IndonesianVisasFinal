@@ -184,7 +184,7 @@ export async function POST(request: Request) {
                 const {
                     userId, visaId, visaName, status,
                     guestName, guestEmail, guestAddress, paymentMethod, customAmount,
-                    verificationId, appliedAt,
+                    verificationId, appliedAt, visaAmount, addonsAmount,
                     paymentReference, adminNotes, documents, attribution, quantity
                 } = body;
 
@@ -268,7 +268,10 @@ export async function POST(request: Request) {
 
                 // --- 4. HARDENED INVOICE ---
                 const baseServiceAmount = customAmount ? parseFloat(String(customAmount).replace(/[^0-9.-]+/g, '')) : 0;
-                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(baseServiceAmount, paymentMethod || 'Manual');
+                const visaAmt = visaAmount ? parseFloat(String(visaAmount).replace(/[^0-9.-]+/g, '')) : baseServiceAmount;
+                const addonsAmt = addonsAmount ? parseFloat(String(addonsAmount).replace(/[^0-9.-]+/g, '')) : 0;
+                
+                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(visaAmt, paymentMethod || 'Manual', addonsAmt);
 
                 const invoice = await (tx.invoice as any).create({
                     data: {

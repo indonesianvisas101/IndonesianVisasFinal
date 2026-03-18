@@ -77,8 +77,9 @@ const StepCountryVisa = () => {
         }, 150);
     };
 
-    const handleTierSelect = (tierName: string, e: React.MouseEvent) => {
+    const handleTierSelect = (tierName: string, visaName: string, e: React.MouseEvent) => {
         e.stopPropagation(); // Avoid re-triggering handleVisaSelect
+        updateData("visaType", visaName); // Single-click selection link
         updateData("priceTier", tierName);
         setValidationError(null);
         
@@ -338,7 +339,7 @@ const StepCountryVisa = () => {
                                                         {tiers.map(([tier, price]) => (
                                                             <button
                                                                 key={tier}
-                                                                onClick={(e) => handleTierSelect(tier, e)}
+                                                                onClick={(e) => handleTierSelect(tier, visa.name, e)}
                                                                 className={`${styles.tierBtn} ${priceTier === tier ? styles.tierBtnActive : ''}`}
                                                             >
                                                                 <div className="opacity-70 text-[10px] uppercase font-bold">{tier}</div>

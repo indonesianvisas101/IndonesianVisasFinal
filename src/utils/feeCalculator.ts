@@ -18,11 +18,11 @@ export interface FeeBreakdown {
  * @param baseAmount The total service price (price * quantity)
  * @param channel The payment channel to determine gateway fees
  */
-export function calculateOrderFees(baseAmount: number, channel: PaymentChannel): FeeBreakdown {
-    const serviceFee = baseAmount;
+export function calculateOrderFees(visaAmount: number, channel: PaymentChannel, addonsAmount: number = 0): FeeBreakdown {
+    const serviceFee = visaAmount + addonsAmount;
     
-    // PPh 23 = 2% of the Service Fee
-    const pph23Amount = Math.round(serviceFee * 0.02);
+    // PPh 23 = 2% of the Visa Fee ONLY!
+    const pph23Amount = Math.round(visaAmount * 0.02);
     
     const subtotal = serviceFee + pph23Amount;
     let gatewayFee = 0;

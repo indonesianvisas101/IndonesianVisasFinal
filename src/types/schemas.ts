@@ -17,6 +17,8 @@ export const ApplicationSchema = z.object({
     documents: z.record(z.string(), z.string()).optional(),
     attribution: z.record(z.string(), z.any()).optional(),
     quantity: z.number().optional().default(1),
+    visaAmount: z.string().optional(),
+    addonsAmount: z.string().optional(),
 });
 
 export const MultiApplicationSchema = z.object({

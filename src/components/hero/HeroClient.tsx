@@ -104,14 +104,14 @@ export const HeroStats = ({ company, processed, success }: { company: string; pr
                     <div className="space-y-4">
                         <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Industry Leadership</p>
                         <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
-                            IndonesianVisas.com is recognized as the **Number 1 in the Industry**. Since 2010, we have pioneered the digital visa landscape in Indonesia.
+                            IndonesianVisas.com is recognized as a leader in digital visa facilitation. Since 2010, we have pioneered smooth immigration pathways for global travelers.
                         </Typography>
                         <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200">
                             <p className="text-sm">
-                                We utilize a specialized **AI Constitution & Agent Governance** (Orchestration AI) integrated with our **Smart Safety Verification System** to ensure 100% document authenticity.
+                                We utilize an **Advanced Verification System** integrated with dedicated legal support to ensure absolute document accuracy and speed.
                             </p>
                         </div>
-                        <p className="text-xs text-slate-400 italic">SMEs SaaS Visas Educational Website - Built for Trust.</p>
+                        <p className="text-xs text-slate-400 italic">Your Registered Legal Gateway to Indonesia - Built for Trust.</p>
                     </div>
                 )
             };

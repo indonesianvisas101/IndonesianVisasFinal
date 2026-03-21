@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 import { createClient } from "../../../../utils/supabase/server";
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
-import { getKnowledgeForAI } from '@/utils/siteKnowledge';
+import { getKnowledgeForAIAsync } from '@/utils/siteKnowledge';
 
 export const maxDuration = 60;
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 
         const siteKnowledgeContext = `
 SITE DIRECTORY & PUBLIC KNOWLEDGE:
-${getKnowledgeForAI()}
+${await getKnowledgeForAIAsync()}
         `;
 
         // System Prompts per Agent

@@ -21,7 +21,7 @@ const COUNTRY_DOMAINS = [
     "www.americaindonesiavisa.online",
     "www.africaindonesiavisa.online",
     "www.australiaindonesiavisa.online",
-    "www.rusiaindonesiavisa.online",
+    "www.russiaindonesiavisa.online",
     "www.chinaindonesiavisa.online",
     "www.indiaindonesiavisa.online",
     "www.aussieindonesiavisa.online",

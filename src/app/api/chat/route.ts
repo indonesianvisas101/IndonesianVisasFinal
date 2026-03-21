@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { VISA_DATABASE } from '@/constants/visas';
 import { COUNTRY_DATA } from '@/constants/countries';
 import prisma from '@/lib/prisma';
-import { getKnowledgeForAI } from '@/utils/siteKnowledge';
+import { getKnowledgeForAIAsync } from '@/utils/siteKnowledge';
 
 export async function HEAD(req: Request) {
    return new Response(null, { status: 200 });
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
       addressRule = `RULE: Address the user politely as a customer. DO NOT use the term "Boss".`;
    }
 
-   const WEBPAGE_KNOWLEDGE = getKnowledgeForAI();
+   const WEBPAGE_KNOWLEDGE = await getKnowledgeForAIAsync();
 
    const systemPrompts: Record<string, string> = {
       seller: `You are "Ai_Seller", the voice of Indonesian Visas. 

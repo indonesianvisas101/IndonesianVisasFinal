@@ -2,6 +2,7 @@ import { VISA_DATABASE } from '@/constants/visas';
 import { COUNTRY_DATA } from '@/constants/countries';
 import { IDIV_DOC_PATHS } from '@/constants/paths';
 import { seoPageSlugs } from '@/data/seo';
+import prisma from '@/lib/prisma';
 
 export interface SiteKnowledgeEntry {
     title: string;
@@ -75,3 +76,34 @@ export const SITE_KNOWLEDGE: SiteKnowledgeEntry[] = [
 export const getKnowledgeForAI = () => {
     return SITE_KNOWLEDGE.map(entry => `- [${entry.title}] (${entry.link}): ${entry.description}`).join('\n');
 };
+
+export const getKnowledgeForAIAsync = async () => {
+    const staticKnowledge = getKnowledgeForAI();
+    
+    try {
+        const pages = await prisma.knowledgePage.findMany({
+            where: { published: true },
+            select: { title: true, slug: true, category: true, metadata: true }
+        });
+        
+        const updates = await prisma.immigrationUpdate.findMany({
+            where: { published: true },
+            select: { title: true, slug: true, category: true, summary: true }
+        });
+
+        const dynamicPages = pages.map(p => {
+            const desc = (p.metadata as any)?.description || `Knowledge article about ${p.title}`;
+            return `- [${p.title}] (/visa-knowledge/${p.slug}): ${desc} [Category: ${p.category || 'Knowledge'}]`;
+        });
+
+        const dynamicUpdates = updates.map(u => {
+            return `- [${u.title}] (/indonesia-visa-updates/${u.slug}): ${u.summary || 'Update'} [Category: Immigration Update]`;
+        });
+
+        return `${staticKnowledge}\n\nDYNAMIC KNOWLEDGE (DATABASE):\n${dynamicPages.join('\n')}\n${dynamicUpdates.join('\n')}`;
+    } catch (e) {
+        console.error("Failed to fetch dynamic site knowledge", e);
+        return staticKnowledge;
+    }
+};
+

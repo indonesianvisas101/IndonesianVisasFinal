@@ -564,6 +564,18 @@ export default function AIMasterTab() {
                                     <Button size="small" variant="outlined" fullWidth onClick={() => sendChatMessage("Scan system for risks")}>Scan for Risks</Button>
                                     <Button size="small" variant="outlined" fullWidth onClick={() => sendChatMessage("Summarize today's revenue and orders")}>Revenue Summary</Button>
                                     <Button size="small" variant="outlined" fullWidth onClick={() => sendChatMessage("Show me pending change requests")}>Review Queue</Button>
+                                    <Divider sx={{ my: 0.5 }} />
+                                    <Button 
+                                        size="small" 
+                                        variant="contained" 
+                                        color="secondary" 
+                                        fullWidth 
+                                        onClick={() => handleManagementAction('RUN_ANALYTICS')}
+                                        disabled={loadingAction}
+                                        sx={{ fontWeight: 'bold' }}
+                                    >
+                                        Trigger AI Analytics
+                                    </Button>
                                 </Stack>
                             </CardContent>
                         </Card>

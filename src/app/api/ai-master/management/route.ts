@@ -121,6 +121,12 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: true, message: "Request rejected" });
         }
 
+        if (action === 'RUN_ANALYTICS') {
+            const { TOPIC_SCHEDULER } = await import('@/ai/topic-discovery/topicScheduler');
+            await TOPIC_SCHEDULER.runDailyOrchestration();
+            return NextResponse.json({ success: true, message: "AI Analytics Orchestration triggered successfully." });
+        }
+
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 
     } catch (error: any) {

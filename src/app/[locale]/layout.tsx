@@ -112,6 +112,10 @@ export default async function LocaleLayout({
         <link rel="dns-prefetch" href="https://thvdfcogdxmqipybqzot.supabase.co" />
         <link rel="dns-prefetch" href="https://www.paypal.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
+        
+        {/* Extreme Speed Boosts: Preload critical above-the-fold assets */}
+        <link rel="preload" as="image" href="/Favicon.webp" fetchPriority="high" type="image/webp" />
+        
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
         {/* Optimized handshakes for performance */}
       </head>

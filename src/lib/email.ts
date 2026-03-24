@@ -3,6 +3,39 @@ import prisma from '@/lib/prisma';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_stub_for_build');
 
+const getEmailHeader = () => {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+    return `
+        <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; font-family: sans-serif;">
+            <img src="${appUrl}/Favicon.webp" alt="Indonesian Visas Logo" style="width: 52px; height: 52px; border-radius: 50%;" />
+            <h1 style="margin: 8px 0 0 0; font-size: 18px; font-weight: 800; color: #7c3aed; letter-spacing: -0.5px;">Indonesian Visas</h1>
+        </div>
+    `;
+};
+
+const getEmailFooter = () => {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+    return `
+        <table style="width: 100%; border-top: 1px solid #e2e8f0; margin-top: 30px; padding-top: 20px; font-family: sans-serif;">
+            <tr>
+                <td style="width: 48px; vertical-align: top; padding-right: 12px;">
+                    <img src="${appUrl}/Favicon.webp" alt="Logo" style="width: 44px; height: 44px; border-radius: 50%; display: block;" />
+                </td>
+                <td style="vertical-align: top;">
+                    <h4 style="margin: 0; font-size: 14px; color: #1e1b4b; font-weight: 700;">Indonesian Visas Agency</h4>
+                    <p style="margin: 2px 0 0 0; font-size: 11px; color: #475569; font-weight: 600;">PT Indonesian Visas Agency™</p>
+                    <p style="margin: 1px 0 0 0; font-size: 11px; color: #64748b;">Jl. Tibungsari No.11C, Padangsambian Kaja</p>
+                    <p style="margin: 0; font-size: 11px; color: #64748b;">Denpasar, Bali, Indonesia</p>
+                    <p style="margin: 6px 0 0 0; font-size: 11px; color: #6366f1; font-weight: 600;">
+                        <a href="mailto:support@indonesianvisas.agency" style="color: #6366f1; text-decoration: none;">support@indonesianvisas.agency</a> | 
+                        <a href="${appUrl}" style="color: #6366f1; text-decoration: none;">indonesianvisas.com</a>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    `;
+};
+
 export const sendConfirmationEmail = async (to: string, data: {
     applicantName: string;
     visaType: string;
@@ -14,7 +47,8 @@ export const sendConfirmationEmail = async (to: string, data: {
         const { applicantName, visaType, invoiceUrl, orderId, isPayPal } = data;
         
         let message = `
-            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 12px; background-color: #ffffff;">
+                ${getEmailHeader()}
                 <h2 style="color: #9155FD;">Application Received!</h2>
                 <p>Hello ${applicantName},</p>
                 <div style="background-color: #f4f0ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
@@ -37,8 +71,7 @@ export const sendConfirmationEmail = async (to: string, data: {
                 </div>
 
                 <p style="color: #666; font-size: 14px;">If you have any questions, please reply to this email or contact us at support@indonesianvisas.agency</p>
-                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
-                <p style="font-size: 12px; color: #999;">PT Indonesian Visas Agency™<br/>Jl. Tibungsari No.11C, Bali, Indonesia</p>
+                ${getEmailFooter()}
             </div>
         `;
 
@@ -73,7 +106,8 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
         const { applicantName, orderId, invoiceUrl } = data;
         
         let message = `
-            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 12px; background-color: #ffffff;">
+                ${getEmailHeader()}
                 <h2 style="color: #56CA00;">Payment Confirmed!</h2>
                 <p>Hello ${applicantName},</p>
                 <div style="background-color: #e6ffeb; padding: 15px; border-radius: 8px; margin: 15px 0;">
@@ -98,8 +132,7 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
                 </div>
 
                 <p style="color: #666; font-size: 14px;">If you have any questions, please reply to this email or contact us via WhatsApp.</p>
-                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
-                <p style="font-size: 12px; color: #999;">PT Indonesian Visas Agency™<br/>Jl. Tibungsari No.11C, Bali, Indonesia</p>
+                ${getEmailFooter()}
             </div>
         `;
 
@@ -135,7 +168,8 @@ export const sendPaymentReminderEmail = async (to: string, data: {
         const { applicantName, visaType, amount, paymentUrl } = data;
         
         let message = `
-            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 12px; background-color: #ffffff;">
+                ${getEmailHeader()}
                 <h2 style="color: #FFB400;">Action Required: Payment Pending</h2>
                 <p>Hello ${applicantName},</p>
                 <p>We noticed your order for <strong>${visaType}</strong> is still <strong>UNPAID</strong>.</p>
@@ -160,8 +194,7 @@ export const sendPaymentReminderEmail = async (to: string, data: {
                 </div>
                 
                 <p style="color: #666; font-size: 14px;">If you have already paid or need assistance, please reply to this email or reach us on WhatsApp.</p>
-                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
-                <p style="font-size: 12px; color: #999;">PT Indonesian Visas Agency™<br/>Jl. Tibungsari No.11C, Bali, Indonesia</p>
+                ${getEmailFooter()}
             </div>
         `;
 
@@ -261,7 +294,8 @@ export const sendAbandonedCartEmail = async (to: string, data: {
         const { applicantName, visaType, resumeUrl } = data;
         
         let message = `
-            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 12px; background-color: #ffffff;">
+                ${getEmailHeader()}
                 <h2 style="color: #9155FD;">Need help with your ${visaType}?</h2>
                 <p>Hello ${applicantName},</p>
                 <p>We noticed you started an application for an <strong>Indonesian ${visaType}</strong> but didn't quite finish.</p>
@@ -279,8 +313,7 @@ export const sendAbandonedCartEmail = async (to: string, data: {
                 </div>
                 
                 <p style="color: #666; font-size: 14px;">If you have any questions, just reply to this email or reach out via WhatsApp.</p>
-                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
-                <p style="font-size: 12px; color: #999;">PT Indonesian Visas Agency™<br/>Jl. Tibungsari No.11C, Bali, Indonesia</p>
+                ${getEmailFooter()}
             </div>
         `;
 

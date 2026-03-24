@@ -209,6 +209,16 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
                 { name: "Anti-Fraud Protocols", href: `/${locale}/how-qr-validation-prevents-fraud` },
                 { name: "Validity Rules", href: `/${locale}/visa-identity-validity-rules` }
             ]
+        },
+        {
+            title: "Visa Information Guides",
+            icon: Info,
+            links: [
+                { name: "General Information", href: `/${locale}/general-information-visa-indonesia` },
+                { name: "Calling Visa Countries", href: `/${locale}/calling-visa` },
+                { name: "Registered Countries", href: `/${locale}/list-country` },
+                { name: "Point of Entry (e-VoA)", href: `/${locale}/point-of-entry-evoa` }
+            ]
         }
     ];
 

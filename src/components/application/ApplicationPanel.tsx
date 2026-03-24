@@ -39,6 +39,33 @@ const ApplicationPanel = () => {
                     </button>
                 </div>
 
+                {currentStep === 1 && (
+                    <div className={styles.infoBox}>
+                        <div className={styles.infoGrid}>
+                            <div className={styles.infoItem}>
+                                <span className={styles.infoLabel}>Offshore (OfS)</span>
+                                <span className={styles.infoValue}>Visa Apply from Outside of Indonesia</span>
+                            </div>
+                            <div className={styles.infoItem}>
+                                <span className={styles.infoLabel}>Onshore (OnS)</span>
+                                <span className={styles.infoValue}>Visa Apply from Inside of Indonesia</span>
+                            </div>
+                            <div className={styles.infoItem}>
+                                <span className={styles.infoLabel}>Standard</span>
+                                <span className={styles.infoValue}>7-14 Work Days Application</span>
+                            </div>
+                            <div className={styles.infoItem}>
+                                <span className={styles.infoLabel}>Priority</span>
+                                <span className={styles.infoValue}>5-7 Work Days Application</span>
+                            </div>
+                        </div>
+                        <div className={styles.infoAddOn}>
+                            <span className={styles.infoLabel}>Add-Ons "Express Processing"</span>
+                            <span className={styles.infoValue}>1 Day Submission • 3-5 Work Days Application</span>
+                        </div>
+                    </div>
+                )}
+
                 <StepIndicator />
 
                 <div className={styles.content}>

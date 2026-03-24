@@ -543,6 +543,19 @@ function AdminDashboardContent() {
         setMobileOpen(!mobileOpen);
     };
 
+    const handleDismissNotification = async (id: string) => {
+        setAllNotifications(prev => prev.filter(n => n.id !== id));
+        
+        // If it's a DB notification (likely without custom prefixes)
+        if (!id.startsWith('order-') && !id.startsWith('msg-')) {
+            try {
+                await fetch(`/api/notifications?id=${id}`, { method: 'DELETE' });
+            } catch (e) {
+                console.error("Failed to delete notification", e);
+            }
+        }
+    };
+
     const handleBroadcast = () => {
         if (!broadcastData.text) {
             alert("Please enter announcement text.");
@@ -1239,6 +1252,38 @@ function AdminDashboardContent() {
                 )}
 
                 <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+                    {/* GLOBAL NOTIFICATION BANNER START */}
+                    {Array.isArray(allNotifications) && allNotifications.length > 0 && (
+                        <Stack spacing={1} sx={{ mb: 3 }}>
+                            {allNotifications.slice(0, 3).map((notif) => (
+                                <Card 
+                                    key={notif.id} 
+                                    sx={{ 
+                                        bgcolor: notif.type === 'success' ? 'success.lighter' : 'info.lighter',
+                                        border: '1px solid',
+                                        borderColor: notif.type === 'success' ? 'success.light' : 'info.light',
+                                        color: notif.type === 'success' ? 'success.dark' : 'info.dark',
+                                        borderRadius: 3,
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                                    }}
+                                >
+                                    <CardContent sx={{ py: '12px !important', px: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Box display="flex" alignItems="center" gap={1.5}>
+                                            {notif.type === 'success' ? <ShoppingCart sx={{ fontSize: 20 }} /> : <NotificationsActiveIcon sx={{ fontSize: 20 }} />}
+                                            <Box>
+                                                <Typography variant="subtitle2" fontWeight="bold">{notif.title}</Typography>
+                                                <Typography variant="caption" display="block" color="inherit" sx={{ opacity: 0.8 }}>{notif.message}</Typography>
+                                            </Box>
+                                        </Box>
+                                        <IconButton size="small" onClick={() => handleDismissNotification(notif.id)} color="inherit">
+                                            <CloseIcon fontSize="small" />
+                                        </IconButton>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </Stack>
+                    )}
+
                     {/* --- DASHBOARD TAB --- */}
                     {activeTab === 'dashboard' && (
                         <Stack spacing={3} sx={{ animation: 'fadeIn 0.5s ease' }}>

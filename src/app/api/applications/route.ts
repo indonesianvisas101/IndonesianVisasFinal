@@ -146,6 +146,17 @@ export async function GET(request: Request) {
                 adminNotes: linkedInvoice?.adminNotes || "",
                 paymentStatus: linkedInvoice?.status || "",
 
+                invoice: linkedInvoice ? {
+                    status: linkedInvoice.status,
+                    amount: Number(linkedInvoice.amount || 0),
+                    serviceFee: Number(linkedInvoice.serviceFee || 0),
+                    gatewayFee: Number(linkedInvoice.gatewayFee || 0),
+                    pph23Amount: Number(linkedInvoice.pph23Amount || 0),
+                    paymentReference: linkedInvoice.paymentReference,
+                    adminNotes: linkedInvoice.adminNotes,
+                    quantity: linkedInvoice.quantity || app.quantity || 1
+                } : null,
+
                 user: linkedUser || {
                     name: app.guestName || "Guest",
                     email: app.guestEmail || "-"

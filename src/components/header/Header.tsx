@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, User, Sun, MoonIcon, LogOut, Search, LayoutDashboard, FileText, Users, TrendingUp, ShieldCheck, Building2, Globe, History, Brain, BarChart3, ShoppingCart, Megaphone, MessageSquare } from "lucide-react";
+import { Menu, X, User, Sun, MoonIcon, LogOut, Search, Globe } from "lucide-react";
 import styles from "./Header.module.css";
 import React from "react";
 import { useAuth } from "../auth/AuthContext";
@@ -14,6 +14,7 @@ import { ThemeLanguageToggle } from "../ThemeLanguageToggle";
 const AuthModal = dynamic(() => import("../auth/AuthModal"), { ssr: false });
 const ContactModal = dynamic(() => import("../contact/ContactModal"), { ssr: false });
 const GlobalSearch = dynamic(() => import("../search/GlobalSearch"), { ssr: false });
+const AdminMenu = dynamic(() => import("./AdminMenu").then(mod => mod.AdminMenu), { ssr: false });
 
 const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
     const { user, logout } = useAuth();
@@ -73,23 +74,6 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
 
     const isAdminOnAdminPage = user?.role === 'admin' && pathname?.startsWith('/admin');
 
-    const adminTabs = [
-        { label: 'Overview', key: 'dashboard', icon: <LayoutDashboard size={16} /> },
-        { label: 'Visa Database', key: 'visas', icon: <FileText size={16} /> },
-        { label: 'User Management', key: 'users', icon: <Users size={16} /> },
-        { label: 'Popular Visa', key: 'popular_visas', icon: <TrendingUp size={16} /> },
-        { label: 'Arrival Cards', key: 'arrival_cards', icon: <FileText size={16} /> },
-        { label: 'Verification', key: 'verification', icon: <ShieldCheck size={16} /> },
-        { label: 'Company Services', key: 'company_services', icon: <Building2 size={16} /> },
-        { label: 'Invoicing', key: 'invoicing', icon: <FileText size={16} /> },
-        { label: 'Audit Logs', key: 'logs', icon: <History size={16} /> },
-        { label: 'AI Master', key: 'ai_master', icon: <Brain size={16} /> },
-        { label: 'Marketing', key: 'marketing', icon: <BarChart3 size={16} /> },
-        { label: 'Incoming Orders', key: 'orders', icon: <ShoppingCart size={16} /> },
-        { label: 'Immigration Updates', key: 'updates', icon: <Megaphone size={16} /> },
-        { label: 'Support Chat', key: 'support', icon: <MessageSquare size={16} /> },
-    ];
-
     const [showSearchTooltip, setShowSearchTooltip] = useState(false);
     const [showProfileTooltip, setShowProfileTooltip] = useState(false);
     const searchTooltipTimer = React.useRef<NodeJS.Timeout | null>(null);
@@ -132,24 +116,7 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                                     <Globe size={20} />
                                 </button>
                                 {isAdminMenuOpen && (
-                                    <>
-                                        <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px]" onClick={() => setIsAdminMenuOpen(false)}></div>
-                                        <div className="absolute top-full left-0 md:left-1/2 md:-translate-x-1/2 mt-3 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden z-50 py-2">
-                                            {adminTabs.map((tab) => (
-                                                <button
-                                                    key={tab.key}
-                                                    onClick={() => {
-                                                        router.push(`/admin?tab=${tab.key}`);
-                                                        setIsAdminMenuOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-white/5 text-sm font-medium text-gray-700 dark:text-gray-200"
-                                                >
-                                                    {tab.icon}
-                                                    {tab.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </>
+                                    <AdminMenu onClose={() => setIsAdminMenuOpen(false)} />
                                 )}
                             </div>
                         )}
@@ -177,23 +144,6 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                                     >
                                         {headerDict.dashboard || "Dashboard"}
                                     </Link>
-
-                                    {/* Mobile Only: Admin Navigation Links */}
-                                    {user.role === 'admin' && (
-                                        <div className="md:hidden flex flex-col gap-1 pl-4 border-l-2 border-primary/20 mt-2 mb-4">
-                                            {adminTabs.map((tab) => (
-                                                <Link
-                                                    key={tab.key}
-                                                    href={`/${locale}/admin?tab=${tab.key}`}
-                                                    className="py-2 text-sm text-gray-500 hover:text-primary transition-colors flex items-center gap-2"
-                                                    onClick={() => setIsMobileMenuOpen(false)}
-                                                >
-                                                    {tab.icon}
-                                                    {tab.label}
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    )}
                                 </>
                             )}
 

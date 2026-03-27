@@ -106,8 +106,6 @@ export default async function LocaleLayout({
   return (
     <html lang={currentLocale}>
       <head>
-        <link rel="preconnect" href="https://thvdfcogdxmqipybqzot.supabase.co" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://thvdfcogdxmqipybqzot.supabase.co" />
         <link rel="dns-prefetch" href="https://www.paypal.com" />
         
         {/* Extreme Speed Boosts: Preload critical above-the-fold assets */}
@@ -147,20 +145,20 @@ export default async function LocaleLayout({
             <GlobalUIOverlay />
           </Suspense>
           <AuthProvider>
-            <PayPalProvider>
-              <ApplicationProvider>
+            <ApplicationProvider>
+              <div className="flex flex-col min-h-screen relative">
                 <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[1000] focus:bg-white focus:text-primary focus:p-4 focus:rounded-xl focus:shadow-xl focus:font-bold border-2 border-primary">
                   Skip to content
                 </a>
                 <Header dict={dict} locale={currentLocale} />
                 <GlobalInfoPopup locale={currentLocale} />
-                <main id="main-content" className="flex-grow min-h-screen relative">
+                <main id="main-content" className="flex-grow relative">
                   {children}
                 </main>
                 <Footer dict={dict} locale={currentLocale} />
                 <ClientLayout />
-              </ApplicationProvider>
-            </PayPalProvider>
+              </div>
+            </ApplicationProvider>
           </AuthProvider>
         </GlobalUIProvider>
       </body>

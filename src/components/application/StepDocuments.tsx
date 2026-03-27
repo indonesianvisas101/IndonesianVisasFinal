@@ -101,7 +101,7 @@ const StepDocuments = () => {
                             {/* Accommodation - Shared across travelers usually, but attach to Primary for now or separate? Let's just put it for Traveler 1 if it makes sense, or everyone. Actually, let's keep it for Traveler 1 only to avoid spam. */}
                             {i === 0 && (
                                 <div className={`glass-card ${styles.uploadCard}`}>
-                                    <label className={styles.label}>Bank Statement & Proof of Accommodation</label>
+                                    <label className={styles.label}>Ticket, Bank Statement & Proof of Accommodation</label>
                                     <div className={styles.dropZone}>
                                         <FileText size={32} className="text-gray-400 mb-2" />
                                         <span className="text-sm text-gray-500 mb-2">

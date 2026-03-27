@@ -10,39 +10,46 @@ import Link from "next/link";
 import { ArrowRight, ShieldCheck, RefreshCcw, Globe, Clock, Star, ListChecks, Mail, Zap, Lock, Info } from "lucide-react"; 
 import { Box, Typography } from "@mui/material";
 
-// Dynamic Globe here to keep it out of Server Component
-const HeroGlobe = dynamic(() => import("./HeroGlobe"), {
+const HeroGlobe = dynamic(() => import("./HeroGlobe"), { 
     ssr: false,
     loading: () => <div className="absolute inset-0 z-0" />
 });
+import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
 
-// 1. The Globe Wrapper (Client)
+import { motion, AnimatePresence } from "framer-motion";
+
 export const HeroGlobeWrapper = () => {
-    const [shouldRenderGlobe, setShouldRenderGlobe] = React.useState(false);
-    const [opacity, setOpacity] = React.useState(0);
+    const [isMounted, setIsMounted] = React.useState(false);
 
     React.useEffect(() => {
-        // Only render globe on larger screens to improve mobile LCP
-        // and delay it to ensure Main LCP (Text) is painted first
-        if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-            runWhenIdle(() => {
-                setShouldRenderGlobe(true);
-                // Trigger fade in after mount
-                requestAnimationFrame(() => setOpacity(1));
-            });
-        }
+        const timer = setTimeout(() => {
+            setIsMounted(true);
+        }, 3000); // Strict 3 second delay before any appearance
+        return () => clearTimeout(timer);
     }, []);
 
-    if (!shouldRenderGlobe) return null;
-
     return (
-        <div style={{ opacity: opacity, transition: 'opacity 5s ease-in-out' }}>
-            <HeroGlobe />
-        </div>
+        <AnimatePresence>
+            {isMounted && (
+                <motion.div
+                    id="globe-render-container"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 3, ease: "easeInOut" }}
+                    style={{ 
+                        position: 'absolute',
+                        inset: 0,
+                        zIndex: 10,
+                        background: 'transparent'
+                    }}
+                >
+                    <HeroGlobe />
+                </motion.div>
+            )}
+            {!isMounted && <div className="absolute inset-0 z-0" />}
+        </AnimatePresence>
     );
 };
-
-import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
 
 // 2. The CTA Button (Client)
 export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCardLabel?: string }) => {
@@ -82,7 +89,7 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
 };
 
 export const HeroBadge = () => (
-    <div className={`inline-flex items-center gap-2 bg-gray-400 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-6 ${styles.animateSlideUp}`}>
+    <div className={`inline-flex items-center gap-2 bg-gray-500 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-6 ${styles.animateSlideUp}`}>
         <div className="bg-green-500 rounded-full p-1 text-white">
             <ShieldCheck size={14} />
         </div>

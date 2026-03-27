@@ -26,7 +26,7 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                             <p className={styles.authorityLabel}>{t.operated_by || "Operated by"}</p>
                             <p className={styles.authorityName}>{t.company_name || "PT Indonesian Visas Agency™"}</p>
                             <p className={styles.authorityRegion}>{t.region || "Bali, Indonesia"}</p>
-                            <div className="mt-4 text-[10px] text-gray-400 dark:text-gray-500 space-y-0.5 leading-tight font-mono">
+                            <div className="mt-4 text-[10px] text-gray-300 dark:text-gray-500 space-y-0.5 leading-tight font-mono">
                                 <p>NIB: 0402260034806</p>
                                 <p>License: 04022610215171007</p>
                                 <p>AHU-00065.AH.02.01.TAHUN 2020</p>

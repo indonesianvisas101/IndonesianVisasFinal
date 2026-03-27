@@ -22,13 +22,13 @@ export default function HeroGlobe() {
     useEffect(() => {
         const loadWorldData = async () => {
             try {
-                // Using Natural Earth data from a CDN
-                const response = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
+                const response = await fetch("/world-110m.json")
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const world: any = await response.json()
                 const countries = (feature(world, world.objects.countries) as any).features
                 setWorldData(countries)
             } catch (error) {
-                console.log("Error loading world data:", error)
+                // Silently fail or log to telemetry in production
             }
         }
 
@@ -106,6 +106,25 @@ export default function HeroGlobe() {
             .attr("stroke-opacity", 0.2)
             .attr("stroke-width", 1)
 
+        // 5. Bali Marker
+        const baliCoords: [number, number] = [115.1889, -8.4095]
+        
+        // Marker container
+        const markerGroup = globeGroup.append("g")
+            .attr("class", "bali-marker")
+
+        // Outer pulse circle
+        const pulseCircle = markerGroup.append("circle")
+            .attr("r", 8)
+            .attr("fill", "#ff0000")
+            .attr("fill-opacity", 0.4)
+            .attr("class", "pulse-animation")
+
+        // Inner solid dot
+        const innerDot = markerGroup.append("circle")
+            .attr("r", 3)
+            .attr("fill", "#ff0000")
+
         // Cache the selection to avoid re-querying DOM every frame
         const allPaths = globeGroup.selectAll("path");
 
@@ -116,8 +135,25 @@ export default function HeroGlobe() {
             const rotate = [elapsed * 0.01, -15]
             projection.rotate(rotate as [number, number])
 
-            // Update paths efficiently
+            // Update all paths
             allPaths.attr("d", path as any)
+
+            // Update Bali Marker Position
+            const projectedBali = projection(baliCoords)
+            if (projectedBali) {
+                // Check if Bali is on the front side
+                const center = projection.invert!([dimensions.width / 2, dimensions.height / 2])
+                const distance = d3.geoDistance(baliCoords, center!)
+                
+                if (distance < Math.PI / 2) {
+                    markerGroup.style("opacity", 1)
+                    markerGroup.attr("transform", `translate(${projectedBali[0]}, ${projectedBali[1]})`)
+                } else {
+                    markerGroup.style("opacity", 0)
+                }
+            } else {
+                markerGroup.style("opacity", 0)
+            }
         })
 
         return () => {
@@ -126,7 +162,7 @@ export default function HeroGlobe() {
     }, [worldData, dimensions])
 
     return (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 md:opacity-50 z-0 overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-60 md:opacity-80 z-0 overflow-hidden">
             <svg
                 ref={svgRef}
                 width={dimensions.width}
@@ -135,6 +171,17 @@ export default function HeroGlobe() {
                 className="max-w-none"
             // style={{ mixBlendMode: 'overlay' }} // Removed to fix dark mode visibility
             />
+            <style jsx>{`
+                @keyframes pulse-marker {
+                    0% { transform: scale(1); opacity: 0.6; }
+                    50% { transform: scale(3); opacity: 0; }
+                    100% { transform: scale(1); opacity: 0; }
+                }
+                .pulse-animation {
+                    animation: pulse-marker 2s ease-out infinite;
+                    transform-origin: center;
+                }
+            `}</style>
         </div>
     )
 }

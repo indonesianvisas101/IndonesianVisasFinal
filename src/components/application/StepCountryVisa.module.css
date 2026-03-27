@@ -127,11 +127,22 @@
 
 .searchInput {
     width: 100%;
-    padding: 0.5rem 0.5rem 0.5rem 2rem;
+    padding: 0.5rem 0.5rem 0.5rem 2.25rem;
     border-radius: 99px;
     border: 1px solid #E2E8F0;
     font-size: 0.875rem;
     outline: none;
+    transition: all 0.3s ease;
+}
+
+.searchWrapperExpanded {
+    max-width: 100%;
+    flex: 1;
+}
+
+.searchWrapperExpanded .searchInput {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
 }
 
 /* Country Grid */
@@ -200,10 +211,94 @@
 /* Visa Selection */
 .visaSection {
     background: #FAFAFA;
-    padding: 2rem;
+    padding: 1.5rem;
     border-radius: 16px;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     border: 1px solid #F1F5F9;
+}
+
+.visaHeaderContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.visaTitleArea {
+    flex: 1;
+    min-width: 200px;
+}
+
+.visaSubDescription {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+.visaActionArea {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.visaSearchBox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    border: 2px solid #F1F5F9;
+    border-radius: 99px;
+    padding: 0.25rem 1rem;
+    transition: all 0.3s ease;
+    width: 200px;
+}
+
+:global([data-theme="dark"]) .visaSearchBox {
+    background: rgba(30, 41, 59, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.visaSearchActive {
+    border-color: var(--primary);
+    width: 260px;
+}
+
+.seeAllVisasBtn {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    border: 2px solid rgba(124, 58, 237, 0.15);
+    background: transparent;
+    padding: 0.5rem 1.25rem;
+    border-radius: 99px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.seeAllVisasBtn:hover {
+    background: rgba(124, 58, 237, 0.05);
+    border-color: var(--primary);
+}
+
+@media (max-width: 640px) {
+    .visaHeaderContainer {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .visaActionArea {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .visaSearchBox {
+        width: 100%;
+        flex: 1;
+    }
 }
 
 .visaGrid {

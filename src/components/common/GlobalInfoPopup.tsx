@@ -10,9 +10,11 @@ import Link from 'next/link';
 export default function GlobalInfoPopup({ locale }: { locale: string }) {
     const [config, setConfig] = useState<any>(null);
     const [isVisible, setIsVisible] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
     const theme = useTheme();
 
     useEffect(() => {
+        setIsMounted(true);
         const fetchConfig = async () => {
             try {
                 const res = await fetch('/api/admin/settings');
@@ -63,120 +65,120 @@ export default function GlobalInfoPopup({ locale }: { locale: string }) {
         // localStorage.setItem('popup_suppressed_v1', 'true'); // Optional: suppressing for session
     };
 
-    if (!config) return null;
-
     return (
-        <AnimatePresence>
-            {isVisible && (
-                <Box
-                    sx={{
-                        position: 'fixed',
-                        top: 24,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        zIndex: 9999,
-                        width: '90%',
-                        maxWidth: 600,
-                    }}
-                >
-                    <motion.div
-                        initial={{ opacity: 0, y: -50, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -20, scale: 0.9 }}
-                        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+        <div id="global-info-popup-wrapper">
+            <AnimatePresence>
+                {(isMounted && config && isVisible) && (
+                    <Box
+                        sx={{
+                            position: 'fixed',
+                            top: 24,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            zIndex: 9999,
+                            width: '90%',
+                            maxWidth: 600,
+                        }}
                     >
-                        <Box
-                            sx={{
-                                background: 'rgba(255, 255, 255, 0.7)',
-                                backdropFilter: 'blur(20px) saturate(180%)',
-                                borderRadius: 6,
-                                border: '1px solid rgba(255, 255, 255, 0.4)',
-                                boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
-                                p: 4,
-                                position: 'relative',
-                                overflow: 'hidden'
-                            }}
+                        <motion.div
+                            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+                            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
                         >
-                            {/* Decorative Blur */}
-                            <Box sx={{ 
-                                position: 'absolute', top: '-20%', left: '-10%', width: 150, height: 150, 
-                                background: 'radial-gradient(circle, rgba(145, 85, 253, 0.15) 0%, transparent 70%)',
-                                zIndex: 0
-                            }} />
-
-                            <IconButton
-                                size="small"
-                                onClick={handleClose}
-                                sx={{ position: 'absolute', top: 12, right: 12, bgcolor: 'rgba(0,0,0,0.05)', '&:hover': { bgcolor: 'rgba(0,0,0,0.1)' } }}
+                            <Box
+                                sx={{
+                                    background: 'rgba(255, 255, 255, 0.7)',
+                                    backdropFilter: 'blur(20px) saturate(180%)',
+                                    borderRadius: 6,
+                                    border: '1px solid rgba(255, 255, 255, 0.4)',
+                                    boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
+                                    p: 4,
+                                    position: 'relative',
+                                    overflow: 'hidden'
+                                }}
                             >
-                                <X size={18} />
-                            </IconButton>
+                                {/* Decorative Blur */}
+                                <Box sx={{ 
+                                    position: 'absolute', top: '-20%', left: '-10%', width: 150, height: 150, 
+                                    background: 'radial-gradient(circle, rgba(145, 85, 253, 0.15) 0%, transparent 70%)',
+                                    zIndex: 0
+                                }} />
 
-                            <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-                                <Box display="flex" justifyContent="center" mb={2}>
-                                    <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: 'rgba(145, 85, 253, 0.1)', color: '#9155FD' }}>
-                                        <Info size={24} />
+                                <IconButton
+                                    size="small"
+                                    onClick={handleClose}
+                                    sx={{ position: 'absolute', top: 12, right: 12, bgcolor: 'rgba(0,0,0,0.05)', '&:hover': { bgcolor: 'rgba(0,0,0,0.1)' } }}
+                                >
+                                    <X size={18} />
+                                </IconButton>
+
+                                <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+                                    <Box display="flex" justifyContent="center" mb={2}>
+                                        <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: 'rgba(145, 85, 253, 0.1)', color: '#9155FD' }}>
+                                            <Info size={24} />
+                                        </Box>
+                                    </Box>
+                                    
+                                    <Typography variant="h5" fontWeight="900" gutterBottom sx={{ color: '#1a1a1a', letterSpacing: -0.5 }}>
+                                        {config.title}
+                                    </Typography>
+                                    
+                                    <Box sx={{ 
+                                        maxHeight: { xs: '20vh', sm: '40vh' }, 
+                                        overflowY: 'auto', 
+                                        mb: 3, 
+                                        pr: 1,
+                                        '&::-webkit-scrollbar': {
+                                            width: '4px',
+                                        },
+                                        '&::-webkit-scrollbar-track': {
+                                            background: 'rgba(0,0,0,0.02)',
+                                            borderRadius: '10px',
+                                        },
+                                        '&::-webkit-scrollbar-thumb': {
+                                            background: 'rgba(145, 85, 253, 0.2)',
+                                            borderRadius: '10px',
+                                        }
+                                    }}>
+                                        <Typography variant="body1" sx={{ color: '#444', lineHeight: 1.6, textAlign: 'left' }}>
+                                            {config.description}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box display="flex" gap={2} justifyContent="center" sx={{ flexWrap: 'wrap' }}>
+                                        <Button
+                                            variant="contained"
+                                            component={Link}
+                                            href={`/${locale}/indonesia-visa-updates`}
+                                            onClick={handleClose}
+                                            sx={{ 
+                                                borderRadius: 4, px: 3, py: 1.2, 
+                                                bgcolor: '#1a1a1a', color: 'white', '&:hover': { bgcolor: '#333' },
+                                                fontWeight: 'bold', textTransform: 'none'
+                                            }}
+                                            endIcon={<ArrowRight size={18} />}
+                                        >
+                                            Immigration Updates
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            onClick={handleClose}
+                                            sx={{ 
+                                                borderRadius: 4, px: 3, py: 1.2, 
+                                                border: '2px solid #1a1a1a', color: '#1a1a1a', '&:hover': { border: '2px solid #333', bgcolor: 'transparent' },
+                                                fontWeight: 'bold', textTransform: 'none'
+                                            }}
+                                        >
+                                            Close
+                                        </Button>
                                     </Box>
                                 </Box>
-                                
-                                <Typography variant="h5" fontWeight="900" gutterBottom sx={{ color: '#1a1a1a', letterSpacing: -0.5 }}>
-                                    {config.title}
-                                </Typography>
-                                
-                                <Box sx={{ 
-                                    maxHeight: { xs: '20vh', sm: '40vh' }, 
-                                    overflowY: 'auto', 
-                                    mb: 3, 
-                                    pr: 1,
-                                    '&::-webkit-scrollbar': {
-                                        width: '4px',
-                                    },
-                                    '&::-webkit-scrollbar-track': {
-                                        background: 'rgba(0,0,0,0.02)',
-                                        borderRadius: '10px',
-                                    },
-                                    '&::-webkit-scrollbar-thumb': {
-                                        background: 'rgba(145, 85, 253, 0.2)',
-                                        borderRadius: '10px',
-                                    }
-                                }}>
-                                    <Typography variant="body1" sx={{ color: '#444', lineHeight: 1.6, textAlign: 'left' }}>
-                                        {config.description}
-                                    </Typography>
-                                </Box>
-
-                                <Box display="flex" gap={2} justifyContent="center" sx={{ flexWrap: 'wrap' }}>
-                                    <Button
-                                        variant="contained"
-                                        component={Link}
-                                        href={`/${locale}/indonesia-visa-updates`}
-                                        onClick={handleClose}
-                                        sx={{ 
-                                            borderRadius: 4, px: 3, py: 1.2, 
-                                            bgcolor: '#1a1a1a', color: 'white', '&:hover': { bgcolor: '#333' },
-                                            fontWeight: 'bold', textTransform: 'none'
-                                        }}
-                                        endIcon={<ArrowRight size={18} />}
-                                    >
-                                        Immigration Updates
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        onClick={handleClose}
-                                        sx={{ 
-                                            borderRadius: 4, px: 3, py: 1.2, 
-                                            border: '2px solid #1a1a1a', color: '#1a1a1a', '&:hover': { border: '2px solid #333', bgcolor: 'transparent' },
-                                            fontWeight: 'bold', textTransform: 'none'
-                                        }}
-                                    >
-                                        Close
-                                    </Button>
-                                </Box>
                             </Box>
-                        </Box>
-                    </motion.div>
-                </Box>
-            )}
-        </AnimatePresence>
+                        </motion.div>
+                    </Box>
+                )}
+            </AnimatePresence>
+        </div>
     );
 }

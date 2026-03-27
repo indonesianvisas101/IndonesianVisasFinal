@@ -4,6 +4,8 @@ import React, { useEffect } from "react";
 import { X } from "lucide-react";
 import { useApplication } from "./ApplicationContext";
 import styles from "./ApplicationPanel.module.css";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, ChevronUp, Info } from "lucide-react";
 
 import StepIndicator from "./StepIndicator";
 import StepCountryVisa from "./StepCountryVisa";
@@ -14,6 +16,7 @@ import StepPayment from "./StepPayment";
 
 const ApplicationPanel = () => {
     const { isPanelOpen, closePanel, currentStep } = useApplication();
+    const [isInfoExpanded, setIsInfoExpanded] = React.useState(false);
 
     // Prevent body scroll when panel is open
     useEffect(() => {
@@ -40,29 +43,56 @@ const ApplicationPanel = () => {
                 </div>
 
                 {currentStep === 1 && (
-                    <div className={styles.infoBox}>
-                        <div className={styles.infoGrid}>
-                            <div className={styles.infoItem}>
-                                <span className={styles.infoLabel}>Offshore (OfS)</span>
-                                <span className={styles.infoValue}>Visa Apply from Outside of Indonesia</span>
+                    <div className={styles.infoWrapper}>
+                        <button 
+                            onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                            className={styles.infoToggle}
+                        >
+                            <div className="flex items-center gap-2">
+                                <Info size={14} className="text-orange-600" />
+                                <span className="text-[10px] font-black uppercase tracking-wider text-orange-600">
+                                    Visa Type Information
+                                </span>
                             </div>
-                            <div className={styles.infoItem}>
-                                <span className={styles.infoLabel}>Onshore (OnS)</span>
-                                <span className={styles.infoValue}>Visa Apply from Inside of Indonesia</span>
-                            </div>
-                            <div className={styles.infoItem}>
-                                <span className={styles.infoLabel}>Standard</span>
-                                <span className={styles.infoValue}>7-14 Work Days Application</span>
-                            </div>
-                            <div className={styles.infoItem}>
-                                <span className={styles.infoLabel}>Priority</span>
-                                <span className={styles.infoValue}>5-7 Work Days Application</span>
-                            </div>
-                        </div>
-                        <div className={styles.infoAddOn}>
-                            <span className={styles.infoLabel}>Add-Ons "Express Processing"</span>
-                            <span className={styles.infoValue}>1 Day Submission • 3-5 Work Days Application</span>
-                        </div>
+                            {isInfoExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+
+                        <AnimatePresence>
+                            {isInfoExpanded && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className={styles.infoBox}>
+                                        <div className={styles.infoGrid}>
+                                            <div className={styles.infoItem}>
+                                                <span className={styles.infoLabel}>Offshore (OfS)</span>
+                                                <span className={styles.infoValue}>Visa Apply from Outside of Indonesia</span>
+                                            </div>
+                                            <div className={styles.infoItem}>
+                                                <span className={styles.infoLabel}>Onshore (OnS)</span>
+                                                <span className={styles.infoValue}>Visa Apply from Inside of Indonesia</span>
+                                            </div>
+                                            <div className={styles.infoItem}>
+                                                <span className={styles.infoLabel}>Standard</span>
+                                                <span className={styles.infoValue}>7-14 Work Days Application</span>
+                                            </div>
+                                            <div className={styles.infoItem}>
+                                                <span className={styles.infoLabel}>Priority</span>
+                                                <span className={styles.infoValue}>5-7 Work Days Application</span>
+                                            </div>
+                                        </div>
+                                        <div className={styles.infoAddOn}>
+                                            <span className={styles.infoLabel}>Add-Ons "Express Processing"</span>
+                                            <span className={styles.infoValue}>1 Day Submission • 3-5 Work Days Application</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 )}
 

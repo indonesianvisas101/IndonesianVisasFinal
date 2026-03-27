@@ -60,18 +60,18 @@
 }
 
 .header {
-    padding: 1.5rem;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* background removed to transparently inherit panel color */
 }
 
 .title {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    color: white;
+    color: var(--text-primary);
+    opacity: 0.8;
 }
 
 .closeBtn {
@@ -79,8 +79,12 @@
     border: none;
     cursor: pointer;
     color: var(--text-secondary);
-    transition: color 0.2s;
-    padding: 0.5rem;
+    transition: all 0.2s;
+    padding: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 
 .closeBtn:hover {
@@ -130,11 +134,36 @@
     }
 }
 
+.infoWrapper {
+    margin: 0.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.infoToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(249, 115, 22, 0.05);
+    border: 1px solid rgba(249, 115, 22, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.infoToggle:hover {
+    background: rgba(249, 115, 22, 0.1);
+    border-color: rgba(249, 115, 22, 0.2);
+}
+
 .infoBox {
-    margin: 0.75rem 1.5rem; /* Reduced margin */
-    padding: 0.75rem 1rem; /* Reduced padding */
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(249, 115, 22, 0.08));
-    border: 1px solid rgba(249, 115, 22, 0.15);
+    margin: 0.5rem 0 0.75rem; /* Adjusted margin for nested box */
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.04), rgba(249, 115, 22, 0.06));
+    border: 1px solid rgba(249, 115, 22, 0.1);
     border-radius: 16px;
     backdrop-filter: blur(10px);
 }

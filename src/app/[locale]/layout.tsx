@@ -106,18 +106,15 @@ export default async function LocaleLayout({
   return (
     <html lang={currentLocale}>
       <head>
-        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://thvdfcogdxmqipybqzot.supabase.co" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://thvdfcogdxmqipybqzot.supabase.co" />
         <link rel="dns-prefetch" href="https://www.paypal.com" />
-        <link rel="dns-prefetch" href="https://connect.facebook.net" />
         
         {/* Extreme Speed Boosts: Preload critical above-the-fold assets */}
         <link rel="preload" as="image" href="/Favicon.webp" fetchPriority="high" type="image/webp" />
         
+        {/* Load GTM after the page is interactive to prioritize LCP */}
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
-        {/* Optimized handshakes for performance */}
       </head>
       <body className={inter.className} suppressHydrationWarning>
 
@@ -157,7 +154,7 @@ export default async function LocaleLayout({
                 </a>
                 <Header dict={dict} locale={currentLocale} />
                 <GlobalInfoPopup locale={currentLocale} />
-                <main id="main-content" className="flex-grow min-h-screen" suppressHydrationWarning={true}>
+                <main id="main-content" className="flex-grow min-h-screen relative">
                   {children}
                 </main>
                 <Footer dict={dict} locale={currentLocale} />

@@ -7,10 +7,11 @@ import Image from "next/image";
 import styles from "./StepCountryVisa.module.css";
 import { COUNTRY_DATA } from "@/constants/countries";
 import { VisaType, POPULAR_VISA_IDS } from "@/constants/visas";
-import { Search, Users, Calendar, ArrowRight, CheckCircle, Flag, Info, AlertCircle } from "lucide-react";
+import { Search, Users, Calendar, ArrowRight, CheckCircle, Flag, Info, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { calculateVisaTotal } from "@/lib/utils";
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 const StepCountryVisa = () => {
@@ -34,11 +35,14 @@ const StepCountryVisa = () => {
     }, []);
     const [validationError, setValidationError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [visaSearch, setVisaSearch] = useState("");
     const [customVisa, setCustomVisa] = useState("");
     const [showAllVisas, setShowAllVisas] = useState(false);
     const visaSectionRef = useRef<HTMLDivElement>(null);
     const actionAreaRef = useRef<HTMLDivElement>(null);
+
+    const isTopRowCollapsed = searchTerm !== "" || isSearchFocused;
 
     const handleCountrySelect = (selectedCountry: string) => {
         updateData("country", selectedCountry);
@@ -152,48 +156,69 @@ const StepCountryVisa = () => {
 
     return (
         <div className={styles.container}>
-            <h3 className={styles.heading}>Step 1: Trip Details</h3>
+            <motion.div
+                animate={{ 
+                    height: isTopRowCollapsed ? 0 : "auto", 
+                    opacity: isTopRowCollapsed ? 0 : 1,
+                    marginBottom: isTopRowCollapsed ? 0 : 24,
+                    scale: isTopRowCollapsed ? 0.95 : 1
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="overflow-hidden"
+            >
+                <h3 className={styles.heading}>Step 1: Trip Details</h3>
 
-            {/* Top Row: People & Arrival Date */}
-            <div className={styles.topRow}>
-                <div className={`glass-card ${styles.inputCard}`}>
-                    <label className={styles.label}>Number of Travelers</label>
-                    <div className={styles.counterControl}>
-                        <button
-                            onClick={() => handlePeopleChange(-1)}
-                            className={styles.counterBtn}
-                            disabled={numPeople <= 1}
-                        >-</button>
-                        <div className={styles.countDisplay}>
-                            <Users size={18} className="text-primary dark:text-gray-300 mr-2" />
-                            <span>{numPeople}</span>
+                {/* Top Row: People & Arrival Date */}
+                <div className={styles.topRow}>
+                    <div className={`glass-card ${styles.inputCard}`}>
+                        <label className={styles.label}>Number of Travelers</label>
+                        <div className={styles.counterControl}>
+                            <button
+                                onClick={() => handlePeopleChange(-1)}
+                                className={styles.counterBtn}
+                                disabled={numPeople <= 1}
+                            >-</button>
+                            <div className={styles.countDisplay}>
+                                <Users size={18} className="text-primary dark:text-gray-300 mr-2" />
+                                <span>{numPeople}</span>
+                            </div>
+                            <button
+                                onClick={() => handlePeopleChange(1)}
+                                className={styles.counterBtn}
+                                disabled={numPeople >= 20}
+                            >+</button>
                         </div>
-                        <button
-                            onClick={() => handlePeopleChange(1)}
-                            className={styles.counterBtn}
-                            disabled={numPeople >= 20}
-                        >+</button>
                     </div>
-                </div>
 
-                <div className={`glass-card ${styles.inputCard} ${styles.highlightField}`}>
-                    <label className={styles.label}>Arrival Date</label>
-                    <div className={styles.dateInputWrapper}>
-                        <Calendar size={20} className={styles.dateIcon} />
-                        <input
-                            type="date"
-                            className={styles.dateInput}
-                            value={arrivalDate}
-                            onChange={(e) => updateData("arrivalDate", e.target.value)}
-                        />
+                    <div className={`glass-card ${styles.inputCard} ${styles.highlightField}`}>
+                        <label className={styles.label}>Arrival Date</label>
+                        <div className={styles.dateInputWrapper}>
+                            <Calendar size={20} className={styles.dateIcon} />
+                            <input
+                                type="date"
+                                className={styles.dateInput}
+                                value={arrivalDate}
+                                onChange={(e) => updateData("arrivalDate", e.target.value)}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Country Selection */}
             <div className={styles.sectionHeader}>
-                <h4 className={styles.subHeading}>Select Your Country</h4>
-                <div className={styles.searchWrapper}>
+                <div className="flex items-center gap-2">
+                    <h4 className={styles.subHeading}>Select Your Country</h4>
+                    {isTopRowCollapsed && (
+                        <button 
+                            onClick={() => { setSearchTerm(""); setIsSearchFocused(false); }}
+                            className="text-[10px] text-primary hover:underline"
+                        >
+                            Show Details
+                        </button>
+                    )}
+                </div>
+                <div className={`${styles.searchWrapper} ${isTopRowCollapsed ? styles.searchWrapperExpanded : ""}`}>
                     <Search className={styles.searchIcon} size={16} />
                     <input
                         type="text"
@@ -201,6 +226,8 @@ const StepCountryVisa = () => {
                         className={styles.searchInput}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        onFocus={() => setIsSearchFocused(true)}
+                        onBlur={() => !searchTerm && setIsSearchFocused(false)}
                     />
                 </div>
             </div>
@@ -229,13 +256,13 @@ const StepCountryVisa = () => {
 
             {/* Visa Selection */}
             <div className={styles.visaSection} ref={visaSectionRef}>
-                <div className="flex justify-between items-center mb-6">
-                    <div>
+                <div className={styles.visaHeaderContainer}>
+                    <div className={styles.visaTitleArea}>
                         <h4 className={styles.subHeading}>Choose Your Visa Type</h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Select the visa that fits your needs</p>
+                        <p className={styles.visaSubDescription}>Select the visa that fits your needs</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className={`flex items-center gap-2 bg-white dark:bg-gray-800 border-2 rounded-full px-3 py-1 transition-all ${visaSearch ? 'border-primary w-64' : 'border-gray-100 dark:border-white/10 w-44 focus-within:w-64 focus-within:border-primary'}`}>
+                    <div className={styles.visaActionArea}>
+                        <div className={`${styles.visaSearchBox} ${visaSearch ? styles.visaSearchActive : ''}`}>
                             <Search size={14} className="text-gray-400" />
                             <input 
                                 type="text"
@@ -247,7 +274,7 @@ const StepCountryVisa = () => {
                         </div>
                         <button
                             onClick={() => setShowAllVisas(!showAllVisas)}
-                            className="btn btn-sm text-primary font-bold border border-primary/20 hover:bg-primary/5 px-4 py-2 rounded-full transition-all"
+                            className={styles.seeAllVisasBtn}
                         >
                             {showAllVisas ? "Show Popular" : "See All Visas"}
                         </button>

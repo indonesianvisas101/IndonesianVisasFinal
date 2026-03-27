@@ -270,10 +270,10 @@ export default function ChatBot() {
             {!isOpen && (
                 <button 
                     onClick={handleDismiss}
-                    className="absolute -top-2 -left-2 bg-gray-900/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10 border border-white/20"
+                    className="absolute -top-2 -left-2 bg-gray-900 text-white rounded-full p-1.5 shadow-lg z-10 border border-white/20 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     title="Hide for this session"
                 >
-                    <X size={10} />
+                    <X size={12} />
                 </button>
             )}
             {isOpen && (

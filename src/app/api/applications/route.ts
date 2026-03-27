@@ -145,6 +145,10 @@ export async function GET(request: Request) {
                 paymentReference: linkedInvoice?.paymentReference || "",
                 adminNotes: linkedInvoice?.adminNotes || "",
                 paymentStatus: linkedInvoice?.status || "",
+                
+                // Flatten common attribution fields for Dashboard convenience
+                country: app.country || app.attribution?.country || "",
+                arrivalDate: app.arrivalDate || app.attribution?.arrivalDate || "",
 
                 invoice: linkedInvoice ? {
                     status: linkedInvoice.status,
@@ -284,6 +288,33 @@ export async function POST(request: Request) {
                 
                 const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(visaAmt, paymentMethod || 'Manual', addonsAmt);
 
+                // Construct Rich Summary for Admin (Steps 1-4)
+                const attributionSummary = attribution ? 
+                    `📍 Origin: ${attribution.country || '-'}\n` +
+                    `📅 Arrival: ${attribution.arrivalDate || '-'}\n` +
+                    `👥 Travelers: ${attribution.totalTravelers || quantity || 1}\n` +
+                    `📱 Phone: ${attribution.phone || '-'}\n` +
+                    `🎂 DOB: ${attribution.dob || '-'}`
+                    : "No attribution data";
+
+                const upsellsSummary = upsells ? 
+                    Object.entries(upsells)
+                        .filter(([_, v]) => v)
+                        .map(([k, _]) => `+ ${k.toUpperCase()}`)
+                        .join(', ') || "None"
+                    : "None";
+
+                const richSummary = `
+[STEP 1-2: TRIP DETAILS]
+${attributionSummary}
+
+[UPSELLS]
+${upsellsSummary}
+
+[STEP 4: CUSTOMER NOTES]
+${adminNotes || 'No additional notes provided.'}
+                `.trim();
+
                 const invoice = await (tx.invoice as any).create({
                     data: {
                         id: slug,
@@ -297,21 +328,21 @@ export async function POST(request: Request) {
                         status: (status === 'Paid' || status === 'Active') ? 'PAID' : 'UNPAID',
                         paymentMethod: paymentMethod || 'Manual',
                         paymentReference,
-                        adminNotes: adminNotes || `Auto-generated from Application ${slug}`,
+                        adminNotes: richSummary, // Store the full context here
                         quantity: quantity || 1,
                         createdAt: now,
                         updatedAt: now
                     }
                 });
 
-                createdData.push({ application, invoice, slug, actor });
+                createdData.push({ application, invoice, slug, actor, richSummary });
             }
             return createdData;
         });
 
         // --- SIDE EFFECTS (Post-Transaction) ---
         for (const data of results) {
-            const { application, invoice, slug, actor } = data;
+            const { application, invoice, slug, actor, richSummary } = data;
             
             // 4.5 REALTIME BROADCAST
             try {
@@ -373,9 +404,9 @@ export async function POST(request: Request) {
                     applicantName: application.guestName || "System User",
                     applicantEmail: application.guestEmail || "-",
                     visaType: application.visaName || application.visaId,
-                    amount: application.customAmount || "Standard Rate",
+                    amount: `IDR ${Number(invoice.amount).toLocaleString()}`, // Corrected amount display
                     invoiceUrl: `${appUrl}/invoice/${slug}`,
-                    details: application.adminNotes || "No additional notes."
+                    details: richSummary // Pass the rich summary here
                 });
             } catch (e) { console.error("Admin notification failed", e); }
         }

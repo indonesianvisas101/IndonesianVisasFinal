@@ -24,12 +24,14 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [theme, setTheme] = useState('light');
     const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     const pathname = usePathname();
     const router = useRouter();
     const headerDict = dict?.header || {};
 
     useEffect(() => {
+        setIsMounted(true);
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
         };
@@ -283,15 +285,19 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                     </nav>
                 </div>
                 {isMobileMenuOpen && <div className={styles.overlay} onClick={toggleMobileMenu}></div>}
-            </header>
 
-            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-            <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
-            <GlobalSearch
-                isOpen={isSearchOpen}
-                onClose={() => setIsSearchOpen(false)}
-                locale={locale}
-            />
+                {isMounted && (
+                    <>
+                        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+                        <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
+                        <GlobalSearch
+                            isOpen={isSearchOpen}
+                            onClose={() => setIsSearchOpen(false)}
+                            locale={locale}
+                        />
+                    </>
+                )}
+            </header>
         </>
     );
 };

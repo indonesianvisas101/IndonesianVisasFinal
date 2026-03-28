@@ -48,7 +48,7 @@ export default async function AustraliaKitasPage({ params }: { params: Promise<{
         },
         {
             id: "working",
-            title: "3. Working KITAS (E23) for Professionals",
+            title: "3. Working KITAS for Professionals",
             content: (
                 <div className="space-y-4">
                     <p>If you have been hired by an Indonesian company (e.g., as a GM of a resort or a technical lead at a Jakarta startup), you will need a <strong>Working KITAS</strong>. This involves a much more rigorous process, including the DPKK 'Manpower Tax' of $1,200 USD/year paid to the Indonesian government. Check our specific 'Working for Australians' section for corporate placements.</p>

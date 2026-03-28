@@ -757,20 +757,6 @@ export const VISA_DATABASE: VisaType[] = [
         "extendable": true
     },
     {
-        "id": "E23",
-        "category": "Work Visas",
-        "name": "General Work Visa",
-        "description": "Indonesian General Work Visa",
-        "price": "6 Months: IDR 12.500.000",
-        "fee": "1 Years: IDR 15.000.000",
-        "validity": "Single Entry",
-        "requirements": [
-            "Valid Passport",
-            "Recent Photograph"
-        ],
-        "extendable": true
-    },
-    {
         "id": "E23A",
         "category": "Work Visas",
         "name": "SEZ Work Visa",
@@ -1635,4 +1621,4 @@ export const VISA_DATABASE: VisaType[] = [
     }
 ];
 
-export const POPULAR_VISA_IDS = ['IDIV', 'B1', 'C1', 'C2', 'C12', 'D1', 'D2', 'D12', 'E23', 'E33G', 'E28A'];
+export const POPULAR_VISA_IDS = ['IDIV', 'B1', 'C1', 'C2', 'C12', 'D1', 'D2', 'D12', 'E33G', 'E28A'];

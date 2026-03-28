@@ -64,13 +64,7 @@ export const HeroGlobeWrapper = () => {
                     </motion.div>
                 )}
                 {!isMounted && (
-                    <div className="absolute inset-0 z-0 bg-transparent flex items-center justify-center">
-                        {/* 
-                            Light placeholder (could be a blurred shape).
-                            Helps in giving a "loading" structure without weight.
-                        */}
-                        <div className="w-[600px] h-[600px] rounded-full border border-primary/5 opacity-10 animate-pulse" />
-                    </div>
+                    <div className="absolute inset-0 z-0 bg-transparent" />
                 )}
             </AnimatePresence>
         </div>

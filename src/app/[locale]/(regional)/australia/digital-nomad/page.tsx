@@ -114,7 +114,7 @@ export default async function AustraliaDigitalNomadPage({ params }: { params: Pr
             title: "10. Legal Limits of 'Work'",
             content: (
                 <div className="space-y-4">
-                    <p>It is important to understand that on a Visit Visa (B211A), you <strong>cannot earn income from an Indonesian company</strong> or take jobs in the local Indonesian market. You must only perform work for clients or employers located outside of Indonesia. Taking a local job without a Work KITAS (E23) will result in immediate deportation.</p>
+                    <p>It is important to understand that on a Visit Visa (B211A), you <strong>cannot earn income from an Indonesian company</strong> or take jobs in the local Indonesian market. You must only perform work for clients or employers located outside of Indonesia. Taking a local job without a Work KITAS will result in immediate deportation.</p>
                 </div>
             )
         },

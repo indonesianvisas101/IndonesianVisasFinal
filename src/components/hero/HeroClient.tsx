@@ -7,16 +7,14 @@ import { useApplication } from "../application/ApplicationContext";
 import { runWhenIdle } from "@/utils/scheduler";
 import dynamic from "next/dynamic";
 import Link from "next/link"; 
-import { ArrowRight, ShieldCheck, RefreshCcw, Globe, Clock, Star, ListChecks, Mail, Zap, Lock, Info } from "lucide-react"; 
-import { Box, Typography } from "@mui/material";
+import { ArrowRight, ShieldCheck, RefreshCcw, Globe, Clock, Star, Zap, Lock, Info } from "lucide-react"; 
+import { LazyMotion, domMax, m, AnimatePresence } from "framer-motion";
 
 const HeroGlobe = dynamic(() => import("./HeroGlobe"), { 
     ssr: false,
     loading: () => <div className="absolute inset-0 z-0" />
 });
 import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
-
-import { motion, AnimatePresence } from "framer-motion";
 
 export const HeroGlobeWrapper = () => {
     const [isMounted, setIsMounted] = React.useState(false);
@@ -46,27 +44,29 @@ export const HeroGlobeWrapper = () => {
 
     return (
         <div ref={containerRef} className="absolute inset-0 pointer-events-none">
-            <AnimatePresence>
-                {isMounted && (
-                    <motion.div
-                        id="globe-render-container"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 4, ease: "easeInOut" }}
-                        style={{ 
-                            position: 'absolute',
-                            inset: 0,
-                            zIndex: 10,
-                            background: 'transparent'
-                        }}
-                    >
-                        <HeroGlobe />
-                    </motion.div>
-                )}
-                {!isMounted && (
-                    <div className="absolute inset-0 z-0 bg-transparent" />
-                )}
-            </AnimatePresence>
+            <LazyMotion features={domMax}>
+                <AnimatePresence>
+                    {isMounted && (
+                        <m.div
+                            id="globe-render-container"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 4, ease: "easeInOut" }}
+                            style={{ 
+                                position: 'absolute',
+                                inset: 0,
+                                zIndex: 10,
+                                background: 'transparent'
+                            }}
+                        >
+                            <HeroGlobe />
+                        </m.div>
+                    )}
+                    {!isMounted && (
+                        <div className="absolute inset-0 z-0 bg-transparent" />
+                    )}
+                </AnimatePresence>
+            </LazyMotion>
         </div>
     );
 };
@@ -130,10 +130,10 @@ export const HeroStats = ({ company, processed, success }: { company: string; pr
                 content: (
                     <div className="space-y-4">
                         <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Industry Leadership</p>
-                        <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
                             IndonesianVisas.com is recognized as a leader in digital visa facilitation. Since 2010, we have pioneered smooth immigration pathways for global travelers.
-                        </Typography>
-                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                        </p>
+                        <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10">
                             <p className="text-sm">
                                 We utilize an **Advanced Verification System** integrated with dedicated legal support to ensure absolute document accuracy and speed.
                             </p>
@@ -150,10 +150,10 @@ export const HeroStats = ({ company, processed, success }: { company: string; pr
                 content: (
                     <div className="space-y-4">
                         <p className="font-bold text-sm text-amber-600 uppercase tracking-widest">Deep Experience</p>
-                        <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
                             With over **16 years of experience** (2010-2026), we've seen it all. Our journey through the industry's evolution allows us to navigate complex regulatory changes with ease.
-                        </Typography>
-                        <p className="text-sm">
+                        </p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
                             We've processed tens of thousands of visas, learning from every uniquely challenging case to provide you with the most reliable path to Indonesia.
                         </p>
                     </div>
@@ -167,18 +167,18 @@ export const HeroStats = ({ company, processed, success }: { company: string; pr
                 content: (
                     <div className="space-y-4">
                         <p className="font-bold text-sm text-green-600 uppercase tracking-widest">The Draft System™</p>
-                        <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
                             Our proprietary **Draft System** and **Dual-Review Cycle** ensure the highest success rates in the industry.
-                        </Typography>
-                        <Box sx={{ p: 3, bgcolor: 'rgba(34, 197, 94, 0.05)', borderRadius: 4, border: '1px solid rgba(34, 197, 94, 0.2)' }}>
-                            <ul className="space-y-2 text-sm">
+                        </p>
+                        <div className="p-6 bg-green-500/5 rounded-[2rem] border border-green-500/20">
+                            <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                                 <li className="flex gap-2"><strong>1.</strong> We work directly within the Immigration system draft layer.</li>
                                 <li className="flex gap-2"><strong>2.</strong> Your application is submitted as a pre-verified draft.</li>
                                 <li className="flex gap-2"><strong>3.</strong> If the system flags an issue, our agent resolve it *immediately*.</li>
                                 <li className="flex gap-2"><strong>4.</strong> We only proceed to official submission once approval is verified.</li>
                             </ul>
-                        </Box>
-                        <p className="text-sm font-medium">This methodology ensures zero financial loss for our clients and a 99% guaranteed result.</p>
+                        </div>
+                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">This methodology ensures zero financial loss for our clients and a 99% guaranteed result.</p>
                     </div>
                 )
             };
@@ -231,7 +231,6 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
     const { completedSteps } = useApplication();
     const [activeIdleStep, setActiveIdleStep] = React.useState<number>(0);
     const [isInitialAnimation, setIsInitialAnimation] = React.useState(true);
-    const [isPopupOpen, setIsPopupOpen] = React.useState(false);
 
     React.useEffect(() => {
         // Run initial idle glow for 24 seconds total (6s per box: 3s stay + 3s transition)
@@ -268,9 +267,9 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
             content: (
                 <div className="space-y-4">
                     <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">{pt.step1?.subtitle || 'Step 1: Universal Access'}</p>
-                    <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
                         {pt.step1?.content || 'We support travelers from over **97 countries**. Our system automatically filters the latest immigration regulations based on your nationality and travel purpose.'}
-                    </Typography>
+                    </p>
                 </div>
             )
         },
@@ -281,9 +280,9 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
             content: (
                 <div className="space-y-4">
                     <p className="font-bold text-sm text-purple-600 uppercase tracking-widest">{pt.step2?.subtitle || 'Step 2: Privacy First'}</p>
-                    <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
                         {pt.step2?.content || 'Your personal information is protected by industry-standard **AES-256 bit encryption**. We collect only what is legally required for your visa sponsorship.'}
-                    </Typography>
+                    </p>
                 </div>
             )
         },
@@ -294,9 +293,9 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
             content: (
                 <div className="space-y-4">
                     <p className="font-bold text-sm text-amber-600 uppercase tracking-widest">{pt.step3?.subtitle || 'Step 3: Document Accuracy'}</p>
-                    <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
                         {pt.step3?.content || 'Once uploaded, our **AI Agent** perform a pre-screening of your passport and documents to ensure 100% compliance with Indonesian Immigration standards.'}
-                    </Typography>
+                    </p>
                 </div>
             )
         },
@@ -307,16 +306,16 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
             content: (
                 <div className="space-y-4">
                     <p className="font-bold text-sm text-green-600 uppercase tracking-widest">{pt.step4?.subtitle || 'Step 4: Final Confirmation'}</p>
-                    <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
                         {pt.step4?.content || 'Complete your transaction via world-class secure payment gateways. The moment payment is verified, your **ID Tracker** is activated.'}
-                    </Typography>
-                    <Box sx={{ p: 3, bgcolor: 'rgba(34, 197, 94, 0.05)', borderRadius: 4, border: '1px solid rgba(34, 197, 94, 0.2)' }}>
-                        <ul className="space-y-2 text-sm">
+                    </p>
+                    <div className="p-6 bg-green-500/5 rounded-[2rem] border border-green-500/20">
+                        <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                             <li className="flex gap-2"><strong>+</strong> Receive Your email Confirmation</li>
                             <li className="flex gap-2"><strong>+</strong> Unique ID Tracker Order Activation</li>
                             <li className="flex gap-2"><strong>+</strong> Official Sponsor Guarantee</li>
                         </ul>
-                    </Box>
+                    </div>
                 </div>
             )
         }

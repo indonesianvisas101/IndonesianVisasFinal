@@ -106,12 +106,16 @@ export default async function LocaleLayout({
   return (
     <html lang={currentLocale}>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.paypal.com" />
+        <link rel="dns-prefetch" href="https://checkout.doku.com" />
+        <link rel="dns-prefetch" href="https://thvdfcogdxmqipybqzot.supabase.co" />
         
         {/* Extreme Speed Boosts: Preload critical above-the-fold assets */}
         <link rel="preload" as="image" href="/Favicon.webp" fetchPriority="high" type="image/webp" />
         
-        {/* Load GTM after the page is interactive to prioritize LCP */}
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
       </head>
       <body className={inter.className} suppressHydrationWarning>
@@ -133,7 +137,6 @@ export default async function LocaleLayout({
               },
               "contactPoint": {
                 "@type": "ContactPoint",
-                "contactType": "customer service",
                 "areaServed": "ID",
                 "availableLanguage": ["English", "Indonesian"]
               }

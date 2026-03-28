@@ -1603,21 +1603,6 @@ export const VISA_DATABASE: VisaType[] = [
             "Recent Photograph"
         ],
         "extendable": true
-    },
-    {
-        "id": "IDIV",
-        "category": "Digital Identity",
-        "name": "IDiv Digital ID Card",
-        "description": "Indonesian Digital Identity Recognition for Foreigners & Expats.",
-        "price": "IDR 325.000",
-        "fee": 0,
-        "validity": "Lifetime (Digital)",
-        "requirements": [
-            "Valid Passport",
-            "Recent Photograph",
-            "Proof of Address (Optional)"
-        ],
-        "extendable": false
     }
 ];
 

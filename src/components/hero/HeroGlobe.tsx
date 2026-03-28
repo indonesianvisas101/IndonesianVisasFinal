@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
-import * as d3 from "d3"
+import { select, timer as d3Timer, geoOrthographic, geoPath, geoGraticule, geoDistance } from "d3"
 import { feature } from "topojson-client"
 
 interface GeoFeature {
@@ -52,28 +52,22 @@ export default function HeroGlobe() {
     useEffect(() => {
         if (!svgRef.current || worldData.length === 0) return
 
-        const svg = d3.select(svgRef.current)
+        const svg = select(svgRef.current)
         svg.selectAll("*").remove()
 
         // Config
-        const projection = d3.geoOrthographic()
+        const projection = geoOrthographic()
             .scale(dimensions.width / 2.5) // Adjust scale based on view
             .translate([dimensions.width / 2, dimensions.height / 2])
             .precision(0.1)
 
-        const path = d3.geoPath(projection)
+        const path = geoPath(projection)
 
         // Graticule
-        const graticule = d3.geoGraticule()
+        const graticule = geoGraticule()
 
         // Elements
         const globeGroup = svg.append("g")
-
-        // 1. Sphere Fill (Ocean) - Transparent or slight blue? User said "without a background"
-        // But usually a globe has a "water" sphere. 
-        // "without a background" likely means the rectangular container is transparent.
-        // I'll add a subtle sphere fill to make it look like a globe, but keep it minimal as per "Hero Background".
-        // Actually, let's keep it transparent but with a faint stroke.
 
         // 2. Graticule
         globeGroup.append("path")
@@ -85,7 +79,7 @@ export default function HeroGlobe() {
             .attr("stroke-width", 0.5)
 
         // 3. Countries
-        const countriesPath = globeGroup.selectAll(".country")
+        globeGroup.selectAll(".country")
             .data(worldData)
             .enter()
             .append("path")
@@ -114,14 +108,14 @@ export default function HeroGlobe() {
             .attr("class", "bali-marker")
 
         // Outer pulse circle
-        const pulseCircle = markerGroup.append("circle")
+        markerGroup.append("circle")
             .attr("r", 8)
             .attr("fill", "#ff0000")
             .attr("fill-opacity", 0.4)
             .attr("class", "pulse-animation")
 
         // Inner solid dot
-        const innerDot = markerGroup.append("circle")
+        markerGroup.append("circle")
             .attr("r", 3)
             .attr("fill", "#ff0000")
 
@@ -130,7 +124,7 @@ export default function HeroGlobe() {
 
         // Efficient Animation Loop (Throttled to 30fps)
         let frameCount = 0;
-        const timer = d3.timer((elapsed) => {
+        const mainTimer = d3Timer((elapsed: number) => {
             frameCount++;
             if (frameCount % 2 !== 0) return; // Skip every other frame (30fps target)
 
@@ -144,7 +138,7 @@ export default function HeroGlobe() {
             const projectedBali = projection(baliCoords);
             if (projectedBali) {
                 const center = projection.invert!([dimensions.width / 2, dimensions.height / 2]);
-                const distance = d3.geoDistance(baliCoords, center!);
+                const distance = geoDistance(baliCoords, center!);
                 
                 if (distance < Math.PI / 2) {
                     markerGroup.style("opacity", 1);
@@ -158,7 +152,7 @@ export default function HeroGlobe() {
         });
 
         return () => {
-            timer.stop()
+            mainTimer.stop()
         }
     }, [worldData, dimensions])
 
@@ -170,7 +164,6 @@ export default function HeroGlobe() {
                 height={dimensions.height}
                 viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
                 className="max-w-none"
-            // style={{ mixBlendMode: 'overlay' }} // Removed to fix dark mode visibility
             />
             <style jsx>{`
                 @keyframes pulse-marker {

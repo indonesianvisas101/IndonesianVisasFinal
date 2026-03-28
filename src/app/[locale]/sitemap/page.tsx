@@ -56,6 +56,17 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             ]
         },
         {
+            title: "VFS Global Education Hub",
+            icon: ShieldCheck,
+            links: [
+                { name: "VFS Indonesia Guide", href: `/${locale}/vfs-indonesia` },
+                { name: "VFS Global vs. Official", href: `/${locale}/visa-vfs-global` },
+                { name: "Global VFS Overview", href: `/${locale}/vfs-global` },
+                { name: "Indonesian Visa Facts", href: `/${locale}/vfs-indonesian-visas` },
+                { name: "Partnership Verification", href: `/${locale}/vfs-indonesian-immigration-partnership` }
+            ]
+        },
+        {
             title: "Regional Hubs",
             icon: Map,
             links: [

@@ -11,11 +11,13 @@ const nextConfig: NextConfig = {
     optimizePackageImports: [
       'lucide-react',
       'framer-motion',
+      'd3',
+      'd3-selection',
+      'd3-geo',
+      'topojson-client',
       'date-fns',
       '@mui/material',
       '@mui/icons-material',
-      '@mui/lab',
-      '@mui/x-date-pickers',
       'lodash',
       'clsx',
       'tailwind-merge'
@@ -44,6 +46,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' }, // Unsplash
       { protocol: 'https', hostname: 'plus.unsplash.com' }, // Unsplash Plus
       { protocol: 'https', hostname: 'www.google.com' }, // Google Logo
+      { protocol: 'https', hostname: 'www.indonesianvisas.com' },
     ],
   },
 

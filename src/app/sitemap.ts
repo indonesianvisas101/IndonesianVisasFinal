@@ -41,6 +41,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/australia/travel-indonesia',
         '/australia/kitas-indonesia',
         '/australia/indonesia-citizenship',
+        '/vfs-indonesia',
+        '/visa-vfs-global',
+        '/vfs-global',
+        '/vfs-indonesian-visas',
+        '/vfs-indonesian-immigration-partnership',
         '/new-zealand',
         '/singapore',
         '/micronesia',
@@ -108,4 +113,3 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return sitemapEntries;
 }
-

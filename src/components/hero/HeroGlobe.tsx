@@ -128,33 +128,34 @@ export default function HeroGlobe() {
         // Cache the selection to avoid re-querying DOM every frame
         const allPaths = globeGroup.selectAll("path");
 
-        // Animation Timer
+        // Efficient Animation Loop (Throttled to 30fps)
+        let frameCount = 0;
         const timer = d3.timer((elapsed) => {
-            // Speed factor: 0.01 (slower, smoother)
-            // Constant velocity based on time
-            const rotate = [elapsed * 0.01, -15]
-            projection.rotate(rotate as [number, number])
+            frameCount++;
+            if (frameCount % 2 !== 0) return; // Skip every other frame (30fps target)
 
-            // Update all paths
-            allPaths.attr("d", path as any)
+            const rotate = [elapsed * 0.01, -15];
+            projection.rotate(rotate as [number, number]);
+
+            // Single update call for all paths
+            allPaths.attr("d", path as any);
 
             // Update Bali Marker Position
-            const projectedBali = projection(baliCoords)
+            const projectedBali = projection(baliCoords);
             if (projectedBali) {
-                // Check if Bali is on the front side
-                const center = projection.invert!([dimensions.width / 2, dimensions.height / 2])
-                const distance = d3.geoDistance(baliCoords, center!)
+                const center = projection.invert!([dimensions.width / 2, dimensions.height / 2]);
+                const distance = d3.geoDistance(baliCoords, center!);
                 
                 if (distance < Math.PI / 2) {
-                    markerGroup.style("opacity", 1)
-                    markerGroup.attr("transform", `translate(${projectedBali[0]}, ${projectedBali[1]})`)
+                    markerGroup.style("opacity", 1);
+                    markerGroup.attr("transform", `translate(${projectedBali[0]}, ${projectedBali[1]})`);
                 } else {
-                    markerGroup.style("opacity", 0)
+                    markerGroup.style("opacity", 0);
                 }
             } else {
-                markerGroup.style("opacity", 0)
+                markerGroup.style("opacity", 0);
             }
-        })
+        });
 
         return () => {
             timer.stop()

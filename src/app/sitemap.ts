@@ -36,6 +36,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/visa-glossary/what-is-business-visa', '/visa-faq', '/indonesia-visa-updates',
         '/indonesia-visa-updates/visa-updates-2026', '/indonesia-visa-updates/new-bali-immigration-rules',
         '/indonesia-visa-updates/indonesia-digital-nomad-visa-news',
+        '/australia',
+        '/australia/digital-nomad',
+        '/australia/travel-indonesia',
+        '/australia/kitas-indonesia',
+        '/australia/indonesia-citizenship',
+        '/new-zealand',
+        '/singapore',
+        '/micronesia',
         ...seoPageSlugs.map(slug => `/${slug}`)
     ];
 

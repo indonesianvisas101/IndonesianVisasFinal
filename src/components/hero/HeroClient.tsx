@@ -20,34 +20,60 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export const HeroGlobeWrapper = () => {
     const [isMounted, setIsMounted] = React.useState(false);
+    const containerRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsMounted(true);
-        }, 3000); // Strict 3 second delay before any appearance
-        return () => clearTimeout(timer);
+        // Higher performance: only load when visible and the thread is IDLE
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                // Wait for the main thread to be idle, then wait for the user to be engaged
+                runWhenIdle(() => {
+                    const timer = setTimeout(() => {
+                        setIsMounted(true);
+                    }, 2500); // Dynamic delay after idle 
+                    return () => clearTimeout(timer);
+                });
+                observer.disconnect();
+            }
+        }, { threshold: 0.1 });
+
+        if (containerRef.current) {
+            observer.observe(containerRef.current);
+        }
+
+        return () => observer.disconnect();
     }, []);
 
     return (
-        <AnimatePresence>
-            {isMounted && (
-                <motion.div
-                    id="globe-render-container"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 3, ease: "easeInOut" }}
-                    style={{ 
-                        position: 'absolute',
-                        inset: 0,
-                        zIndex: 10,
-                        background: 'transparent'
-                    }}
-                >
-                    <HeroGlobe />
-                </motion.div>
-            )}
-            {!isMounted && <div className="absolute inset-0 z-0" />}
-        </AnimatePresence>
+        <div ref={containerRef} className="absolute inset-0 pointer-events-none">
+            <AnimatePresence>
+                {isMounted && (
+                    <motion.div
+                        id="globe-render-container"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 4, ease: "easeInOut" }}
+                        style={{ 
+                            position: 'absolute',
+                            inset: 0,
+                            zIndex: 10,
+                            background: 'transparent'
+                        }}
+                    >
+                        <HeroGlobe />
+                    </motion.div>
+                )}
+                {!isMounted && (
+                    <div className="absolute inset-0 z-0 bg-transparent flex items-center justify-center">
+                        {/* 
+                            Light placeholder (could be a blurred shape).
+                            Helps in giving a "loading" structure without weight.
+                        */}
+                        <div className="w-[600px] h-[600px] rounded-full border border-primary/5 opacity-10 animate-pulse" />
+                    </div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 };
 

@@ -45,6 +45,31 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
 
     const SITEMAP_DATA = [
         {
+            title: "Australia Hub Cluster",
+            icon: Globe,
+            links: [
+                { name: "Australia Main Hub", href: `/${locale}/australia` },
+                { name: "Digital Nomad Guide (Aussie)", href: `/${locale}/australia/digital-nomad` },
+                { name: "Travel & Safety Guide", href: `/${locale}/australia/travel-indonesia` },
+                { name: "KITAS Residency Guide", href: `/${locale}/australia/kitas-indonesia` },
+                { name: "Indonesia Citizenship", href: `/${locale}/australia/indonesia-citizenship` }
+            ]
+        },
+        {
+            title: "Regional Hubs",
+            icon: Map,
+            links: [
+                { name: "New Zealand", href: `/${locale}/new-zealand` },
+                { name: "Singapore", href: `/${locale}/singapore` },
+                { name: "Micronesia", href: `/${locale}/micronesia` },
+                { name: "United Kingdom", href: `/${locale}/visa-indonesia-for-uk-citizens` },
+                { name: "United States", href: `/${locale}/visa-indonesia-for-americans` },
+                { name: "Russia", href: `/${locale}/visa-indonesia-for-russians` },
+                { name: "India", href: `/${locale}/visa-indonesia-for-indians` },
+                { name: "China", href: `/${locale}/visa-indonesia-for-chinese` }
+            ]
+        },
+        {
             title: "Core Experience",
             icon: Home,
             links: [

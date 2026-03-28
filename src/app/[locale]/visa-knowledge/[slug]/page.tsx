@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import { ShieldCheck, Info, FileText, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, HelpCircle, CheckCircle2 } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string, locale: string }> }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const db = prisma as any;
   const page = await db['knowledgePage'].findUnique({
     where: { slug }
@@ -12,44 +12,69 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!page) return {};
 
   const meta = page.metadata as any;
-  const schema = meta?.schema;
+  const sections = (page.content as any[]) || [];
+  const faqSection = sections.find(s => s.type === 'faq');
+
+  // Hardcoded production URL base for canonicals
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+  const canonicalUrl = `${baseUrl}/${locale}/visa-knowledge/${slug}`;
+
+  // Schema.org structured data injection
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": page.title,
+    "description": meta?.description || page.title,
+    "datePublished": page.createdAt,
+    "dateModified": page.updatedAt,
+    "author": {
+      "@type": "Organization",
+      "name": "Indonesian Visas Research Team",
+      "url": baseUrl
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Indonesian Visas",
+        "logo": {
+            "@type": "ImageObject",
+            "url": `${baseUrl}/Logo.webp`
+        }
+    }
+  };
+
+  const faqData = meta?.schema?.faq || (faqSection && Array.isArray(faqSection.content) ? faqSection.content : null);
+  const faqSchema = faqData ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqData.map((item: any) => ({
+      "@type": "Question",
+      "name": item.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.answer
+      }
+    }))
+  } : null;
 
   return {
     title: page.title,
     description: meta?.description || page.title,
+    alternates: {
+        canonical: canonicalUrl,
+    },
     openGraph: {
       title: page.title,
       description: meta?.description || page.title,
+      url: canonicalUrl,
       type: 'article',
+      publishedTime: page.createdAt.toISOString(),
+      modifiedTime: page.updatedAt.toISOString(),
+      authors: ['Indonesian Visas Research Team'],
     },
-    // Schema.org structured data injection
+    // Schema.org structured data injection via Next.js metadata
     other: {
-      'script:ld+json:article': JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": page.title,
-        "description": meta?.description,
-        "datePublished": page.createdAt,
-        "dateModified": page.updatedAt,
-        "author": {
-          "@type": "Organization",
-          "name": "Indonesian Visas AI Organization"
-        }
-      }),
-      ...(schema?.faq ? {
-        'script:ld+json:faq': JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": schema.faq.map((item: any) => ({
-            "@type": "Question",
-            "name": item.question,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": item.answer
-            }
-          }))
-        })
-      } : {})
+      'script:ld+json:article': JSON.stringify(articleSchema),
+      ...(faqSchema ? { 'script:ld+json:faq': JSON.stringify(faqSchema) } : {})
     }
   };
 }
@@ -79,7 +104,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ slug
              {page.title}
            </h1>
            <p className="text-slate-500 dark:text-slate-400 font-medium">
-             Last Updated: {new Date(page.updatedAt).toLocaleDateString()} | Author: AI Immigration Analyst
+             Last Updated: {new Date(page.updatedAt).toLocaleDateString()} | Author: Indonesian Visas Research Team
            </p>
         </div>
 
@@ -122,7 +147,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ slug
 
             return (
               <section key={idx} className="space-y-6">
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3 lowercase">
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
                   <span className="text-primary opacity-30">#</span> {section.title}
                 </h2>
                 <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-black prose-p:leading-relaxed text-slate-700 dark:text-slate-300">

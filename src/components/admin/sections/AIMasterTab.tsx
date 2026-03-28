@@ -72,7 +72,11 @@ import {
     ArrowForward as ArrowForwardIcon,
     SupportAgent as SellerIcon,
     Send as SendIcon,
-    Forum as ForumIcon
+    Forum as ForumIcon,
+    Delete as DeleteIcon,
+    Visibility as ViewIcon,
+    Topic as KnowledgeIcon,
+    Search as SearchIcon
 } from '@mui/icons-material';
 
 // --- Types ---
@@ -98,6 +102,18 @@ interface RiskLog {
     riskLevel: string;
     createdAt: string;
     findings: any;
+}
+
+interface KnowledgePage {
+    id: string;
+    slug: string;
+    title: string;
+    category: string | null;
+    createdAt: string;
+    quality?: {
+        overallScore: number;
+        wordCount: number;
+    } | null;
 }
 
 interface ChatMessage {
@@ -223,6 +239,10 @@ export default function AIMasterTab() {
     const [selectedConv, setSelectedConv] = useState<any | null>(null);
     const [lastSyncInfo, setLastSyncInfo] = useState<{ time: string; action: string } | null>(null);
 
+    // Knowledge Pages State
+    const [knowledgePages, setKnowledgePages] = useState<KnowledgePage[]>([]);
+    const [searchQueryPages, setSearchQueryPages] = useState('');
+
     // Chat State — plain messages, no useChat dependency
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [chatLoading, setChatLoading] = useState(false);
@@ -305,6 +325,7 @@ export default function AIMasterTab() {
                 setSystemState(data.systemState);
                 setPendingRequests(data.pendingRequests);
                 setRiskLogs(data.riskLogs);
+                setKnowledgePages(data.knowledgePages || []);
             }
         } catch (err) {
             console.error("Management Data Fetch Error:", err);
@@ -431,6 +452,28 @@ export default function AIMasterTab() {
         }
     };
 
+    const handleDeletePage = async (id: string) => {
+        if (!confirm("Are you sure you want to PERMANENTLY delete this AIR generated page? This action cannot be undone.")) return;
+        try {
+            setLoadingAction(true);
+            const res = await fetch('/api/ai-master/management', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'DELETE_PAGE', data: { id } })
+            });
+            if (res.ok) {
+                setKnowledgePages(prev => prev.filter(p => p.id !== id));
+                alert("Page removed from database.");
+            } else {
+                alert("Failed to delete page.");
+            }
+        } catch (err) {
+            alert("Error deleting page.");
+        } finally {
+            setLoadingAction(false);
+        }
+    };
+
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -526,6 +569,7 @@ export default function AIMasterTab() {
                     <Tab label="Strategic Advisories" />
                     <Tab label="System Orchestration" />
                     <Tab label="AI Seller Brain" icon={<SellerIcon />} iconPosition="start" />
+                    <Tab label={<Badge badgeContent={knowledgePages.length} color="primary" sx={{ px: 2 }}>Published Knowledge</Badge>} icon={<KnowledgeIcon />} iconPosition="start" />
                 </Tabs>
             </Box>
 
@@ -1064,6 +1108,94 @@ export default function AIMasterTab() {
                         </Stack>
                     </Grid>
                 </Grid>
+            )}
+            {/* Tab 6: Published Knowledge Management */}
+            {tabValue === 6 && (
+                <Box>
+                    <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="h6" fontWeight="bold">AI Knowledge Base <Typography variant="caption" color="text.secondary">({knowledgePages.length} Published)</Typography></Typography>
+                        <TextField
+                            size="small"
+                            placeholder="Search pages by title or slug..."
+                            value={searchQueryPages}
+                            onChange={(e) => setSearchQueryPages(e.target.value)}
+                            sx={{ width: 350 }}
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>
+                            }}
+                        />
+                    </Box>
+                    <TableContainer component={Paper} variant="outlined">
+                        <Table size="small">
+                            <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+                                <TableRow>
+                                    <TableCell>Article Title</TableCell>
+                                    <TableCell>Slug</TableCell>
+                                    <TableCell>Category</TableCell>
+                                    <TableCell>SEO Quality</TableCell>
+                                    <TableCell align="right">Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {knowledgePages.filter(p => 
+                                    p.title.toLowerCase().includes(searchQueryPages.toLowerCase()) || 
+                                    p.slug.toLowerCase().includes(searchQueryPages.toLowerCase())
+                                ).map((page) => (
+                                    <TableRow key={page.id} hover>
+                                        <TableCell>
+                                            <Typography variant="body2" fontWeight="bold">{page.title}</Typography>
+                                            <Typography variant="caption" color="text.secondary">{new Date(page.createdAt).toLocaleDateString()}</Typography>
+                                        </TableCell>
+                                        <TableCell><Typography variant="caption" sx={{ fontFamily: 'monospace' }}>{page.slug}</Typography></TableCell>
+                                        <TableCell><Chip label={page.category || 'General'} size="small" variant="outlined" /></TableCell>
+                                        <TableCell>
+                                            {page.quality ? (
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <LinearProgress 
+                                                        variant="determinate" 
+                                                        value={page.quality.overallScore} 
+                                                        sx={{ width: 60, height: 6, borderRadius: 3 }}
+                                                        color={page.quality.overallScore > 80 ? 'success' : page.quality.overallScore > 50 ? 'warning' : 'error'}
+                                                    />
+                                                    <Typography variant="caption" fontWeight="bold">{Math.round(page.quality.overallScore)}%</Typography>
+                                                </Stack>
+                                            ) : 'N/A'}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                                <Tooltip title="View Live">
+                                                    <IconButton 
+                                                        size="small" 
+                                                        color="primary" 
+                                                        onClick={() => window.open(`/en/visa-knowledge/${page.slug}`, '_blank')}
+                                                    >
+                                                        <ViewIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Delete Permanently">
+                                                    <IconButton 
+                                                        size="small" 
+                                                        color="error"
+                                                        onClick={() => handleDeletePage(page.id)}
+                                                    >
+                                                        <DeleteIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Stack>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                {knowledgePages.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={5} align="center">
+                                            <Typography variant="body2" sx={{ py: 4, opacity: 0.5 }}>No generated pages found.</Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
             )}
 
             {/* --- INTELLIGENCE REVIEW MODAL --- */}

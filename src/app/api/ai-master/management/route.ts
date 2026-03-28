@@ -50,11 +50,21 @@ export async function GET(request: Request) {
             take: 5
         });
 
+        // Fetch Knowledge Pages (AI Generated Assets)
+        const knowledgePages = await prisma.knowledgePage.findMany({
+            include: {
+                quality: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 50 // Limit for dashboard view
+        });
+
         return NextResponse.json({
             systemState,
             pendingRequests,
             riskLogs,
-            executionLogs
+            executionLogs,
+            knowledgePages
         });
 
     } catch (error: any) {
@@ -97,7 +107,6 @@ export async function POST(request: Request) {
             });
 
             // 2. Trigger the AI Worker
-            // Note: Since this is an admin action, we trigger the worker instantly
             const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
             const workerRes = await fetch(`${appUrl}/api/ai-worker/execute`, {
                 method: 'POST',
@@ -125,6 +134,16 @@ export async function POST(request: Request) {
             const { TOPIC_SCHEDULER } = await import('@/ai/topic-discovery/topicScheduler');
             await TOPIC_SCHEDULER.runDailyOrchestration();
             return NextResponse.json({ success: true, message: "AI Analytics Orchestration triggered successfully." });
+        }
+
+        if (action === 'DELETE_PAGE') {
+            const { id } = data;
+            if (!id) return NextResponse.json({ error: "Page ID required" }, { status: 400 });
+            
+            await prisma.knowledgePage.delete({
+                where: { id }
+            });
+            return NextResponse.json({ success: true, message: "Page deleted successfully" });
         }
 
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });

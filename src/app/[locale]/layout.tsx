@@ -155,11 +155,12 @@ export default async function LocaleLayout({
                 </a>
                 <Header dict={dict} locale={currentLocale} />
                 <GlobalInfoPopup locale={currentLocale} />
-                <main id="main-content" className="flex-grow relative" suppressHydrationWarning={true}>
-                  <div className="flex flex-col min-h-full">
-                    {children}
-                  </div>
+                
+                {/* Fixed Hydration mismatch: Content wrapper merged into main tag */}
+                <main id="main-content" className="flex-grow relative flex flex-col min-h-full">
+                  {children}
                 </main>
+
                 <Footer dict={dict} locale={currentLocale} />
                 <ClientLayout />
               </div>

@@ -69,7 +69,7 @@ export default function CompanyProfilePage() {
     };
 
     return (
-        <main className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
@@ -84,6 +84,6 @@ export default function CompanyProfilePage() {
             <SustainabilityImpact />
             <TestimonialCarousel />
             <CorporateCTA />
-        </main>
+        </div>
     );
 }

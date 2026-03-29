@@ -281,7 +281,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             </header>
 
             {/* Sitemap Grid */}
-            <main className="py-24">
+            <div className="py-24">
                 <div className="container mx-auto px-4">
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 max-w-7xl mx-auto">
                         {SITEMAP_DATA.map((section, idx) => (
@@ -309,7 +309,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
                         ))}
                     </div>
                 </div>
-            </main>
+            </div>
 
             {/* Footer Note */}
             <section className="py-20 text-center">

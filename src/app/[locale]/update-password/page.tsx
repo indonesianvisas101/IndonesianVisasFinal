@@ -67,7 +67,7 @@ const UpdatePasswordPage = () => {
     return (
         <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
             <Header locale={locale} />
-            <main className="flex-grow flex items-center justify-center p-4 pt-48 sm:pt-56">
+            <div className="flex-grow flex items-center justify-center p-4 pt-48 sm:pt-56">
                 <section className={styles.section} style={{ padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                     <div className={`glass-card ${styles.formCard} rounded-[2.5rem]`} style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}>
 
@@ -161,7 +161,7 @@ const UpdatePasswordPage = () => {
                         )}
                     </div>
                 </section>
-            </main>
+            </div>
             <Footer locale={locale} />
         </div>
     );

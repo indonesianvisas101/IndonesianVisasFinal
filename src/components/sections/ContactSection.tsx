@@ -34,9 +34,10 @@ const ContactSection = ({ dict }: { dict?: any }) => {
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm mode-aware-subtext mb-1 font-bold">{t.email_label || "Email"}</p>
                                     <div className="flex flex-col gap-1 overflow-hidden">
+                                        <a href="mailto:indonesian@visas.agency" className="text-sm md:text-base font-bold mode-aware-text hover:text-primary transition-colors truncate">indonesian@visas.agency</a>
                                         <a href="mailto:contact@indonesianvisas.agency" className="text-sm md:text-base font-bold mode-aware-text hover:text-primary transition-colors truncate">contact@indonesianvisas.agency</a>
                                         <a href="mailto:help@indonesianvisas.info" className="text-sm md:text-base font-bold mode-aware-text hover:text-primary transition-colors truncate">help@indonesianvisas.info</a>
-                                        <a href="mailto:indonesian@visas.agency" className="text-sm md:text-base font-bold mode-aware-text hover:text-primary transition-colors truncate">indonesian@visas.agency</a>
+                                        <a href="mailto:support@indonesianvisas.com" className="text-sm md:text-base font-bold mode-aware-text hover:text-primary transition-colors truncate">support@indonesianvisas.com</a>
                                     </div>
                                 </div>
                             </div>

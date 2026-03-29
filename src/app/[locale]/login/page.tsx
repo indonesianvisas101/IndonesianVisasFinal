@@ -54,7 +54,7 @@ const LoginPage = () => {
 
     return (
         <PageWrapper className="transition-colors duration-300 flex items-center justify-center">
-            <main className="flex-grow flex items-center justify-center p-4 w-full">
+            <div className="flex-grow flex items-center justify-center p-4 w-full">
                 <section className={styles.section} style={{ padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                     <div className={`glass-card ${styles.formCard} rounded-[2.5rem]`} style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}>
                         <div className="text-center mb-8 relative">
@@ -181,7 +181,7 @@ const LoginPage = () => {
                         </div>
                     </div>
                 </section>
-            </main>
+            </div>
         </PageWrapper>
     );
 };

@@ -70,7 +70,7 @@ export default async function FAQPage({ params }: { params: Promise<{ locale: st
                 </nav>
 
                 {/* FAQ CONTENT */}
-                <main className="container mx-auto px-4 py-20">
+                <div className="container mx-auto px-4 py-20">
                     <div className="max-w-4xl mx-auto space-y-24">
                         {CATEGORIES.map((cat) => (
                             <div key={cat.id} id={cat.id} className="scroll-mt-32 space-y-8">
@@ -97,7 +97,7 @@ export default async function FAQPage({ params }: { params: Promise<{ locale: st
                             </div>
                         ))}
                     </div>
-                </main>
+                </div>
 
                 {/* STILL HAVE QUESTIONS */}
                 <section className="container mx-auto px-4 pb-32">

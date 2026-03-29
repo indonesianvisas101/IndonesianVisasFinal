@@ -87,7 +87,7 @@ export default function SEOPageLayout({
             </section>
 
             {/* MAIN CONTENT + SIDEBAR */}
-            <main className="container mx-auto px-4 py-16">
+            <div className="container mx-auto px-4 py-16">
                 {children ? (
                     <div className="max-w-7xl mx-auto">
                         {children}
@@ -178,7 +178,7 @@ export default function SEOPageLayout({
                         </aside>
                     </div>
                 )}
-            </main>
+            </div>
         </PageWrapper>
     );    
 }

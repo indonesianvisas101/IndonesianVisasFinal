@@ -249,7 +249,7 @@ const VisaDetailPage = async (props: PageProps) => {
                     </p>
                 </header>
 
-                <main className="space-y-16">
+                <div className="space-y-16">
                     {/* Description */}
                     <section className="border-b border-gray-200 pb-12">
                         <h2 className="text-2xl font-bold mb-6 text-black">{visaDetails.description.title}</h2>
@@ -411,7 +411,7 @@ const VisaDetailPage = async (props: PageProps) => {
                         {/* Decorative */}
                         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-900/50 to-blue-900/50 pointer-events-none opacity-50 dark:opacity-80"></div>
                     </div>
-                </main>
+                </div>
 
                 {/* Footer Note */}
                 <footer className="mt-20 pt-10 border-t border-gray-200 dark:border-white/10 text-center text-gray-500 dark:text-gray-400 text-sm">

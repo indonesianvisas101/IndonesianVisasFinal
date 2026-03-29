@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ArrivalCardPage() {
     return (
-        <main className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 md:px-8">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 md:px-8">
             <div className="max-w-4xl mx-auto space-y-6">
                 {/* Header Section */}
                 <div className="text-center space-y-3 mb-10">
@@ -31,6 +31,6 @@ export default function ArrivalCardPage() {
                     <p>&copy; 2026 Directorate General of Immigration & Customs. All rights reserved.</p>
                 </div>
             </div>
-        </main>
+        </div>
     );
 }

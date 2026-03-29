@@ -84,7 +84,7 @@ const RegisterPage = () => {
         return (
             <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
                 <Header locale={locale} />
-                <main className="flex-grow flex items-center justify-center p-4 pt-48 sm:pt-56">
+                <div className="flex-grow flex items-center justify-center p-4 pt-48 sm:pt-56">
                     <div className="glass-card rounded-[2.5rem] p-12 text-center max-w-[500px] w-full border-2 border-[#9155FD]/20">
                         <div className="w-20 h-20 bg-[#9155FD]/10 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Mail className="text-[#9155FD]" size={40} />
@@ -106,7 +106,7 @@ const RegisterPage = () => {
                             </Link>
                         </div>
                     </div>
-                </main>
+                </div>
                 <Footer locale={locale} />
             </div>
         );
@@ -115,7 +115,7 @@ const RegisterPage = () => {
     return (
         <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
             <Header locale={locale} />
-            <main className="flex-grow flex items-center justify-center p-4 pt-48 sm:pt-56">
+            <div className="flex-grow flex items-center justify-center p-4 pt-48 sm:pt-56">
                 <section className={styles.section} style={{ padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                     <div className={`glass-card ${styles.formCard} rounded-[2.5rem]`} style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}>
                         <div className="text-center mb-8">
@@ -312,7 +312,7 @@ const RegisterPage = () => {
                         </div>
                     </div>
                 </section>
-            </main>
+            </div>
             <Footer locale={locale} />
         </div>
     );

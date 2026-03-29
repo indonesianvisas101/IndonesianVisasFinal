@@ -98,7 +98,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ slug
   const sections = page.content as any[];
 
   return (
-    <main className="min-h-screen bg-white dark:bg-slate-950 pt-20">
+    <div className="min-h-screen bg-white dark:bg-slate-950 pt-20">
       {/* 1. Hero / Title Section */}
       <div className="max-w-4xl mx-auto px-6 py-16">
         <div className="space-y-4 mb-12">
@@ -193,6 +193,6 @@ export default async function KnowledgePage({ params }: { params: Promise<{ slug
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

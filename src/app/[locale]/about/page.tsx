@@ -98,7 +98,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </section>
 
             {/* MAIN CONTENT AREA */}
-            <main className="container mx-auto px-4 py-20">
+            <div className="container mx-auto px-4 py-20">
                 <div className="max-w-7xl mx-auto space-y-32">
 
                     {/* Mission Section */}
@@ -245,7 +245,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                         </div>
                     </section>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

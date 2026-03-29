@@ -78,7 +78,7 @@ export default function VFSEducationalTemplate({ data, locale }: VFSEducationalT
             </section>
 
             {/* MAIN CONTENT + SIDEBAR */}
-            <main className="container mx-auto px-4 py-20">
+            <div className="container mx-auto px-4 py-20">
                 <div className="flex flex-col lg:flex-row gap-16 max-w-7xl mx-auto">
                     
                     {/* LEFT / CONTENT */}
@@ -200,7 +200,7 @@ export default function VFSEducationalTemplate({ data, locale }: VFSEducationalT
                         </div>
                     </aside>
                 </div>
-            </main>
+            </div>
 
             {/* VISA CARD SECTION (THE 9 POPULAR VISAS) */}
             <section className="py-24 bg-slate-50 dark:bg-slate-900/40 border-t border-black/5 dark:border-white/5 rounded-t-[5rem]">

@@ -37,10 +37,10 @@ export async function POST(req: Request) {
 
         // Validation for Email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        let customerEmail = customerDetails?.email || "info@indonesianvisas.com";
+        let customerEmail = customerDetails?.email || "help@indonesianvisas.info";
         if (!emailRegex.test(customerEmail)) {
             console.warn("Invalid email format for Midtrans, using fallback:", customerEmail);
-            customerEmail = "info@indonesianvisas.com";
+            customerEmail = "help@indonesianvisas.info";
         }
 
         const payload = {

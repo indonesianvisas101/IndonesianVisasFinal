@@ -1,11 +1,11 @@
 export const COMPANY_EMAILS = {
     public: {
         contact: "contact@indonesianvisas.agency",
-        info: "info@indonesianvisas.agency",
-        support: "support@indonesianvisas.agency",
+        info: "help@indonesianvisas.info",
+        support: "support@indonesianvisas.com",
         ceo: "ceo@indonesianvisas.agency",
         holding: "info@bali.enterprises",
-        admin: "admin@visas.agency"
+        admin: "indonesian@visas.agency"
     },
     // Admin emails are strictly server-side or used for internal alerts only.
     // Do NOT import this file if you need admin emails, use the separate admin-only config or server action.

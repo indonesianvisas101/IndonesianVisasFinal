@@ -67,7 +67,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       {/* Above the fold (mostly) */}
       <ApplyExtend dict={dict} />
-      <LazySection minHeight="600px" rootMargin="800px">
+      <LazySection minHeight="600px" rootMargin="300px">
         <ServicesPreview dict={dict} />
       </LazySection>
 

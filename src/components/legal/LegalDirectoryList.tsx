@@ -5,16 +5,17 @@ import { Box, Container, Typography, List, ListItem, ListItemButton, ListItemTex
 import { FileText, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { formatNavLink } from '@/utils/seo';
 
 export default function LegalDirectoryList() {
     const params = useParams();
-    const locale = params?.locale || 'en';
+    const locale = (params?.locale as string) || 'en';
 
     const POLICIES = [
-        { name: "Privacy Policy", href: `/${locale}/privacy-policy` },
-        { name: "Terms of Service", href: `/${locale}/terms-and-conditions` },
-        { name: "Refund & Cancellation Policy", href: `/${locale}/refund` },
-        { name: "Affiliate Network Agreement", href: `/${locale}/affiliate` },
+        { name: "Privacy Policy", href: formatNavLink(locale, "/privacy-policy") },
+        { name: "Terms of Service", href: formatNavLink(locale, "/terms-and-conditions") },
+        { name: "Refund & Cancellation Policy", href: formatNavLink(locale, "/refund") },
+        { name: "Affiliate Network Agreement", href: formatNavLink(locale, "/affiliate") },
     ];
 
     return (

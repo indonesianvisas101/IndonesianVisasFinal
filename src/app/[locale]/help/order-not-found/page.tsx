@@ -7,16 +7,17 @@ import { Typography, Paper, Box, Button, Divider, Accordion, AccordionSummary, A
 import { Search, ChevronDown, ArrowLeft, Mail, Smartphone, History } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { formatNavLink } from '@/utils/seo';
 
 export default function OrderNotFoundPage() {
     const params = useParams();
-    const locale = params?.locale || 'en';
+    const locale = (params?.locale as string) || 'en';
 
     return (
         <SectionWrapper id="order-troubleshooting" className="py-20 bg-slate-50 dark:bg-zinc-950">
             <div className="max-w-4xl mx-auto px-4">
                 
-                <Link href={`/${locale}/help`} className="inline-flex items-center gap-2 text-gray-400 hover:text-primary transition-colors mb-8 text-sm font-bold uppercase tracking-widest">
+                <Link href={formatNavLink(locale, "/help")} className="inline-flex items-center gap-2 text-gray-400 hover:text-primary transition-colors mb-8 text-sm font-bold uppercase tracking-widest">
                     <ArrowLeft size={16} /> Help Center
                 </Link>
 
@@ -58,7 +59,7 @@ export default function OrderNotFoundPage() {
                             <Button 
                                 variant="contained" 
                                 startIcon={<History size={16} />} 
-                                href="/check-status"
+                                href={formatNavLink(locale, "/check-status")}
                                 sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 'bold' }}
                             >
                                 Open Status Tracker

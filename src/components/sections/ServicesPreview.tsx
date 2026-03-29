@@ -8,8 +8,12 @@ import Link from "next/link";
 import { useApplication } from "@/components/application/ApplicationContext";
 import { POPULAR_VISA_IDS } from "@/constants/visas";
 const VisaListModal = dynamic(() => import("@/components/visa/VisaListModal"), { ssr: false });
+import { formatNavLink } from "@/utils/seo";
+import { useParams } from "next/navigation";
 
 const ServicesPreview = ({ dict }: { dict?: any }) => {
+    const params = useParams();
+    const locale = (params?.locale as string) || 'en';
     const t = dict?.services_preview || {};
     const { visas } = useApplication();
     const [isMounted, setIsMounted] = React.useState(false);
@@ -117,7 +121,7 @@ const ServicesPreview = ({ dict }: { dict?: any }) => {
                             .map((visa) => {
                                 const visaT = t.visas?.[visa.id] || {};
                                 return (
-                                    <Link href={`/services/${visa.id}`} key={visa.id} className={`glass-card ${styles.miniCard}`}>
+                                    <Link href={formatNavLink(locale, `/services/${visa.id}`)} key={visa.id} className={`glass-card ${styles.miniCard}`}>
                                         <div className={styles.miniCardHeader}>
                                             <span className={`${styles.miniCardId} mode-aware-subtext`}>{visa.id}</span>
                                         </div>
@@ -139,7 +143,7 @@ const ServicesPreview = ({ dict }: { dict?: any }) => {
                     </div>
 
                     <div className={`${styles.servicesFooter} flex justify-center w-full mt-12`}>
-                        <Link href="/services" className={`cta-accent ${styles.ctaBtn}`}>
+                        <Link href={formatNavLink(locale, "/services")} className={`cta-accent ${styles.ctaBtn}`}>
                             {t.view_all || "View All Visa Services"} <ArrowRight size={20} className="ml-2" />
                         </Link>
                     </div>

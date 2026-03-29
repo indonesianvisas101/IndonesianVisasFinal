@@ -1,6 +1,7 @@
 import React from "react";
 import SEOPageLayout from "@/components/layout/SEOPageLayout";
 import { Metadata } from "next";
+import { generateCanonical, formatNavLink } from "@/utils/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -8,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         title: "What is Visa on Arrival (VoA)? Bali Entry Guide | Indonesian Visas",
         description: "Everything you need to know about the Indonesian Visa on Arrival (VoA). Cost, duration, 2026 eligible countries, and extension rules.",
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/visa-glossary/what-is-voa`,
+            canonical: generateCanonical(locale, "/visa-glossary/what-is-voa"),
         },
     };
 }
@@ -75,15 +76,15 @@ export default async function WhatIsVoaPage({ params }: { params: Promise<{ loca
             title="What is Visa on Arrival (VoA)?"
             subtitle="The simple guide to entering Indonesia for tourism and short business trips."
             breadcrumbs={[
-                { label: "Visa Glossary", url: `/${locale}/visa-glossary` },
-                { label: "What is VoA", url: `/${locale}/visa-glossary/what-is-voa` }
+                { label: "Visa Glossary", url: formatNavLink(locale, "/visa-glossary") },
+                { label: "What is VoA", url: formatNavLink(locale, "/visa-glossary/what-is-voa") }
             ]}
             sections={sections}
             cta={{
                 title: "Need to stay longer than 60 days?",
                 desc: "If the VoA isn't enough, apply for a 60-day B211A visa that is extendable up to 6 months.",
                 buttonText: "See B211A Options",
-                link: `/${locale}/visa-types/b211a-visa-indonesia`
+                link: formatNavLink(locale, "/visa-types/b211a-visa-indonesia")
             }}
         />
     );

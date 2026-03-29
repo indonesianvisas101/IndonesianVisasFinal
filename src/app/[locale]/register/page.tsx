@@ -7,6 +7,7 @@ import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
 import { Lock, Mail, User, Phone, ArrowRight, Eye, EyeOff, Chrome } from "lucide-react";
 import Link from "next/link";
+import { formatNavLink } from "@/utils/seo";
 import styles from "./page.module.css";
 
 const RegisterPage = () => {
@@ -74,7 +75,7 @@ const RegisterPage = () => {
                 setRegSuccess(true);
                 setRegEmail(formData.email);
             } else {
-                router.push("/dashboard");
+                router.push(formatNavLink(locale, "/dashboard"));
             }
         }
     };
@@ -100,7 +101,7 @@ const RegisterPage = () => {
                             >
                                 Resend Confirmation Email
                             </button>
-                            <Link href="/login" className="text-gray-400 hover:text-[#9155FD] font-medium transition-colors">
+                            <Link href={formatNavLink(locale, "/login")} className="text-gray-400 hover:text-[#9155FD] font-medium transition-colors">
                                 Back to Sign In
                             </Link>
                         </div>
@@ -306,7 +307,7 @@ const RegisterPage = () => {
 
                         <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/10 text-center">
                             <p className="text-gray-500 dark:text-gray-400 text-sm">
-                                Already have an account? <Link href="/login" className="font-bold text-primary hover:underline">Sign In</Link>
+                                Already have an account? <Link href={formatNavLink(locale, "/login")} className="font-bold text-primary hover:underline">Sign In</Link>
                             </p>
                         </div>
                     </div>

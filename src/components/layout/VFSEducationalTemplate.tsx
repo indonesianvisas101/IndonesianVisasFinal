@@ -7,6 +7,7 @@ import PageWrapper from "@/components/layout/PageWrapper";
 import { VFSPageData } from "@/constants/vfs-guidance";
 import VisaCard from "@/components/ui/cards/VisaCard";
 import { VISA_DATABASE, POPULAR_VISA_IDS } from "@/constants/visas";
+import { formatNavLink } from "@/utils/seo";
 
 interface VFSEducationalTemplateProps {
     data: VFSPageData;
@@ -57,7 +58,7 @@ export default function VFSEducationalTemplate({ data, locale }: VFSEducationalT
                 <div className="container relative z-10 mx-auto px-4">
                     {/* BREADCRUMBS */}
                     <div className="flex flex-wrap items-center gap-2 text-sm mb-8 text-gray-500 dark:text-gray-400">
-                        <Link href={`/${locale}`} className="hover:text-primary transition-colors">Home</Link>
+                        <Link href={formatNavLink(locale, "/")} className="hover:text-primary transition-colors">Home</Link>
                         <ChevronRight size={14} className="shrink-0" />
                         <span className="font-semibold text-gray-800 dark:text-gray-200">Official Guidance</span>
                     </div>
@@ -192,7 +193,7 @@ export default function VFSEducationalTemplate({ data, locale }: VFSEducationalT
                                 <HelpCircle className="text-accent mb-4" size={32} />
                                 <h4 className="font-black mode-aware-text mb-2">Need Direct Clarity?</h4>
                                 <p className="text-xs mode-aware-subtext mb-6">If you are abroad and unsure about the official entry path, our legal team can verify your documents within 24 hours.</p>
-                                <Link href={`/${locale}/apply`} className="block w-full text-center py-4 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:-translate-y-1 transition-transform">
+                                <Link href={formatNavLink(locale, "/apply")} className="block w-full text-center py-4 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:-translate-y-1 transition-transform">
                                     Verify My Application
                                 </Link>
                             </div>
@@ -216,7 +217,7 @@ export default function VFSEducationalTemplate({ data, locale }: VFSEducationalT
                     </div>
 
                     <div className="mt-20 text-center">
-                        <Link href={`/${locale}/apply`} className="inline-flex items-center gap-3 px-10 py-5 bg-primary text-white text-lg rounded-3xl font-black shadow-2xl shadow-primary/30 hover:-translate-y-1 transition-all">
+                        <Link href={formatNavLink(locale, "/apply")} className="inline-flex items-center gap-3 px-10 py-5 bg-primary text-white text-lg rounded-3xl font-black shadow-2xl shadow-primary/30 hover:-translate-y-1 transition-all">
                             Start Application Now <ArrowRight size={22} />
                         </Link>
                     </div>

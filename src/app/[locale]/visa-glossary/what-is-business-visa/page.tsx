@@ -1,6 +1,7 @@
 import React from "react";
 import SEOPageLayout from "@/components/layout/SEOPageLayout";
 import { Metadata } from "next";
+import { generateCanonical, formatNavLink } from "@/utils/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -8,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         title: "What is Business Visa? Indonesia Professional Entry | Indonesian Visas",
         description: "Guide to the Indonesian Business Visa (C2). Learn about single-entry vs multiple-entry options, 2026 rules, and sponsorship requirements.",
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/visa-glossary/what-is-business-visa`,
+            canonical: generateCanonical(locale, "/visa-glossary/what-is-business-visa"),
         },
     };
 }
@@ -75,15 +76,15 @@ export default async function WhatIsBusinessVisaPage({ params }: { params: Promi
             title="What is a Business Visa?"
             subtitle="The professional's guide to conducting business legally in the Indonesian archipelago."
             breadcrumbs={[
-                { label: "Visa Glossary", url: `/${locale}/visa-glossary` },
-                { label: "What is Business Visa", url: `/${locale}/visa-glossary/what-is-business-visa` }
+                { label: "Visa Glossary", url: formatNavLink(locale, "/visa-glossary") },
+                { label: "What is Business Visa", url: formatNavLink(locale, "/visa-glossary/what-is-business-visa") }
             ]}
             sections={sections}
             cta={{
                 title: "Need a Multiple-Entry Business Visa?",
                 desc: "Get your 1-year or 2-year business D2 visa with our corporate sponsorship packages.",
                 buttonText: "Request Quote",
-                link: `/${locale}/apply`
+                link: formatNavLink(locale, "/apply")
             }}
         />
     );

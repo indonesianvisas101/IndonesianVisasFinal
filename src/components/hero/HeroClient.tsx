@@ -9,12 +9,15 @@ import dynamic from "next/dynamic";
 import Link from "next/link"; 
 import { ArrowRight, ShieldCheck, RefreshCcw, Globe, Clock, Star, Zap, Lock, Info } from "lucide-react"; 
 import { LazyMotion, domMax, m, AnimatePresence } from "framer-motion";
+import { formatNavLink } from "@/utils/seo";
+import { useParams } from "next/navigation";
 
 const HeroGlobe = dynamic(() => import("./HeroGlobe"), { 
     ssr: false,
     loading: () => <div className="absolute inset-0 z-0" />
 });
 import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
+import { getStepPopups, getStatPopups } from "./HeroPopups";
 
 export const HeroGlobeWrapper = () => {
     const [isMounted, setIsMounted] = React.useState(false);
@@ -71,9 +74,10 @@ export const HeroGlobeWrapper = () => {
     );
 };
 
-// 2. The CTA Button (Client)
 export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCardLabel?: string }) => {
     const { openPanel } = useApplication();
+    const params = useParams();
+    const locale = (params?.locale as string) || 'en';
 
     return (
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center md:justify-start mt-8">
@@ -90,7 +94,7 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
             </button>
             <div className={styles.animateSlideUpDelay}>
                 <Link
-                    href="/arrival-card"
+                    href={formatNavLink(locale, "/arrival-card")}
                     className={`cta-secondary ${styles.ctaBtn} !text-white !no-underline flex items-center justify-center hover:scale-105 transition-transform duration-300`}
                     style={{
                         background: 'linear-gradient(135deg, #fbbf24 0%, #f97316 100%)',
@@ -121,68 +125,8 @@ export const HeroStats = ({ company, processed, success }: { company: string; pr
     const [popup, setPopup] = React.useState<{ isOpen: boolean; info: StaticPopupInfo | null }>({ isOpen: false, info: null });
 
     const openStatPopup = (id: string) => {
-        let info: StaticPopupInfo | null = null;
-        if (id === 'company') {
-            info = {
-                id: 'stat-company',
-                title: 'No. 1 Visa Agency',
-                icon: <Globe size={32} />,
-                content: (
-                    <div className="space-y-4">
-                        <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">Industry Leadership</p>
-                        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
-                            IndonesianVisas.com is recognized as a leader in digital visa facilitation. Since 2010, we have pioneered smooth immigration pathways for global travelers.
-                        </p>
-                        <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10">
-                            <p className="text-sm">
-                                We utilize an **Advanced Verification System** integrated with dedicated legal support to ensure absolute document accuracy and speed.
-                            </p>
-                        </div>
-                        <p className="text-xs text-slate-400 italic">Your Registered Legal Gateway to Indonesia - Built for Trust.</p>
-                    </div>
-                )
-            };
-        } else if (id === 'processed') {
-            info = {
-                id: 'stat-processed',
-                title: '10K+ Applications',
-                icon: <Clock size={32} />,
-                content: (
-                    <div className="space-y-4">
-                        <p className="font-bold text-sm text-amber-600 uppercase tracking-widest">Deep Experience</p>
-                        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
-                            With over **16 years of experience** (2010-2026), we've seen it all. Our journey through the industry's evolution allows us to navigate complex regulatory changes with ease.
-                        </p>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
-                            We've processed tens of thousands of visas, learning from every uniquely challenging case to provide you with the most reliable path to Indonesia.
-                        </p>
-                    </div>
-                )
-            };
-        } else if (id === 'success') {
-            info = {
-                id: 'stat-success',
-                title: '99% Success Rate',
-                icon: <Star size={32} />,
-                content: (
-                    <div className="space-y-4">
-                        <p className="font-bold text-sm text-green-600 uppercase tracking-widest">The Draft System™</p>
-                        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
-                            Our proprietary **Draft System** and **Dual-Review Cycle** ensure the highest success rates in the industry.
-                        </p>
-                        <div className="p-6 bg-green-500/5 rounded-[2rem] border border-green-500/20">
-                            <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
-                                <li className="flex gap-2"><strong>1.</strong> We work directly within the Immigration system draft layer.</li>
-                                <li className="flex gap-2"><strong>2.</strong> Your application is submitted as a pre-verified draft.</li>
-                                <li className="flex gap-2"><strong>3.</strong> If the system flags an issue, our agent resolve it *immediately*.</li>
-                                <li className="flex gap-2"><strong>4.</strong> We only proceed to official submission once approval is verified.</li>
-                            </ul>
-                        </div>
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">This methodology ensures zero financial loss for our clients and a 99% guaranteed result.</p>
-                    </div>
-                )
-            };
-        }
+        const statPopups = getStatPopups();
+        const info = statPopups[id as keyof typeof statPopups] || null;
         setPopup({ isOpen: true, info });
     };
 
@@ -228,6 +172,8 @@ interface HeroStepsProps {
 }
 
 export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
+    const params = useParams();
+    const locale = (params?.locale as string) || 'en';
     const { completedSteps } = useApplication();
     const [activeIdleStep, setActiveIdleStep] = React.useState<number>(0);
     const [isInitialAnimation, setIsInitialAnimation] = React.useState(true);
@@ -256,69 +202,10 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
 
     const [activePopup, setActivePopup] = React.useState<StaticPopupInfo | null>(null);
 
-    const t = dict?.hero?.steps || {};
-    const pt = t.popups || {};
-
-    const stepPopups: Record<number, StaticPopupInfo> = {
-        1: {
-            id: 'step-1-info',
-            title: pt.step1?.title || 'Global Eligibility & Filtering',
-            icon: <Globe size={32} />,
-            content: (
-                <div className="space-y-4">
-                    <p className="font-bold text-sm text-blue-600 uppercase tracking-widest">{pt.step1?.subtitle || 'Step 1: Universal Access'}</p>
-                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
-                        {pt.step1?.content || 'We support travelers from over **97 countries**. Our system automatically filters the latest immigration regulations based on your nationality and travel purpose.'}
-                    </p>
-                </div>
-            )
-        },
-        2: {
-            id: 'step-2-info',
-            title: pt.step2?.title || 'Secure Data Handling',
-            icon: <Lock size={32} />,
-            content: (
-                <div className="space-y-4">
-                    <p className="font-bold text-sm text-purple-600 uppercase tracking-widest">{pt.step2?.subtitle || 'Step 2: Privacy First'}</p>
-                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
-                        {pt.step2?.content || 'Your personal information is protected by industry-standard **AES-256 bit encryption**. We collect only what is legally required for your visa sponsorship.'}
-                    </p>
-                </div>
-            )
-        },
-        3: {
-            id: 'step-3-info',
-            title: pt.step3?.title || 'AI Pre-Verification',
-            icon: <RefreshCcw size={32} />,
-            content: (
-                <div className="space-y-4">
-                    <p className="font-bold text-sm text-amber-600 uppercase tracking-widest">{pt.step3?.subtitle || 'Step 3: Document Accuracy'}</p>
-                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
-                        {pt.step3?.content || 'Once uploaded, our **AI Agent** perform a pre-screening of your passport and documents to ensure 100% compliance with Indonesian Immigration standards.'}
-                    </p>
-                </div>
-            )
-        },
-        4: {
-            id: 'step-4-info',
-            title: pt.step4?.title || 'Payment & ID Activation',
-            icon: <Zap size={32} />,
-            content: (
-                <div className="space-y-4">
-                    <p className="font-bold text-sm text-green-600 uppercase tracking-widest">{pt.step4?.subtitle || 'Step 4: Final Confirmation'}</p>
-                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">
-                        {pt.step4?.content || 'Complete your transaction via world-class secure payment gateways. The moment payment is verified, your **ID Tracker** is activated.'}
-                    </p>
-                    <div className="p-6 bg-green-500/5 rounded-[2rem] border border-green-500/20">
-                        <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
-                            <li className="flex gap-2"><strong>+</strong> Receive Your email Confirmation</li>
-                            <li className="flex gap-2"><strong>+</strong> Unique ID Tracker Order Activation</li>
-                            <li className="flex gap-2"><strong>+</strong> Official Sponsor Guarantee</li>
-                        </ul>
-                    </div>
-                </div>
-            )
-        }
+    const handleStepClick = (step: number) => {
+        const stepPopups = getStepPopups(dict?.hero?.steps || {});
+        const info = stepPopups[step as keyof typeof stepPopups] || null;
+        setActivePopup(info);
     };
 
     return (
@@ -332,7 +219,7 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
 
             <div className={styles.stepList}>
                 <div 
-                    onClick={() => setActivePopup(stepPopups[1])}
+                    onClick={() => handleStepClick(1)}
                     className={`${styles.stepItem} cursor-help ${isStepActive(1) ? styles.stepGlow : ''} ${completedSteps.includes(1) ? styles.stepDone : ''}`}
                 >
                     <div className={styles.stepCircle}>1</div>
@@ -342,7 +229,7 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
                     </div>
                 </div>
                 <div 
-                    onClick={() => setActivePopup(stepPopups[2])}
+                    onClick={() => handleStepClick(2)}
                     className={`${styles.stepItem} cursor-help ${isStepActive(2) ? styles.stepGlow : ''} ${completedSteps.includes(2) ? styles.stepDone : ''}`}
                 >
                     <div className={styles.stepCircle}>2</div>
@@ -352,7 +239,7 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
                     </div>
                 </div>
                 <div 
-                    onClick={() => setActivePopup(stepPopups[3])}
+                    onClick={() => handleStepClick(3)}
                     className={`${styles.stepItem} cursor-help ${isStepActive(3) ? styles.stepGlow : ''} ${completedSteps.includes(3) ? styles.stepDone : ''}`}
                 >
                     <div className={styles.stepCircle}>3</div>
@@ -362,7 +249,7 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
                     </div>
                 </div>
                 <div 
-                    onClick={() => setActivePopup(stepPopups[4])}
+                    onClick={() => handleStepClick(4)}
                     className={`${styles.stepItem} cursor-help ${isStepActive(4) ? styles.stepGlow : ''} ${completedSteps.includes(4) ? styles.stepDone : ''}`}
                 >
                     <div className={styles.stepCircle}>4</div>
@@ -375,7 +262,7 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
 
             <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/10">
                 <Link 
-                    href="/check-status" 
+                    href={formatNavLink(locale, "/check-status")} 
                     className="flex items-center justify-between w-full px-6 py-4 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/20 rounded-2xl transition-all group"
                     onClick={(e) => e.stopPropagation()}
                 >

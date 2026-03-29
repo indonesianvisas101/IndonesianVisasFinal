@@ -7,6 +7,7 @@ import Footer from "@/components/footer/Footer";
 import { Lock, CheckCircle, AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import Link from "next/link";
+import { formatNavLink } from "@/utils/seo";
 import styles from "../login/page.module.css"; // Reusing login styles
 
 const UpdatePasswordPage = () => {
@@ -25,7 +26,7 @@ const UpdatePasswordPage = () => {
     // Security: If not authenticated (code exchange failed or session lost), redirect to login
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {
-            router.push(`/${locale}/login?error=reset-session-expired`);
+            router.push(`${formatNavLink(locale, "/login")}?error=reset-session-expired`);
         }
     }, [isAuthenticated, authLoading, router, locale]);
 
@@ -50,7 +51,7 @@ const UpdatePasswordPage = () => {
         if (success) {
             setIsSuccess(true);
             setTimeout(() => {
-                router.push(`/${locale}/login`);
+                router.push(formatNavLink(locale, "/login"));
             }, 3000);
         }
     };
@@ -151,7 +152,7 @@ const UpdatePasswordPage = () => {
                                     Redirecting you to login...
                                 </p>
                                 <button
-                                    onClick={() => router.push(`/${locale}/login`)}
+                                    onClick={() => router.push(formatNavLink(locale, "/login"))}
                                     className="btn btn-primary w-full py-4 rounded-xl shadow-lg"
                                 >
                                     Proceed to Login

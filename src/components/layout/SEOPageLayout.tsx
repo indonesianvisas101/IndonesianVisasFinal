@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronRight, ShieldCheck, ArrowRight, BookOpen } from "lucide-react";
 import PageWrapper from "@/components/layout/PageWrapper";
+import { formatNavLink } from "@/utils/seo";
 
 interface Section {
     id: string;
@@ -59,7 +60,7 @@ export default function SEOPageLayout({
                 <div className="container relative z-10 mx-auto px-4">
                     {/* BREADCRUMBS */}
                     <div className="flex flex-wrap items-center gap-2 text-sm mb-8 text-gray-500 dark:text-gray-400">
-                        <Link href={`/${locale}`} className="hover:text-primary transition-colors">Home</Link>
+                        <Link href={formatNavLink(locale, "/")} className="hover:text-primary transition-colors">Home</Link>
                         {breadcrumbs.map((crumb, idx) => (
                             <React.Fragment key={idx}>
                                 <ChevronRight size={14} className="shrink-0" />
@@ -117,7 +118,7 @@ export default function SEOPageLayout({
                                     <h3 className="text-2xl font-black mode-aware-text mb-3">{cta?.title || "Ready to apply for your Indonesia Visa?"}</h3>
                                     <p className="mode-aware-subtext mb-8 text-lg">{cta?.desc || "Let our experts handle the bureaucracy while you focus on your journey. 100% legal, secure, and fast."}</p>
                                     <Link 
-                                        href={cta?.link || `/${locale}/apply`} 
+                                        href={formatNavLink(locale, cta?.link || "/apply")} 
                                         className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white rounded-xl font-bold shadow-xl shadow-primary/20 hover:-translate-y-1 transition-transform"
                                     >
                                         {cta?.buttonText || "Start Application Now"}

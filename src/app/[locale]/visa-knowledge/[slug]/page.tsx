@@ -1,9 +1,13 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { ShieldCheck, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { generateCanonical, formatNavLink } from '@/utils/seo';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string, locale: string }> }) {
-  const { slug, locale } = await params;
+  const awaitedParams = await params;
+  const slug = awaitedParams.slug;
+  const locale = awaitedParams.locale || 'en';
+  
   const db = prisma as any;
   const page = await db['knowledgePage'].findUnique({
     where: { slug }
@@ -15,9 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const sections = (page.content as any[]) || [];
   const faqSection = sections.find(s => s.type === 'faq');
 
-  // Hardcoded production URL base for canonicals
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
-  const canonicalUrl = `${baseUrl}/${locale}/visa-knowledge/${slug}`;
+  // Unified Canonical Logic (No /en/ prefix for default locale)
+  const canonicalUrl = generateCanonical(locale, `/visa-knowledge/${slug}`);
 
   // Schema.org structured data injection
   const articleSchema = {
@@ -30,15 +33,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     "author": {
       "@type": "Organization",
       "name": "Indonesian Visas Research Team",
-      "url": baseUrl
+      "url": "https://indonesianvisas.com"
     },
     "publisher": {
-        "@type": "Organization",
-        "name": "Indonesian Visas",
-        "logo": {
-            "@type": "ImageObject",
-            "url": `${baseUrl}/Logo.webp`
-        }
+      "@type": "Organization",
+      "name": "Indonesian Visas",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://indonesianvisas.com/Logo.webp"
+      }
     }
   };
 
@@ -60,7 +63,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: page.title,
     description: meta?.description || page.title,
     alternates: {
-        canonical: canonicalUrl,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title: page.title,
@@ -71,7 +74,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       modifiedTime: page.updatedAt.toISOString(),
       authors: ['Indonesian Visas Research Team'],
     },
-    // Schema.org structured data injection via Next.js metadata
     other: {
       'script:ld+json:article': JSON.stringify(articleSchema),
       ...(faqSchema ? { 'script:ld+json:faq': JSON.stringify(faqSchema) } : {})
@@ -80,7 +82,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function KnowledgePage({ params }: { params: Promise<{ slug: string, locale: string }> }) {
-  const { slug, locale } = await params;
+  const awaitedParams = await params;
+  const slug = awaitedParams.slug;
+  const locale = awaitedParams.locale || 'en';
+  
   const db = prisma as any;
   const page = await db['knowledgePage'].findUnique({
     where: { slug }
@@ -178,10 +183,10 @@ export default async function KnowledgePage({ params }: { params: Promise<{ slug
               Don't navigate Indonesian immigration alone. Our team of experts is ready to assist you.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-               <a href={`/${locale}/apply`} className="px-10 py-4 bg-white text-primary rounded-full font-black text-lg hover:scale-105 transition-transform">
+               <a href={formatNavLink(locale, "/apply")} className="px-10 py-4 bg-white text-primary rounded-full font-black text-lg hover:scale-105 transition-transform">
                  Apply Now
                </a>
-               <a href={`/${locale}/services`} className="px-10 py-4 bg-transparent border-2 border-white/30 text-white rounded-full font-black text-lg hover:bg-white/10 transition-colors">
+               <a href={formatNavLink(locale, "/services")} className="px-10 py-4 bg-transparent border-2 border-white/30 text-white rounded-full font-black text-lg hover:bg-white/10 transition-colors">
                  View Services
                </a>
             </div>

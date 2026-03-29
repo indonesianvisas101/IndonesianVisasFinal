@@ -6,6 +6,7 @@ import { Box, Typography, IconButton, Button, Fade, useTheme } from '@mui/materi
 import { X, Info, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { formatNavLink } from '@/utils/seo';
 
 export default function GlobalInfoPopup({ locale }: { locale: string }) {
     const [config, setConfig] = useState<any>(null);
@@ -150,7 +151,7 @@ export default function GlobalInfoPopup({ locale }: { locale: string }) {
                                         <Button
                                             variant="contained"
                                             component={Link}
-                                            href={`/${locale}/indonesia-visa-updates`}
+                                            href={formatNavLink(locale, "/indonesia-visa-updates")}
                                             onClick={handleClose}
                                             sx={{ 
                                                 borderRadius: 4, px: 3, py: 1.2, 

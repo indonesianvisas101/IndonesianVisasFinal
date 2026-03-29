@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
+import { formatNavLink } from "@/utils/seo";
 
 export interface UserProfile {
     id: string;
@@ -250,7 +251,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     queryParams: {
                         prompt: 'select_account'
                     },
-                    redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/${window.location.pathname.split('/')[1] || 'en'}/auth/callback` : undefined,
+                    redirectTo: typeof window !== 'undefined' ? `${window.location.origin}${formatNavLink(window.location.pathname.split('/')[1] || 'en', "/auth/callback")}` : undefined,
                 }
             });
             if (error) {
@@ -278,7 +279,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         whatsapp: data.whatsapp,
                         role: (data.email && ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(data.email.trim().toLowerCase())) ? 'admin' : 'user', // Strict role check
                     },
-                    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
+                    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}${formatNavLink(window.location.pathname.split('/')[1] || 'en', "/auth/callback")}` : undefined,
                 }
             });
 
@@ -325,7 +326,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                 title: "New User Registered",
                                 message: `User ${data.name} (${data.email}) just joined.`,
                                 type: "info",
-                                actionLink: "/admin?tab=users",
+                                actionLink: formatNavLink('en', "/admin"),
                                 actionText: "View Users"
                             })
                         });
@@ -359,7 +360,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             // Force redirect to login
             if (typeof window !== 'undefined') {
-                window.location.href = '/login';
+                const locale = window.location.pathname.split('/')[1] || 'en';
+                window.location.href = formatNavLink(locale, '/login');
             }
         }
     };
@@ -419,7 +421,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log("Attempting password reset for:", trimmedEmail);
             const locale = typeof window !== 'undefined' ? (window.location.pathname.split('/')[1] || 'en') : 'en';
             const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-                redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/${locale}/update-password` : undefined,
+                redirectTo: typeof window !== 'undefined' ? `${window.location.origin}${formatNavLink(locale, "/update-password")}` : undefined,
             });
 
             if (error) {
@@ -444,7 +446,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 type: 'signup',
                 email: email,
                 options: {
-                    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
+                    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}${formatNavLink(window.location.pathname.split('/')[1] || 'en', "/auth/callback")}` : undefined,
                 }
             });
             if (error) throw error;

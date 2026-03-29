@@ -4,9 +4,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Globe, X, Loader2 } from 'lucide-react'
-import { locales, LANGUAGE_DETAILS } from '@/i18n/locales'
 import styles from './header/Header.module.css'
 import Image from 'next/image'
+import { locales, LANGUAGE_DETAILS } from '@/i18n/locales'
+import { formatNavLink } from '@/utils/seo'
 
 interface ThemeLanguageToggleProps {
     toggleTheme: () => void;
@@ -50,15 +51,18 @@ export function ThemeLanguageToggle({ toggleTheme, theme }: ThemeLanguageToggleP
     }, [])
 
     function handleLanguageChange(targetLocale: string) {
-        setIsSwitching(true)
         const segments = pathname.split('/')
-        let newPath = '';
-        if (locales.includes(segments[1] as any)) {
-            segments[1] = targetLocale;
-            newPath = segments.join('/');
+        let baseRelPath = '';
+        
+        // If current path starts with a locale, skip it
+        if (segments.length > 1 && locales.includes(segments[1] as any)) {
+            baseRelPath = '/' + segments.slice(2).join('/');
         } else {
-            newPath = `/${targetLocale}${pathname.startsWith('/') ? pathname.substring(1) : pathname}`;
+            baseRelPath = pathname;
         }
+
+        const newPath = formatNavLink(targetLocale, baseRelPath);
+        
         document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000`
         router.push(newPath)
         router.refresh()

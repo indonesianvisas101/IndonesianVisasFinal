@@ -1,6 +1,7 @@
 import React from "react";
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import { Metadata } from 'next';
+import { generateCanonical } from "@/utils/seo";
 import { ShieldCheck, FileText, Clock, CreditCard } from "lucide-react";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -9,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         title: "General Information Visa Indonesia | Indonesian Visas Agency",
         description: "Comprehensive details on the Visitor Stay Permit (ITK), eligibility, Visa Types (Single or Multiple-Entry), extensions, and documents requirements in Indonesia.",
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/general-information-visa-indonesia`,
+            canonical: generateCanonical(locale, "/general-information-visa-indonesia"),
         },
     };
 }

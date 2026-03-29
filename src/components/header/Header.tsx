@@ -10,6 +10,7 @@ import React from "react";
 import { useAuth } from "../auth/AuthContext";
 import { usePathname, useRouter } from "next/navigation";
 import { ThemeLanguageToggle } from "../ThemeLanguageToggle";
+import { formatNavLink } from "@/utils/seo";
 
 const AuthModal = dynamic(() => import("../auth/AuthModal"), { ssr: false });
 const ContactModal = dynamic(() => import("../contact/ContactModal"), { ssr: false });
@@ -93,7 +94,7 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
             <header className={`${styles.header} ${isScrolled ? styles.scrolled : ""}`}>
                 <div className="container">
                     <nav className={styles.nav}>
-                        <Link href={`/${locale}`} className={styles.logo}>
+                    <Link href={formatNavLink(locale, "/")} className={styles.logo}>
                             <span className={styles.logoText}>Indonesian Visas</span>
                             <div className={styles.logoIcon}>
                                 <Image
@@ -122,23 +123,23 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                         )}
 
                         <div className={`${styles.desktopMenu} ${isMobileMenuOpen ? styles.mobileOpen : ""}`}>
-                            <Link href={`/${locale}`} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href={formatNavLink(locale, "/")} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
                                 {headerDict.home || "Home"}
                             </Link>
-                            <Link href={`/${locale}/services`} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href={formatNavLink(locale, "/services")} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
                                 {headerDict.services || "Services"}
                             </Link>
-                            <Link href={`/${locale}/about`} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href={formatNavLink(locale, "/about")} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
                                 {headerDict.about || "About"}
                             </Link>
-                            <Link href={`/${locale}/faq`} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href={formatNavLink(locale, "/faq")} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
                                 {headerDict.faq || "FAQ"}
                             </Link>
 
                             {user && (
                                 <>
                                     <Link
-                                        href={user.role === 'admin' ? `/${locale}/admin` : `/${locale}/${user.name ? user.name.toLowerCase().replace(/\s+/g, '_') : 'profile'}`}
+                                        href={user.role === 'admin' ? formatNavLink(locale, "/admin") : formatNavLink(locale, `/${user.name ? user.name.toLowerCase().replace(/\s+/g, '_') : 'profile'}`)}
                                         className={styles.navLink}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
@@ -172,7 +173,7 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
 
                                 {!user ? (
                                     <Link
-                                        href={`/${locale}/login`}
+                                        href={formatNavLink(locale, "/login")}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className={styles.themeBtn}
                                         role="button"

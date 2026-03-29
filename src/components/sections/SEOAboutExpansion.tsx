@@ -35,7 +35,7 @@ const COUNTRY_DOMAINS = [
 
 const CITY_DOMAINS = [
     "www.balivisa.agency",
-    "www.jakartavisa.agency",
+    "www.jakartavisas.agency",
     "www.lombokvisa.online",
     "www.manadovisa.online",
     "www.surabayavisa.online",

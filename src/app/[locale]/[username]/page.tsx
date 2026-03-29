@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { VisaType } from "@/constants/visas";
 import { useApplication } from "@/components/application/ApplicationContext";
+import { formatNavLink } from "@/utils/seo";
 
 // Mock Data Removed - Now Types Only
 import { UserDocument } from "@/components/application/ApplicationContext";
@@ -140,6 +141,7 @@ const UserDashboard = () => {
 
     // Helper for sending notifications (accessible to all hooks)
     const sendNotificationIfNew = async (userId: string, title: string, message: string, type: string) => {
+        const locale = params?.locale as string || "en";
         // Only send if not already in local notification list to avoid spamming
         const existing = notifications[userId]?.find(n => n.title === title);
         // Note: For chat, we might want to allow duplicates, but let's keep it debounced for now or use a different check?
@@ -155,7 +157,7 @@ const UserDashboard = () => {
                         title,
                         message,
                         type,
-                        actionLink: '/admin/tab=support', // Should link to support? User just stays here.
+                        actionLink: formatNavLink(locale, "/admin/tab=support"), // Should link to support? User just stays here.
                         actionText: 'View Chat'
                     })
                 });
@@ -295,8 +297,8 @@ const UserDashboard = () => {
     // Verification & Redirect Logic
     useEffect(() => {
         if (!user) {
-            const locale = params?.locale || "en";
-            router.push(`/${locale}/login`);
+            const currentLocale = params?.locale as string || "en";
+            router.push(formatNavLink(currentLocale, "/login"));
             return;
         }
 
@@ -309,10 +311,10 @@ const UserDashboard = () => {
 
         // If trying to access someone else's dashboard, redirect to own
         if (paramSlug && paramSlug !== userSlug) {
-            const locale = params?.locale || "en";
+            const currentLocale = params?.locale as string || "en";
             // Optional: Allow viewing public profiles in future
             // For now, redirect to own dashboard
-            router.replace(`/${locale}/${userSlug}`);
+            router.replace(formatNavLink(currentLocale, `/${userSlug}`));
         }
     }, [user, router, params]);
 
@@ -336,9 +338,10 @@ const UserDashboard = () => {
     };
 
     const handleDeleteAccount = () => {
+        const locale = params?.locale as string || "en";
         if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
             deleteAccount();
-            router.push('/');
+            router.push(formatNavLink(locale, "/"));
         }
     };
 
@@ -417,6 +420,7 @@ const UserDashboard = () => {
     };
 
     const handlePushProcess = async () => {
+        const locale = params?.locale as string || "en";
         if (user?.id) {
             // Optimistic Update
             pushNotification(user.id, `Request sent! We are expediting your application.`);
@@ -430,7 +434,7 @@ const UserDashboard = () => {
                         title: "Urgent: Push Process Request",
                         message: `User ${user.name} (${user.email}) has requested expedited processing.`,
                         type: "warning",
-                        actionLink: `/admin/users`, // Link to user management
+                        actionLink: formatNavLink(locale, "/admin/users"), // Link to user management
                         actionText: "View User"
                     })
                 });

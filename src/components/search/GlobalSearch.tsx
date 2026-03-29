@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import { SITE_KNOWLEDGE, SiteKnowledgeEntry } from "@/utils/siteKnowledge";
 import Fuse from "fuse.js";
 import Link from "next/link";
+import { formatNavLink } from "@/utils/seo";
 
 const GlobalSearch = ({ isOpen, onClose, locale = 'en' }: { isOpen: boolean; onClose: () => void; locale?: string }) => {
+    const currentLocale = locale as string;
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<SiteKnowledgeEntry[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -48,7 +50,7 @@ const GlobalSearch = ({ isOpen, onClose, locale = 'en' }: { isOpen: boolean; onC
     if (!isOpen) return null;
 
     const handleSelect = (link: string) => {
-        router.push(link.startsWith('/') ? `/${locale}${link === '/' ? '' : link}` : link);
+        router.push(formatNavLink(currentLocale, link));
         onClose();
     };
 
@@ -150,7 +152,7 @@ const GlobalSearch = ({ isOpen, onClose, locale = 'en' }: { isOpen: boolean; onC
                             <button 
                                 onClick={() => {
                                     // Logic to trigger chat will depend on implementation, but Redirecting to Home/Chat is standard
-                                    router.push(`/${locale}`);
+                                    router.push(formatNavLink(currentLocale, "/"));
                                     onClose();
                                 }}
                                 className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full text-xs font-bold hover:scale-105 transition-all shadow-lg"

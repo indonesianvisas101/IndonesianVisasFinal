@@ -7,17 +7,18 @@ import { Typography, Paper, Box, Button, Divider, Alert } from '@mui/material';
 import { ShieldCheck, CheckCircle, Smartphone, Globe, ArrowLeft, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { formatNavLink } from '@/utils/seo';
 
 export default function PaymentVerificationPage() {
     const params = useParams();
-    const locale = params?.locale || 'en';
+    const locale = (params?.locale as string) || 'en';
 
     return (
         <SectionWrapper id="payment-verification" className="py-20 bg-white dark:bg-zinc-950">
             <div className="max-w-4xl mx-auto px-4">
                 
                 {/* Back Button */}
-                <Link href={`/${locale}/help`} className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-8 text-sm font-bold uppercase tracking-widest">
+                <Link href={formatNavLink(locale, "/help")} className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-8 text-sm font-bold uppercase tracking-widest">
                     <ArrowLeft size={16} /> Back to Help Center
                 </Link>
 
@@ -117,7 +118,7 @@ export default function PaymentVerificationPage() {
                             </Typography>
                             <Button 
                                 variant="contained" 
-                                href="/check-status" 
+                                href={formatNavLink(locale, "/check-status")} 
                                 color="primary"
                                 sx={{ borderRadius: '12px', px: 4, py: 1.5, fontWeight: 'bold' }}
                             >

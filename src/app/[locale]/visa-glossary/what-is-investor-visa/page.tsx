@@ -1,6 +1,7 @@
 import React from "react";
 import SEOPageLayout from "@/components/layout/SEOPageLayout";
 import { Metadata } from "next";
+import { generateCanonical, formatNavLink } from "@/utils/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -8,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         title: "What is Investor KITAS? Indonesia Residency Guide | Indonesian Visas",
         description: "Everything you need to know about the Indonesian Investor KITAS (E31/E31A). 2026 benefits, requirements, and corporate compliance rules.",
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/visa-glossary/what-is-investor-visa`,
+            canonical: generateCanonical(locale, "/visa-glossary/what-is-investor-visa"),
         },
     };
 }
@@ -75,15 +76,15 @@ export default async function WhatIsInvestorVisaPage({ params }: { params: Promi
             title="What is an Investor KITAS?"
             subtitle="The ultimate residency permit for foreign investors in Indonesia."
             breadcrumbs={[
-                { label: "Visa Glossary", url: `/${locale}/visa-glossary` },
-                { label: "What is Investor Visa", url: `/${locale}/visa-glossary/what-is-investor-visa` }
+                { label: "Visa Glossary", url: formatNavLink(locale, "/visa-glossary") },
+                { label: "What is Investor Visa", url: formatNavLink(locale, "/visa-glossary/what-is-investor-visa") }
             ]}
             sections={sections}
             cta={{
                 title: "Launch your Investment in Indonesia",
                 desc: "Our legal firm specializes in PMA incorporation and Investor KITAS sponsorship.",
                 buttonText: "Start Investing",
-                link: `/${locale}/company-formation`
+                link: formatNavLink(locale, "/company-formation")
             }}
         />
     );

@@ -28,6 +28,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 import DocumentViewer from "../DocumentViewer";
 import { COUNTRY_DATA } from "@/constants/countries";
+import { formatNavLink } from "@/utils/seo";
 
 export default function OrderPanel() {
     const [orders, setOrders] = useState<any[]>([]);
@@ -37,7 +38,7 @@ export default function OrderPanel() {
     const [viewingDoc, setViewingDoc] = useState<{ url: string, name: string } | null>(null);
     const params = useParams();
     const router = useRouter();
-    const locale = params?.locale || 'en';
+    const locale = (params?.locale as string) || 'en';
 
     useEffect(() => {
         fetchOrders();
@@ -258,7 +259,7 @@ export default function OrderPanel() {
                                                 size="small" 
                                                 color="info"
                                                 title="Order Details"
-                                                onClick={() => router.push(`/${locale}/admin?tab=invoicing&id=${order.id}`)}
+                                                onClick={() => router.push(formatNavLink(locale, `/admin?tab=invoicing&id=${order.id}`))}
                                             >
                                                 <SearchIcon />
                                             </IconButton>
@@ -266,7 +267,7 @@ export default function OrderPanel() {
                                                 size="small" 
                                                 color="primary"
                                                 title="View Invoice"
-                                                onClick={() => router.push(`/${locale}/invoice/${order.slug || order.id}`)}
+                                                onClick={() => router.push(formatNavLink(locale, `/invoice/${order.slug || order.id}`))}
                                             >
                                                 <ReceiptIcon />
                                             </IconButton>
@@ -274,7 +275,7 @@ export default function OrderPanel() {
                                                 size="small" 
                                                 color="secondary"
                                                 title="Manage Order"
-                                                onClick={() => router.push(`/${locale}/admin?tab=invoicing&id=${order.id}`)}
+                                                onClick={() => router.push(formatNavLink(locale, `/admin?tab=invoicing&id=${order.id}`))}
                                             >
                                                 <OpenInNewIcon />
                                             </IconButton>

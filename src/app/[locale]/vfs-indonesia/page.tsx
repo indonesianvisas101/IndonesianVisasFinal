@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { generateCanonical } from "@/utils/seo";
 import VFSEducationalTemplate from '@/components/layout/VFSEducationalTemplate';
 import { VFS_PAGES } from '@/constants/vfs-guidance';
 
@@ -9,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         title: data.metaTitle,
         description: data.metaDescription,
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/vfs-indonesia`,
+            canonical: generateCanonical(locale, "/vfs-indonesia"),
         }
     };
 }

@@ -2,15 +2,18 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import PageWrapper from "@/components/layout/PageWrapper";
-import { Lock, Mail, ArrowRight, Eye, EyeOff, Chrome } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff, Chrome } from "lucide-react";
 import Link from "next/link";
+import { formatNavLink } from "@/utils/seo";
 import styles from "./page.module.css";
 
 const LoginPage = () => {
     const { login, loginWithGoogle, resendConfirmation, isLoading } = useAuth();
     const router = useRouter();
+    const params = useParams();
+    const locale = params?.locale as string || "en";
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -42,9 +45,9 @@ const LoginPage = () => {
         const profile = await login(trimmedEmail, password);
         if (profile) {
             if (profile.role === 'admin' && trimmedEmail === 'damnbayu@gmail.com') {
-                router.push("/admin");
+                router.push(formatNavLink(locale, "/admin"));
             } else {
-                router.push("/dashboard");
+                router.push(formatNavLink(locale, "/dashboard"));
             }
         }
     };
@@ -57,7 +60,7 @@ const LoginPage = () => {
                         <div className="text-center mb-8 relative">
                             {/* EXIT BUTTON */}
                             <Link
-                                href="/"
+                                href={formatNavLink(locale, "/")}
                                 className="absolute -top-6 -right-6 p-2 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
@@ -136,7 +139,7 @@ const LoginPage = () => {
                                     <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary" />
                                     Remember me
                                 </label>
-                                <Link href="/forgot-password" className="font-semibold text-primary hover:underline">Forgot Password?</Link>
+                                <Link href={formatNavLink(locale, "/forgot-password")} className="font-semibold text-primary hover:underline">Forgot Password?</Link>
                             </div>
 
                             <button
@@ -163,7 +166,7 @@ const LoginPage = () => {
 
                         <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/10 text-center flex flex-col gap-3">
                             <p className="text-gray-500 dark:text-gray-400 text-sm">
-                                Don't have an account? <Link href="/register" className="font-bold text-primary hover:underline">Create Account</Link>
+                                Don't have an account? <Link href={formatNavLink(locale, "/register")} className="font-bold text-primary hover:underline">Create Account</Link>
                             </p>
                             <button
                                 type="button"

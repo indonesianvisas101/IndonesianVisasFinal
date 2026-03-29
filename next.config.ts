@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
 
   // Compiler Options
   experimental: {
-    optimizeCss: true, // Requires 'critters' dependency
+    optimizeCss: true, // Requires 'critters'
     optimizePackageImports: [
       'lucide-react',
       'framer-motion',
@@ -20,8 +20,11 @@ const nextConfig: NextConfig = {
       '@mui/icons-material',
       'lodash',
       'clsx',
-      'tailwind-merge'
+      'tailwind-merge',
+      'react-use',
+      '@paypal/react-paypal-js'
     ],
+    scrollRestoration: true,
   },
 
   turbopack: {

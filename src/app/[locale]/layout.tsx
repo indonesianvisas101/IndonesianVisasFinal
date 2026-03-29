@@ -12,7 +12,6 @@ import { GlobalUIProvider } from "@/hooks/useGlobalUI";
 import GlobalUIOverlay from "@/components/ui/GlobalUIOverlay";
 import { Suspense } from "react";
 import { GoogleTagManager } from '@next/third-parties/google';
-import { PayPalProvider } from "@/components/payment/PayPalProvider";
 import GlobalInfoPopup from "@/components/common/GlobalInfoPopup";
 
 const inter = Inter({
@@ -20,64 +19,95 @@ const inter = Inter({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://indonesianvisas.com'),
-  title: {
-    default: "Indonesian Visas | Official Visa Agency Bali & Jakarta",
-    template: "%s | Indonesian Visas"
-  },
-  description: "Secure your Indonesia Visa online. Expert services for Tourist VOA, B211A, KITAS, and Business Visas. Trusted agency in Bali with a 99% approval rate.",
-  keywords: [
-    "Indonesia Visa", "Bali Visa", "VOA Indonesia", "KITAS Indonesia",
-    "Business Visa Indonesia", "Indonesian Visas Agency", "Visa Agent Bali",
-    "Company Formation Bali", "Company Registration Indonesia", "PT PMA Bali",
-    "Digital Nomad Visa Indonesia", "Retirement Visa Bali"
-  ],
-  authors: [{ name: "Indonesian Visas Official Team" }],
-  creator: "Indonesian Visas",
-  publisher: "Indonesian Visas",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  openGraph: {
-    title: "Indonesian Visas | Your Gateway to Indonesia",
-    description: "Expert visa and company formation services in Bali and Indonesia. Get your Tourist, Business, or Retirement visa effortlessly.",
-    url: 'https://indonesianvisas.com',
-    siteName: 'Indonesian Visas',
-    images: [
-      {
-        url: '/og-image.webp',
-        width: 1200,
-        height: 630,
-        alt: 'Indonesian Visas Official Agency',
+// Centralized Canonical Root
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isDefaultLocale = locale === 'en';
+  
+  // Canonical URL strips the /en/ prefix to match Sitemap.xml
+  const canonicalUrl = isDefaultLocale ? APP_URL : `${APP_URL}/${locale}`;
+
+  // Build Hreflang alternates for all supported locales
+  const languages: Record<string, string> = {};
+  locales.forEach(l => {
+    languages[l] = l === 'en' ? APP_URL : `${APP_URL}/${l}`;
+  });
+
+  return {
+    metadataBase: new URL(APP_URL),
+    title: {
+      default: "Indonesian Visas | Official Visa Agency Bali & Jakarta",
+      template: "%s | Indonesian Visas"
+    },
+    description: "Secure your Indonesia Visa online. Expert services for Tourist VOA, B211A, KITAS, and Business Visas. Trusted agency in Bali with a 99% approval rate.",
+    keywords: [
+      "Indonesia Visa", "Bali Visa", "VOA Indonesia", "KITAS Indonesia",
+      "Business Visa Indonesia", "Indonesian Visas Agency", "Visa Agent Bali",
+      "Company Formation Bali", "Company Registration Indonesia", "PT PMA Bali",
+      "Digital Nomad Visa Indonesia", "Retirement Visa Bali"
+    ],
+    authors: [{ name: "Indonesian Visas Official Team" }],
+    creator: "Indonesian Visas",
+    publisher: "Indonesian Visas",
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        ...languages,
+        'x-default': APP_URL
+      }
+    },
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
+    openGraph: {
+      title: "Indonesian Visas | Your Gateway to Indonesia",
+      description: "Expert visa and company formation services in Bali and Indonesia. Get your Tourist, Business, or Retirement visa effortlessly.",
+      url: canonicalUrl,
+      siteName: 'Indonesian Visas',
+      images: [
+        {
+          url: '/og-image.webp',
+          width: 1200,
+          height: 630,
+          alt: 'Indonesian Visas Official Agency',
+        },
+      ],
+      locale: isDefaultLocale ? 'en_US' : `${locale}_${locale.toUpperCase()}`,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: "Indonesian Visas | Expert Agency",
+      description: "Fast & Reliable Visa Services for Bali & Indonesia. Apply online today.",
+      images: ['/images/twitter-image.jpg'],
+    },
+    icons: {
+      icon: [
+        { url: '/Favicon.webp', type: 'image/webp' },
+      ],
+      apple: '/webapp.webp',
+    },
+    manifest: '/manifest.json',
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
-    ],
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: "Indonesian Visas | Expert Agency",
-    description: "Fast & Reliable Visa Services for Bali & Indonesia. Apply online today.",
-    images: ['/images/twitter-image.jpg'],
-  },
-  icons: {
-    icon: [
-      { url: '/Favicon.webp', type: 'image/webp' },
-    ],
-    apple: '/webapp.webp',
-  },
-  manifest: '/manifest.json',
-  robots: {
-    index: true,
-    follow: true,
-  },
-  verification: {
-    google: "GOOGLE_SITE_VERIFICATION_ID_PLACEHOLDER",
-  },
-};
+    },
+    verification: {
+      google: "GOOGLE_SITE_VERIFICATION_ID_PLACEHOLDER",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -106,8 +136,6 @@ export default async function LocaleLayout({
   return (
     <html lang={currentLocale}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.paypal.com" />
         <link rel="dns-prefetch" href="https://checkout.doku.com" />
@@ -127,8 +155,8 @@ export default async function LocaleLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "Indonesian Visas",
-              "url": "https://indonesianvisas.com",
-              "logo": "https://indonesianvisas.com/Favicon.webp",
+              "url": APP_URL,
+              "logo": `${APP_URL}/Favicon.webp`,
               "description": "Professional visa services for travelers, businesses, and digital nomads in Indonesia.",
               "address": {
                 "@type": "PostalAddress",
@@ -156,8 +184,16 @@ export default async function LocaleLayout({
                 <Header dict={dict} locale={currentLocale} />
                 <GlobalInfoPopup locale={currentLocale} />
                 
-                {/* Fixed Hydration mismatch: Content wrapper merged into main tag */}
-                <main id="main-content" className="flex-grow relative flex flex-col min-h-full">
+                {/* 
+                  CRITICAL: Main content wrapper. 
+                  We use a div + main structure to ensure consistent hydration with complex providers. 
+                */}
+                <main 
+                  id="main-content" 
+                  className="flex-grow relative flex flex-col min-h-full" 
+                  style={{ minHeight: '100dvh' }}
+                  suppressHydrationWarning
+                >
                   {children}
                 </main>
 

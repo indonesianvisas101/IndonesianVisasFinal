@@ -46,7 +46,8 @@ export async function proxy(request: NextRequest) {
 
     // Handle API specifically - usually global/non-localized
     if (pathname.startsWith('/api')) {
-        return (await updateSession(request)).response;
+        const { response } = await updateSession(request);
+        return response; // NextResponse.next() correctly continues to API route
     }
 
     // 0. NEW: Support for clean IDIV Doc URLs

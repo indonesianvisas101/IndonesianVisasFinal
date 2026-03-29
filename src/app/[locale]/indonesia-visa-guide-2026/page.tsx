@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import SEOPageLayout from '@/components/layout/SEOPageLayout';
 import Link from 'next/link';
+import { formatNavLink, generateCanonical } from '@/utils/seo';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -8,12 +9,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         title: "Indonesia Visa Guide 2026 – Complete Immigration Guide for Foreign Visitors",
         description: "The ultimate 2026 guide to Indonesian visas. Learn about Visa on Arrival, B211A, KITAS, Investor Visas, extension processes, and immigration rules.",
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/indonesia-visa-guide-2026`,
+            canonical: generateCanonical(locale, "/indonesia-visa-guide-2026"),
         },
         openGraph: {
             title: "Indonesia Visa Guide 2026 – Complete Immigration Guide",
             description: "The ultimate 2026 guide to Indonesian visas. Learn about Visa on Arrival, B211A, KITAS, Investor Visas, extension processes, and immigration rules.",
-            url: `https://indonesianvisas.com/${locale}/indonesia-visa-guide-2026`,
+            url: generateCanonical(locale, "/indonesia-visa-guide-2026"),
             siteName: "Indonesian Visas",
             type: "article",
         }
@@ -24,15 +25,15 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
     const { locale } = await params;
 
     const breadcrumbs = [
-        { label: "Guides", url: `/${locale}/guides` },
-        { label: "Indonesia Visa Guide 2026", url: `/${locale}/indonesia-visa-guide-2026` }
+        { label: "Guides", url: formatNavLink(locale, "/guides") },
+        { label: "Indonesia Visa Guide 2026", url: formatNavLink(locale, "/indonesia-visa-guide-2026") }
     ];
 
     const cta = {
         title: "Ready to Start Your Indonesian Journey?",
         desc: "Skip the immigration lines and bureaucratic hurdles. Let PT Indonesian Visas Agency secure your legal entry and stay in Indonesia quickly and safely.",
         buttonText: "Apply Now",
-        link: `/${locale}/apply`
+        link: formatNavLink(locale, "/apply")
     };
 
     const sections = [
@@ -148,7 +149,7 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     </p>
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Pro Tip:</strong> 
-                        <Link href={`/${locale}/visa-on-arrival-bali`} className="text-primary font-bold hover:underline">Read our complete step-by-step VoA application guide here.</Link>
+                        <Link href={formatNavLink(locale, "/visa-on-arrival-bali")} className="text-primary font-bold hover:underline">Read our complete step-by-step VoA application guide here.</Link>
                     </div>
                 </div>
             )
@@ -183,7 +184,7 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     </p>
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Pro Tip:</strong> 
-                        <Link href={`/${locale}/b211a-visa-indonesia`} className="text-primary font-bold hover:underline">Explore the full B211A Visa application requirements here.</Link>
+                        <Link href={formatNavLink(locale, "/b211a-visa-indonesia")} className="text-primary font-bold hover:underline">Explore the full B211A Visa application requirements here.</Link>
                     </div>
                 </div>
             )
@@ -217,7 +218,7 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     </p>
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Pro Tip:</strong> 
-                        <Link href={`/${locale}/kitas-indonesia`} className="text-primary font-bold hover:underline">Access our complete matrix on all KITAS variants and eligibility here.</Link>
+                        <Link href={formatNavLink(locale, "/kitas-indonesia")} className="text-primary font-bold hover:underline">Access our complete matrix on all KITAS variants and eligibility here.</Link>
                     </div>
                 </div>
             )
@@ -252,7 +253,7 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     </p>
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Pro Tip:</strong> 
-                        <Link href={`/${locale}/investor-visa-indonesia`} className="text-primary font-bold hover:underline">Read the ultimate guide to forming a PMA and securing an Investor Visa.</Link>
+                        <Link href={formatNavLink(locale, "/investor-visa-indonesia")} className="text-primary font-bold hover:underline">Read the ultimate guide to forming a PMA and securing an Investor Visa.</Link>
                     </div>
                 </div>
             )
@@ -288,9 +289,9 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Deep Dive:</strong> 
                         <div className="flex flex-wrap gap-2 mt-2">
-                            <Link href={`/${locale}/extend-voa-bali`} className="text-primary hover:underline font-semibold">Extend VoA</Link> &bull; 
-                            <Link href={`/${locale}/b211a-extension-guide`} className="text-primary hover:underline font-semibold">B211A Extension Guide</Link> &bull; 
-                            <Link href={`/${locale}/visa-extension-bali`} className="text-primary hover:underline font-semibold">General Bali Extension Guide</Link>
+                            <Link href={formatNavLink(locale, "/extend-voa-bali")} className="text-primary hover:underline font-semibold">Extend VoA</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/b211a-extension-guide")} className="text-primary hover:underline font-semibold">B211A Extension Guide</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/visa-extension-bali")} className="text-primary hover:underline font-semibold">General Bali Extension Guide</Link>
                         </div>
                     </div>
                 </div>
@@ -322,7 +323,7 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     </ul>
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Warning:</strong> 
-                        <Link href={`/${locale}/immigration-rules/indonesia-visa-overstay-rules`} className="text-primary font-bold hover:underline italic">Read the full 2026 Overstay Penalties & Fines Roadmap.</Link>
+                        <Link href={formatNavLink(locale, "/immigration-rules/indonesia-visa-overstay-rules")} className="text-primary font-bold hover:underline italic">Read the full 2026 Overstay Penalties & Fines Roadmap.</Link>
                     </div>
                     <p>
                         Never view visa expiration dates as suggestions. They are absolute mandates enforced by heavily mobilized border patrol divisions.
@@ -356,12 +357,12 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Check Your Country:</strong> 
                         <div className="flex flex-wrap gap-2 mt-2">
-                            <Link href={`/${locale}/visa-indonesia-for-australians`} className="text-primary hover:underline font-semibold">Australians</Link> &bull; 
-                            <Link href={`/${locale}/visa-indonesia-for-americans`} className="text-primary hover:underline font-semibold">Americans</Link> &bull; 
-                            <Link href={`/${locale}/visa-indonesia-for-uk-citizens`} className="text-primary hover:underline font-semibold">UK Citizens</Link> &bull; 
-                            <Link href={`/${locale}/visa-indonesia-for-indians`} className="text-primary hover:underline font-semibold">Indians</Link> &bull;
-                            <Link href={`/${locale}/visa-indonesia-for-chinese`} className="text-primary hover:underline font-semibold">Chinese</Link> &bull;
-                            <Link href={`/${locale}/visa-indonesia-for-russians`} className="text-primary hover:underline font-semibold">Russians</Link>
+                            <Link href={formatNavLink(locale, "/visa-indonesia-for-australians")} className="text-primary hover:underline font-semibold">Australians</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/visa-indonesia-for-americans")} className="text-primary hover:underline font-semibold">Americans</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/visa-indonesia-for-uk-citizens")} className="text-primary hover:underline font-semibold">UK Citizens</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/visa-indonesia-for-indians")} className="text-primary hover:underline font-semibold">Indians</Link> &bull;
+                            <Link href={formatNavLink(locale, "/visa-indonesia-for-chinese")} className="text-primary hover:underline font-semibold">Chinese</Link> &bull;
+                            <Link href={formatNavLink(locale, "/visa-indonesia-for-russians")} className="text-primary hover:underline font-semibold">Russians</Link>
                         </div>
                     </div>
                 </div>
@@ -426,8 +427,8 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Rules & Compliance:</strong> 
                         <div className="flex flex-wrap gap-2 mt-2">
-                            <Link href={`/${locale}/immigration-rules/immigration-rules-indonesia`} className="text-primary font-bold hover:underline">Immigration Rules Overview</Link> &bull; 
-                            <Link href={`/${locale}/immigration-rules/immigration-rules-for-foreigners`} className="text-primary font-bold hover:underline">Rules for Foreigners in Bali</Link>
+                            <Link href={formatNavLink(locale, "/immigration-rules/immigration-rules-indonesia")} className="text-primary font-bold hover:underline">Immigration Rules Overview</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/immigration-rules/immigration-rules-for-foreigners")} className="text-primary font-bold hover:underline">Rules for Foreigners in Bali</Link>
                         </div>
                     </div>
                 </div>
@@ -453,10 +454,10 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Traveler Roadmaps:</strong> 
                         <div className="flex flex-wrap gap-2 mt-2">
-                            <Link href={`/${locale}/travel-indonesia/do-you-need-a-visa-for-bali`} className="text-primary hover:underline font-semibold">Do You Need a Bali Visa?</Link> &bull; 
-                            <Link href={`/${locale}/travel-indonesia/bali-visa-requirements-2026`} className="text-primary hover:underline font-semibold">Bali Requirements Checklist</Link> &bull; 
-                            <Link href={`/${locale}/travel-indonesia/jakarta-visa-guide`} className="text-primary hover:underline font-semibold">Jakarta Entry Guide</Link> &bull; 
-                            <Link href={`/${locale}/travel-indonesia/bali-travel-entry-requirements`} className="text-primary hover:underline font-semibold">Official Entry Roadmap</Link>
+                            <Link href={formatNavLink(locale, "/travel-indonesia/do-you-need-a-visa-for-bali")} className="text-primary hover:underline font-semibold">Do You Need a Bali Visa?</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/travel-indonesia/bali-visa-requirements-2026")} className="text-primary hover:underline font-semibold">Bali Requirements Checklist</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/travel-indonesia/jakarta-visa-guide")} className="text-primary hover:underline font-semibold">Jakarta Entry Guide</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/travel-indonesia/bali-travel-entry-requirements")} className="text-primary hover:underline font-semibold">Official Entry Roadmap</Link>
                         </div>
                     </div>
                 </div>
@@ -469,11 +470,11 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                 <div className="space-y-6">
                     <p>Deciding between Bali and other Southeast Asian hubs? Compare the latest 2026 visa policies head-to-head:</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Link href={`/${locale}/comparisons/indonesia-visa-vs-thailand-visa`} className="p-4 border border-primary/20 rounded-xl hover:bg-primary/5 transition-colors">
+                        <Link href={formatNavLink(locale, "/comparisons/indonesia-visa-vs-thailand-visa")} className="p-4 border border-primary/20 rounded-xl hover:bg-primary/5 transition-colors">
                             <h4 className="font-bold text-primary">Indonesia vs Thailand 2026</h4>
                             <p className="text-sm opacity-70">Compare B211A vs DTV and LTR programs.</p>
                         </Link>
-                        <Link href={`/${locale}/comparisons/bali-visa-vs-malaysia-visa`} className="p-4 border border-primary/20 rounded-xl hover:bg-primary/5 transition-colors">
+                        <Link href={formatNavLink(locale, "/comparisons/bali-visa-vs-malaysia-visa")} className="p-4 border border-primary/20 rounded-xl hover:bg-primary/5 transition-colors">
                             <h4 className="font-bold text-primary">Bali vs Malaysia 2026</h4>
                             <p className="text-sm opacity-70">Compare the Bali nomad scene vs DE Rantau.</p>
                         </Link>
@@ -488,11 +489,11 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                 <div className="space-y-6">
                     <p>Explore our deep-dive educational pillars for moving to and living in the archipelago legally:</p>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 list-disc pl-6">
-                        <li><Link href={`/${locale}/blog/indonesia-visa-guide`} className="hover:text-primary underline">Comprehensive Indonesia Visa Guide</Link></li>
-                        <li><Link href={`/${locale}/blog/bali-visa-guide`} className="hover:text-primary underline">The Local Bali Visa Guide</Link></li>
-                        <li><Link href={`/${locale}/blog/immigration-rules-indonesia`} className="hover:text-primary underline">Deep Dive: Immigration Rules</Link></li>
-                        <li><Link href={`/${locale}/blog/bali-expat-guide`} className="hover:text-primary underline">Living in Bali: Expat Guide</Link></li>
-                        <li><Link href={`/${locale}/blog/how-to-move-to-bali-legally`} className="hover:text-primary underline">Relocation Checklist: Move to Bali</Link></li>
+                        <li><Link href={formatNavLink(locale, "/blog/indonesia-visa-guide")} className="hover:text-primary underline">Comprehensive Indonesia Visa Guide</Link></li>
+                        <li><Link href={formatNavLink(locale, "/blog/bali-visa-guide")} className="hover:text-primary underline">The Local Bali Visa Guide</Link></li>
+                        <li><Link href={formatNavLink(locale, "/blog/immigration-rules-indonesia")} className="hover:text-primary underline">Deep Dive: Immigration Rules</Link></li>
+                        <li><Link href={formatNavLink(locale, "/blog/bali-expat-guide")} className="hover:text-primary underline">Living in Bali: Expat Guide</Link></li>
+                        <li><Link href={formatNavLink(locale, "/blog/how-to-move-to-bali-legally")} className="hover:text-primary underline">Relocation Checklist: Move to Bali</Link></li>
                     </ul>
                 </div>
             )

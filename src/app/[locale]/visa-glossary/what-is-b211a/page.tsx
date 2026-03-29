@@ -1,6 +1,7 @@
 import React from "react";
 import SEOPageLayout from "@/components/layout/SEOPageLayout";
 import { Metadata } from "next";
+import { generateCanonical, formatNavLink } from "@/utils/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -8,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         title: "What is B211A Visa? Indonesia Entry Permit Guide | Indonesian Visas",
         description: "Everything you need to know about the B211A Visa for Indonesia. Purpose, 2026 requirements, and extension rules for business and tourism.",
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/visa-glossary/what-is-b211a`,
+            canonical: generateCanonical(locale, "/visa-glossary/what-is-b211a"),
         },
     };
 }
@@ -75,15 +76,15 @@ export default async function WhatIsB211aPage({ params }: { params: Promise<{ lo
             title="What is a B211A Visa?"
             subtitle="The complete guide to Indonesia's most popular business and long-term tourism visa."
             breadcrumbs={[
-                { label: "Visa Glossary", url: `/${locale}/visa-glossary` },
-                { label: "What is B211A", url: `/${locale}/visa-glossary/what-is-b211a` }
+                { label: "Visa Glossary", url: formatNavLink(locale, "/visa-glossary") },
+                { label: "What is B211A", url: formatNavLink(locale, "/visa-glossary/what-is-b211a") }
             ]}
             sections={sections}
             cta={{
                 title: "Apply for your B211A today",
                 desc: "Fast-track your Indonesian e-Visa with our professional sponsorship services.",
                 buttonText: "Apply Now",
-                link: `/${locale}/apply`
+                link: formatNavLink(locale, "/apply")
             }}
         />
     );

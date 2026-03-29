@@ -15,38 +15,39 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { formatNavLink } from '@/utils/seo';
 
 export default function HelpCenterPage() {
     const params = useParams();
-    const locale = params?.locale || 'en';
+    const locale = (params?.locale as string) || 'en';
 
     const helpCategories = [
         {
             title: "Payment Methods",
             desc: "Understand how to pay via DOKU, PayPal, or Bank Transfer.",
             icon: <CreditCard size={28} className="text-blue-500" />,
-            link: `/${locale}/help/payment-methods`,
+            link: formatNavLink(locale, "/help/payment-methods"),
             color: "bg-blue-50"
         },
         {
             title: "Payment Verification",
             desc: "Verify if your payment was processed through our official channels.",
             icon: <ShieldCheck size={28} className="text-green-500" />,
-            link: `/${locale}/help/payment-verification`,
+            link: formatNavLink(locale, "/help/payment-verification"),
             color: "bg-green-50"
         },
         {
             title: "Order Not Found",
             desc: "Troubleshoot issues finding your application or invoice.",
             icon: <Search size={28} className="text-amber-500" />,
-            link: `/${locale}/help/order-not-found`,
+            link: formatNavLink(locale, "/help/order-not-found"),
             color: "bg-amber-50"
         },
         {
             title: "Scam Warning",
             desc: "Protect yourself from fake websites and unofficial agents.",
             icon: <AlertTriangle size={28} className="text-red-500" />,
-            link: `/${locale}/help/scam-warning`,
+            link: formatNavLink(locale, "/help/scam-warning"),
             color: "bg-red-50"
         }
     ];

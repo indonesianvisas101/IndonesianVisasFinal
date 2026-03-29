@@ -7,6 +7,7 @@ import Footer from "@/components/footer/Footer";
 import { ArrowLeft, Mail, CheckCircle, AlertCircle, ArrowRight } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import Link from "next/link";
+import { formatNavLink } from "@/utils/seo";
 import styles from "../login/page.module.css"; // Reusing login styles
 
 const ForgotPasswordPage = () => {
@@ -76,7 +77,7 @@ const ForgotPasswordPage = () => {
                                 </form>
 
                                 <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/10 text-center">
-                                    <Link href="/login" className="flex items-center justify-center gap-2 font-bold text-gray-500 hover:text-primary transition-colors">
+                                    <Link href={formatNavLink(locale, "/login")} className="flex items-center justify-center gap-2 font-bold text-gray-500 hover:text-primary transition-colors">
                                         <ArrowLeft size={16} /> Back to Login
                                     </Link>
                                 </div>
@@ -92,7 +93,7 @@ const ForgotPasswordPage = () => {
                                     <strong>{email}</strong>
                                 </p>
                                 <button
-                                    onClick={() => router.push('/login')}
+                                    onClick={() => router.push(formatNavLink(locale, "/login"))}
                                     className="btn btn-primary w-full py-4 rounded-xl shadow-lg"
                                 >
                                     Return to Login

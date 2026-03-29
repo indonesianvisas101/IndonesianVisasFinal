@@ -4,8 +4,12 @@ import React from "react";
 import Link from "next/link";
 import styles from "./AboutPreview.module.css";
 import PhotoCollage from "./PhotoCollage";
+import { formatNavLink } from "@/utils/seo";
+import { useParams } from "next/navigation";
 
 const AboutPreview = ({ dict }: { dict?: any }) => {
+    const params = useParams();
+    const locale = (params?.locale as string) || 'en';
     const t = dict?.about_preview || {};
 
     return (
@@ -29,7 +33,7 @@ const AboutPreview = ({ dict }: { dict?: any }) => {
                             <p className={`${styles.text} text-white text-lg md:text-xl mb-8 drop-shadow-lg font-medium`}>
                                 {t.description || "Your trusted partner for seamless Indonesian visa processing since 2010. We are part of PT Indonesian Visas Agency™, dedicated to making your Indonesian journey smooth and stress-free."}
                             </p>
-                            <Link href="/about" className={`cta-accent ${styles.btn} shadow-2xl hover:scale-105 transition-transform inline-block`}>
+                            <Link href={formatNavLink(locale, "/about")} className={`cta-accent ${styles.btn} shadow-2xl hover:scale-105 transition-transform inline-block`}>
                                 {t.cta || "Learn More About Us"}
                             </Link>
                         </div>

@@ -11,6 +11,7 @@ const DiscountCard = dynamic(() => import("@/components/ui/cards/DiscountCard"))
 const VisaCatalog = dynamic(() => import("@/components/visa/VisaCatalog"));
 
 import { Metadata } from 'next';
+import { generateCanonical, formatNavLink } from "@/utils/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: "Our Services | Visa Application & Immigration Indonesia",
     description: "Explore our comprehensive visa services including VOA, B211A, KITAS, and Business Visas for Bali and Indonesia.",
     alternates: {
-      canonical: `https://indonesianvisas.com/${locale}/services`,
+      canonical: generateCanonical(locale, "/services"),
     },
   };
 }
@@ -178,8 +179,8 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
                 <h3 className="text-4xl md:text-5xl font-black text-white leading-tight">Expert Assistance for Every Step.</h3>
                 <p className="text-xl text-white/80 font-medium">Navigating Indonesian regulations is complex. We provide the local expertise you need to succeed.</p>
                 <div className="flex gap-4">
-                  <Link href={`/${locale}/legal-experts`} className="px-6 py-3 bg-white text-black rounded-xl font-bold shadow-lg hover:scale-105 transition-all">Legal Experts</Link>
-                  <Link href={`/${locale}/fast-approval`} className="px-6 py-3 bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-xl font-bold hover:bg-white/30 hover:scale-105 transition-all">Fast Approval</Link>
+                  <Link href={formatNavLink(locale, "/legal-experts")} className="px-6 py-3 bg-white text-black rounded-xl font-bold shadow-lg hover:scale-105 transition-all">Legal Experts</Link>
+                  <Link href={formatNavLink(locale, "/fast-approval")} className="px-6 py-3 bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-xl font-bold hover:bg-white/30 hover:scale-105 transition-all">Fast Approval</Link>
                 </div>
               </div>
             </div>
@@ -204,7 +205,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
                 {t.company_formation_desc || "Full PT PMA Registration service including NIB, Tax ID, and Virtual Office. Invest safely with 100% Foreign Ownership."}
               </p>
               <Link
-                href={`/${locale}/company-formation`}
+                href={formatNavLink(locale, "/company-formation")}
                 className="inline-flex items-center gap-4 bg-white text-black px-10 py-5 rounded-2xl font-black text-lg hover:bg-white/90 transition-all shadow-2xl hover:shadow-white/10 group"
               >
                 {t.company_formation_cta || "Check Company Formation"} <ArrowRight className="transition-transform group-hover:translate-x-2" />
@@ -247,14 +248,14 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-6">
               <Link
-                href={`/${locale}/apply`}
+                href={formatNavLink(locale, "/apply")}
                 className="w-full sm:w-auto px-12 py-5 text-white text-xl font-black rounded-2xl shadow-2xl shadow-[#9155FD]/30 transition-all hover:opacity-90 hover:-translate-y-1 active:scale-95"
                 style={{ backgroundColor: '#9155FD' }}
               >
                 {dict?.apply_extend?.apply_cta || "Start Application"}
               </Link>
               <Link
-                href={`/${locale}/faq`}
+                href={formatNavLink(locale, "/faq")}
                 className="w-full sm:w-auto px-12 py-5 bg-white dark:bg-white/5 mode-aware-text text-xl font-black rounded-2xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all"
               >
                 {dict?.header?.faq || "View FAQ"}

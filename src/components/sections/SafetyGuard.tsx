@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 import { QRCodeSVG } from 'qrcode.react';
 import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
 import { Info } from "lucide-react";
+import { formatNavLink } from "@/utils/seo";
 
 const SafetyGuard = ({ dict }: { dict?: any }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
@@ -74,7 +75,7 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
     };
 
     const params = useParams();
-    const locale = params?.locale || 'en';
+    const locale = (params?.locale as string) || 'en';
     const t = dict?.safety_guard || {
         title: "IndonesianVisas.com Safety Guard",
         subtitle: "The Most Advanced Verification System in Indonesia",
@@ -251,12 +252,12 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                                 </Box>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
-                                <Link href={`/${locale}/id-indonesian-visas`} className="flex-1">
+                                <Link href={formatNavLink(locale, "/id-indonesian-visas")} className="flex-1">
                                     <button className="cta-primary w-full justify-center">
                                         Learn More <ArrowRight size={18} className="ml-2" />
                                     </button>
                                 </Link>
-                                 <Link href={`/${locale}/idiv-search`} className="flex-1">
+                                 <Link href={formatNavLink(locale, "/idiv-search")} className="flex-1">
                                     <button className="w-full justify-center py-4 rounded-full bg-transparent text-black dark:text-white font-black border-2 border-black dark:border-white/20 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex items-center gap-2 shadow-sm uppercase tracking-widest text-sm">
                                         <Search size={18} /> Search ID
                                     </button>
@@ -291,12 +292,12 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                                 </Box>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
-                                <Link href={`/${locale}/id-guide`} className="flex-1">
+                                <Link href={formatNavLink(locale, "/id-guide")} className="flex-1">
                                     <button className="w-full justify-center py-4 rounded-full bg-[#7c3aed] text-white font-black hover:bg-[#6d28d9] transition-all flex items-center gap-2 shadow-lg uppercase tracking-widest text-sm">
                                         Learn More <ArrowRight size={18} className="ml-2" />
                                     </button>
                                 </Link>
-                                 <Link href={`/${locale}/idiv-search`} className="flex-1">
+                                 <Link href={formatNavLink(locale, "/idiv-search")} className="flex-1">
                                     <button className="w-full justify-center py-4 rounded-full bg-transparent text-black dark:text-white font-black border-2 border-black dark:border-white/20 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex items-center gap-2 shadow-sm uppercase tracking-widest text-sm">
                                         <Search size={18} /> Search ID
                                     </button>

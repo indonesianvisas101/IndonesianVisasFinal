@@ -1,11 +1,15 @@
-
+"use client";
 
 import React from "react";
 import Link from "next/link";
 import { FileText, RefreshCw } from "lucide-react";
 import styles from "./HowItWorks.module.css";
+import { formatNavLink } from "@/utils/seo";
+import { useParams } from "next/navigation";
 
 const ApplyExtend = ({ dict }: { dict?: any }) => {
+    const params = useParams();
+    const locale = (params?.locale as string) || 'en';
     const t = dict?.apply_extend || {};
 
     return (
@@ -15,7 +19,7 @@ const ApplyExtend = ({ dict }: { dict?: any }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl max-w-[1100px] w-full mx-auto items-stretch">
 
                     {/* Apply Card */}
-                    <Link href="/apply" className="group block h-full">
+                    <Link href={formatNavLink(locale, "/apply")} className="group block h-full">
                         <div className={`glass-card ${styles.card} h-full hover:-translate-y-2 transition-transform duration-300 flex flex-col justify-center items-center text-center p-10 min-h-[300px]`}>
                             <div className={styles.iconWrapper}>
                                 <FileText size={56} className="text-primary group-hover:scale-110 transition-transform duration-300" />
@@ -31,7 +35,7 @@ const ApplyExtend = ({ dict }: { dict?: any }) => {
                     </Link>
 
                     {/* Extend Card */}
-                    <Link href="/extend" className="group block h-full">
+                    <Link href={formatNavLink(locale, "/extend")} className="group block h-full">
                         <div className={`glass-card ${styles.card} h-full hover:-translate-y-2 transition-transform duration-300 flex flex-col justify-center items-center text-center p-10 min-h-[300px]`}>
                             <div className={styles.iconWrapper}>
                                 <RefreshCw size={56} className="text-primary group-hover:rotate-180 transition-transform duration-700" />

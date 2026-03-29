@@ -3,24 +3,36 @@ import { Metadata } from 'next';
 import SeoPageBuilder from '@/components/seo/SeoPageBuilder';
 import { getSeoPageData } from '@/data/seo';
 
-export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+// Centralized Canonical Root
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
     const data = getSeoPageData('expat-guides/move-to-bali');
+    const isDefaultLocale = locale === 'en';
+    
+    // Canonical URL strips /en/ for consistency with Sitemap
+    const canonicalUrl = isDefaultLocale 
+        ? `${APP_URL}/expat-guides/move-to-bali`
+        : `${APP_URL}/${locale}/expat-guides/move-to-bali`;
+
     return {
         title: data.title,
         description: data.description,
         alternates: {
-            canonical: data.canonicalUrl || `https://indonesianvisas.com/${params.locale}/expat-guides/move-to-bali`,
+            canonical: canonicalUrl,
         },
         openGraph: {
             title: data.title,
             description: data.description,
-            url: `https://indonesianvisas.com/${params.locale}/expat-guides/move-to-bali`,
+            url: canonicalUrl,
             images: data.ogImage ? [{ url: data.ogImage }] : [],
         }
     };
 }
 
-export default function Page({ params }: { params: { locale: string } }) {
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
     const data = getSeoPageData('expat-guides/move-to-bali');
     return <SeoPageBuilder pageData={data} />;
 }

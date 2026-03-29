@@ -4,6 +4,8 @@ import React from "react";
 import { calculateVisaTotal } from "@/lib/utils";
 import { useApplication } from "@/components/application/ApplicationContext";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { formatNavLink } from "@/utils/seo";
 
 interface VisaCardProps {
   visa: {
@@ -19,6 +21,8 @@ interface VisaCardProps {
 }
 
 const VisaCard: React.FC<VisaCardProps> = ({ visa }) => {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'en';
   const { selectVisa } = useApplication();
   const totalPrice = calculateVisaTotal(visa.price, (visa as any).fee);
 
@@ -94,7 +98,7 @@ const VisaCard: React.FC<VisaCardProps> = ({ visa }) => {
           </button>
 
           <Link
-            href={`/services/${visa.id}`}
+            href={formatNavLink(locale, `/services/${visa.id}`)}
             className="text-center text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
           >
             Click here to see details

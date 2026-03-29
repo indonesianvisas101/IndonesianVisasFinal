@@ -1,6 +1,7 @@
 import React from "react";
 import SEOPageLayout from "@/components/layout/SEOPageLayout";
 import { Metadata } from "next";
+import { generateCanonical, formatNavLink } from "@/utils/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -8,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         title: "What is KITAS? Indonesia Stay Permit Guide | Indonesian Visas",
         description: "Everything you need to know about the Indonesian Limited Stay Permit (KITAS). Definition, types, requirements, and extension rules for 2026.",
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/visa-glossary/what-is-kitas`,
+            canonical: generateCanonical(locale, "/visa-glossary/what-is-kitas"),
         },
     };
 }
@@ -75,15 +76,15 @@ export default async function WhatIsKitasPage({ params }: { params: Promise<{ lo
             title="What is a KITAS?"
             subtitle="The definitive guide to Indonesia's Limited Stay Permit. Learn about types, processes, and residency requirements."
             breadcrumbs={[
-                { label: "Visa Glossary", url: `/${locale}/visa-glossary` },
-                { label: "What is KITAS", url: `/${locale}/visa-glossary/what-is-kitas` }
+                { label: "Visa Glossary", url: formatNavLink(locale, "/visa-glossary") },
+                { label: "What is KITAS", url: formatNavLink(locale, "/visa-glossary/what-is-kitas") }
             ]}
             sections={sections}
             cta={{
                 title: "Ready to apply for your KITAS?",
                 desc: "Our legal experts handle the entire sponsorship and immigration process for you.",
                 buttonText: "Consult Now",
-                link: `/${locale}/apply`
+                link: formatNavLink(locale, "/apply")
             }}
         />
     );

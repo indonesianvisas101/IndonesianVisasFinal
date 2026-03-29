@@ -2,25 +2,31 @@ import React from 'react';
 import { Metadata } from 'next';
 import SeoPageBuilder from '@/components/seo/SeoPageBuilder';
 import { getSeoPageData } from '@/data/seo';
+import { generateCanonical } from '@/utils/seo';
 
-export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
-    const data = getSeoPageData('trust/our-process');
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    const slug = 'trust/our-process';
+    const data = getSeoPageData(slug);
+    const canonicalUrl = generateCanonical(locale, slug);
+
     return {
         title: data.title,
         description: data.description,
         alternates: {
-            canonical: data.canonicalUrl || `https://indonesianvisas.com/${params.locale}/trust/our-process`,
+            canonical: canonicalUrl,
         },
         openGraph: {
             title: data.title,
             description: data.description,
-            url: `https://indonesianvisas.com/${params.locale}/trust/our-process`,
+            url: canonicalUrl,
             images: data.ogImage ? [{ url: data.ogImage }] : [],
         }
     };
 }
 
-export default function Page({ params }: { params: { locale: string } }) {
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
     const data = getSeoPageData('trust/our-process');
     return <SeoPageBuilder pageData={data} />;
 }

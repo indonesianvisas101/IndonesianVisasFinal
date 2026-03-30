@@ -85,15 +85,28 @@ Restricted hubs for platform management.
 
 ---
 
-## 🗺️ 7. SPECIALIZED COUNTRY-SPECIFIC HUBS
-Targeted landing pages for major expat demographics.
-- `/visa-indonesia-for-americans`
-- `/visa-indonesia-for-australians`
-- `/visa-indonesia-for-chinese`
-- `/visa-indonesia-for-indians`
-- `/visa-indonesia-for-russians`
-- `/visa-indonesia-for-uk-citizens`
+---
+## 🗺️ 7. GLOBAL PREMIUM HUBS (NATIONALITY-SPECIFIC)
+High-converting landing pages for major expat and investor demographics.
+- `/services/United-States` (Top Priority)
+- `/services/France` (Europe Hub)
+- `/services/Mexico` (Americas Hub)
+- `/services/Netherlands`
+- `/services/Canada`
+- `/services/Poland`
+- `/services/Brazil`
+- `/services/China` (Mandarin Optimized)
+- `/services/Singapore`
+- `/services/Sweden`
+- `/services/Australia` (Oceania Hub)
 
 ---
-**Document Status:** Verified Production v4.0.0 (Hardened UI & Mobile Optimized)
+## 🏙️ 8. REGIONAL IMMIGRATION HUBS (LOCATION-BASED)
+Targeted landing pages for major Indonesian destinations.
+- `/services/Bali` (The Island of Gods)
+- `/services/Jakarta` (The Capital)
+- `/services/Lombok` (Gili Islands)
+
+---
+**Document Status:** Verified Production v4.1.0 (Regional Hub Architecture & Elite Design)
 *(Reflects 100% of routes in `src/app/[locale]`)*

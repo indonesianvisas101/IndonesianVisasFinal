@@ -110,6 +110,7 @@ The platform features a massive, SEO-optimized directory structured for visibili
 
 ### 6.1 Core Landing & Funnels
 - `/` — Main Hub
+- `/services/[id]` — **NEW: Dynamic Regional Hubs**. Nationality-specific landing pages (USA, France, China, etc.) and regional destination hubs (Bali, Jakarta, Lombok).
 - `/apply` — Application Wizard (**Multi-traveler ready**)
 - `/extend` — Extension Wizard
 - `/arrival-card` — Digital Pass

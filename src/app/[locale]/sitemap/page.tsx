@@ -70,17 +70,19 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             ]
         },
         {
-            title: "Regional Hubs",
+            title: "Global Premium Hubs",
             icon: Map,
             links: [
-                { name: "New Zealand", href: formatNavLink(locale, "/new-zealand") },
-                { name: "Singapore", href: formatNavLink(locale, "/singapore") },
-                { name: "Micronesia", href: formatNavLink(locale, "/micronesia") },
-                { name: "United Kingdom", href: formatNavLink(locale, "/visa-indonesia-for-uk-citizens") },
-                { name: "United States", href: formatNavLink(locale, "/visa-indonesia-for-americans") },
-                { name: "Russia", href: formatNavLink(locale, "/visa-indonesia-for-russians") },
-                { name: "India", href: formatNavLink(locale, "/visa-indonesia-for-indians") },
-                { name: "China", href: formatNavLink(locale, "/visa-indonesia-for-chinese") }
+                { name: "Bali Ultimate Hub", href: formatNavLink(locale, "/services/Bali") },
+                { name: "Jakarta Business Hub", href: formatNavLink(locale, "/services/Jakarta") },
+                { name: "United States (Top)", href: formatNavLink(locale, "/services/United-States") },
+                { name: "France (Europe)", href: formatNavLink(locale, "/services/France") },
+                { name: "Netherlands", href: formatNavLink(locale, "/services/Netherlands") },
+                { name: "Canada", href: formatNavLink(locale, "/services/Canada") },
+                { name: "China (Asia)", href: formatNavLink(locale, "/services/China") },
+                { name: "Mexico (Americas)", href: formatNavLink(locale, "/services/Mexico") },
+                { name: "Singapore", href: formatNavLink(locale, "/services/Singapore") },
+                { name: "Australia", href: formatNavLink(locale, "/services/Australia") }
             ]
         },
         {

@@ -49,6 +49,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/new-zealand',
         '/singapore',
         '/micronesia',
+        '/services/Bali',
+        '/services/Jakarta',
+        '/services/Lombok',
+        '/services/Australia',
+        '/services/United-States',
+        '/services/France',
+        '/services/Mexico',
+        '/services/Netherlands',
+        '/services/Canada',
+        '/services/Poland',
+        '/services/Brazil',
+        '/services/China',
+        '/services/Singapore',
+        '/services/Sweden',
         ...seoPageSlugs.map(slug => `/${slug}`)
     ];
 

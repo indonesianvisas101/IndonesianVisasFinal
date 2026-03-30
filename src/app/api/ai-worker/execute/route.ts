@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { createClient } from "../../../../utils/supabase/server";
+import { slugify } from '@/utils/slugify';
 
 export const dynamic = 'force-dynamic';
 
@@ -117,7 +118,8 @@ export async function POST(req: Request) {
 
         // --- BRANCH A: Knowledge Page Publishing ---
         if (changeRequest.pageCategory === "knowledge" || changeRequest.changeType === "knowledge_article") {
-            const { slug, title, content, metadata, authorName, qualityScore, sourcesUsed } = changes;
+            const { slug: rawSlug, title, content, metadata, authorName, qualityScore, sourcesUsed } = changes;
+            const slug = slugify(rawSlug);
             
             if (!slug || !title) return NextResponse.json({ error: "Missing slug or title in knowledge payload" }, { status: 400 });
 
@@ -219,9 +221,10 @@ export async function POST(req: Request) {
                 slug
             });
 
-            // --- BRANCH B: Immigration News Updates ---
+        // --- BRANCH B: Immigration News Updates ---
         } else if (changeRequest.changeType === "immigration_update") {
-            const { title, content, category, summary, image, slug } = changes;
+            const { title, content, category, summary, image, slug: rawSlug } = changes;
+            const slug = slugify(rawSlug);
             
             if (!slug || !title) return NextResponse.json({ error: "Missing slug or title in news payload" }, { status: 400 });
 

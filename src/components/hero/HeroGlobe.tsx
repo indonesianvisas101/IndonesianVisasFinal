@@ -22,7 +22,8 @@ export default function HeroGlobe() {
     useEffect(() => {
         const loadWorldData = async () => {
             try {
-                const response = await fetch("/world-110m.json")
+                // Pre-warm the fetch with priority
+                const response = await fetch("/world-110m.json", { priority: 'low' } as any)
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const world: any = await response.json()
                 const countries = (feature(world, world.objects.countries) as any).features

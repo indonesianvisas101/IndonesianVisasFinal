@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { TOPIC_MEMORY, TopicCluster } from '../../topic-discovery/topicMemory';
 import { AUTHORITY_CONTROL, SOURCE_REGISTRY } from './authorityControl';
 import { QUALITY_ENGINE } from './qualityEngine';
+import { slugify } from '@/utils/slugify';
 
 /**
  * AI Immigration Analyst Agent
@@ -29,15 +30,17 @@ export const AI_IMMIGRATION_ANALYST = {
     const author = await AUTHORITY_CONTROL.getDefaultAuthor();
     const quality = articleData.qualityMetrics;
 
+    const sanitizedSlug = slugify(articleData.slug || articleData.title);
+
     const changeRequest = await prisma.aIChangeRequest.create({
       data: {
         requestId,
         initiatedBy: 'analyst',
         changeType: 'knowledge_article',
         pageCategory: 'normal',
-        targetPage: `/visa-knowledge/${articleData.slug}`,
+        targetPage: `/visa-knowledge/${sanitizedSlug}`,
         proposedChanges: {
-          slug: articleData.slug,
+          slug: sanitizedSlug,
           title: articleData.title,
           content: articleData.sections,
           metadata: articleData.metadata,
@@ -89,20 +92,22 @@ export const AI_IMMIGRATION_ANALYST = {
     
     const quality = QUALITY_ENGINE.evaluateContent(newsData.content, newsData.title);
 
+    const sanitizedSlug = slugify(newsData.slug || newsData.title);
+
     const changeRequest = await prisma.aIChangeRequest.create({
       data: {
         requestId,
         initiatedBy: 'analyst',
         changeType: 'immigration_update',
         pageCategory: 'normal',
-        targetPage: `/en/indonesia-visa-updates/${newsData.slug}`,
+        targetPage: `/en/indonesia-visa-updates/${sanitizedSlug}`,
         proposedChanges: {
           title: newsData.title,
           content: newsData.content,
           category: newsData.category || 'Immigration',
           summary: newsData.summary,
           image: newsData.image,
-          slug: newsData.slug,
+          slug: sanitizedSlug,
           published: false,
           cluster: 'immigration-news',
           qualityScore: quality.overallScore

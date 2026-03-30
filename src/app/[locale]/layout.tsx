@@ -11,7 +11,7 @@ import { locales } from "@/i18n/locales";
 import { GlobalUIProvider } from "@/hooks/useGlobalUI";
 import GlobalUIOverlay from "@/components/ui/GlobalUIOverlay";
 import { Suspense } from "react";
-import { GoogleTagManager } from '@next/third-parties/google';
+import GoogleTagManagerWrapper from "@/components/common/GoogleTagManagerWrapper";
 import GlobalInfoPopup from "@/components/common/GlobalInfoPopup";
 
 const inter = Inter({
@@ -144,7 +144,7 @@ export default async function LocaleLayout({
         {/* Extreme Speed Boosts: Preload critical above-the-fold assets */}
         <link rel="preload" as="image" href="/Favicon.webp" fetchPriority="high" type="image/webp" />
         
-        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
+        <GoogleTagManagerWrapper gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
       </head>
       <body className={inter.className} suppressHydrationWarning>
 

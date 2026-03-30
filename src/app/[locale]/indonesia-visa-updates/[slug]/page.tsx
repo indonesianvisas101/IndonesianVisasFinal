@@ -1,141 +1,202 @@
 import React from 'react';
-import SEOPageLayout from '@/components/layout/SEOPageLayout';
-import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { Calendar, Tag, ChevronLeft, Share2, Facebook, Twitter, MessageSquare, Newspaper, ArrowRight } from 'lucide-react';
+import prisma from '@/lib/prisma';
+import SEOPageLayout from '@/components/layout/SEOPageLayout';
+import { Newspaper, Calendar, ArrowLeft, Tag, Share2, Clock, ShieldCheck, Zap } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import ReactMarkdown from 'react-markdown';
 
-export const dynamic = 'force-dynamic';
+interface PageProps {
+    params: Promise<{
+        locale: string;
+        slug: string;
+    }>;
+}
 
-export default async function SingleUpdatePage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
-    const { locale, slug } = await params;
+export async function generateMetadata(props: PageProps) {
+    const params = await props.params;
+    const { slug } = params;
+
+    const update = await prisma.immigrationUpdate.findUnique({
+        where: { slug },
+        select: { title: true, summary: true }
+    });
+
+    if (!update) return { title: 'News Update | Indonesian Visas' };
+
+    return {
+        title: `${update.title} | Indonesian Visa Intelligence`,
+        description: update.summary || `Latest policy update regarding ${update.title}.`,
+    };
+}
+
+export default async function NewsDetailPage(props: PageProps) {
+    const params = await props.params;
+    const { locale, slug } = params;
 
     const update = await prisma.immigrationUpdate.findUnique({
         where: { slug }
     });
 
     if (!update || !update.published) {
-        notFound();
+        return notFound();
     }
 
     return (
         <SEOPageLayout
             title={update.title}
-            description={update.summary || update.title}
+            description={update.summary || update.content.substring(0, 160)}
         >
-            <div className="pt-32 pb-20 bg-slate-100 min-h-screen text-slate-900">
-                <div className="container mx-auto px-4">
-                    {/* Back Button */}
-                    <Link 
-                        href={`/${locale}/indonesia-visa-updates`}
-                        className="inline-flex items-center text-slate-500 hover:text-primary transition-colors mb-8 group"
-                    >
-                        <ChevronLeft className="w-5 h-5 mr-1 group-hover:-translate-x-1 transition-transform" />
-                        Back to Updates
-                    </Link>
- 
-                    <div className="max-w-4xl mx-auto">
-                        <div className="mb-10">
-                            <div className="px-4 py-1.5 bg-purple-600 text-white text-xs font-black rounded-full uppercase inline-block mb-6 tracking-widest shadow-sm">
-                                {update.category}
+            <article className="min-h-screen bg-slate-50 dark:bg-[#030712] transition-colors duration-500">
+                {/* PREMIUM HERO SECTION */}
+                <div className="relative pt-40 pb-20 overflow-hidden">
+                    <div className="container mx-auto px-4 relative z-10">
+                        <div className="max-w-4xl mx-auto">
+                            <Link 
+                                href={`/${locale}/indonesia-visa-updates`}
+                                className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-8 group"
+                            >
+                                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                                Back to All Intelligence
+                            </Link>
+
+                            <div className="flex flex-wrap items-center gap-3 mb-8">
+                                <span className="px-4 py-1.5 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">
+                                    {update.category}
+                                </span>
+                                <span className="px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                                    Official Update
+                                </span>
                             </div>
-                            <h1 className="text-4xl md:text-6xl font-black text-slate-900 leading-tight mb-6">
+
+                            <h1 className="text-4xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-10 italic">
                                 {update.title}
                             </h1>
-                            <div className="flex flex-wrap items-center gap-6 text-slate-500 text-sm">
+
+                            <div className="flex flex-wrap items-center gap-8 text-slate-500 dark:text-slate-400 text-sm font-bold border-y border-slate-200 dark:border-white/5 py-6 mb-12">
                                 <div className="flex items-center gap-2">
-                                    <Calendar className="w-4 h-4" />
-                                    <span>Published on {new Date(update.createdAt).toLocaleDateString()}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Tag className="w-4 h-4" />
-                                    <span>Legal & Immigration</span>
+                                    <Calendar className="w-4 h-4 text-primary" />
+                                    <span>{new Date(update.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border border-slate-300">
-                                        <Image src="/Logo.webp" width={24} height={24} alt="AV" />
-                                    </div>
-                                    <span className="font-bold text-slate-700">Indonesian Visas Agency</span>
+                                    <Clock className="w-4 h-4 text-primary" />
+                                    <span>5 Min Read</span>
                                 </div>
-                            </div>
-                        </div>
- 
-                        {update.image && (
-                            <div className="relative h-[400px] md:h-[500px] w-full rounded-[40px] overflow-hidden mb-12 border border-slate-200 shadow-xl">
-                                <Image 
-                                    src={update.image} 
-                                    alt={update.title}
-                                    fill
-                                    className="object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                            </div>
-                        )}
- 
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                            {/* Main Content */}
-                            <div className="lg:col-span-8">
-                                <div className="prose prose-lg max-w-none prose-headings:font-black prose-headings:text-slate-900 prose-p:text-slate-700 prose-strong:text-purple-600 prose-a:text-purple-600 hover:prose-a:underline prose-li:text-slate-700">
-                                    <ReactMarkdown>{update.content}</ReactMarkdown>
-                                </div>
- 
-                                {/* Bottom Share */}
-                                <div className="mt-16 pt-8 border-t border-slate-200 flex flex-wrap items-center justify-between gap-6">
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-slate-400 text-sm font-bold uppercase tracking-widest">Share this:</span>
-                                        <div className="flex gap-2">
-                                            {[Facebook, Twitter, Share2].map((Icon, i) => (
-                                                <button key={i} className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all shadow-sm">
-                                                    <Icon className="w-4 h-4" />
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <Link 
-                                        href={`/${locale}/contact`}
-                                        className="inline-flex items-center gap-2 bg-purple-600 text-white font-black px-6 py-3 rounded-2xl hover:scale-105 transition-all shadow-lg shadow-purple-200"
-                                    >
-                                        <MessageSquare className="w-4 h-4" />
-                                        Speak to an Expert
-                                    </Link>
-                                </div>
-                            </div>
- 
-                            {/* Sidebar */}
-                            <div className="lg:col-span-4">
-                                <div className="sticky top-32 space-y-8">
-                                    {/* Sidebar Card 1: Related Visas */}
-                                    <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-                                        <h4 className="text-xl font-black text-slate-900 mb-4">Related Solutions</h4>
-                                        <div className="space-y-4">
-                                            {['B211A Business', 'Visit Visa on Arrival', 'Digital Nomad KITAS'].map((visa, i) => (
-                                                <Link key={i} href="#" className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors group">
-                                                    <span className="text-slate-600 group-hover:text-purple-600 transition-colors font-medium">{visa}</span>
-                                                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-purple-600 transition-all group-hover:translate-x-1" />
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    </div>
- 
-                                    {/* Sidebar Card 2: Support */}
-                                    <div className="bg-gradient-to-br from-purple-600 to-purple-800 rounded-3xl p-6 text-white relative overflow-hidden group shadow-xl">
-                                        <div className="relative z-10">
-                                            <h4 className="text-xl font-black mb-2">Need Help?</h4>
-                                            <p className="text-sm font-medium opacity-80 mb-6">Our legal experts are available 24/7 to answer your immigration questions.</p>
-                                            <Link href={`/${locale}/contact`} className="block w-full text-center bg-white text-purple-600 font-black py-4 rounded-xl hover:bg-slate-50 transition-all">
-                                                Contact Support
-                                            </Link>
-                                        </div>
-                                        <Newspaper className="absolute -bottom-6 -right-6 w-32 h-32 opacity-10 group-hover:rotate-12 transition-transform duration-700" />
-                                    </div>
+                                <div className="flex items-center gap-2">
+                                    <ShieldCheck className="w-4 h-4 text-primary" />
+                                    <span>Verified Policy</span>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    {/* Background Decorative Elements */}
+                    <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                    <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-blue-500/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2" />
                 </div>
-            </div>
+
+                {/* CONTENT SECTION */}
+                <div className="container mx-auto px-4 pb-24">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="grid lg:grid-cols-[1fr_250px] gap-16">
+                            {/* Main Content */}
+                            <div>
+                                {update.image && (
+                                    <div className="relative aspect-video w-full rounded-[2rem] overflow-hidden mb-16 shadow-2xl border border-slate-200 dark:border-white/10">
+                                        <Image 
+                                            src={update.image} 
+                                            alt={update.title}
+                                            fill
+                                            className="object-cover"
+                                            priority
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                                    </div>
+                                )}
+
+                                <div className="prose prose-slate dark:prose-invert prose-lg max-w-none 
+                                    prose-headings:font-black prose-headings:tracking-tight prose-headings:italic
+                                    prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-p:leading-relaxed prose-p:text-xl
+                                    prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-black
+                                    prose-ul:list-none prose-ul:pl-0
+                                    prose-li:bg-slate-100 dark:prose-li:bg-white/5 prose-li:p-6 prose-li:rounded-2xl prose-li:mb-4 prose-li:border prose-li:border-slate-200 dark:prose-li:border-white/10
+                                ">
+                                    {update.content.split('\n').map((para, i) => {
+                                        const trimmed = para.trim();
+                                        if (!trimmed) return <br key={i} />;
+                                        
+                                        // Detect lists based on markdown-ish bullets
+                                        if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*')) {
+                                            return <p key={i} className="flex gap-4 items-center">
+                                                <Zap className="text-primary shrink-0" size={18} />
+                                                <span>{trimmed.substring(1).trim()}</span>
+                                            </p>;
+                                        }
+
+                                        return <p key={i}>{trimmed}</p>;
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Sidebar / Tools */}
+                            <aside className="hidden lg:block space-y-12">
+                                <div className="sticky top-32 space-y-12">
+                                    <div className="p-8 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-xl">
+                                        <h3 className="text-sm font-black uppercase tracking-widest text-primary mb-6 italic">Quick Actions</h3>
+                                        <button className="w-full py-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-black font-black text-sm mb-4 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
+                                            <Share2 size={16} />
+                                            Share Intelligence
+                                        </button>
+                                        <Link href={`/${locale}/apply`} className="w-full py-4 rounded-xl border-2 border-primary text-primary font-black text-sm hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
+                                            Apply for Visa
+                                        </Link>
+                                    </div>
+
+                                    <div className="p-8 rounded-3xl bg-primary/10 border border-primary/20">
+                                        <ShieldCheck className="text-primary mb-4" size={32} />
+                                        <h3 className="text-lg font-black mb-2">Legal Accuracy</h3>
+                                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
+                                            All data presented here is cross-referenced with the latest Minister of Law & Human Rights regulations.
+                                        </p>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+
+                        {/* AUTHOR FOOTER */}
+                        <footer className="mt-24 pt-16 border-t border-slate-200 dark:border-white/5">
+                            <div className="flex flex-wrap items-center justify-between gap-8">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-20 h-20 rounded-3xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-black">
+                                        <Newspaper size={32} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Official Intelligence Source</p>
+                                        <p className="text-2xl font-black text-slate-900 dark:text-white italic">Indonesian Visas Agency Team</p>
+                                    </div>
+                                </div>
+                                <Link 
+                                    href={`/${locale}/indonesia-visa-guide-2026`}
+                                    className="px-10 py-5 rounded-2xl bg-primary text-white font-black hover:shadow-2xl hover:shadow-primary/40 transition-all hover:-translate-y-1"
+                                >
+                                    Read Ultimate Guide 2026
+                                </Link>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+            </article>
         </SEOPageLayout>
     );
+}
+
+export async function generateStaticParams() {
+    const updates = await prisma.immigrationUpdate.findMany({
+        where: { published: true },
+        select: { slug: true }
+    });
+    
+    return updates.map((u) => ({
+        slug: u.slug,
+    }));
 }

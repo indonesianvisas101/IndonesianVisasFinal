@@ -1,198 +1,241 @@
+import React from 'react';
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import { ShieldCheck, HelpCircle, CheckCircle2 } from 'lucide-react';
-import { generateCanonical, formatNavLink } from '@/utils/seo';
+import SEOPageLayout from '@/components/layout/SEOPageLayout';
+import { BookOpen, Calendar, ArrowLeft, ShieldCheck, HelpCircle, Star, Zap, Info, Share2 } from 'lucide-react';
+import Link from 'next/link';
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string, locale: string }> }) {
-  const awaitedParams = await params;
-  const slug = awaitedParams.slug;
-  const locale = awaitedParams.locale || 'en';
-  
-  const db = prisma as any;
-  const page = await db['knowledgePage'].findUnique({
-    where: { slug }
-  });
-
-  if (!page) return {};
-
-  const meta = page.metadata as any;
-  const sections = (page.content as any[]) || [];
-  const faqSection = sections.find(s => s.type === 'faq');
-
-  // Unified Canonical Logic (No /en/ prefix for default locale)
-  const canonicalUrl = generateCanonical(locale, `/visa-knowledge/${slug}`);
-
-  // Schema.org structured data injection
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": page.title,
-    "description": meta?.description || page.title,
-    "datePublished": page.createdAt,
-    "dateModified": page.updatedAt,
-    "author": {
-      "@type": "Organization",
-      "name": "Indonesian Visas Research Team",
-      "url": "https://indonesianvisas.com"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Indonesian Visas",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://indonesianvisas.com/Logo.webp"
-      }
-    }
-  };
-
-  const faqData = meta?.schema?.faq || (faqSection && Array.isArray(faqSection.content) ? faqSection.content : null);
-  const faqSchema = faqData ? {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqData.map((item: any) => ({
-      "@type": "Question",
-      "name": item.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": item.answer
-      }
-    }))
-  } : null;
-
-  return {
-    title: page.title,
-    description: meta?.description || page.title,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title: page.title,
-      description: meta?.description || page.title,
-      url: canonicalUrl,
-      type: 'article',
-      publishedTime: page.createdAt.toISOString(),
-      modifiedTime: page.updatedAt.toISOString(),
-      authors: ['Indonesian Visas Research Team'],
-    },
-    other: {
-      'script:ld+json:article': JSON.stringify(articleSchema),
-      ...(faqSchema ? { 'script:ld+json:faq': JSON.stringify(faqSchema) } : {})
-    }
-  };
+interface PageProps {
+    params: Promise<{
+        locale: string;
+        slug: string;
+    }>;
 }
 
-export default async function KnowledgePage({ params }: { params: Promise<{ slug: string, locale: string }> }) {
-  const awaitedParams = await params;
-  const slug = awaitedParams.slug;
-  const locale = awaitedParams.locale || 'en';
-  
-  const db = prisma as any;
-  const page = await db['knowledgePage'].findUnique({
-    where: { slug }
-  });
+export async function generateMetadata(props: PageProps) {
+    const params = await props.params;
+    const { slug } = params;
 
-  if (!page || !page.published) {
-    notFound();
-  }
+    const page = await prisma.knowledgePage.findUnique({
+        where: { slug },
+        select: { title: true, metadata: true }
+    });
 
-  const sections = page.content as any[];
+    if (!page) return { title: 'Visa Knowledge | Indonesian Visas' };
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 pt-20">
-      {/* 1. Hero / Title Section */}
-      <div className="max-w-4xl mx-auto px-6 py-16">
-        <div className="space-y-4 mb-12">
-           <span className="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-bold uppercase tracking-wider">
-             Official Knowledge Hub
-           </span>
-           <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white leading-tight">
-             {page.title}
-           </h1>
-           <p className="text-slate-500 dark:text-slate-400 font-medium">
-             Last Updated: {new Date(page.updatedAt).toLocaleDateString()} | Author: Indonesian Visas Research Team
-           </p>
-        </div>
+    const metadata = page.metadata as any;
+    return {
+        title: `${page.title} | Indonesian Visa Intelligence Hub`,
+        description: metadata?.description || `Strategic immigration guide covering ${page.title}.`,
+    };
+}
 
-        {/* 2. Structured Sections */}
-        <div className="space-y-16">
-          {sections.map((section, idx) => {
-            if (section.type === 'disclaimer') {
-              return (
-                <section key={idx} className="bg-red-50 dark:bg-red-900/10 border-l-4 border-red-500 p-8 rounded-2xl">
-                  <div className="flex gap-4">
-                    <ShieldCheck className="w-8 h-8 text-red-600 shrink-0" />
-                    <div>
-                      <h2 className="text-xl font-bold text-red-900 dark:text-white mb-2">{section.title}</h2>
-                      <div className="text-red-800 dark:text-red-200 leading-relaxed font-medium prose dark:prose-invert max-w-none">
-                        {section.content}
-                      </div>
+export default async function KnowledgeDetailPage(props: PageProps) {
+    const params = await props.params;
+    const { locale, slug } = params;
+
+    const page = await prisma.knowledgePage.findUnique({
+        where: { slug },
+        include: {
+            quality: true,
+            author: true
+        }
+    });
+
+    if (!page || !page.published) {
+        return notFound();
+    }
+
+    const contentArray = Array.isArray(page.content) ? page.content : [{ title: 'Overview', content: String(page.content) }];
+    const metadata = page.metadata as any;
+
+    return (
+        <SEOPageLayout
+            title={page.title}
+            description={metadata?.description || `Comprehensive guide on ${page.title}.`}
+        >
+            <div className="min-h-screen bg-slate-50 dark:bg-[#030712] transition-colors duration-500">
+                {/* PREMIUM HERO SECTION */}
+                <div className="relative pt-40 pb-20 overflow-hidden border-b border-slate-200 dark:border-white/5">
+                    <div className="container mx-auto px-4 relative z-10">
+                        <div className="max-w-4xl mx-auto">
+                            <Link 
+                                href={`/${locale}/visa-knowledge`}
+                                className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-8 group"
+                            >
+                                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                                Back to Knowledge Base
+                            </Link>
+
+                            <div className="flex flex-wrap items-center gap-3 mb-8">
+                                <span className="px-4 py-1.5 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">
+                                    {page.category || 'Strategic Guide'}
+                                </span>
+                                <span className="px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest italic flex items-center gap-2">
+                                    <Zap size={10} />
+                                    Intelligence Graded
+                                </span>
+                            </div>
+
+                            <h1 className="text-4xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-10 italic">
+                                {page.title}
+                            </h1>
+
+                            <div className="flex flex-wrap items-center gap-8 text-slate-500 dark:text-slate-400 text-sm font-bold py-6">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-primary" />
+                                    <span>Updated {new Date(page.updatedAt).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <ShieldCheck className="w-4 h-4 text-primary" />
+                                    <span>Verified Policy</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                                    <span>Official Documentation</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                </section>
-              );
-            }
 
-            if (section.type === 'faq') {
-              return (
-                <section key={idx} className="space-y-8">
-                  <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-                    <HelpCircle className="w-8 h-8 text-primary" /> {section.title}
-                  </h2>
-                  <div className="grid gap-4">
-                    {(section.content as any[]).map((item: any, qIdx: number) => (
-                      <div key={qIdx} className="p-8 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-100 dark:border-white/10">
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">{item.question}</h3>
-                        <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{item.answer}</p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              );
-            }
-
-            return (
-              <section key={idx} className="space-y-6">
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-                  <span className="text-primary opacity-30">#</span> {section.title}
-                </h2>
-                <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-black prose-p:leading-relaxed text-slate-700 dark:text-slate-300">
-                  {section.type === 'list' && Array.isArray(section.content) ? (
-                    <ul className="grid gap-3 list-none p-0">
-                      {section.content.map((item: any, lIdx: number) => (
-                        <li key={lIdx} className="flex items-start gap-3 p-4 bg-primary/5 rounded-xl">
-                          <CheckCircle2 className="w-5 h-5 text-primary mt-1 shrink-0" />
-                          <span className="font-medium text-slate-800 dark:text-slate-200">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div dangerouslySetInnerHTML={{ __html: section.content as string }} />
-                  )}
+                    {/* Background Glows */}
+                    <div className="absolute top-0 right-0 w-1/3 h-full bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
                 </div>
-              </section>
-            );
-          })}
-        </div>
 
-        {/* 3. Global Call to Action */}
-        <div className="mt-24 p-12 bg-primary rounded-[3rem] text-center text-white relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl transition-transform group-hover:scale-125 duration-700" />
-          <div className="relative z-10 space-y-6">
-            <h2 className="text-4xl font-black">Need Expert Assistance?</h2>
-            <p className="text-xl text-primary-foreground/90 max-w-xl mx-auto font-medium">
-              Don't navigate Indonesian immigration alone. Our team of experts is ready to assist you.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-               <a href={formatNavLink(locale, "/apply")} className="px-10 py-4 bg-white text-primary rounded-full font-black text-lg hover:scale-105 transition-transform">
-                 Apply Now
-               </a>
-               <a href={formatNavLink(locale, "/services")} className="px-10 py-4 bg-transparent border-2 border-white/30 text-white rounded-full font-black text-lg hover:bg-white/10 transition-colors">
-                 View Services
-               </a>
+                {/* TWO-COLUMN LAYOUT */}
+                <div className="container mx-auto px-4 py-24">
+                    <div className="max-w-7xl mx-auto grid lg:grid-cols-[280px_1fr_300px] gap-12">
+                        
+                        {/* LEFT SIDEBAR: TOC */}
+                        <aside className="hidden lg:block">
+                            <div className="sticky top-32 space-y-8">
+                                <div className="border-l-2 border-slate-200 dark:border-white/5 pl-6 space-y-6">
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Contents</h3>
+                                    {contentArray.map((section: any, idx: number) => (
+                                        <a 
+                                            key={idx} 
+                                            href={`#section-${idx}`} 
+                                            className="block text-sm font-bold text-slate-500 dark:text-slate-500 hover:text-primary transition-colors hover:translate-x-1 duration-300"
+                                        >
+                                            {idx + 1}. {section.title}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        </aside>
+
+                        {/* CENTER: MAIN CONTENT */}
+                        <main className="space-y-24">
+                            {contentArray.map((section: any, idx: number) => (
+                                <section key={idx} id={`section-${idx}`} className="scroll-mt-32">
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <span className="text-6xl font-black text-primary/10 italic leading-none">{idx + 1}</span>
+                                        <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter italic">
+                                            {section.title}
+                                        </h2>
+                                    </div>
+                                    <div className="prose prose-slate dark:prose-invert prose-xl max-w-none 
+                                        prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-p:leading-relaxed prose-p:mb-8
+                                        prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-black
+                                        prose-li:text-slate-600 dark:prose-li:text-slate-400
+                                    ">
+                                        {section.content.split('\n').map((para: string, pIdx: number) => (
+                                            para.trim() ? <p key={pIdx}>{para}</p> : <br key={pIdx} />
+                                        ))}
+                                    </div>
+                                </section>
+                            ))}
+                        </main>
+
+                        {/* RIGHT SIDEBAR: INTELLIGENCE PANEL */}
+                        <aside className="hidden xl:block">
+                            <div className="sticky top-32 space-y-8">
+                                <div className="p-8 rounded-[2rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden">
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <Info className="text-primary w-6 h-6" />
+                                            <h3 className="text-lg font-black italic">Intelligence Panel</h3>
+                                        </div>
+                                        
+                                        <div className="space-y-8">
+                                            <div>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-2">Policy Accuracy</p>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-primary" style={{ width: `${page.quality?.seoScore}%` }} />
+                                                    </div>
+                                                    <span className="text-xl font-black italic">{page.quality?.seoScore}%</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-2">Semantic Depth</p>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-primary" style={{ width: `${page.quality?.semanticScore}%` }} />
+                                                    </div>
+                                                    <span className="text-xl font-black italic">{page.quality?.semanticScore}%</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="pt-6 border-t border-white/5">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-2">Official Author</p>
+                                                <p className="text-sm font-black italic">{page.author?.name || 'Intelligence Unit'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute bottom-0 right-0 w-full h-1/2 bg-gradient-to-t from-primary/10 to-transparent pointer-events-none" />
+                                </div>
+
+                                <div className="p-8 rounded-[2rem] border-2 border-slate-200 dark:border-white/5 bg-white dark:bg-zinc-900/40 text-center">
+                                    <Zap className="mx-auto text-primary mb-4" size={32} />
+                                    <h4 className="font-black text-slate-900 dark:text-white mb-4">Need Personalized Entry?</h4>
+                                    <Link 
+                                        href={`/${locale}/apply`}
+                                        className="inline-block w-full py-4 rounded-xl bg-primary text-white font-black text-sm hover:shadow-xl hover:shadow-primary/40 transition-all"
+                                    >
+                                        Apply Now
+                                    </Link>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+
+                {/* AUTHOR FOOTER */}
+                <footer className="container mx-auto px-4 pb-24">
+                    <div className="max-w-4xl mx-auto pt-16 border-t border-slate-200 dark:border-white/5 flex flex-wrap items-center justify-between gap-8">
+                        <div className="flex items-center gap-6">
+                            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                <BookOpen size={28} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Navigation Roadmap</p>
+                                <p className="text-xl font-black text-slate-900 dark:text-white italic">Knowledge Pillar #{page.id.substring(0,4)}</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <button className="p-4 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-500 hover:text-primary transition-colors">
+                                <Share2 size={24} />
+                            </button>
+                            <Link href={`/${locale}/faq`} className="p-4 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-500 hover:text-primary transition-colors flex items-center gap-2 font-black uppercase tracking-tighter text-sm">
+                                <HelpCircle size={20} />
+                                View FAQ
+                            </Link>
+                        </div>
+                    </div>
+                </footer>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+        </SEOPageLayout>
+    );
+}
+
+export async function generateStaticParams() {
+    const pages = await prisma.knowledgePage.findMany({
+        where: { published: true },
+        select: { slug: true }
+    });
+    
+    return pages.map((p) => ({
+        slug: p.slug,
+    }));
 }

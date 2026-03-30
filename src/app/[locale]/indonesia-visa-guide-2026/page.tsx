@@ -357,12 +357,13 @@ export default async function UltimateGuidePage({ params }: { params: Promise<{ 
                     <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl my-8">
                         <strong className="block mb-2">Check Your Country:</strong> 
                         <div className="flex flex-wrap gap-2 mt-2">
-                            <Link href={formatNavLink(locale, "/visa-indonesia-for-australians")} className="text-primary hover:underline font-semibold">Australians</Link> &bull; 
-                            <Link href={formatNavLink(locale, "/visa-indonesia-for-americans")} className="text-primary hover:underline font-semibold">Americans</Link> &bull; 
-                            <Link href={formatNavLink(locale, "/visa-indonesia-for-uk-citizens")} className="text-primary hover:underline font-semibold">UK Citizens</Link> &bull; 
-                            <Link href={formatNavLink(locale, "/visa-indonesia-for-indians")} className="text-primary hover:underline font-semibold">Indians</Link> &bull;
-                            <Link href={formatNavLink(locale, "/visa-indonesia-for-chinese")} className="text-primary hover:underline font-semibold">Chinese</Link> &bull;
-                            <Link href={formatNavLink(locale, "/visa-indonesia-for-russians")} className="text-primary hover:underline font-semibold">Russians</Link>
+                            <Link href={formatNavLink(locale, "/services/Australia")} className="text-primary hover:underline font-bold uppercase text-[10px] tracking-widest italic">Australia</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/services/United-States")} className="text-primary hover:underline font-bold uppercase text-[10px] tracking-widest italic">USA</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/services/France")} className="text-primary hover:underline font-bold uppercase text-[10px] tracking-widest italic">France</Link> &bull; 
+                            <Link href={formatNavLink(locale, "/services/Netherlands")} className="text-primary hover:underline font-bold uppercase text-[10px] tracking-widest italic">Netherlands</Link> &bull;
+                            <Link href={formatNavLink(locale, "/services/Canada")} className="text-primary hover:underline font-bold uppercase text-[10px] tracking-widest italic">Canada</Link> &bull;
+                            <Link href={formatNavLink(locale, "/services/China")} className="text-primary hover:underline font-bold uppercase text-[10px] tracking-widest italic">China</Link> &bull;
+                            <Link href={formatNavLink(locale, "/services/Sweden")} className="text-primary hover:underline font-bold uppercase text-[10px] tracking-widest italic">Sweden</Link>
                         </div>
                     </div>
                 </div>

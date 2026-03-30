@@ -2,7 +2,7 @@
     padding: 5rem 0 4rem;
     /* Increased top padding to clear fixed header safely */
     background: radial-gradient(circle at 50% 50%, rgba(75, 0, 130, 0.05) 0%, rgba(255, 255, 255, 0) 70%), var(--bg-light);
-    min-height: 60vh;
+    min-height: 70vh; /* Increased for mobile stability */
     display: flex;
     align-items: center;
     position: relative;
@@ -113,8 +113,8 @@
     max-width: 500px;
     margin-left: auto;
     /* Center on mobile */
-    margin-right: auto;
-    /* Center on mobile */
+    margin-right: auto; /* Center on mobile */
+    min-height: 100px; /* Pre-size for stats to prevent jump */
 }
 
 @media (min-width: 768px) {
@@ -263,4 +263,19 @@
 .stepDesc {
     font-size: 0.875rem;
     color: var(--text-secondary);
+}
+
+.globeSkeleton {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, var(--primary-light) 0%, transparent 70%);
+    opacity: 0.1;
+    animation: pulseGlobe 4s ease-in-out infinite;
+    filter: blur(20px);
+}
+
+@keyframes pulseGlobe {
+    0%, 100% { opacity: 0.05; transform: scale(1); }
+    50% { opacity: 0.15; transform: scale(1.05); }
 }

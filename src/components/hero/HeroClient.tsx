@@ -31,7 +31,7 @@ export const HeroGlobeWrapper = () => {
                 runWhenIdle(() => {
                     const timer = setTimeout(() => {
                         setIsMounted(true);
-                    }, 2500); // Dynamic delay after idle 
+                    }, 800); // Faster mounting for better Speed Index
                     return () => clearTimeout(timer);
                 });
                 observer.disconnect();
@@ -66,7 +66,9 @@ export const HeroGlobeWrapper = () => {
                         </m.div>
                     )}
                     {!isMounted && (
-                        <div className="absolute inset-0 z-0 bg-transparent" />
+                        <div className={`absolute inset-0 z-0 flex items-center justify-center`}>
+                            <div className={styles.globeSkeleton} />
+                        </div>
                     )}
                 </AnimatePresence>
             </LazyMotion>

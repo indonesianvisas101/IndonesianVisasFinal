@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 import { locales, defaultLocale } from '@/i18n/locales'
 import { handleMarketingAttribution } from '@/lib/marketing'
+import { slugify } from '@/utils/slugify'
 
 import { IDIV_DOC_PATHS } from '@/constants/paths'
 
@@ -55,11 +56,23 @@ export async function proxy(request: NextRequest) {
         const preferredLocale = request.cookies.get('NEXT_LOCALE')?.value || defaultLocale;
         const targetLocale = locales.includes(preferredLocale as any) ? preferredLocale : defaultLocale;
         
-        // Rewrite to internal idiv-hub structure
         const response = NextResponse.rewrite(
             new URL(`/${targetLocale}/idiv-hub${pathname}`, request.url)
         );
         return await handleMarketingAttribution(request, response);
+    }
+
+    // 0.1 NEW: Smart Redirect for 'Dirty' slugs (No more 404s for spaces/commas)
+    const isPotentiallyDirty = pathname.includes('%20') || pathname.includes(',') || /[A-Z]/.test(pathname);
+    if (isPotentiallyDirty && (pathname.includes('visa-knowledge') || pathname.includes('indonesia-visa-updates'))) {
+        const segments = pathname.split('/');
+        const lastSegment = segments[segments.length - 1];
+        const cleanSlug = slugify(decodeURIComponent(lastSegment));
+        
+        if (cleanSlug !== lastSegment) {
+            segments[segments.length - 1] = cleanSlug;
+            return NextResponse.redirect(new URL(segments.join('/'), request.url), 301);
+        }
     }
 
     const segments = pathname.split('/')

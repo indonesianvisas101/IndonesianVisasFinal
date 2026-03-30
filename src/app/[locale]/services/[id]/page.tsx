@@ -9,7 +9,7 @@ import VisaActionButtons from '@/components/visa/VisaActionButtons';
 import VisaPricingSelector from '@/components/visa/VisaPricingSelector';
 import { parseCurrency } from '@/lib/utils';
 import SEOPageLayout from '@/components/layout/SEOPageLayout';
-import { Globe, MapPin, Shield, Star, Users, Zap } from 'lucide-react';
+import { Globe, MapPin, Shield, Star, Users, Zap, Calendar } from 'lucide-react';
 
 interface PageProps {
     params: Promise<{

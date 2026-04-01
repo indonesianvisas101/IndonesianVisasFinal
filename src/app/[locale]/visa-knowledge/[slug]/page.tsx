@@ -46,7 +46,18 @@ export default async function KnowledgeDetailPage(props: PageProps) {
         return notFound();
     }
 
-    const contentArray = Array.isArray(page.content) ? page.content : [{ title: 'Overview', content: String(page.content) }];
+    let contentArray: any[] = [];
+    if (Array.isArray(page.content)) {
+        contentArray = page.content;
+    } else if (typeof page.content === 'object' && page.content !== null) {
+        // Handle object with titles as keys
+        contentArray = Object.entries(page.content).map(([title, content]) => ({
+            title,
+            content
+        }));
+    } else {
+        contentArray = [{ title: 'Overview', content: String(page.content) }];
+    }
     const metadata = page.metadata as any;
 
     return (
@@ -127,7 +138,13 @@ export default async function KnowledgeDetailPage(props: PageProps) {
                         {/* CENTER: MAIN CONTENT */}
                         <main className="space-y-24">
                             {contentArray.map((section: any, idx: number) => {
-                                const bodyContent = typeof section.content === 'object' ? JSON.stringify(section.content) : String(section.content);
+                                // Enhanced logic to handle nested objects in section content
+                                let bodyContentText = '';
+                                if (typeof section.content === 'object' && section.content !== null) {
+                                    bodyContentText = section.content.body || section.content.text || section.content.description || JSON.stringify(section.content);
+                                } else {
+                                    bodyContentText = String(section.content || '');
+                                }
                                 return (
                                     <section key={idx} id={`section-${idx}`} className="scroll-mt-32">
                                         <div className="flex items-center gap-4 mb-8">
@@ -141,7 +158,7 @@ export default async function KnowledgeDetailPage(props: PageProps) {
                                             prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-black
                                             prose-li:text-slate-600 dark:prose-li:text-slate-400
                                         ">
-                                            {bodyContent.split('\n').map((para: string, pIdx: number) => (
+                                            {bodyContentText.split('\n').map((para: string, pIdx: number) => (
                                                 para.trim() ? <p key={pIdx}>{para}</p> : <br key={pIdx} />
                                             ))}
                                         </div>

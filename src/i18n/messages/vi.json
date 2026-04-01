@@ -460,7 +460,8 @@
             "title": "Sẵn sàng gìn giữ di sản của bạn?",
             "subtitle": "Tham gia chương trình Global Citizen ngay hôm nay cùng đội ngũ luật sư chuyên gia của chúng tôi.",
             "placeholder": "Địa chỉ Email",
-            "button": "Bắt đầu ứng tuyển"
+            "button": "Bắt đầu ứng tuyển",
+            "name_placeholder": "Full Legal Name"
         },
         "activity": {
             "secured": "Vừa hoàn tất xác minh GCI",

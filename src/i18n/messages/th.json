@@ -460,7 +460,8 @@
             "title": "พร้อมที่จะรักษามรดกของคุณแล้วหรือยัง?",
             "subtitle": "เข้าร่วมโปรแกรม Global Citizen วันนี้กับทีมกฎหมายผู้เชี่ยวชาญของเรา",
             "placeholder": "ที่อยู่อีเมล",
-            "button": "เริ่มการสมัคร"
+            "button": "เริ่มการสมัคร",
+            "name_placeholder": "Full Legal Name"
         },
         "activity": {
             "secured": "เพิ่งได้รับการยืนยัน GCI",

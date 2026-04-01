@@ -511,7 +511,8 @@
             "title": "Siap Menjaga Warisan Anda?",
             "subtitle": "Bergabunglah dengan program Global Citizen hari ini bersama tim hukum ahli kami.",
             "placeholder": "Alamat Email",
-            "button": "Mulai Aplikasi"
+            "button": "Mulai Aplikasi",
+            "name_placeholder": "Nama Lengkap Sesuai Paspor"
         },
         "activity": {
             "secured": "Baru saja mengamankan Verifikasi GCI",

@@ -460,7 +460,8 @@
             "title": "Prêt à préserver votre héritage ?",
             "subtitle": "Rejoignez le programme Global Citizen dès aujourd'hui avec notre équipe juridique experte.",
             "placeholder": "Adresse e-mail",
-            "button": "Démarrer la demande"
+            "button": "Démarrer la demande",
+            "name_placeholder": "Nom Complet Légal"
         },
         "activity": {
             "secured": "Vient de sécuriser la vérification GCI",

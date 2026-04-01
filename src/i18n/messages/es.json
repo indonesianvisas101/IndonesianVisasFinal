@@ -460,7 +460,8 @@
             "title": "¿Listo para preservar su legado?",
             "subtitle": "Únase al programa Global Citizen hoy mismo con nuestro equipo legal experto.",
             "placeholder": "Correo electrónico",
-            "button": "Iniciar solicitud"
+            "button": "Iniciar solicitud",
+            "name_placeholder": "Nombre Completo Legal"
         },
         "activity": {
             "secured": "Acaba de asegurar la verificación GCI",

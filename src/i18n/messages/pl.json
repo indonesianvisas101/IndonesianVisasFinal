@@ -460,7 +460,8 @@
             "title": "Gotowy, by zachować swoje dziedzictwo?",
             "subtitle": "Dołącz do programu Global Citizen już dziś z naszym eksperckim zespołem prawnym.",
             "placeholder": "Adres e-mail",
-            "button": "Rozpocznij aplikację"
+            "button": "Rozpocznij aplikację",
+            "name_placeholder": "Full Legal Name"
         },
         "activity": {
             "secured": "Właśnie uzyskał weryfikację GCI",

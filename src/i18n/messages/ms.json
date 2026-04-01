@@ -460,7 +460,8 @@
             "title": "Bersedia untuk Memelihara Warisan Anda?",
             "subtitle": "Sertai program Global Citizen hari ini dengan pasukan undang-undang pakar kami.",
             "placeholder": "Alamat Emel",
-            "button": "Mulakan Permohonan"
+            "button": "Mulakan Permohonan",
+            "name_placeholder": "Full Legal Name"
         },
         "activity": {
             "secured": "Baru sahaja mendapat Pengesahan GCI",

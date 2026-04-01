@@ -46,18 +46,46 @@ export default async function KnowledgeDetailPage(props: PageProps) {
         return notFound();
     }
 
+    // TRUE ULTIMATE ROBUST CONTENT EXTRACTION [v55.8]
     let contentArray: any[] = [];
-    if (Array.isArray(page.content)) {
-        contentArray = page.content;
-    } else if (typeof page.content === 'object' && page.content !== null) {
-        // Handle object with titles as keys
-        contentArray = Object.entries(page.content).map(([title, content]) => ({
-            title,
-            content
-        }));
-    } else {
-        contentArray = [{ title: 'Overview', content: String(page.content) }];
-    }
+    const rawContent = page.content as any;
+
+    const extractSections = (source: any): any[] => {
+        if (!source) return [];
+        
+        // Case 1: Nested .sections array
+        if (source.sections && Array.isArray(source.sections)) {
+            return source.sections;
+        }
+        
+        // Case 2: Direct array
+        if (Array.isArray(source)) {
+            return source;
+        }
+        
+        // Case 3: Descriptive object keys
+        if (typeof source === 'object') {
+            const entries = Object.entries(source);
+            const isNumericKeyed = entries.every(([key]) => !isNaN(Number(key)));
+            if (isNumericKeyed) {
+                entries.sort(([a], [b]) => Number(a) - Number(b));
+            }
+            return entries.map(([key, val]) => ({
+                title: (val as any)?.title || key,
+                body: (val as any)?.body || (val as any)?.content || (val as any)?.text || (val as any)?.description || (typeof val === 'string' ? val : JSON.stringify(val))
+            }));
+        }
+        
+        // Fallback
+        return [{ title: 'Overview', body: String(source) }];
+    };
+
+    const rawSections = extractSections(rawContent);
+    contentArray = rawSections.map((s: any, i: number) => ({
+        title: s.title || s.name || `Section ${i + 1}`,
+        body: s.body || s.content || s.text || s.description || (typeof s === 'string' ? s : JSON.stringify(s))
+    }));
+
     const metadata = page.metadata as any;
 
     return (
@@ -137,34 +165,25 @@ export default async function KnowledgeDetailPage(props: PageProps) {
 
                         {/* CENTER: MAIN CONTENT */}
                         <main className="space-y-24">
-                            {contentArray.map((section: any, idx: number) => {
-                                // Enhanced logic to handle nested objects in section content
-                                let bodyContentText = '';
-                                if (typeof section.content === 'object' && section.content !== null) {
-                                    bodyContentText = section.content.body || section.content.text || section.content.description || JSON.stringify(section.content);
-                                } else {
-                                    bodyContentText = String(section.content || '');
-                                }
-                                return (
-                                    <section key={idx} id={`section-${idx}`} className="scroll-mt-32">
-                                        <div className="flex items-center gap-4 mb-8">
-                                            <span className="text-6xl font-black text-primary/10 italic leading-none">{idx + 1}</span>
-                                            <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter italic">
-                                                {section.title}
-                                            </h2>
-                                        </div>
-                                        <div className="prose prose-slate dark:prose-invert prose-xl max-w-none 
-                                            prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-p:leading-relaxed prose-p:mb-8
-                                            prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-black
-                                            prose-li:text-slate-600 dark:prose-li:text-slate-400
-                                        ">
-                                            {bodyContentText.split('\n').map((para: string, pIdx: number) => (
-                                                para.trim() ? <p key={pIdx}>{para}</p> : <br key={pIdx} />
-                                            ))}
-                                        </div>
-                                    </section>
-                                );
-                            })}
+                            {contentArray.map((section: any, idx: number) => (
+                                <section key={idx} id={`section-${idx}`} className="scroll-mt-32">
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <span className="text-6xl font-black text-primary/10 italic leading-none">{idx + 1}</span>
+                                        <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter italic">
+                                            {section.title}
+                                        </h2>
+                                    </div>
+                                    <div className="prose prose-slate dark:prose-invert prose-xl max-w-none 
+                                        prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-p:leading-relaxed prose-p:mb-8
+                                        prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-black
+                                        prose-li:text-slate-600 dark:prose-li:text-slate-400
+                                    ">
+                                        {(section.body || '').split('\n').map((para: string, pIdx: number) => (
+                                            para.trim() ? <p key={pIdx}>{para}</p> : <br key={pIdx} />
+                                        ))}
+                                    </div>
+                                </section>
+                            ))}
                         </main>
 
                         {/* RIGHT SIDEBAR: INTELLIGENCE PANEL */}

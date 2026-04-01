@@ -612,7 +612,8 @@
             "title": "Ready to Preserve Your Legacy?",
             "subtitle": "Join the Global Citizen program today with our expert legal team.",
             "placeholder": "Email Address",
-            "button": "Start Application"
+            "button": "Start Application",
+            "name_placeholder": "Full Legal Name"
         },
         "activity": {
             "secured": "Just secured GCI Verification",

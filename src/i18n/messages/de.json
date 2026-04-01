@@ -460,7 +460,8 @@
             "title": "Bereit, Ihr Erbe zu bewahren?",
             "subtitle": "Treten Sie noch heute dem Global Citizen Programm mit unserem Experten-Team bei.",
             "placeholder": "E-Mail-Adresse",
-            "button": "Antrag starten"
+            "button": "Antrag starten",
+            "name_placeholder": "Vollständiger Name"
         },
         "activity": {
             "secured": "Gerade GCI-Verifizierung gesichert",

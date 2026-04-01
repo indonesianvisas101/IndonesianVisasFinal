@@ -460,7 +460,8 @@
             "title": "당신의 유산을 보존할 준비가 되셨습니까?",
             "subtitle": "전문 법률 팀과 함께 오늘 글로벌 시티즌 프로그램에 참여하십시오.",
             "placeholder": "이메일 주소",
-            "button": "신청 시작"
+            "button": "신청 시작",
+            "name_placeholder": "법적 성명"
         },
         "activity": {
             "secured": "방금 GCI 자격 확인 완료",

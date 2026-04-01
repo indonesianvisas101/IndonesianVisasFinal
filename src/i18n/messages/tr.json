@@ -460,7 +460,8 @@
             "title": "Mirasınızı korumaya hazır mısınız?",
             "subtitle": "Uzman hukuk ekibimizle bugün Global Citizen programına katılın.",
             "placeholder": "E-posta Adresi",
-            "button": "Başvuruyu Başlat"
+            "button": "Başvuruyu Başlat",
+            "name_placeholder": "Full Legal Name"
         },
         "activity": {
             "secured": "Az önce GCI Doğrulamasını tamamladı",

@@ -14,12 +14,13 @@ export default function GCIFinalCTA({
   setEmail: (val: string) => void,
   locale: string
 }) {
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
 
   const handleSubmit = async () => {
-    if (!email || !email.includes('@')) return;
+    if (!email || !email.includes('@') || !name) return;
     
     setLoading(true);
     setError(false);
@@ -28,7 +29,7 @@ export default function GCIFinalCTA({
       const res = await fetch('/api/gci/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, locale })
+        body: JSON.stringify({ name, email, locale })
       });
       
       if (res.ok) {
@@ -67,19 +68,29 @@ export default function GCIFinalCTA({
             <p className="text-xl text-blue-100 mb-12 font-bold">
               {gciCta.subtitle}
             </p>
-            <div className="flex flex-col md:flex-row gap-4 max-w-xl mx-auto bg-white/10 p-2 rounded-[2.5rem] backdrop-blur-md border border-white/20">
-               <input 
-                 type="email" 
-                 placeholder={gciCta.placeholder}
-                 value={email}
-                 onChange={(e) => setEmail(e.target.value)}
-                 disabled={loading}
-                 className="flex-1 px-8 py-5 rounded-full bg-white text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-blue-400 placeholder:text-slate-400"
-               />
+            <div className="flex flex-col gap-4 max-w-2xl mx-auto rounded-[2.5rem] p-2 bg-white/10 backdrop-blur-md border border-white/20">
+               <div className="flex flex-col md:flex-row gap-3">
+                  <input 
+                    type="text" 
+                    placeholder={gciCta.name_placeholder || "Full Legal Name"}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    disabled={loading}
+                    className="flex-1 px-8 py-5 rounded-full bg-white text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-blue-400 placeholder:text-slate-400"
+                  />
+                  <input 
+                    type="email" 
+                    placeholder={gciCta.placeholder}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
+                    className="flex-1 px-8 py-5 rounded-full bg-white text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-blue-400 placeholder:text-slate-400"
+                  />
+               </div>
                <button 
                  onClick={handleSubmit}
-                 disabled={loading || !email}
-                 className="px-10 py-5 rounded-full bg-slate-950 text-white font-black hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:scale-100"
+                 disabled={loading || !email || !name}
+                 className="w-full py-5 rounded-full bg-slate-950 text-white font-black hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:scale-100"
                >
                  {loading ? <Loader2 className="animate-spin" /> : <>{gciCta.button} <ChevronRight /></>}
                </button>

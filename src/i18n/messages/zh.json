@@ -460,7 +460,8 @@
             "title": "准备好传承您的遗产了吗？",
             "subtitle": "立即通过我们的专家法律团队加入全球公民计划。",
             "placeholder": "电子邮件地址",
-            "button": "开始申请"
+            "button": "开始申请",
+            "name_placeholder": "法定全名"
         },
         "activity": {
             "secured": "刚刚获得 GCI 验证",

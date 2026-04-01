@@ -460,7 +460,8 @@
             "title": "Klaar om uw erfenis te behouden?",
             "subtitle": "Sluit u vandaag nog aan bij het Global Citizen-programma met ons deskundige juridische team.",
             "placeholder": "E-mailadres",
-            "button": "Start Aanvraag"
+            "button": "Start Aanvraag",
+            "name_placeholder": "Full Legal Name"
         },
         "activity": {
             "secured": "Zojuist GCI-verificatie beveiligd",

@@ -460,7 +460,8 @@
             "title": "Pronto a preservare la tua eredità?",
             "subtitle": "Unisciti al programma Global Citizen oggi stesso con il nostro team legale esperto.",
             "placeholder": "Indirizzo Email",
-            "button": "Inizia la Domanda"
+            "button": "Inizia la Domanda",
+            "name_placeholder": "Nome Completo Legale"
         },
         "activity": {
             "secured": "Appena assicurata la Verifica GCI",

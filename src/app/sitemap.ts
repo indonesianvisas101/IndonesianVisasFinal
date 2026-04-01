@@ -35,35 +35,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/visa-glossary/what-is-voa', '/visa-glossary/what-is-investor-visa',
         '/visa-glossary/what-is-business-visa', '/visa-faq', '/indonesia-visa-updates',
         '/indonesia-visa-updates/visa-updates-2026', '/indonesia-visa-updates/new-bali-immigration-rules',
-        '/indonesia-visa-updates/indonesia-digital-nomad-visa-news',
-        '/australia',
-        '/australia/digital-nomad',
-        '/australia/travel-indonesia',
-        '/australia/kitas-indonesia',
-        '/australia/indonesia-citizenship',
+        '/visa-updates-2026', '/visa-updates-bali', '/visa-updates-jakarta',
         '/vfs-indonesia',
         '/visa-vfs-global',
         '/vfs-global',
         '/vfs-indonesian-visas',
         '/vfs-indonesian-immigration-partnership',
         '/new-zealand',
-        '/singapore',
         '/micronesia',
         '/services/Bali',
         '/services/Jakarta',
         '/services/Lombok',
-        '/services/Australia',
+        ...seoPageSlugs.map(slug => `/${slug}`)
+    ];
+
+    // 1.1 Elite Nationality Hubs (Phase 55 Cluster)
+    const nationalityHubs = [
         '/services/United-States',
         '/services/France',
+        '/services/China',
         '/services/Mexico',
         '/services/Netherlands',
         '/services/Canada',
         '/services/Poland',
         '/services/Brazil',
-        '/services/China',
         '/services/Singapore',
         '/services/Sweden',
-        ...seoPageSlugs.map(slug => `/${slug}`)
+        '/services/Australia',
     ];
 
     const sitemapEntries: MetadataRoute.Sitemap = [];
@@ -90,6 +88,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 lastModified: new Date(),
                 changeFrequency: 'weekly',
                 priority,
+            });
+        });
+
+        // Nationality Hubs (Phase 55 Elite Cluster)
+        nationalityHubs.forEach(hub => {
+            sitemapEntries.push({
+                url: `${baseUrl}${localePrefix}${hub}`,
+                lastModified: new Date(),
+                changeFrequency: 'weekly',
+                priority: 0.9,
             });
         });
 

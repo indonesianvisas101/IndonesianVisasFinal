@@ -9,6 +9,7 @@ import ApplyExtend from "@/components/sections/ApplyExtend";
 const ServicesPreview = dynamic(() => import("@/components/sections/ServicesPreview"), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Services...</div>
 });
+import GCIWrapper from "@/components/sections/GCIWrapper";
 
 // Lazy Load Components (Below the fold)
 const HowItWorks = dynamic(() => import("@/components/sections/HowItWorks"), {
@@ -69,6 +70,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <ApplyExtend dict={dict} />
       <LazySection minHeight="600px" rootMargin="300px">
         <ServicesPreview dict={dict} />
+      </LazySection>
+
+      <LazySection minHeight="500px">
+        <GCIWrapper dict={dict} />
       </LazySection>
 
       {/* Below the fold (Lazy Loaded on Scroll) */}

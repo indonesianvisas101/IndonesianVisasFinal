@@ -86,27 +86,30 @@ Restricted hubs for platform management.
 ---
 
 ---
-## 🗺️ 7. GLOBAL PREMIUM HUBS (NATIONALITY-SPECIFIC)
-High-converting landing pages for major expat and investor demographics.
-- `/services/United-States` (Top Priority)
-- `/services/France` (Europe Hub)
-- `/services/Mexico` (Americas Hub)
-- `/services/Netherlands`
-- `/services/Canada`
-- `/services/Poland`
-- `/services/Brazil`
-- `/services/China` (Mandarin Optimized)
-- `/services/Singapore`
-- `/services/Sweden`
-- `/services/Australia` (Oceania Hub)
+## 🗺️ 7. GLOBAL PREMIUM HUBS (NATIONALITY-SPECIFIC) — HARDENED [v55.0]
+High-converting 16-section static landing pages for major expat and investor demographics.
+
+| Route | Status | Focus |
+|---|---|---|
+| `/services/United-States` | **Hardened (v55)** | US-Indo Tax Treaty, Investor KITAS, GCI |
+| `/services/France` | **Hardened (v55)** | Europe Hub, French Lycée, Cultural Focus |
+| `/services/China` | **Hardened (v55)** | Mandarin Optimized, Industrial Investment |
+| `/services/Mexico` | **Hardened (v55)** | Americas Hub, e-VoA Portal, Lifestyle |
+| `/services/Netherlands` | **Hardened (v55)** | Historic Ties, Ex-WNI (GCI 2), Retirement |
+| `/services/Canada` | **Hardened (v55)** | North America, Tech/Nomad Corridor |
+| `/services/Poland` | **Hardened (v55)** | Central Europe Business, Manufacturing |
+| `/services/Brazil` | **Hardened (v55)** | South America, Global Surf/Lifestyle |
+| `/services/Singapore` | **Hardened (v55)** | SEA Corridor, Ferry Logistics, GCI 4 |
+| `/services/Sweden` | **Hardened (v55)** | Nordic Innovation, Digital Nomadism |
+| `/services/Australia` | **Hardened (v55)** | Oceania Hub, IA-CEPA, Bali Tourism |
 
 ---
 ## 🏙️ 8. REGIONAL IMMIGRATION HUBS (LOCATION-BASED)
 Targeted landing pages for major Indonesian destinations.
-- `/services/Bali` (The Island of Gods)
-- `/services/Jakarta` (The Capital)
-- `/services/Lombok` (Gili Islands)
+- `/services/Bali` (**Hardened**)
+- `/services/Jakarta` (**Hardened**)
+- `/services/Lombok` (**Hardened**)
 
 ---
-**Document Status:** Verified Production v4.1.0 (Regional Hub Architecture & Elite Design)
+**Document Status:** Verified Production v55.0 (Global Elite Hub Architecture)
 *(Reflects 100% of routes in `src/app/[locale]`)*

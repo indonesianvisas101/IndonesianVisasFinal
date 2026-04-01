@@ -28,6 +28,7 @@ interface IDivCardProps {
         photoUrl?: string;
         address?: string;
         order_id?: string;
+        isUnlimited?: boolean;
     };
     mode?: 'IDIV' | 'IDG';
     variant?: 'purple' | 'indigo' | 'gold';
@@ -80,7 +81,8 @@ export default function IDivCardModern({
         province: data?.province || getProvinceFromAddress(data?.address || data?.id_number),
         photoUrl: data?.photoUrl || null,
         address: data?.address || "Jl. Sunset Road No.7, Kuta, Bali Indonesia.",
-        order_id: data?.order_id || 'NOT_LINKED'
+        order_id: data?.order_id || 'NOT_LINKED',
+        isUnlimited: data?.isUnlimited || (data?.visa_type?.toUpperCase().includes('GCI') || data?.visa_type?.toUpperCase().includes('UNLIMITED') || !data?.expiry_date)
     };
 
     // Standardize IDs for display
@@ -112,7 +114,8 @@ export default function IDivCardModern({
             header: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
             body: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
             accent: '#78350f',
-            secondary: '#b45309'
+            secondary: '#b45309',
+            infinity: '#d97706'
         }
     };
 
@@ -366,7 +369,14 @@ export default function IDivCardModern({
                                          </Box>
                                          <Box>
                                              <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
-                                             <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#ef4444', lineHeight: 1.1 }}>{cardData.expiry_date}</Typography>
+                                             {cardData.isUnlimited ? (
+                                                 <Box display="flex" alignItems="center" gap={0.3}>
+                                                     <Typography sx={{ fontSize: '0.7rem', fontWeight: 900, color: '#d97706', lineHeight: 1.1 }}>LIFETIME ACCESS</Typography>
+                                                     <Globe size={10} className="text-amber-600 animate-pulse" />
+                                                 </Box>
+                                             ) : (
+                                                 <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#ef4444', lineHeight: 1.1 }}>{cardData.expiry_date}</Typography>
+                                             )}
                                          </Box>
                                      </Box>
                                  </Box>

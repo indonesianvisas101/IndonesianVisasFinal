@@ -1,0 +1,33 @@
+GCI FINAL POLISH - MODIFIED FILES SUMMARY
+==========================================
+
+1. src/app/[locale]/gci/page.tsx
+   - Converted to Server Component.
+   - Added generateMetadata for Canonical (root domain) and Hreflang.
+
+2. src/components/gci/GCIContent.tsx
+   - New Client Component for GCI Hub stateful UI.
+   - Optimized Hero with next/image priority.
+   - Added Dwell-Time Tracker (>120s) for Elite Prospect alerts.
+
+3. src/app/api/gci/activity/route.ts
+   - New API: Hybrid Social Proof logic (Real-time + 24h fallback).
+
+4. src/components/gci/GCIActivityToast.tsx
+   - Upgraded to fetch hybrid activity.
+   - Added Dual-Language (EN/ID) support.
+   - Fixed locale detection for Turbopack.
+
+5. src/app/api/gci/prospect-alert/route.ts
+   - New API: Elite Diaspora Alert system for high-value regions.
+
+6. src/utils/gciHardening.ts
+   - Upgraded visual styles for internal GCI links (Gold subtle hover).
+
+LOGS:
+- Build Status: SUCCESS
+- Total Static Pages: 3462
+- Elite Alerts: ACTIVE
+- SEO Strategy: Canonical Root Enforced.
+
+REPRODUCED BY: Antigravity for Boss Bayu.

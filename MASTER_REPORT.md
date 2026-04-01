@@ -1,5 +1,5 @@
 # 🧠 INDONESIAN VISAS: COMPREHENSIVE MASTER INTELLIGENCE REPORT
-**Version:** 4.0.0 (Premium UI Hardening & Layout Standardization) | **Date:** March 18, 2026
+**Version:** 4.1.0 (Global Hub Hardening & GCI Production) | **Date:** April 1, 2026
 **Status:** Hardened & Production Ready | **Confidentiality:** Boss Bayu Authorized
 
 ---
@@ -110,7 +110,8 @@ The platform features a massive, SEO-optimized directory structured for visibili
 
 ### 6.1 Core Landing & Funnels
 - `/` — Main Hub
-- `/services/[id]` — **NEW: Dynamic Regional Hubs**. Nationality-specific landing pages (USA, France, China, etc.) and regional destination hubs (Bali, Jakarta, Lombok).
+- `/gci` — **GCI Landing Page** (Hardened v55, Instant Page Logic)
+- `/services/[id]` — **Dynamic Regional Hubs**. Nationality-specific landing pages for 11 countries (USA, France, China, Mexico, Netherlands, Canada, Poland, Brazil, Singapore, Sweden, Australia) and regional hubs (Bali, Jakarta, Lombok).
 - `/apply` — Application Wizard (**Multi-traveler ready**)
 - `/extend` — Extension Wizard
 - `/arrival-card` — Digital Pass

@@ -386,5 +386,87 @@
         "dialog_countries_desc": "Official satellite domains for specific international regions:",
         "dialog_cities_title": "Indonesia City-Based Services",
         "dialog_cities_desc": "Official localized access points for regions across Indonesia:"
+    },
+    "gci": {
+        "hero": {
+            "title": "L'héritage <highlight>à vie</highlight> <br /> Pour la diaspora indonésienne",
+            "description": "Préservez vos liens du sang avec l'Indonésie grâce au statut de résident Global Citizen of Indonesia (GCI) le plus robuste au monde. Profitez de droits de travail illimités, de la propriété immobilière et de la liberté d'entrée à vie."
+        },
+        "marquee": {
+            "item1": "Statut de résidence à vie",
+            "item2": "Droits de travail complets",
+            "item3": "Priorité à la diaspora",
+            "item4": "Réentré illimité"
+        },
+        "bonding": {
+            "title": "Préserver les liens, construire l'avenir",
+            "quote": "\"Le GCI est plus qu'un permis ; c'est une déclaration que les enfants de l'Indonésie, où qu'ils soient, auront toujours un foyer où revenir.\""
+        },
+        "eligibility": {
+            "title": "Filtre d'éligibilité interactif",
+            "subtitle": "Sélectionnez votre profil pour voir les exigences du GCI",
+            "4C": {
+                "title": "Ex-WNI (Anciens citoyens)",
+                "desc": "Spécifiquement pour ceux qui ont détenu la citoyenneté indonésienne dans le passé."
+            },
+            "4D": {
+                "title": "Descendants directs",
+                "desc": "Pour les enfants et petits-enfants de citoyens indonésiens actuels ou anciens."
+            },
+            "4H": {
+                "title": "Diaspora des talents mondiaux",
+                "desc": "Pour les membres de la diaspora hautement qualifiés ayant une expertise spécialisée."
+            }
+        },
+        "benefits": {
+            "stay": {
+                "title": "Séjour illimité",
+                "desc": "Plus d'extensions. Votre statut est permanent tant que les critères d'éligibilité sont remplis."
+            },
+            "work": {
+                "title": "Droits de travail",
+                "desc": "Travaillez librement en Indonésie sans avoir besoin d'un permis de travail séparé."
+            },
+            "property": {
+                "title": "Propriété immobilière",
+                "desc": "Chemin plus facile pour posséder une propriété en Indonésie par rapport aux permis étrangers standard."
+            },
+            "entry": {
+                "title": "Liberté de réentrée",
+                "desc": "Permis de réentrée multiples valables à vie. Voyagez librement."
+            }
+        },
+        "advantage": {
+            "title": "L'avantage GCI",
+            "table": {
+                "feature": "Caractéristique",
+                "gci": "Statut GCI",
+                "golden": "Golden Visa",
+                "kitas": "ITAS/ITAP",
+                "validity_label": "Validité",
+                "unlimited": "ILLIMITÉ",
+                "investment_label": "Exigence d'investissement",
+                "none": "AUCUNE (Lien du sang)"
+            }
+        },
+        "security": {
+            "title": "Sécurisé par <highlight>IDiv Infinity™</highlight>",
+            "desc": "Votre statut GCI est délivré avec une carte IDiv Variante Or spécialisée, arborant l'icône unique infinity — une marque de votre lien à vie avec l'Indonésie.",
+            "feature1": "Vérification QR intelligente",
+            "feature2": "Hologramme double couche",
+            "feature3": "Vérification du statut à vie"
+        },
+        "cta": {
+            "title": "Prêt à préserver votre héritage ?",
+            "subtitle": "Rejoignez le programme Global Citizen dès aujourd'hui avec notre équipe juridique experte.",
+            "placeholder": "Adresse e-mail",
+            "button": "Démarrer la demande"
+        },
+        "activity": {
+            "secured": "Vient de sécuriser la vérification GCI",
+            "applying": "Demande de prestations GCI",
+            "researching": "Recherche sur les droits de propriété",
+            "verifying": "Vérification du statut de diaspora"
+        }
     }
 }

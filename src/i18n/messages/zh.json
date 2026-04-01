@@ -386,5 +386,87 @@
         "dialog_countries_desc": "Official satellite domains for specific international regions:",
         "dialog_cities_title": "Indonesia City-Based Services",
         "dialog_cities_desc": "Official localized access points for regions across Indonesia:"
+    },
+    "gci": {
+        "hero": {
+            "title": "<highlight>终身传承</highlight> <br /> 献给印尼海外侨民",
+            "description": "通过全球最强大的印尼全球公民 (GCI) 居留身份，维护您与印尼的血脉联系。终身享有无限工作权、房产所有权和出入境自由。"
+        },
+        "marquee": {
+            "item1": "终身居留身份",
+            "item2": "全面工作权",
+            "item3": "侨民优先",
+            "item4": "无限次入境"
+        },
+        "bonding": {
+            "title": "守护纽带，共筑未来",
+            "quote": "\"GCI 不仅仅是一份许可；它是一个宣言，无论印尼的孩子们身在何处，永远都有一个可以回归的家。\""
+        },
+        "eligibility": {
+            "title": "互动资格筛选",
+            "subtitle": "选择您的背景查看 GCI 要求",
+            "4C": {
+                "title": "前印尼公民",
+                "desc": "专门针对过去曾持有印尼国籍的人士。"
+            },
+            "4D": {
+                "title": "直系后裔",
+                "desc": "针对现任或前任印尼公民的子女及孙子女。"
+            },
+            "4H": {
+                "title": "全球人才侨民",
+                "desc": "针对具有专业专长或投资潜力的高成就侨民。"
+            }
+        },
+        "benefits": {
+            "stay": {
+                "title": "无限期居住",
+                "desc": "无需再延期。只要符合资格标准，您的身份就是永久的。"
+            },
+            "work": {
+                "title": "工作权",
+                "desc": "在印尼自由工作，无需单独的工作许可。"
+            },
+            "property": {
+                "title": "房产所有权",
+                "desc": "与标准外国许可相比，拥有印尼房产的路径更简便。"
+            },
+            "entry": {
+                "title": "出入境自由",
+                "desc": "终身有效的多次往返许可。自由进出印尼。"
+            }
+        },
+        "advantage": {
+            "title": "GCI 优势",
+            "table": {
+                "feature": "特征",
+                "gci": "GCI 身份",
+                "golden": "黄金签证",
+                "kitas": "ITAS/ITAP",
+                "validity_label": "有效期限",
+                "unlimited": "无限期",
+                "investment_label": "投资要求",
+                "none": "无（血脉联系）"
+            }
+        },
+        "security": {
+            "title": "由 <highlight>IDiv Infinity™</highlight> 保障",
+            "desc": "您的 GCI 身份将获得专属的金版 IDiv 卡，印有独特的无限图标——象征您与印尼的终身联系。",
+            "feature1": "智能 QR 验证",
+            "feature2": "双层全息防伪",
+            "feature3": "终身身份查询"
+        },
+        "cta": {
+            "title": "准备好传承您的遗产了吗？",
+            "subtitle": "立即通过我们的专家法律团队加入全球公民计划。",
+            "placeholder": "电子邮件地址",
+            "button": "开始申请"
+        },
+        "activity": {
+            "secured": "刚刚获得 GCI 验证",
+            "applying": "申请 GCI 福利",
+            "researching": "研究房产权利",
+            "verifying": "核实侨民身份"
+        }
     }
 }

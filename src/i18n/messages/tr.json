@@ -386,5 +386,87 @@
         "dialog_countries_desc": "Official satellite domains for specific international regions:",
         "dialog_cities_title": "Indonesia City-Based Services",
         "dialog_cities_desc": "Official localized access points for regions across Indonesia:"
+    },
+    "gci": {
+        "hero": {
+            "title": "Endonezya Diasporası İçin <br /> <highlight>Ömür Boyuk Miras</highlight>",
+            "description": "Dünyanın en sağlam Global Citizen of Indonesia (GCI) ikamet statüsü ile Endonezya ile olan kan bağlarınızı koruyun. Ömür boyu sınırsız çalışma haklarının, mülk sahipliğinin ve giriş özgürlüğünün tadını çıkarın."
+        },
+        "marquee": {
+            "item1": "Ömür Boyu İkamet Statüsü",
+            "item2": "Tam Çalışma Hakları",
+            "item3": "Diaspora Önceliği",
+            "item4": "Sınırsız Yeniden Giriş"
+        },
+        "bonding": {
+            "title": "Bağları Korumak, Geleceği İnşa Etmek",
+            "quote": "\"GCI bir izinden daha fazlasıdır; Endonezya'nın çocuklarının, nerede olurlarsa olsunlar, her zaman dönecek bir yuvaları olacağının ilanıdır.\""
+        },
+        "eligibility": {
+            "title": "Etkileşimli Uygunluk Filtresi",
+            "subtitle": "GCI gereksinimlerini görmek için profilinizi seçin",
+            "4C": {
+                "title": "Eks-WNI (Eski Vatandaşlar)",
+                "desc": "Geçmişte Endonezya vatandaşlığına sahip olanlar için özeldir."
+            },
+            "4D": {
+                "title": "Doğrudan Torunlar",
+                "desc": "Mevcut veya eski Endonezya vatandaşlarının çocukları ve torunları içindir."
+            },
+            "4H": {
+                "title": "Küresel Yetenek Diasporası",
+                "desc": "Uzmanlık alanlarında yüksek başarı gösteren veya yatırım potansiyeli olan diaspora üyeleri içindir."
+            }
+        },
+        "benefits": {
+            "stay": {
+                "title": "Sınırsız Konaklama",
+                "desc": "Artık uzatma yok. Uygunluk kriterleri karşılandığı sürece statünüz kalıcıdır."
+            },
+            "work": {
+                "title": "Çalışma Hakları",
+                "desc": "Ayrı bir IMTA veya Çalışma İzni gerekmeden Endonezya'da özgürce çalışın."
+            },
+            "property": {
+                "title": "Mülk Sahipliği",
+                "desc": "Standart yabancı izinlerine kıyasla Endonezya'da mülk sahibi olmanın daha kolay yolu."
+            },
+            "entry": {
+                "title": "Yeniden Giriş Özgürlüğü",
+                "desc": "Ömür boyu geçerli çoklu yeniden giriş izinleri. Özgürce uçun."
+            }
+        },
+        "advantage": {
+            "title": "GCI Avantajı",
+            "table": {
+                "feature": "Özellik",
+                "gci": "GCI Statüsü",
+                "golden": "Golden Visa",
+                "kitas": "ITAS/ITAP",
+                "validity_label": "Geçerlilik",
+                "unlimited": "SINIRSIZ",
+                "investment_label": "Yatırım Şartı",
+                "none": "YOK (Kan Bağı)"
+            }
+        },
+        "security": {
+            "title": "<highlight>IDiv Infinity™</highlight> ile Güvende",
+            "desc": "GCI statünüz, benzersiz sonsuzluk ikonuna sahip özel Gold Varyant IDiv Kart ile verilir—Endonezya ile olan ömür boyu bağınızın bir işareti.",
+            "feature1": "Akıllı QR Doğrulama",
+            "feature2": "Çift Katmanlı Hologram",
+            "feature3": "Ömür Boyu Statü Kontrolü"
+        },
+        "cta": {
+            "title": "Mirasınızı korumaya hazır mısınız?",
+            "subtitle": "Uzman hukuk ekibimizle bugün Global Citizen programına katılın.",
+            "placeholder": "E-posta Adresi",
+            "button": "Başvuruyu Başlat"
+        },
+        "activity": {
+            "secured": "Az önce GCI Doğrulamasını tamamladı",
+            "applying": "GCI Avantajları için başvuruyor",
+            "researching": "Mülkiyet Haklarını araştırıyor",
+            "verifying": "Diaspora Statüsünü doğruluyor"
+        }
     }
 }

@@ -386,5 +386,87 @@
         "dialog_countries_desc": "Official satellite domains for specific international regions:",
         "dialog_cities_title": "Indonesia City-Based Services",
         "dialog_cities_desc": "Official localized access points for regions across Indonesia:"
+    },
+    "gci": {
+        "hero": {
+            "title": "인도네시아 디아스포라를 위한 <br /> <highlight>평생 유산</highlight>",
+            "description": "세계에서 가장 강력한 인도네시아 글로벌 시민(GCI) 거주 자격을 통해 인도네시아와의 혈연 관계를 보존하십시오. 평생 무제한 취업 권리, 부동산 소유권 및 입국 자유를 누리십시오."
+        },
+        "marquee": {
+            "item1": "평생 거주 상태",
+            "item2": "전체 취업 권리",
+            "item3": "디아스포라 우선",
+            "item4": "무제한 재입국"
+        },
+        "bonding": {
+            "title": "유대 보존, 미래 구축",
+            "quote": "\"GCI는 단순한 허가가 아닙니다. 인도네시아의 자녀들이 어디에 있든 항상 돌아올 집이 있다는 선언입니다.\""
+        },
+        "eligibility": {
+            "title": "대화형 자격 필터",
+            "subtitle": "GCI 요건 확인을 위해 프로필 선택",
+            "4C": {
+                "title": "전 인도네시아 시민",
+                "desc": "과거 인도네시아 국籍을 보유했던 분들을 위한 전용 자격입니다."
+            },
+            "4D": {
+                "title": "직계 후손",
+                "desc": "현재 또는 과거 인도네시아 시민의 자녀 및 손자녀를 위한 자격입니다."
+            },
+            "4H": {
+                "title": "글로벌 인재 디아스포라",
+                "desc": "전문 지식이나 투자 잠재력을 가진 우수한 디아스포라 구성원을 위한 자격입니다."
+            }
+        },
+        "benefits": {
+            "stay": {
+                "title": "무제한 체류",
+                "desc": "더 이상의 연장은 없습니다. 자격 요건을 충족하는 한 상태는 영구적입니다."
+            },
+            "work": {
+                "title": "취업 권리",
+                "desc": "별도의 취업 허가 없이 인도네시아에서 자유롭게 근무할 수 있습니다."
+            },
+            "property": {
+                "title": "부동산 소유권",
+                "desc": "표준 외국인 허가에 비해 인도네시아에서 부동산을 소유할 수 있는 더 쉬운 길을 제공합니다."
+            },
+            "entry": {
+                "title": "재입국 자유",
+                "desc": "평생 유효한 복수 재입국 허가. 자유로운 출입국이 가능합니다."
+            }
+        },
+        "advantage": {
+            "title": "GCI 혜택",
+            "table": {
+                "feature": "기능",
+                "gci": "GCI 상태",
+                "golden": "골든 비자",
+                "kitas": "ITAS/ITAP",
+                "validity_label": "유효 기간",
+                "unlimited": "무제한",
+                "investment_label": "투자 요건",
+                "none": "없음 (혈연)"
+            }
+        },
+        "security": {
+            "title": "<highlight>IDiv Infinity™</highlight>로 보호됨",
+            "desc": "GCI 자격은 고유한 인피니티 아이콘이 특징인 전용 골드 변형 IDiv 카드와 함께 발급됩니다. 이는 인도네시아와의 평생 유대를 상징합니다.",
+            "feature1": "스마트 QR 검증",
+            "feature2": "이중 레이어 홀로그램",
+            "feature3": "평생 상태 확인"
+        },
+        "cta": {
+            "title": "당신의 유산을 보존할 준비가 되셨습니까?",
+            "subtitle": "전문 법률 팀과 함께 오늘 글로벌 시티즌 프로그램에 참여하십시오.",
+            "placeholder": "이메일 주소",
+            "button": "신청 시작"
+        },
+        "activity": {
+            "secured": "방금 GCI 자격 확인 완료",
+            "applying": "GCI 혜택 신청 중",
+            "researching": "부동산 권리 조사 중",
+            "verifying": "디아스포라 상태 확인 중"
+        }
     }
 }

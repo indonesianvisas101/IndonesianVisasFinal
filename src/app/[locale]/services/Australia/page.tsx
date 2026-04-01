@@ -2,13 +2,25 @@ import type { Metadata } from 'next';
 import SEOPageLayout from '@/components/layout/SEOPageLayout';
 import Link from 'next/link';
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
+    const isDefaultLocale = locale === 'en';
+    
+    // Canonical Strategy: English root always links to /services/Australia
+    const canonicalUrl = isDefaultLocale ? `${APP_URL}/services/Australia` : `${APP_URL}/${locale}/services/Australia`;
+
     return {
         title: "Indonesia Visa for Australians 2026: Official Requirements & Bali Travel Guide",
         description: "Comprehensive guide for Australian citizens traveling to Indonesia. e-VoA at Bali airport, IA-CEPA investment context, Digital Nomad tracks, and KITAS rules for Aussies.",
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/australia`,
+            canonical: canonicalUrl,
+            languages: {
+                'x-default': `${APP_URL}/services/Australia`,
+                'en': `${APP_URL}/services/Australia`,
+                'id': `${APP_URL}/id/services/Australia`
+            }
         }
     };
 }
@@ -17,8 +29,8 @@ export default async function AustraliaHubPage({ params }: { params: Promise<{ l
     const { locale } = await params;
 
     const breadcrumbs = [
-        { label: "Regional Guides", url: `/${locale}/list-country` },
-        { label: "Australia Hub", url: `/${locale}/australia` }
+        { label: "Services", url: `/${locale}/services` },
+        { label: "Australia Hub", url: `/${locale}/services/Australia` }
     ];
 
     const cta = {
@@ -66,7 +78,7 @@ export default async function AustraliaHubPage({ params }: { params: Promise<{ l
             content: (
                 <div className="space-y-4">
                     <p>Thousands of Australians from the tech and creative sectors now base themselves in Uluwatu, Canggu, and Ubud. If you intend to work remotely for an Australian company while living in Bali, the <strong>B211A (Visit Visa)</strong> is currently the preferred legal track. It allows for a total of 180 days (6 months) within the country.</p>
-                    <Link href={`/${locale}/australia/digital-nomad`} className="text-primary font-bold hover:underline">
+                    <Link href={`/${locale}/services/Australia/digital-nomad`} className="text-primary font-bold hover:underline">
                         Read our deep-dive on Digital Nomads for Australians →
                     </Link>
                 </div>
@@ -95,15 +107,15 @@ export default async function AustraliaHubPage({ params }: { params: Promise<{ l
             title: "7. Specialized Australian Resources",
             content: (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Link href={`/${locale}/australia/travel-indonesia`} className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 hover:border-primary transition-colors">
+                    <Link href={`/${locale}/services/Australia/travel-indonesia`} className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 hover:border-primary transition-colors">
                         <h4 className="font-bold mode-aware-text">Travel Tips for Bali</h4>
                         <p className="text-sm opacity-70">Aussie insurance traps and health prep.</p>
                     </Link>
-                    <Link href={`/${locale}/australia/kitas-indonesia`} className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 hover:border-primary transition-colors">
+                    <Link href={`/${locale}/services/Australia/kitas-indonesia`} className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 hover:border-primary transition-colors">
                         <h4 className="font-bold mode-aware-text">KITAS Residency Guide</h4>
                         <p className="text-sm opacity-70">Long-term living for Australian families.</p>
                     </Link>
-                    <Link href={`/${locale}/australia/indonesia-citizenship`} className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 hover:border-primary transition-colors">
+                    <Link href={`/${locale}/services/Australia/indonesia-citizenship`} className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 hover:border-primary transition-colors">
                         <h4 className="font-bold mode-aware-text">Naturalization Info</h4>
                         <p className="text-sm opacity-70">Pathway to Indonesian Citizenship.</p>
                     </Link>

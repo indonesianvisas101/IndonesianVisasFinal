@@ -437,5 +437,87 @@
         "disclaimer_title": "PENAFIAN HUKUM",
         "disclaimer_text": "Indonesian Visas menyediakan bantuan administratif dan layanan fasilitasi. Persetujuan imigrasi akhir, penolakan masuk, dan izin tinggal tetap menjadi wewenang tunggal Direktorat Jenderal Imigrasi Indonesia. Sistem verifikasi mengonfirmasi keaslian proses penerbitan agensi kami, bukan keputusan akhir pemerintah.",
         "back_home": "Kembali ke Beranda"
+    },
+    "gci": {
+        "hero": {
+            "title": "Warisan <highlight>Seumur Hidup</highlight> <br /> Bagi Diaspora Indonesia",
+            "description": "Menjaga ikatan darah Anda dengan Indonesia melalui status kependudukan Global Citizen of Indonesia (GCI) yang paling kuat di dunia. Nikmati hak kerja tanpa batas, kepemilikan properti, dan kebebasan masuk seumur hidup."
+        },
+        "marquee": {
+            "item1": "Status Kependudukan Seumur Hidup",
+            "item2": "Hak Kerja Lengkap",
+            "item3": "Prioritas Diaspora",
+            "item4": "Masuk Kembali Tanpa Batas"
+        },
+        "bonding": {
+            "title": "Menjaga Ikatan, Membangun Masa Depan",
+            "quote": "\"GCI lebih dari sekadar izin; ini adalah pernyataan bahwa anak-anak Indonesia, di mana pun mereka berada, akan selalu memiliki rumah untuk pulang.\""
+        },
+        "eligibility": {
+            "title": "Filter Kelayakan Interaktif",
+            "subtitle": "Pilih profil Anda untuk melihat persyaratan GCI",
+            "4C": {
+                "title": "Eks-WNI",
+                "desc": "Khusus bagi mereka yang pernah memegang kewarganegaraan Indonesia di masa lalu."
+            },
+            "4D": {
+                "title": "Keturunan Langsung",
+                "desc": "Untuk anak dan cucu dari warga negara Indonesia saat ini atau mantan warga negara Indonesia."
+            },
+            "4H": {
+                "title": "Diaspora Talenta Global",
+                "desc": "Untuk anggota diaspora berprestasi tinggi dengan keahlian khusus atau potensi investasi."
+            }
+        },
+        "benefits": {
+            "stay": {
+                "title": "Tinggal Tanpa Batas",
+                "desc": "Tidak ada lagi perpanjangan. Status Anda permanen selama kriteria kelayakan terpenuhi."
+            },
+            "work": {
+                "title": "Hak Kerja",
+                "desc": "Bekerja bebas di Indonesia tanpa memerlukan IMTA atau Izin Kerja terpisah."
+            },
+            "property": {
+                "title": "Kepemilikan Properti",
+                "desc": "Jalur lebih mudah untuk memiliki properti di Indonesia dibandingkan izin asing standar."
+            },
+            "entry": {
+                "title": "Kebebasan Masuk Kembali",
+                "desc": "Izin masuk kembali berkali-kali yang berlaku seumur hidup. Terbang masuk dan keluar dengan bebas."
+            }
+        },
+        "advantage": {
+            "title": "Keunggulan GCI",
+            "table": {
+                "feature": "Fitur",
+                "gci": "Status GCI",
+                "golden": "Golden Visa",
+                "kitas": "ITAS/ITAP",
+                "validity_label": "Validitas",
+                "unlimited": "TANPA BATAS",
+                "investment_label": "Syarat Investasi",
+                "none": "TIDAK ADA (Ikatan Darah)"
+            }
+        },
+        "security": {
+            "title": "Diamankan oleh <highlight>IDiv Infinity™</highlight>",
+            "desc": "Status GCI Anda diterbitkan dengan Kartu IDiv Varian Emas khusus, menampilkan ikon infinity yang unik—tanda ikatan seumur hidup Anda dengan Indonesia.",
+            "feature1": "Verifikasi QR Pintar",
+            "feature2": "Hologram Dua Lapis",
+            "feature3": "Pengecekan Status Seumur Hidup"
+        },
+        "cta": {
+            "title": "Siap Menjaga Warisan Anda?",
+            "subtitle": "Bergabunglah dengan program Global Citizen hari ini bersama tim hukum ahli kami.",
+            "placeholder": "Alamat Email",
+            "button": "Mulai Aplikasi"
+        },
+        "activity": {
+            "secured": "Baru saja mengamankan Verifikasi GCI",
+            "applying": "Sedang mengajukan Manfaat GCI",
+            "researching": "Meneliti Hak Properti",
+            "verifying": "Memverifikasi Status Diaspora"
+        }
     }
 }

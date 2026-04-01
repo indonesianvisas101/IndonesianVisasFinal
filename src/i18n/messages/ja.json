@@ -386,5 +386,87 @@
         "dialog_countries_desc": "Official satellite domains for specific international regions:",
         "dialog_cities_title": "Indonesia City-Based Services",
         "dialog_cities_desc": "Official localized access points for regions across Indonesia:"
+    },
+    "gci": {
+        "hero": {
+            "title": "インドネシア・ディアスポラの <br /> <highlight>生涯にわたる遺産</highlight>",
+            "description": "世界で最も強力なインドネシア・グローバル・シチズン（GCI）居住資格を通じて、インドネシアとの血の絆を維持しましょう。生涯にわたる無制限の就労権利、不動産所有、および入国の自由を享受できます。"
+        },
+        "marquee": {
+            "item1": "生涯居住ステータス",
+            "item2": "完全な就労権利",
+            "item3": "ディアスポラ優先",
+            "item4": "無制限の再入国"
+        },
+        "bonding": {
+            "title": "絆を守り、未来を築く",
+            "quote": "「GCIは単なる許可証ではありません。インドネシアの子どもたちがどこにいても、いつでも帰れる家があるという宣言なのです。」"
+        },
+        "eligibility": {
+            "title": "インタラクティブな資格フィルター",
+            "subtitle": "プロフィールを選択してGCI要件を確認",
+            "4C": {
+                "title": "元インドネシア国民",
+                "desc": "過去にインドネシア国籍を保持していた方専用です。"
+            },
+            "4D": {
+                "title": "直系の子孫",
+                "desc": "現または元のインドネシア国民の子および孫が対象です。"
+            },
+            "4H": {
+                "title": "グローバル・タレント・ディアスポラ",
+                "desc": "専門的な専門知識や投資ポテンシャルを持つ優秀なディアスポラ向けです。"
+            }
+        },
+        "benefits": {
+            "stay": {
+                "title": "無制限の滞在",
+                "desc": "更新はもう不要です。資格基準を満たしている限り、ステータスは恒久的です。"
+            },
+            "work": {
+                "title": "就労権利",
+                "desc": "別の就労許可（IMTA）を必要とせずに、インドネシアで自由に働くことができます。"
+            },
+            "property": {
+                "title": "不動産所有",
+                "desc": "標準的な外国人向け許可と比較して、インドネシアでの不動産所有への道が容易になります。"
+            },
+            "entry": {
+                "title": "再入国の自由",
+                "desc": "生涯有効な数次再入国許可。自由に出入国できます。"
+            }
+        },
+        "advantage": {
+            "title": "GCIのメリット",
+            "table": {
+                "feature": "特徴",
+                "gci": "GCIステータス",
+                "golden": "ゴールデンビザ",
+                "kitas": "ITAS/ITAP",
+                "validity_label": "有効期限",
+                "unlimited": "無制限",
+                "investment_label": "投資要件",
+                "none": "なし（血の絆）"
+            }
+        },
+        "security": {
+            "title": "<highlight>IDiv Infinity™</highlight> によるセキュリティ",
+            "desc": "GCIステータスは、独自のインフィニティ・アイコンを備えた専用のゴールド・バリアントIDivカードとともに発行されます。これは、インドネシアとの生涯にわたる絆の証です。",
+            "feature1": "スマートQR照合",
+            "feature2": "2層ホログラム",
+            "feature3": "生涯ステータスチェック"
+        },
+        "cta": {
+            "title": "遺産を守る準備はできていますか？",
+            "subtitle": "専門の法務チームとともに、今すぐグローバル・シチズン・プログラムに参加しましょう。",
+            "placeholder": "メールアドレス",
+            "button": "申請を開始する"
+        },
+        "activity": {
+            "secured": "GCI認証を完了しました",
+            "applying": "GCI特典の申請中",
+            "researching": "不動産権利の調査中",
+            "verifying": "ディアスポラ資格の確認中"
+        }
     }
 }

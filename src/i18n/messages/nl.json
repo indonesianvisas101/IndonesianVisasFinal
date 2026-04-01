@@ -386,5 +386,87 @@
         "dialog_countries_desc": "Official satellite domains for specific international regions:",
         "dialog_cities_title": "Indonesia City-Based Services",
         "dialog_cities_desc": "Official localized access points for regions across Indonesia:"
+    },
+    "gci": {
+        "hero": {
+            "title": "De <highlight>Levenslange Erfenis</highlight> <br /> Voor de Indonesische Diaspora",
+            "description": "Behoud uw bloedbanden met Indonesië via de meest robuuste Global Citizen of Indonesia (GCI) verblijfsstatus ter wereld. Geniet een leven lang van onbeperkte werkrechten, vastgoedbezit en vrijheid van toegang."
+        },
+        "marquee": {
+            "item1": "Levenslange Verblijfsstatus",
+            "item2": "Volledige Werkrechten",
+            "item3": "Diaspora Prioriteit",
+            "item4": "Onbeperkte Re-entry"
+        },
+        "bonding": {
+            "title": "Banden Behouden, Toekomst Bouwen",
+            "quote": "\"GCI is meer dan een vergunning; het is een verklaring dat de kinderen van Indonesië, waar ze ook zijn, altijd een thuis zullen hebben om naar terug te keren.\""
+        },
+        "eligibility": {
+            "title": "Interactief Geschiktheidsfilter",
+            "subtitle": "Selecteer uw profiel om de GCI-vereisten te zien",
+            "4C": {
+                "title": "Eks-WNI (Voormalige Burgers)",
+                "desc": "Speciaal voor degenen die in het verleden de Indonesische nationaliteit hadden."
+            },
+            "4D": {
+                "title": "Directe Afstammelingen",
+                "desc": "Voor kinderen en kleinkinderen van huidige of voormalige Indonesische burgers."
+            },
+            "4H": {
+                "title": "Global Talent Diaspora",
+                "desc": "Voor hoogpresterende diasporaleden met gespecialiseerde expertise of investeringspotentieel."
+            }
+        },
+        "benefits": {
+            "stay": {
+                "title": "Onbeperkt Verblijf",
+                "desc": "Geen verlengingen meer. Uw status is permanent zolang aan de criteria wordt voldaan."
+            },
+            "work": {
+                "title": "Werkrechten",
+                "desc": "Werk vrij in Indonesië zonder de noodzaak van een aparte IMTA of werkvergunning."
+            },
+            "property": {
+                "title": "Vastgoedbezit",
+                "desc": "Gemakkelijker pad naar het bezitten van vastgoed vergeleken met standaard buitenlandse vergunningen."
+            },
+            "entry": {
+                "title": "Vrijheid van Re-entry",
+                "desc": "Meervoudige re-entry vergunningen die een leven lang geldig zijn. Vlieg vrij in en uit."
+            }
+        },
+        "advantage": {
+            "title": "Het GCI Voordeel",
+            "table": {
+                "feature": "Kenmerk",
+                "gci": "GCI-status",
+                "golden": "Gouden Visum",
+                "kitas": "ITAS/ITAP",
+                "validity_label": "Geldigheid",
+                "unlimited": "ONBEPERKT",
+                "investment_label": "Investeringsvereiste",
+                "none": "GEEN (Bloedband)"
+            }
+        },
+        "security": {
+            "title": "Beveiligd door <highlight>IDiv Infinity™</highlight>",
+            "desc": "Uw GCI-status wordt uitgegeven met een gespecialiseerde Gold Variant IDiv Card, voorzien van het unieke infinity-icoon—een teken van uw levenslange band met Indonesië.",
+            "feature1": "Slimme QR-verificatie",
+            "feature2": "Dual-Layer Hologram",
+            "feature3": "Levenslange Statuscontrole"
+        },
+        "cta": {
+            "title": "Klaar om uw erfenis te behouden?",
+            "subtitle": "Sluit u vandaag nog aan bij het Global Citizen-programma met ons deskundige juridische team.",
+            "placeholder": "E-mailadres",
+            "button": "Start Aanvraag"
+        },
+        "activity": {
+            "secured": "Zojuist GCI-verificatie beveiligd",
+            "applying": "GCI-voordelen aanvragen",
+            "researching": "Vastgoedrechten onderzoeken",
+            "verifying": "Diaspora-status verifiëren"
+        }
     }
 }

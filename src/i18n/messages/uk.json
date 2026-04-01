@@ -386,5 +386,87 @@
         "dialog_countries_desc": "Official satellite domains for specific international regions:",
         "dialog_cities_title": "Indonesia City-Based Services",
         "dialog_cities_desc": "Official localized access points for regions across Indonesia:"
+    },
+    "gci": {
+        "hero": {
+            "title": "The <highlight>Lifetime Legacy</highlight> <br /> For Indonesian Diaspora",
+            "description": "Preserving your blood bonds with Indonesia through the world's most robust Global Citizen of Indonesia residency status. Enjoy unlimited work rights, property ownership, and freedom of entry for a lifetime."
+        },
+        "marquee": {
+            "item1": "Lifetime Residency Status",
+            "item2": "Full Work Rights",
+            "item3": "Diaspora Priority",
+            "item4": "Unlimited Re-Entry"
+        },
+        "bonding": {
+            "title": "Preserving Bonds, Building Future",
+            "quote": "\"GCI is more than a permit; it is a declaration that the children of Indonesia, wherever they may be, will always have a home to return to.\""
+        },
+        "eligibility": {
+            "title": "Interactive Eligibility Filter",
+            "subtitle": "Select your profile to see GCI requirements",
+            "4C": {
+                "title": "Eks-WNI (Former Citizen)",
+                "desc": "Specifically for those who held Indonesian citizenship in the past."
+            },
+            "4D": {
+                "title": "Direct Descendants",
+                "desc": "For children and grandchildren of current or former Indonesian citizens."
+            },
+            "4H": {
+                "title": "Global Talent Diaspora",
+                "desc": "For high-achieving diaspora members with specialized expertise or investment potential."
+            }
+        },
+        "benefits": {
+            "stay": {
+                "title": "Unlimited Stay",
+                "desc": "No more extensions. Your status is permanent as long as eligibility criteria are met."
+            },
+            "work": {
+                "title": "Work Rights",
+                "desc": "Work freely in Indonesia without the need for a separate IMTA or Work Permit."
+            },
+            "property": {
+                "title": "Property Ownership",
+                "desc": "Easier path to owning property in Indonesia compared to standard foreign permits."
+            },
+            "entry": {
+                "title": "Re-Entry Freedom",
+                "desc": "Multiple re-entry permits valid for a lifetime. Fly in and out freely."
+            }
+        },
+        "advantage": {
+            "title": "The GCI Advantage",
+            "table": {
+                "feature": "Feature",
+                "gci": "GCI Status",
+                "golden": "Golden Visa",
+                "kitas": "ITAS/ITAP",
+                "validity_label": "Validity",
+                "unlimited": "UNLIMITED",
+                "investment_label": "Investment Req",
+                "none": "NONE (Blood Bond)"
+            }
+        },
+        "security": {
+            "title": "Secured by <highlight>IDiv Infinity™</highlight>",
+            "desc": "Your GCI status is issued with a specialized Gold Variant IDiv Card, featuring the unique infinity icon—a mark of your lifetime bond with Indonesia.",
+            "feature1": "Smart QR Verification",
+            "feature2": "Dual-Layer Hologram",
+            "feature3": "Lifetime Status Check"
+        },
+        "cta": {
+            "title": "Ready to Preserve Your Legacy?",
+            "subtitle": "Join the Global Citizen program today with our expert legal team.",
+            "placeholder": "Email Address",
+            "button": "Start Application"
+        },
+        "activity": {
+            "secured": "Just secured GCI Verification",
+            "applying": "Applying for GCI Benefits",
+            "researching": "Researching Property Rights",
+            "verifying": "Verifying Diaspora Status"
+        }
     }
 }

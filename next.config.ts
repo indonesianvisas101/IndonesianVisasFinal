@@ -92,6 +92,21 @@ const nextConfig: NextConfig = {
       transform: '@mui/icons-material/{{member}}',
     },
   },
+
+  async redirects() {
+    return [
+      {
+        source: '/australia/citizenship',
+        destination: '/en/services/Australia/indonesia-citizenship',
+        permanent: true,
+      },
+      {
+        source: '/:locale/australia/citizenship',
+        destination: '/:locale/services/Australia/indonesia-citizenship',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -389,84 +389,84 @@
     },
     "gci": {
         "hero": {
-            "title": "The <highlight>Lifetime Legacy</highlight> <br /> For Indonesian Diaspora",
-            "description": "Preserving your blood bonds with Indonesia through the world's most robust Global Citizen of Indonesia residency status. Enjoy unlimited work rights, property ownership, and freedom of entry for a lifetime."
+            "title": "<highlight>Di sản trọn đời</highlight> <br /> dành cho cộng đồng người Indonesia ở nước ngoài",
+            "description": "Gìn giữ mối liên kết huyết thống của bạn với Indonesia thông qua tư cách cư trú Global Citizen of Indonesia (GCI) mạnh mẽ nhất thế giới. Tận hưởng quyền làm việc không giới hạn, quyền sở hữu bất động sản và tự do nhập cảnh trọn đời."
         },
         "marquee": {
-            "item1": "Lifetime Residency Status",
-            "item2": "Full Work Rights",
-            "item3": "Diaspora Priority",
-            "item4": "Unlimited Re-Entry"
+            "item1": "Tư cách cư trú trọn đời",
+            "item2": "Toàn quyền làm việc",
+            "item3": "Ưu tiên cộng đồng hải ngoại",
+            "item4": "Tái nhập cảnh không giới hạn"
         },
         "bonding": {
-            "title": "Preserving Bonds, Building Future",
-            "quote": "\"GCI is more than a permit; it is a declaration that the children of Indonesia, wherever they may be, will always have a home to return to.\""
+            "title": "Gìn giữ kết nối, Xây dựng tương lai",
+            "quote": "\"GCI không chỉ là một giấy phép; đó là lời khẳng định rằng những người con của Indonesia, dù ở bất cứ nơi đâu, sẽ luôn có một ngôi nhà để trở về.\""
         },
         "eligibility": {
-            "title": "Interactive Eligibility Filter",
-            "subtitle": "Select your profile to see GCI requirements",
+            "title": "Bộ lọc điều kiện tương tác",
+            "subtitle": "Chọn hồ sơ của bạn để xem yêu cầu GCI",
             "4C": {
-                "title": "Eks-WNI (Former Citizen)",
-                "desc": "Specifically for those who held Indonesian citizenship in the past."
+                "title": "Eks-WNI (Cựu công dân)",
+                "desc": "Dành riêng cho những người từng giữ quốc tịch Indonesia trong quá khứ."
             },
             "4D": {
-                "title": "Direct Descendants",
-                "desc": "For children and grandchildren of current or former Indonesian citizens."
+                "title": "Hậu duệ trực tiếp",
+                "desc": "Dành cho con và cháu của công dân Indonesia hiện tại hoặc trước đây."
             },
             "4H": {
-                "title": "Global Talent Diaspora",
-                "desc": "For high-achieving diaspora members with specialized expertise or investment potential."
+                "title": "Nhân tài hải ngoại toàn cầu",
+                "desc": "Dành cho các thành viên cộng đồng hải ngoại có thành tích cao với chuyên môn đặc biệt hoặc tiềm năng đầu tư."
             }
         },
         "benefits": {
             "stay": {
-                "title": "Unlimited Stay",
-                "desc": "No more extensions. Your status is permanent as long as eligibility criteria are met."
+                "title": "Cư trú không giới hạn",
+                "desc": "Không cần gia hạn thêm. Tư cách của bạn là vĩnh viễn miễn là đáp ứng các tiêu chí điều kiện."
             },
             "work": {
-                "title": "Work Rights",
-                "desc": "Work freely in Indonesia without the need for a separate IMTA or Work Permit."
+                "title": "Quyền làm việc",
+                "desc": "Làm việc tự do tại Indonesia mà không cần giấy phép lao động (IMTA) riêng biệt."
             },
             "property": {
-                "title": "Property Ownership",
-                "desc": "Easier path to owning property in Indonesia compared to standard foreign permits."
+                "title": "Sở hữu bất động sản",
+                "desc": "Lộ trình sở hữu bất động sản tại Indonesia dễ dàng hơn so với các loại giấy phép thông thường cho người nước ngoài."
             },
             "entry": {
-                "title": "Re-Entry Freedom",
-                "desc": "Multiple re-entry permits valid for a lifetime. Fly in and out freely."
+                "title": "Tự do tái nhập cảnh",
+                "desc": "Giấy phép tái nhập cảnh nhiều lần có giá trị trọn đời. Tự do xuất nhập cảnh."
             }
         },
         "advantage": {
-            "title": "The GCI Advantage",
+            "title": "Ưu thế GCI",
             "table": {
-                "feature": "Feature",
-                "gci": "GCI Status",
+                "feature": "Tính năng",
+                "gci": "Tư cách GCI",
                 "golden": "Golden Visa",
                 "kitas": "ITAS/ITAP",
-                "validity_label": "Validity",
-                "unlimited": "UNLIMITED",
-                "investment_label": "Investment Req",
-                "none": "NONE (Blood Bond)"
+                "validity_label": "Hiệu lực",
+                "unlimited": "VÔ THỜI HẠN",
+                "investment_label": "Yêu cầu đầu tư",
+                "none": "KHÔNG (Mối liên kết thực tế)"
             }
         },
         "security": {
-            "title": "Secured by <highlight>IDiv Infinity™</highlight>",
-            "desc": "Your GCI status is issued with a specialized Gold Variant IDiv Card, featuring the unique infinity icon—a mark of your lifetime bond with Indonesia.",
-            "feature1": "Smart QR Verification",
-            "feature2": "Dual-Layer Hologram",
-            "feature3": "Lifetime Status Check"
+            "title": "Được bảo mật bởi <highlight>IDiv Infinity™</highlight>",
+            "desc": "Tư cách GCI của bạn được cấp cùng với Thẻ IDiv biến thể Vàng chuyên dụng, có biểu tượng vô cực độc đáo — dấu ấn cho mối liên kết trọn đời của bạn với Indonesia.",
+            "feature1": "Xác minh QR thông minh",
+            "feature2": "Hologram hai lớp",
+            "feature3": "Kiểm tra trạng thái trọn đời"
         },
         "cta": {
-            "title": "Ready to Preserve Your Legacy?",
-            "subtitle": "Join the Global Citizen program today with our expert legal team.",
-            "placeholder": "Email Address",
-            "button": "Start Application"
+            "title": "Sẵn sàng gìn giữ di sản của bạn?",
+            "subtitle": "Tham gia chương trình Global Citizen ngay hôm nay cùng đội ngũ luật sư chuyên gia của chúng tôi.",
+            "placeholder": "Địa chỉ Email",
+            "button": "Bắt đầu ứng tuyển"
         },
         "activity": {
-            "secured": "Just secured GCI Verification",
-            "applying": "Applying for GCI Benefits",
-            "researching": "Researching Property Rights",
-            "verifying": "Verifying Diaspora Status"
+            "secured": "Vừa hoàn tất xác minh GCI",
+            "applying": "Đang đăng ký quyền lợi GCI",
+            "researching": "Đang tìm hiểu quyền sở hữu tài sản",
+            "verifying": "Đang xác minh tư cách người hải ngoại"
         }
     }
 }

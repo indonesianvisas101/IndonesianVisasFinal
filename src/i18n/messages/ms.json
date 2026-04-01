@@ -389,84 +389,84 @@
     },
     "gci": {
         "hero": {
-            "title": "The <highlight>Lifetime Legacy</highlight> <br /> For Indonesian Diaspora",
-            "description": "Preserving your blood bonds with Indonesia through the world's most robust Global Citizen of Indonesia residency status. Enjoy unlimited work rights, property ownership, and freedom of entry for a lifetime."
+            "title": "<highlight>Warisan Sepanjang Hayat</highlight> <br /> Untuk Diaspora Indonesia",
+            "description": "Pelihara hubungan darah anda dengan Indonesia melalui status pemastautin Global Citizen of Indonesia (GCI) yang paling teguh di dunia. Nikmati hak bekerja tanpa had, pemilikan hartanah, dan kebebasan masuk untuk seumur hidup."
         },
         "marquee": {
-            "item1": "Lifetime Residency Status",
-            "item2": "Full Work Rights",
-            "item3": "Diaspora Priority",
-            "item4": "Unlimited Re-Entry"
+            "item1": "Status Pemastautin Sepanjang Hayat",
+            "item2": "Hak Bekerja Penuh",
+            "item3": "Keutamaan Diaspora",
+            "item4": "Kemasukan Semula Tanpa Had"
         },
         "bonding": {
-            "title": "Preserving Bonds, Building Future",
-            "quote": "\"GCI is more than a permit; it is a declaration that the children of Indonesia, wherever they may be, will always have a home to return to.\""
+            "title": "Melestarikan Ikatan, Membina Masa Depan",
+            "quote": "\"GCI adalah lebih daripada sekadar permit; ia adalah pengisytiharan bahawa anak-anak Indonesia, di mana sahaja mereka berada, akan sentiasa mempunyai rumah untuk kembali.\""
         },
         "eligibility": {
-            "title": "Interactive Eligibility Filter",
-            "subtitle": "Select your profile to see GCI requirements",
+            "title": "Penapis Kelayakan Interaktif",
+            "subtitle": "Pilih profil anda untuk melihat keperluan GCI",
             "4C": {
-                "title": "Eks-WNI (Former Citizen)",
-                "desc": "Specifically for those who held Indonesian citizenship in the past."
+                "title": "Eks-WNI (Bekas Warganegara)",
+                "desc": "Khusus untuk mereka yang pernah memegang kewarganegaraan Indonesia pada masa lalu."
             },
             "4D": {
-                "title": "Direct Descendants",
-                "desc": "For children and grandchildren of current or former Indonesian citizens."
+                "title": "Keturunan Langsung",
+                "desc": "Untuk anak-anak dan cucu-cicu kepada warganegara Indonesia sekarang atau bekas warganegara."
             },
             "4H": {
-                "title": "Global Talent Diaspora",
-                "desc": "For high-achieving diaspora members with specialized expertise or investment potential."
+                "title": "Diaspora Bakat Global",
+                "desc": "Untuk ahli diaspora yang berprestasi tinggi dengan kepakaran khusus atau potensi pelaburan."
             }
         },
         "benefits": {
             "stay": {
-                "title": "Unlimited Stay",
-                "desc": "No more extensions. Your status is permanent as long as eligibility criteria are met."
+                "title": "Tinggal Tanpa Had",
+                "desc": "Tiada lagi pelanjutan. Status anda adalah kekal selagi kriteria kelayakan dipenuhi."
             },
             "work": {
-                "title": "Work Rights",
-                "desc": "Work freely in Indonesia without the need for a separate IMTA or Work Permit."
+                "title": "Hak Bekerja",
+                "desc": "Bekerja dengan bebas di Indonesia tanpa memerlukan IMTA atau Permit Kerja yang berasingan."
             },
             "property": {
-                "title": "Property Ownership",
-                "desc": "Easier path to owning property in Indonesia compared to standard foreign permits."
+                "title": "Pemilikan Hartanah",
+                "desc": "Laluan lebih mudah untuk memiliki hartanah di Indonesia berbanding permit warga asing standard."
             },
             "entry": {
-                "title": "Re-Entry Freedom",
-                "desc": "Multiple re-entry permits valid for a lifetime. Fly in and out freely."
+                "title": "Kebebasan Kemasukan Semula",
+                "desc": "Permit kemasukan semula pelbagai kali sah untuk seumur hidup. Terbang masuk dan keluar dengan bebas."
             }
         },
         "advantage": {
-            "title": "The GCI Advantage",
+            "title": "Kelebihan GCI",
             "table": {
-                "feature": "Feature",
-                "gci": "GCI Status",
-                "golden": "Golden Visa",
+                "feature": "Ciri",
+                "gci": "Status GCI",
+                "golden": "Visa Emas",
                 "kitas": "ITAS/ITAP",
-                "validity_label": "Validity",
-                "unlimited": "UNLIMITED",
-                "investment_label": "Investment Req",
-                "none": "NONE (Blood Bond)"
+                "validity_label": "Tempoh Sah",
+                "unlimited": "TANPA HAD",
+                "investment_label": "Keperluan Pelaburan",
+                "none": "TIADA (Hubungan Darah)"
             }
         },
         "security": {
-            "title": "Secured by <highlight>IDiv Infinity™</highlight>",
-            "desc": "Your GCI status is issued with a specialized Gold Variant IDiv Card, featuring the unique infinity icon—a mark of your lifetime bond with Indonesia.",
-            "feature1": "Smart QR Verification",
-            "feature2": "Dual-Layer Hologram",
-            "feature3": "Lifetime Status Check"
+            "title": "Dijamin oleh <highlight>IDiv Infinity™</highlight>",
+            "desc": "Status GCI anda dikeluarkan dengan Kad IDiv Varian Emas khusus, menampilkan ikon infiniti yang unik — tanda ikatan seumur hidup anda dengan Indonesia.",
+            "feature1": "Pengesahan QR Pintar",
+            "feature2": "Hologram Dwi-Lapisan",
+            "feature3": "Semakan Status Sepanjang Hayat"
         },
         "cta": {
-            "title": "Ready to Preserve Your Legacy?",
-            "subtitle": "Join the Global Citizen program today with our expert legal team.",
-            "placeholder": "Email Address",
-            "button": "Start Application"
+            "title": "Bersedia untuk Memelihara Warisan Anda?",
+            "subtitle": "Sertai program Global Citizen hari ini dengan pasukan undang-undang pakar kami.",
+            "placeholder": "Alamat Emel",
+            "button": "Mulakan Permohonan"
         },
         "activity": {
-            "secured": "Just secured GCI Verification",
-            "applying": "Applying for GCI Benefits",
-            "researching": "Researching Property Rights",
-            "verifying": "Verifying Diaspora Status"
+            "secured": "Baru sahaja mendapat Pengesahan GCI",
+            "applying": "Memohon Manfaat GCI",
+            "researching": "Menyelidik Hak Hartanah",
+            "verifying": "Mengesahkan Status Diaspora"
         }
     }
 }

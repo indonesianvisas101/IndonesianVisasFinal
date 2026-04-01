@@ -389,55 +389,55 @@
     },
     "gci": {
         "hero": {
-            "title": "L'eredità <highlight>a vita</highlight> <br /> Per la diaspora indonesiana",
-            "description": "Preserva i tuoi legami di sangue con l'Indonesia attraverso lo status di residenza Global Citizen of Indonesia (GCI) più robusto al mondo. Goditi diritti di lavoro illimitati, proprietà immobiliare e libertà d'ingresso a vita."
+            "title": "L'eredità <highlight>a vita</highlight> <br /> per la diaspora indonesiana",
+            "description": "Preserva i tuoi legami di sangue con l'Indonesia attraverso lo status di residenza Global Citizen of Indonesia (GCI) più robusto al mondo. Goditi diritti di lavoro illimitati, proprietà immobiliare e libertà di ingresso per tutta la vita."
         },
         "marquee": {
-            "item1": "Status di residenza a vita",
-            "item2": "Pieni diritti di lavoro",
-            "item3": "Priorità alla diaspora",
-            "item4": "Rientro illimitato"
+            "item1": "Status di Residenza a Vita",
+            "item2": "Pieni Diritti di Lavoro",
+            "item3": "Priorità Diaspora",
+            "item4": "Rientro Illimitato"
         },
         "bonding": {
-            "title": "Preservare i legami, costruire il futuro",
-            "quote": "\"Il GCI è più di un permesso; è una dichiarazione che i figli dell'Indonesia, ovunque si trovino, avranno sempre una casa dove tornare.\""
+            "title": "Preservare i Legami, Costruire il Futuro",
+            "quote": "\"Il GCI è più di un permesso; è una dichiarazione che i figli dell'Indonesia, ovunque si trovino, avranno sempre una casa in cui tornare.\""
         },
         "eligibility": {
-            "title": "Filtro di idoneità interattivo",
+            "title": "Filtro di Idoneità Interattivo",
             "subtitle": "Seleziona il tuo profilo per vedere i requisiti GCI",
             "4C": {
-                "title": "Ex-WNI (Ex cittadini)",
+                "title": "Ex-WNI (Ex Cittadini)",
                 "desc": "Specificamente per coloro che hanno detenuto la cittadinanza indonesiana in passato."
             },
             "4D": {
-                "title": "Discendenti diretti",
+                "title": "Discendenti Diretti",
                 "desc": "Per figli e nipoti di cittadini indonesiani attuali o precedenti."
             },
             "4H": {
-                "title": "Diaspora dei talenti globali",
-                "desc": "Per membri della diaspora ad alto rendimento con competenze specializzate."
+                "title": "Diaspora di Talento Globale",
+                "desc": "Per membri della diaspora ad alto rendimento con competenze specializzate o potenziale di investimento."
             }
         },
         "benefits": {
             "stay": {
-                "title": "Soggiorno illimitato",
+                "title": "Soggiorno Illimitato",
                 "desc": "Niente più estensioni. Il tuo status è permanente finché i criteri di idoneità sono soddisfatti."
             },
             "work": {
-                "title": "Diritti di lavoro",
-                "desc": "Lavora liberamente in Indonesia senza necessità di un permesso di lavoro separato."
+                "title": "Diritti di Lavoro",
+                "desc": "Lavora liberamente in Indonesia senza necessità di un IMTA o permesso di lavoro separato."
             },
             "property": {
-                "title": "Proprietà immobiliare",
+                "title": "Proprietà Immobiliare",
                 "desc": "Percorso più semplice per possedere proprietà in Indonesia rispetto ai permessi stranieri standard."
             },
             "entry": {
-                "title": "Libertà di rientro",
-                "desc": "Permessi di rientro multipli validi a vita. Viaggia liberamente."
+                "title": "Libertà di Rientro",
+                "desc": "Permessi di rientro multipli validi a vita. Vola dentro e fuori liberamente."
             }
         },
         "advantage": {
-            "title": "Il vantaggio GCI",
+            "title": "Il Vantaggio GCI",
             "table": {
                 "feature": "Caratteristica",
                 "gci": "Status GCI",
@@ -445,28 +445,28 @@
                 "kitas": "ITAS/ITAP",
                 "validity_label": "Validità",
                 "unlimited": "ILLIMITATO",
-                "investment_label": "Requisito di investimento",
-                "none": "NESSUNO (Legame di sangue)"
+                "investment_label": "Requisito Investimento",
+                "none": "NESSUNO (Legame di Sangue)"
             }
         },
         "security": {
             "title": "Protetto da <highlight>IDiv Infinity™</highlight>",
-            "desc": "Il tuo status GCI viene rilasciato con una carta IDiv variante oro specializzata, con l'icona infinity unica—un segno del tuo legame a vita con l'Indonesia.",
-            "feature1": "Verifica QR intelligente",
-            "feature2": "Ologramma a doppio strato",
-            "feature3": "Controllo stato a vita"
+            "desc": "Il tuo status GCI viene rilasciato con una speciale IDiv Card Variant Gold, con l'icona infinity unica, segno del tuo legame a vita con l'Indonesia.",
+            "feature1": "Verifica QR Intelligente",
+            "feature2": "Ologramma a Doppio Strato",
+            "feature3": "Controllo Status a Vita"
         },
         "cta": {
             "title": "Pronto a preservare la tua eredità?",
             "subtitle": "Unisciti al programma Global Citizen oggi stesso con il nostro team legale esperto.",
-            "placeholder": "Indirizzo e-mail",
-            "button": "Inizia la domanda"
+            "placeholder": "Indirizzo Email",
+            "button": "Inizia la Domanda"
         },
         "activity": {
-            "secured": "Ha appena ottenuto la verifica GCI",
-            "applying": "Richiesta di benefici GCI",
-            "researching": "Ricerca sui diritti di proprietà",
-            "verifying": "Verifica dello status di diaspora"
+            "secured": "Appena assicurata la Verifica GCI",
+            "applying": "Domanda per i Benefici GCI",
+            "researching": "Ricerca sui Diritti di Proprietà",
+            "verifying": "Verifica dello Status Diaspora"
         }
     }
 }

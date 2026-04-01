@@ -148,7 +148,12 @@ export default function GCIContent({ dict }: { dict: any }) {
       </Suspense>
 
       <Suspense fallback={<div className="h-96 animate-pulse bg-slate-100 dark:bg-white/5" />}>
-        <GCIFinalCTA gciCta={gciCta} email={email} setEmail={setEmail} />
+        <GCIFinalCTA 
+          gciCta={gciCta} 
+          email={email} 
+          setEmail={setEmail} 
+          locale={dict?.locale || 'en'} 
+        />
       </Suspense>
 
       <Suspense fallback={null}>

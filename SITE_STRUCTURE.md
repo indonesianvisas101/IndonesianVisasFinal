@@ -111,5 +111,15 @@ Targeted landing pages for major Indonesian destinations.
 - `/services/Lombok` (**Hardened**)
 
 ---
-**Document Status:** Verified Production v55.0 (Global Elite Hub Architecture)
+## 🏵️ 9. GLOBAL CITIZEN OF INDONESIA (GCI) — THE ELITE CLUSTER [v55.5]
+High-value diaspora and ultra-high-net-worth investor pathways.
+
+| Route | Focus | Status |
+|---|---|---|
+| `/gci` | **GCI Master Hub** | Hardened (v55.5) — Fast Open Architecture |
+| `/visa-knowledge/gci-detailed-guide` | **Policy Intelligence** | Hardened (v55.5) — Verified Clarity |
+| `/services/Australia/indonesia-citizenship` | **Oceania GCI Hub** | Hardened (v55.5) — Active Redirects |
+
+---
+**Document Status:** Verified Production v55.5 (GCI Hardened Lead Engine Architecture)
 *(Reflects 100% of routes in `src/app/[locale]`)*

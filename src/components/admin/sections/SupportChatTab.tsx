@@ -70,26 +70,24 @@ export default function SupportChatTab() {
     // Fetch Conversations
     useEffect(() => {
         const fetchConversations = async () => {
-            const { data, error } = await supabase
-                .from('conversations')
-                .select(`
-                    *,
-                    user:users(name, email, avatar)
-                `)
-                .order('updated_at', { ascending: false });
-
-            if (error) {
-                console.error("Error fetching conversations:", JSON.stringify(error, null, 2));
-                // Graceful fallback
-                setConversations([]);
-            } else {
-                const convs = (data as any) || [];
-                setConversations(convs);
+            try {
+                const res = await fetch('/api/admin/chat/conversations');
+                if (!res.ok) throw new Error(`API returned ${res.status}`);
+                const convs = await res.json();
                 
-                // Deep Linking: Auto-select if in URL
-                if (targetConvId) {
-                    setSelectedConvId(targetConvId);
+                if (convs.error) {
+                    console.error("Error fetching conversations:", convs.error);
+                    setConversations([]);
+                } else {
+                    setConversations(convs || []);
+                    // Deep Linking: Auto-select if in URL
+                    if (targetConvId) {
+                        setSelectedConvId(targetConvId);
+                    }
                 }
+            } catch (err: any) {
+                console.error("Error fetching conversations:", err);
+                setConversations([]);
             }
             setLoading(false);
         };
@@ -117,16 +115,17 @@ export default function SupportChatTab() {
 
         const fetchMessages = async () => {
             setMessagesLoading(true);
-            const { data, error } = await supabase
-                .from('messages')
-                .select('*')
-                .eq('conversation_id', selectedConvId)
-                .order('created_at', { ascending: true });
-
-            if (error) {
-                console.error("Error fetching messages:", error);
-            } else {
-                setMessages(data || []);
+            try {
+                const res = await fetch(`/api/admin/chat/messages?conversationId=${selectedConvId}`);
+                if (!res.ok) throw new Error(`API returned ${res.status}`);
+                const data = await res.json();
+                if (data.error) {
+                    console.error("Error fetching messages:", data.error);
+                } else {
+                    setMessages(data || []);
+                }
+            } catch (err) {
+                console.error("Error fetching messages:", err);
             }
             setMessagesLoading(false);
         };
@@ -215,17 +214,14 @@ export default function SupportChatTab() {
             const updatedConversations = [...conversations];
 
             for (const conv of guestConvs) {
-                // Fetch the identity message
-                const { data } = await supabase
-                    .from('messages')
-                    .select('message')
-                    .eq('conversation_id', conv.id)
-                    .eq('senderType', 'system')
-                    .ilike('message', 'New chat started by%')
-                    .limit(1)
-                    .single();
+                // Fetch the identity message securely
+                try {
+                    const res = await fetch(`/api/admin/chat/messages?conversationId=${conv.id}&senderType=system&ilike=New%20chat%20started%20by%25&limit=1`);
+                    if (!res.ok) continue;
+                    const messages = await res.json();
+                    const data = messages && messages.length > 0 ? messages[0] : null;
 
-                if (data) {
+                    if (data && data.message) {
                     // Parse: "New chat started by: Name (Email)"
                     // Regex handles optional email part just in case
                     const match = data.message.match(/New chat started by: (.*?)(?: \((.*)\))?$/);
@@ -248,6 +244,9 @@ export default function SupportChatTab() {
                             hasUpdates = true;
                         }
                     }
+                }
+                } catch (e) {
+                    console.error("Failed to parse guest name", e);
                 }
             }
 

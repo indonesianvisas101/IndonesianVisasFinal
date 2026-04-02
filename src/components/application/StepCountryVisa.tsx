@@ -53,6 +53,8 @@ const StepCountryVisa = () => {
     };
 
     const handleVisaSelect = (visaName: string) => {
+        let isTierResolved = false;
+
         if (visaType !== visaName) { 
             updateData("visaType", visaName);
             
@@ -64,21 +66,28 @@ const StepCountryVisa = () => {
                     const keys = Object.keys(totalData);
                     if (keys.length === 1) {
                         updateData("priceTier", keys[0]);
+                        isTierResolved = true;
                     } else {
                         updateData("priceTier", null);
                     }
                 } else {
                     updateData("priceTier", null);
+                    isTierResolved = true; // String prices have no tiers
                 }
             } else {
                 updateData("priceTier", null);
             }
+        } else {
+            if (priceTier) isTierResolved = true;
         }
+
         setValidationError(null);
-        // Auto-scroll to CTA
-        setTimeout(() => {
-            actionAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 150);
+        // ONLY Auto-scroll if tier is already resolved
+        if (isTierResolved) {
+            setTimeout(() => {
+                actionAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 150);
+        }
     };
 
     const handleTierSelect = (tierName: string, visaName: string, e: React.MouseEvent) => {
@@ -367,13 +376,19 @@ const StepCountryVisa = () => {
                                                             <button
                                                                 key={tier}
                                                                 onClick={(e) => handleTierSelect(tier, visa.name, e)}
-                                                                className={`${styles.tierBtn} ${priceTier === tier ? styles.tierBtnActive : ''}`}
+                                                                className={`${styles.tierBtn} ${priceTier === tier ? styles.tierBtnActive : ''} ${visaType === visa.name && !priceTier ? 'ring-2 ring-amber-400 ring-offset-2 animate-pulse' : ''}`}
                                                             >
                                                                 <div className="opacity-70 text-[10px] uppercase font-bold">{tier}</div>
                                                                 <div>{price}</div>
                                                             </button>
                                                         ))}
                                                     </div>
+                                                    
+                                                    {visaType === visa.name && !priceTier && (
+                                                        <div className="w-full mt-2 p-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold text-center rounded flex items-center justify-center gap-1.5 animate-fade-in shadow-sm">
+                                                            <AlertCircle size={14} /> Please select a tier to continue
+                                                        </div>
+                                                    )}
                                                 </div>
                                             );
                                         }

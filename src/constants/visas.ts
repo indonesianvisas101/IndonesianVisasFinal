@@ -77,9 +77,12 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Visitor Visas on Arrival",
         "name": "B1 Tourist Visa (Visa on Arrival / e-VOA)",
         "description": "Indonesian B1 Tourist Visa (Visa on Arrival / e-VOA)",
-        "price": "IDR 500.000",
+        "price": {
+            "Standard": "IDR 500.000",
+            "Priority": "IDR 750.000"
+        },
         "fee": 250000,
-        "validity": "Single Entry",
+        "validity": "Select Speed",
         "requirements": [
             "Valid Passport",
             "Recent Photograph"
@@ -133,9 +136,13 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Single-Entry Visitor Visas",
         "name": "C1 Visit Visa (Single-Entry Visit Visa)",
         "description": "Indonesian C1 Visit Visa (Single-Entry Visit Visa)",
-        "price": "IDR 1.000.000",
+        "price": {
+            "Standard (7-10 Working Days)": "IDR 1.000.000",
+            "Express (3-5 Working Days)": "IDR 2.500.000",
+            "VIP (24-48 Hours)": "IDR 5.000.000"
+        },
         "fee": 700000,
-        "validity": "Single Entry",
+        "validity": "Select Speed",
         "requirements": [
             "Valid Passport",
             "Recent Photograph"
@@ -147,9 +154,12 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Single-Entry Visitor Visas",
         "name": "C2 Business Visa (Single-Entry Business Visit Visa)",
         "description": "Indonesian C2 Business Visa (Single-Entry Business Visit Visa)",
-        "price": "IDR 1.000.000",
+        "price": {
+            "Standard": "IDR 1.000.000",
+            "Priority": "IDR 2.500.000"
+        },
         "fee": 1500000,
-        "validity": "Single Entry",
+        "validity": "Select Speed",
         "requirements": [
             "Valid Passport",
             "Recent Photograph"
@@ -441,9 +451,12 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Single-Entry Visitor Visas",
         "name": "C12 Pre-Investment Visa",
         "description": "Indonesian C12 Pre-Investment Visa",
-        "price": "60 Days: IDR 2.500.000",
-        "fee": "180 Days: IDR 5.000.000",
-        "validity": "Multiple Options",
+        "price": {
+            "60 Days": "IDR 2.500.000",
+            "180 Days": "IDR 5.000.000"
+        },
+        "fee": 0,
+        "validity": "Select Duration",
         "requirements": [
             "Valid Passport",
             "Recent Photograph"
@@ -1606,4 +1619,4 @@ export const VISA_DATABASE: VisaType[] = [
     }
 ];
 
-export const POPULAR_VISA_IDS = ['IDIV', 'B1', 'C1', 'C2', 'C12', 'D1', 'D2', 'D12', 'E33G', 'E28A'];
+export const POPULAR_VISA_IDS = ['B1', 'C1', 'C2', 'C12', 'D1', 'D2', 'D12', 'E33G', 'E28A'];

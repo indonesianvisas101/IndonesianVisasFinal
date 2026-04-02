@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
             title: "GCI: The Lifetime Legacy for Indonesian Diaspora",
             description: "Preserving your blood bonds with Indonesia through the world's most robust residency status.",
             url: canonicalUrl,
-            images: ['/images/og/gci-banner.webp']
+            images: ['/Global Citizen of Indonesia (GCI).webp']
         }
     };
 }

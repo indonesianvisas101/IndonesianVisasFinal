@@ -474,8 +474,25 @@ export const VISA_DETAILS: Record<string, VisaDetail> = {
         },
         pricing: {
             title: "Visa Fees / Biaya Visa",
-            note: "Visa fees and service charges follow the official pricing published on IndonesianVisas.com and applicable government regulations. Visa approval and entry permission are determined solely by the Indonesian Immigration Authority.\n\nBiaya visa dan biaya layanan mengikuti daftar harga resmi di IndonesianVisas.com serta ketentuan pemerintah yang berlaku. Persetujuan visa dan izin masuk sepenuhnya merupakan kewenangan otoritas Imigrasi Indonesia.",
-            options: []
+            note: "Official visa fees and service charges for B1 VOA. Processing starts upon payment confirmation.",
+            options: [
+                {
+                    title: "Standard Processing",
+                    rows: [
+                        { label: "Visa Fee (e-VOA)", value: "Rp. 500,000" },
+                        { label: "Verification Fee", value: "Rp. 250,000" },
+                        { label: "TOTAL", value: "Rp. 750,000", isTotal: true }
+                    ]
+                },
+                {
+                    title: "Priority Support (Fast-Track)",
+                    rows: [
+                        { label: "Visa Fee (e-VOA)", value: "Rp. 500,000" },
+                        { label: "Priority Service Fee", value: "Rp. 500,000" },
+                        { label: "TOTAL", value: "Rp. 1,000,000", isTotal: true }
+                    ]
+                }
+            ]
         },
         requirements: {
             title: "Submission Requirements",
@@ -527,8 +544,33 @@ export const VISA_DETAILS: Record<string, VisaDetail> = {
         },
         pricing: {
             title: "Visa Fees / Biaya Visa",
-            note: "Visa approval, duration, and permitted activities are determined solely by the Indonesian Immigration Authority. Processing timelines are estimates and may vary based on eligibility, documentation, and regulatory conditions.\n\nPersetujuan visa, durasi izin tinggal, dan aktivitas yang diizinkan sepenuhnya ditentukan oleh otoritas Imigrasi Indonesia. Estimasi waktu proses dapat berbeda tergantung kelayakan, kelengkapan dokumen, dan ketentuan yang berlaku.",
-            options: []
+            note: "Select the processing speed that fits your travel plan.",
+            options: [
+                {
+                    title: "Standard (7-10 Days)",
+                    rows: [
+                        { label: "Visa Fee", value: "Rp. 700,000" },
+                        { label: "Service Fee", value: "Rp. 1,000,000" },
+                        { label: "TOTAL", value: "Rp. 1,700,000", isTotal: true }
+                    ]
+                },
+                {
+                    title: "Express (3-5 Days)",
+                    rows: [
+                        { label: "Visa Fee", value: "Rp. 700,000" },
+                        { label: "Express Fee", value: "Rp. 2,500,000" },
+                        { label: "TOTAL", value: "Rp. 3,200,000", isTotal: true }
+                    ]
+                },
+                {
+                    title: "VIP (48 Hours)",
+                    rows: [
+                        { label: "Visa Fee", value: "Rp. 700,000" },
+                        { label: "VIP Service Fee", value: "Rp. 5,000,000" },
+                        { label: "TOTAL", value: "Rp. 5,700,000", isTotal: true }
+                    ]
+                }
+            ]
         },
         requirements: {
             title: "Submission Requirements",
@@ -581,8 +623,25 @@ export const VISA_DETAILS: Record<string, VisaDetail> = {
         },
         pricing: {
             title: "Visa Fees / Biaya Visa",
-            note: "Visa approval, duration, and permitted activities are determined solely by the Indonesian Immigration Authority. Processing timelines are estimates and may vary based on eligibility, documentation, and regulatory conditions.\n\nPersetujuan visa, durasi izin tinggal, dan aktivitas yang diizinkan sepenuhnya ditentukan oleh otoritas Imigrasi Indonesia. Estimasi waktu proses dapat berbeda tergantung kelayakan, kelengkapan dokumen, dan ketentuan yang berlaku.",
-            options: []
+            note: "Official service and government fees for C2 Business Visa.",
+            options: [
+                {
+                    title: "Standard Processing",
+                    rows: [
+                        { label: "Visa Fee", value: "Rp. 1,500,000" },
+                        { label: "Service Fee", value: "Rp. 1,000,000" },
+                        { label: "TOTAL", value: "Rp. 2,500,000", isTotal: true }
+                    ]
+                },
+                {
+                    title: "Priority Processing",
+                    rows: [
+                        { label: "Visa Fee", value: "Rp. 1,500,000" },
+                        { label: "Priority Service Fee", value: "Rp. 2,500,000" },
+                        { label: "TOTAL", value: "Rp. 4,000,000", isTotal: true }
+                    ]
+                }
+            ]
         },
         requirements: {
             title: "Submission Requirements",
@@ -636,8 +695,25 @@ export const VISA_DETAILS: Record<string, VisaDetail> = {
         },
         pricing: {
             title: "Visa Fees / Biaya Visa",
-            note: "Visa approval, duration, and permitted activities are determined solely by the Indonesian Immigration Authority. Processing timelines are estimates and may vary based on eligibility, documentation, and regulatory conditions.\n\nPersetujuan visa, durasi izin tinggal, dan aktivitas yang diizinkan sepenuhnya ditentukan oleh otoritas Imigrasi Indonesia. Estimasi waktu proses dapat berbeda tergantung kelayakan, kelengkapan dokumen, dan ketentuan yang berlaku.",
-            options: []
+            note: "Standard processing fees for C12 Pre-Investment Visa.",
+            options: [
+                {
+                    title: "60 Days Stay",
+                    rows: [
+                        { label: "Visa Fee", value: "Rp. 0" },
+                        { label: "Service Fee", value: "Rp. 2,500,000" },
+                        { label: "TOTAL", value: "Rp. 2,500,000", isTotal: true }
+                    ]
+                },
+                {
+                    title: "180 Days Stay",
+                    rows: [
+                        { label: "Visa Fee", value: "Rp. 0" },
+                        { label: "Service Fee", value: "Rp. 5,000,000" },
+                        { label: "TOTAL", value: "Rp. 5,000,000", isTotal: true }
+                    ]
+                }
+            ]
         },
         requirements: {
             title: "Submission Requirements",

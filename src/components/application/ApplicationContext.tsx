@@ -78,6 +78,8 @@ interface ApplicationState {
     };
     // New: Dynamic Addons from DB
     addons: any[];
+    // New: Popular Visas logic
+    popularVisaIds: string[];
 }
 
 export interface AppNotification {
@@ -125,6 +127,8 @@ interface ApplicationContextType extends ApplicationState {
     // Addons
     addons: any[];
     refreshAddons: () => Promise<void>;
+    popularVisaIds: string[];
+    refreshPopularVisas: () => Promise<void>;
 }
 
 const defaultState: ApplicationState = {
@@ -164,7 +168,8 @@ const defaultState: ApplicationState = {
         idiv: false,
         idg: false
     },
-    addons: []
+    addons: [],
+    popularVisaIds: []
 };
 
 // Types
@@ -179,19 +184,25 @@ export interface UserDocument {
 const ApplicationContext = createContext<ApplicationContextType | undefined>(undefined);
 
 export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
-    // Load initial state from localStorage if available, else default
-    const [state, setState] = useState<ApplicationState>(() => {
+    // Load initial state safely (Hydration-safe)
+    const [state, setState] = useState<ApplicationState>(defaultState);
+    const [isHydrated, setIsHydrated] = useState(false);
+
+    // Initial Hydration from localStorage
+    useEffect(() => {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('appState_v2');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
-                    return { ...defaultState, ...parsed };
-                } catch (e) { console.error("Failed to parse app state", e); }
+                    setState((prev) => ({ ...prev, ...parsed }));
+                } catch (e) {
+                    console.error("Failed to parse app state during hydration", e);
+                }
             }
+            setIsHydrated(true);
         }
-        return defaultState;
-    });
+    }, []);
 
     // Persistence Effect
     useEffect(() => {
@@ -209,6 +220,30 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
 
     const [visas, setVisas] = useState<VisaType[]>([]);
     const [addons, setAddons] = useState<any[]>([]);
+    const [popularVisaIds, setPopularVisaIds] = useState<string[]>([]);
+
+    const refreshPopularVisas = React.useCallback(async () => {
+        try {
+            const res = await fetch('/api/settings/public', { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.popular_visas && Array.isArray(data.popular_visas)) {
+                    setPopularVisaIds(data.popular_visas);
+                } else {
+                    // Fallback to constants if not configured in DB yet
+                    import('@/constants/visas').then(m => {
+                        setPopularVisaIds(prev => prev.length === 0 ? m.POPULAR_VISA_IDS : prev);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch popular visas", error);
+            // Fallback
+            import('@/constants/visas').then(m => {
+                setPopularVisaIds(prev => prev.length === 0 ? m.POPULAR_VISA_IDS : prev);
+            });
+        }
+    }, []);
 
     // Fetch Addons
     const refreshAddons = React.useCallback(async () => {
@@ -246,6 +281,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         refreshVisas();
         refreshAddons();
+        refreshPopularVisas();
 
         // Handle Deep Linking / Auto-selection from URL
         if (typeof window !== 'undefined') {
@@ -516,7 +552,9 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 selectVisa,
                 toggleUpsell,
                 addons,
-                refreshAddons
+                refreshAddons,
+                popularVisaIds,
+                refreshPopularVisas
             }}
         >
             {children}

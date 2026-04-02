@@ -6,7 +6,6 @@ import { Umbrella, Briefcase, Globe, FileText, ArrowRight, Layers, CreditCard } 
 import styles from "./ServicesPreview.module.css";
 import Link from "next/link";
 import { useApplication } from "@/components/application/ApplicationContext";
-import { POPULAR_VISA_IDS } from "@/constants/visas";
 const VisaListModal = dynamic(() => import("@/components/visa/VisaListModal"), { ssr: false });
 import { formatNavLink } from "@/utils/seo";
 import { useParams } from "next/navigation";
@@ -15,7 +14,7 @@ const ServicesPreview = ({ dict }: { dict?: any }) => {
     const params = useParams();
     const locale = (params?.locale as string) || 'en';
     const t = dict?.services_preview || {};
-    const { visas } = useApplication();
+    const { visas, popularVisaIds } = useApplication();
     const [isMounted, setIsMounted] = React.useState(false);
 
     // Modal State
@@ -116,8 +115,8 @@ const ServicesPreview = ({ dict }: { dict?: any }) => {
                     <h3 className="text-2xl font-bold mb-8 mode-aware-text text-left w-full max-w-6xl mx-auto">{t.popular_title || "Most Popular Visas"}</h3>
                     <div className={styles.miniGrid}>
                         {visas
-                            .filter(v => POPULAR_VISA_IDS.includes(v.id))
-                            .sort((a, b) => POPULAR_VISA_IDS.indexOf(a.id) - POPULAR_VISA_IDS.indexOf(b.id))
+                            .filter(v => popularVisaIds.includes(v.id))
+                            .sort((a, b) => popularVisaIds.indexOf(a.id) - popularVisaIds.indexOf(b.id))
                             .map((visa) => {
                                 const visaT = t.visas?.[visa.id] || {};
                                 return (

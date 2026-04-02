@@ -55,7 +55,7 @@ This master report consolidates all strategic updates, AI prompts, and system co
 ## 1. CORE PRINCIPLES (NON-NEGOTIABLE)
 
 - ✅ **ABSOLUTE DATA LOCK (PRODUCTION)**: NO DATA can be deleted, removed, or changed from the Admin Dashboard or by AI without absolute confirmation. The Admin Dashboard is the priority truth.
-
+- ✅ **CORE PRODUCTION DATA IMMUTABILITY**: All data on the Admin Dashboard, Visa Database, Visa Prices, Most Popular Visa, Verification, Incoming Order, Invoice, and Email Communication is Hardened. AI MUST NEVER change this data under any circumstance.
 - ✅ **AI PASSWORD REQUIREMENT**: AI (AntiGravity, ChatGPT, etc.) CANNOT change data connections, switch databases, run destructive seeders, or delete/wipe DB data unless the Boss provides a specific Admin Command/Prompt WITH THE PASSWORD from the .env file BOSS_PASSPHRASE). AI MUST REFUSE to alter/delete data without it.
 
 - ✅ Regulation-First Always

@@ -59,10 +59,10 @@ export async function GET() {
 
         const parsedVisas = (visas as Visa[]).map((visa: Visa) => ({
             ...visa,
-            requirements: JSON.parse(visa.requirements),
+            requirements: safeParse(visa.requirements),
             price: safeParse(visa.price),
             fee: safeParse(visa.fee),
-            details: JSON.parse(visa.details || '{}'),
+            details: safeParse(visa.details || '{}'),
         }));
 
         return NextResponse.json(parsedVisas);
@@ -118,10 +118,10 @@ export async function POST(request: Request) {
 
         return NextResponse.json({
             ...newVisa,
-            requirements: JSON.parse(newVisa.requirements),
+            requirements: safeParse(newVisa.requirements),
             price: safeParse(newVisa.price),
             fee: safeParse(newVisa.fee),
-            details: JSON.parse(newVisa.details || '{}'),
+            details: safeParse(newVisa.details || '{}'),
         });
     } catch (error) {
         console.error('Create error:', error);
@@ -198,10 +198,10 @@ export async function PUT(request: Request) {
 
         return NextResponse.json({
             ...updatedVisa,
-            requirements: JSON.parse(updatedVisa.requirements),
+            requirements: safeParse(updatedVisa.requirements),
             price: safeParse(updatedVisa.price),
             fee: safeParse(updatedVisa.fee),
-            details: JSON.parse(updatedVisa.details || '{}'),
+            details: safeParse(updatedVisa.details || '{}'),
         });
     } catch (error: any) {
         console.error('Update error:', error);

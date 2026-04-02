@@ -190,9 +190,7 @@ export default async function LocaleLayout({
                 */}
                 <main 
                   id="main-content" 
-                  className="flex-grow relative flex flex-col min-h-full" 
-                  style={{ minHeight: '100dvh' }}
-                  suppressHydrationWarning
+                  className="flex-grow relative flex flex-col min-h-screen" 
                 >
                   {children}
                 </main>

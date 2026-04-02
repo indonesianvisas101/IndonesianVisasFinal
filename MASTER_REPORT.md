@@ -157,6 +157,7 @@ Specific ultra-high-net-worth (UHNW) and diaspora pathways integrated with Resen
 ## 🔒 7. SECURITY & MAINTENANCE REPOSITORY
 
 ### 7.1 Database Protections
+- **CORE DATA IMMUTABILITY**: All data on the Admin Dashboard, Visa Database, Visa Prices, Most Popular Visa, Verification, Incoming Order, Invoice, and Email Communication is **Hardened**. AI agents MUST NEVER change this data. Only human admins can update these via the Admin Dashboard. Every new conversation must rigidly follow this rule. 
 - **Cursor Rules Lock**: AI agents are strictly forbidden from dropping or destructively seeding primary tables without a `BOSS_PASSPHRASE`.
 - **Decimal Precision**: Financial fields use `Decimal(20, 2)` to prevent overflow on high-value IDR corporate orders.
 - **Audit Trails**: Every mutation record includes `initiated_by`, `approval_id`, and `snapshot_ref`.

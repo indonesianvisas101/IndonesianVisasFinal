@@ -188,24 +188,47 @@ function AdminDashboardContent() {
     const [popularVisaIds, setPopularVisaIds] = useState<string[]>([]);
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const saved = localStorage.getItem('popular_visa_ids');
-            if (saved) {
-                setPopularVisaIds(JSON.parse(saved));
-            } else {
-                setPopularVisaIds(POPULAR_VISA_IDS);
+        const fetchPopular = async () => {
+            try {
+                const res = await fetch('/api/settings/public', { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.popular_visas) {
+                        setPopularVisaIds(data.popular_visas);
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch popular visas on admin", err);
             }
-        }
+            // Fallback
+            if (typeof window !== "undefined") {
+                const saved = localStorage.getItem('popular_visa_ids');
+                if (saved) {
+                    setPopularVisaIds(JSON.parse(saved));
+                } else {
+                    setPopularVisaIds(POPULAR_VISA_IDS);
+                }
+            }
+        };
+        fetchPopular();
     }, []);
 
-    const handleTogglePopular = (id: string) => {
-        setPopularVisaIds(prev => {
-            const next = prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id];
-            if (typeof window !== "undefined") {
-                localStorage.setItem('popular_visa_ids', JSON.stringify(next));
-            }
-            return next;
-        });
+    const handleTogglePopular = async (id: string) => {
+        const next = popularVisaIds.includes(id) ? popularVisaIds.filter(v => v !== id) : [...popularVisaIds, id];
+        setPopularVisaIds(next); // optimistic
+        if (typeof window !== "undefined") {
+            localStorage.setItem('popular_visa_ids', JSON.stringify(next));
+        }
+        try {
+            await fetch('/api/admin/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: 'popular_visas', value: JSON.stringify(next), isEnabled: true })
+            });
+        } catch (e) {
+            console.error("Failed to save popular visas", e);
+        }
     };
 
     const [stats, setStats] = useState(INITIAL_STATS);

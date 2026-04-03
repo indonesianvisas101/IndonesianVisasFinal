@@ -66,7 +66,7 @@ export default function HelpCenterPage() {
                     <Typography variant="h2" fontWeight="900" className="text-slate-900 dark:text-white mb-4">
                         How can we help you?
                     </Typography>
-                    <Typography variant="h6" align="center" className="text-slate-600 dark:text-gray-400 max-w-2xl mx-auto font-normal">
+                    <Typography variant="h6" align="center" className="text-slate-600 dark:text-gray-400 max-w-2xl mx-auto font-normal text-center">
                         Select a category below to find answers to common questions about payments, orders, and safety.
                     </Typography>
                 </div>
@@ -104,7 +104,7 @@ export default function HelpCenterPage() {
                     <Typography variant="h5" fontWeight="800" align="center" className="mb-2">
                         Still need assistance?
                     </Typography>
-                    <Typography align="center" className="text-slate-600 dark:text-gray-400 mb-8 max-w-lg mx-auto">
+                    <Typography align="center" className="text-slate-600 dark:text-gray-400 mb-8 max-w-lg mx-auto text-center">
                         Our support team is available via WhatsApp and Email to assist with specific inquiries and custom visa requirements.
                     </Typography>
                     <div className="flex flex-wrap justify-center gap-4">

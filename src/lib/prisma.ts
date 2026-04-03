@@ -1,22 +1,26 @@
 import { PrismaClient } from '@prisma/client';
 
-const prismaClientSingleton = () => {
-    return new PrismaClient();
-};
-
-type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
-
-const globalForPrisma = globalThis as unknown as {
-    prisma: PrismaClientSingleton | undefined;
-};
-
-// Next.js hot reload cache bypass
-if (process.env.NODE_ENV !== 'production') {
-    delete (globalThis as any).prisma;
+// Factory ensures TypeScript infers the full generated type (including all models)
+// from the call site, not from a potentially stale cached global type annotation.
+function makePrismaClient() {
+  return new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  });
 }
 
-const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
+type PrismaClientType = ReturnType<typeof makePrismaClient>;
 
-export default prisma;
+declare global {
+  // eslint-disable-next-line no-var
+  var prismaGlobal: PrismaClientType | undefined;
+}
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+const prismaInstance: PrismaClientType =
+  globalThis.prismaGlobal ?? makePrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.prismaGlobal = prismaInstance;
+}
+
+export const prisma: PrismaClientType = prismaInstance;
+export default prismaInstance;

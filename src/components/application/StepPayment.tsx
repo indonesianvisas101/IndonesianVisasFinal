@@ -450,9 +450,12 @@ const StepPayment = () => {
                         <span className="font-bold">IDR {platformFeeAmount.toLocaleString()}</span>
                     </div>
 
-                    <div className={`${styles.priceRow} ${styles.totalRow}`}>
-                        <span className="text-primary font-bold">Grand Total</span>
-                        <span className="text-xl font-extrabold text-[#F59E0B]">
+                    <div className={`${styles.priceRow} ${styles.totalRow} pt-4 mt-2 border-t border-slate-200 dark:border-white/10`}>
+                        <div className="flex flex-col">
+                            <span className="text-primary font-black uppercase text-[10px] tracking-widest">Grand Total</span>
+                            <span className="text-[10px] text-gray-400 font-medium">All taxes & fees included</span>
+                        </div>
+                        <span className="text-3xl font-black text-amber-500">
                             IDR {grandTotal.toLocaleString()}
                         </span>
                     </div>
@@ -537,8 +540,8 @@ const StepPayment = () => {
                             <Send size={24} />
                         </div>
                         <div className={styles.methodInfo}>
-                            <p className={styles.methodName}>Submit Application Only</p>
-                            <p className={styles.methodDesc}>Consult with agent first before pay</p>
+                            <p className={styles.methodName}>Consult with Expert (Pay Later)</p>
+                            <p className={styles.methodDesc}>Submit data now & verify with our agent first</p>
                         </div>
                         {selectedMethod === 'Manual' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>

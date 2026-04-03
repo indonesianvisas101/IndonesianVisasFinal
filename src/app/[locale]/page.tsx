@@ -2,45 +2,49 @@ import React from "react";
 import dynamic from "next/dynamic";
 import Hero from "@/components/hero/Hero";
 import LazySection from "@/components/layout/LazySection";
-
 import { getMessages } from "@/i18n/getMessages";
 import ApplyExtend from "@/components/sections/ApplyExtend";
+import type { Metadata } from 'next';
 
+// ISR: Cache the landing page for 1 hour — avoids DB/Supabase hits on every visitor request
+export const revalidate = 3600;
+
+// Lazy load all below-fold components
+// Note: ssr: false is not allowed in Server Components, so we rely on LazySection 
+// (a Client Component) to prevent these from rendering during initial SSR.
 const ServicesPreview = dynamic(() => import("@/components/sections/ServicesPreview"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Services...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
-import GCIWrapper from "@/components/sections/GCIWrapper";
-
-// Lazy Load Components (Below the fold)
+const GCIWrapper = dynamic(() => import("@/components/sections/GCIWrapper"), {
+  loading: () => <div className="h-64" aria-hidden />,
+});
 const HowItWorks = dynamic(() => import("@/components/sections/HowItWorks"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Steps...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
 const FunnelStatus = dynamic(() => import("@/components/sections/FunnelStatus"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Status...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
 const WhyChooseUs = dynamic(() => import("@/components/sections/WhyChooseUs"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Features...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
 const AboutPreview = dynamic(() => import("@/components/sections/AboutPreview"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading About...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
 const SEOAboutExpansion = dynamic(() => import("@/components/sections/SEOAboutExpansion"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Agency Info...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
 const FAQPreview = dynamic(() => import("@/components/sections/FAQPreview"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading FAQ...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
 const ContactSection = dynamic(() => import("@/components/sections/ContactSection"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Contact...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
 const GoogleReviews = dynamic(() => import("@/components/sections/GoogleReviews"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Reviews...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
 const SafetyGuard = dynamic(() => import("@/components/sections/SafetyGuard"), {
-  loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Protection...</div>
+  loading: () => <div className="h-64" aria-hidden />,
 });
-
-import { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -64,19 +68,21 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   return (
     <>
+      {/* Hero — critical, server-rendered immediately */}
       <Hero dict={dict} />
 
-      {/* Above the fold (mostly) */}
+      {/* Just below hero — minimal delay */}
       <ApplyExtend dict={dict} />
-      <LazySection minHeight="600px" rootMargin="300px">
+
+      <LazySection minHeight="600px" rootMargin="200px">
         <ServicesPreview dict={dict} />
       </LazySection>
 
-      <LazySection minHeight="500px">
+      <LazySection minHeight="500px" rootMargin="150px">
         <GCIWrapper dict={dict} />
       </LazySection>
 
-      {/* Below the fold (Lazy Loaded on Scroll) */}
+      {/* Well below the fold — load on scroll approach */}
       <LazySection minHeight="500px">
         <HowItWorks dict={dict} />
       </LazySection>
@@ -117,10 +123,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </section>
       </LazySection>
 
-
       <LazySection minHeight="300px">
         <ContactSection dict={dict} />
       </LazySection>
     </>
   );
 }
+

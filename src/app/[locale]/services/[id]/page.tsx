@@ -10,6 +10,10 @@ import VisaPricingSelector from '@/components/visa/VisaPricingSelector';
 import { parseCurrency } from '@/lib/utils';
 import SEOPageLayout from '@/components/layout/SEOPageLayout';
 import { Globe, MapPin, Shield, Star, Users, Zap, Calendar } from 'lucide-react';
+import prisma from '@/lib/prisma';
+
+// Force fresh DB fetch on every request so admin price edits are reflected immediately
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
     params: Promise<{
@@ -18,11 +22,6 @@ interface PageProps {
     }>;
 }
 
-export function generateStaticParams() {
-    const visaIds = Object.keys(VISA_DETAILS).map((id) => ({ id }));
-    const hubIds = Object.keys(REGIONAL_HUBS).map((id) => ({ id }));
-    return [...visaIds, ...hubIds];
-}
 
 export async function generateMetadata(props: PageProps) {
     const params = await props.params;
@@ -228,16 +227,14 @@ const VisaDetailPage = async (props: PageProps) => {
         );
     }
 
-    // --- CONTINUE WITH NORMAL VISA LOGIC ---
-    // 1. Fetch from Database (Dynamic Data) with Error Handling
+    // Fetch from Database (Dynamic Data) - source of truth for prices
     let rawVisa = null;
     try {
-        const { default: prisma } = await import('@/lib/prisma');
         rawVisa = await prisma.visa.findUnique({
             where: { id: id }
         });
     } catch (error) {
-        console.warn(`[Build Warning] Could not fetch visa ${id} from DB (using static data):`, error);
+        console.error(`[DB Error] Could not fetch visa ${id}:`, error);
     }
 
     // 2. Fallback to Static Data

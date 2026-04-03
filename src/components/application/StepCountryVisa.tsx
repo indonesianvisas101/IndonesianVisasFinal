@@ -12,6 +12,8 @@ import { calculateVisaTotal } from "@/lib/utils";
 import { Typography, Box } from "@mui/material";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 
 const StepCountryVisa = () => {
@@ -26,8 +28,15 @@ const StepCountryVisa = () => {
         markStepComplete, 
         visas,
         upsells,
-        toggleUpsell
+        toggleUpsell,
+        closePanel
     } = useApplication();
+
+    const params = useParams();
+    const locale = params?.locale as string || "en";
+
+    // NEW: Track expandable visa tiers
+    const [expandedVisaId, setExpandedVisaId] = useState<string | null>(null);
 
     // Scroll to top on mount
     useEffect(() => {
@@ -88,6 +97,12 @@ const StepCountryVisa = () => {
                 actionAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 150);
         }
+
+        // AUTO-EXPAND: Find the visa ID from the name and expand it
+        const selected = visas.find(visa => visa.name === visaName);
+        if (selected) {
+            setExpandedVisaId(selected.id);
+        }
     };
 
     const handleTierSelect = (tierName: string, visaName: string, e: React.MouseEvent) => {
@@ -113,24 +128,41 @@ const StepCountryVisa = () => {
             return;
         }
 
-        // Validation: If visa has multiple tiers, one must be selected
-        const selectedVisa = visas.find(v => v.name === visaType);
-        
         if (!visaType) {
             setValidationError("Please select a visa type first.");
             return;
         }
 
-        if (selectedVisa && typeof calculateVisaTotal(selectedVisa.price, selectedVisa.fee) === 'object') {
+        // Validation: If visa has multiple tiers, one must be selected
+        const selectedVisa = visas.find(v => v.name === visaType || v.id === visaType);
+        
+        if (selectedVisa && typeof selectedVisa.price === 'object' && selectedVisa.price !== null) {
             if (!priceTier) {
-                setValidationError("Please select a visa duration/tier to continue.");
-                // ONLY scroll to visa section if TIER is not selected
+                setValidationError(`Please select a duration/tier for ${selectedVisa.name}.`);
                 visaSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
                 return;
             }
         }
 
-        // numPeople and arrivalDate are optional as per user request
+        if (!arrivalDate) {
+            setValidationError("Please select your intended arrival date.");
+            return;
+        }
+
+        // Future date check
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const arrival = new Date(arrivalDate);
+        if (arrival < today) {
+            setValidationError("Arrival date cannot be in the past.");
+            return;
+        }
+
+        if (numPeople < 1) {
+            setValidationError("At least 1 person is required for an application.");
+            return;
+        }
+
         markStepComplete(1);
         setStep(2);
     };
@@ -359,39 +391,106 @@ const StepCountryVisa = () => {
                                 <div className={styles.visaPrice}>
                                     {(() => {
                                         const totalData = calculateVisaTotal(visa.price, visa.fee);
-                                        if (typeof totalData === 'string') {
-                                            return totalData;
-                                        } else {
-                                            const tiers = Object.entries(totalData);
+                                        const isTiered = typeof totalData === 'object' && totalData !== null;
+                                        const isExpanded = expandedVisaId === visa.id;
+
+                                        if (!isTiered) {
                                             return (
                                                 <div className="flex flex-col gap-3 items-center w-full">
-                                                    {/* Selected/Default Price Display */}
                                                     <div className="text-xl font-black text-amber-500">
-                                                        {priceTier && totalData[priceTier] ? totalData[priceTier] : "Select Tier"}
+                                                        {totalData as string}
                                                     </div>
-                                                    
-                                                    {/* Tier Selection Buttons */}
-                                                    <div className={styles.tierSelection}>
-                                                        {tiers.map(([tier, price]) => (
-                                                            <button
-                                                                key={tier}
-                                                                onClick={(e) => handleTierSelect(tier, visa.name, e)}
-                                                                className={`${styles.tierBtn} ${priceTier === tier ? styles.tierBtnActive : ''} ${visaType === visa.name && !priceTier ? 'ring-2 ring-amber-400 ring-offset-2 animate-pulse' : ''}`}
-                                                            >
-                                                                <div className="opacity-70 text-[10px] uppercase font-bold">{tier}</div>
-                                                                <div>{price}</div>
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    
-                                                    {visaType === visa.name && !priceTier && (
-                                                        <div className="w-full mt-2 p-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold text-center rounded flex items-center justify-center gap-1.5 animate-fade-in shadow-sm">
-                                                            <AlertCircle size={14} /> Please select a tier to continue
-                                                        </div>
-                                                    )}
+                                                    <Link 
+                                                        href={`/${locale}/services/${visa.id}`}
+                                                        className={styles.detailsBtn}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            closePanel();
+                                                        }}
+                                                    >
+                                                        Details
+                                                    </Link>
                                                 </div>
                                             );
                                         }
+
+                                        return (
+                                            <div className="flex flex-col gap-3 items-center w-full">
+                                                <AnimatePresence mode="wait">
+                                                    {!isExpanded ? (
+                                                        <motion.div 
+                                                            key="collapsed"
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: -10 }}
+                                                            className={styles.ctaGroup}
+                                                        >
+                                                            <Link 
+                                                                href={`/${locale}/services/${visa.id}`}
+                                                                className={styles.detailsBtn}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    closePanel();
+                                                                }}
+                                                            >
+                                                                Details
+                                                            </Link>
+                                                            <button 
+                                                                className={styles.selectTierBtn}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setExpandedVisaId(visa.id);
+                                                                    handleVisaSelect(visa.name);
+                                                                }}
+                                                            >
+                                                                Select Tier
+                                                            </button>
+                                                        </motion.div>
+                                                    ) : (
+                                                        <motion.div 
+                                                            key="expanded"
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: "auto" }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            className="w-full"
+                                                        >
+                                                            <div className="text-xl font-black text-amber-500 mb-2">
+                                                                {priceTier && totalData[priceTier] ? totalData[priceTier] : "Select Pricing"}
+                                                            </div>
+                                                            
+                                                            <div className={styles.tierSelection}>
+                                                                {Object.entries(totalData).map(([tier, price]) => (
+                                                                    <button
+                                                                        key={tier}
+                                                                        onClick={(e) => handleTierSelect(tier, visa.name, e)}
+                                                                        className={`${styles.tierBtn} ${priceTier === tier ? styles.tierBtnActive : ''} ${visaType === visa.name && !priceTier ? 'ring-2 ring-amber-400 ring-offset-2 animate-pulse' : ''}`}
+                                                                    >
+                                                                        <div className="opacity-70 text-[10px] uppercase font-bold">{tier}</div>
+                                                                        <div>{price as string}</div>
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+
+                                                            <button 
+                                                                className="mt-3 text-[10px] text-gray-400 uppercase font-black hover:text-primary transition-colors"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setExpandedVisaId(null);
+                                                                }}
+                                                            >
+                                                                ← Back to Options
+                                                            </button>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                                
+                                                {isExpanded && visaType === visa.name && !priceTier && (
+                                                    <div className="w-full mt-2 p-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold text-center rounded flex items-center justify-center gap-1.5 animate-fade-in shadow-sm">
+                                                        <AlertCircle size={14} /> Please select a tier to continue
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
                                     })()}
                                 </div>
                                 <span className={styles.visaValidity}>{visa.validity}</span>

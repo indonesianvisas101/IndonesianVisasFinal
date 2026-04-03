@@ -9,6 +9,8 @@ const CompanyFormationContent = dynamic(() => import("./CompanyFormationContent"
 });
 
 import { Metadata } from 'next';
+import prisma from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -16,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         title: "Company Formation Indonesia | PT PMA Registration Bali",
         description: "Official PT PMA and Local PT registration services. Start your business in Indonesia with expert legal assistance and 100% foreign ownership options.",
         alternates: {
-            canonical: `https://indonesianvisas.com/${locale}/company-formation`,
+            canonical: `https://indonesianvisas.com/company-formation`,
         },
     };
 }
@@ -25,6 +27,24 @@ export default async function CompanyFormationPage({ params }: { params: Promise
     const { locale } = await params;
     const dict = await getMessages(locale);
     const t = dict?.company_formation_page || {};
+
+    const rawProducts = await prisma.product.findMany({
+        where: {
+            category: "COMPANY_FORMATION",
+            active: true
+        },
+        orderBy: {
+            price: 'asc'
+        }
+    });
+
+    // Serialize Decimal and Date objects so they can be passed to Client Components
+    const products = rawProducts.map((p: typeof rawProducts[number]) => ({
+        ...p,
+        price: Number(p.price),
+        updatedAt: p.updatedAt.toISOString(),
+        createdAt: p.createdAt.toISOString(),
+    }));
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#030712] transition-colors duration-300">
@@ -45,7 +65,7 @@ export default async function CompanyFormationPage({ params }: { params: Promise
             </SectionWrapper>
 
             {/* Main Content Component (Client) */}
-            <CompanyFormationContent dict={dict} />
+            <CompanyFormationContent dict={dict} products={products} />
         </div>
     );
 }

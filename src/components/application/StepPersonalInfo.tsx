@@ -195,8 +195,8 @@ const StepPersonalInfo = () => {
                 })}
 
                 <div className={styles.btnRow}>
-                    <button type="button" onClick={handleSkip} className={`cta-secondary ${styles.skipBtn}`}>
-                        Skip for Now
+                    <button type="button" onClick={handleSkip} className={`px-4 py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors`}>
+                        Skip for Now (Consult with Agent)
                     </button>
                     <button type="submit" className={`cta-accent ${styles.submitBtn}`}>
                         Continue <ArrowRight size={18} className="ml-2" />

@@ -42,6 +42,7 @@ model User {
   notifications           Notification[]
   verification            Verification?
   arrivalCards            ArrivalCard[]
+  companyFormations       CompanyFormation[]
   conversations           Conversation[]
   invoices                Invoice[]
   payments                Payment[]
@@ -143,6 +144,16 @@ model CompanyService {
   createdAt   DateTime @default(now())
 }
 
+model Kbli {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  category    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Conversation {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId          String    @map("user_id") @db.Uuid
@@ -193,28 +204,56 @@ model EmailLog {
 }
 
 model Invoice {
-  id               String           @id @default(cuid())
-  userId           String?          @db.Uuid
-  applicationId    String?
-  amount           Decimal          @db.Decimal(20, 2)
-  currency         String           @default("IDR")
-  status           PaymentStatus    @default(UNPAID)
-  paymentMethod    String?
-  paymentReference String?
-  adminNotes       String?
-  dueDate          DateTime?
-  paidAt           DateTime?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  quantity         Int              @default(1)
-  gatewayFee       Decimal?         @default(0) @db.Decimal(20, 2)
-  pph23Amount      Decimal?         @default(0) @db.Decimal(20, 2)
-  serviceFee       Decimal?         @default(0) @db.Decimal(20, 2)
-  visaApplication  VisaApplication? @relation(fields: [applicationId], references: [id])
-  user             User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  payments         Payment[]
+  id                 String            @id @default(cuid())
+  userId             String?           @db.Uuid
+  applicationId      String?
+  amount             Decimal           @db.Decimal(20, 2)
+  currency           String            @default("IDR")
+  status             PaymentStatus     @default(UNPAID)
+  paymentMethod      String?
+  paymentReference   String?
+  adminNotes         String?
+  dueDate            DateTime?
+  paidAt             DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  quantity           Int               @default(1)
+  gatewayFee         Decimal?          @default(0) @db.Decimal(20, 2)
+  pph23Amount        Decimal?          @default(0) @db.Decimal(20, 2)
+  serviceFee         Decimal?          @default(0) @db.Decimal(20, 2)
+  companyFormationId String?
+  visaApplication    VisaApplication?  @relation(fields: [applicationId], references: [id])
+  companyFormation   CompanyFormation? @relation(fields: [companyFormationId], references: [id])
+  user               User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments           Payment[]
 
   @@map("invoices")
+}
+
+model CompanyFormation {
+  id               String        @id @default(cuid())
+  userId           String?       @map("user_id") @db.Uuid
+  companyName      String        @map("company_name")
+  kbliCodes        Json?         @map("kbli_codes")
+  address          String
+  equityCapital    Decimal       @map("equity_capital") @db.Decimal(20, 2)
+  depositedCapital Decimal       @map("deposited_capital") @db.Decimal(20, 2)
+  stakeholders     Json          @map("stakeholders")
+  applicantName    String        @map("applicant_name")
+  applicantEmail   String        @map("applicant_email")
+  applicantPhone   String        @map("applicant_phone")
+  taxDetails       Json?         @map("tax_details")
+  documents        Json?         @map("documents")
+  paymentStatus    PaymentStatus @default(UNPAID) @map("payment_status")
+  formationStatus  String        @default("PENDING") @map("formation_status")
+  logs             Json?         @default("[]")
+  invoiceId        String?       @map("invoice_id")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  user             User?         @relation(fields: [userId], references: [id])
+  invoices         Invoice[]
+
+  @@map("company_formations")
 }
 
 model ArrivalCard {
@@ -490,4 +529,18 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  price       Decimal  @db.Decimal(20, 2)
+  description String
+  features    String[] @default([])
+  category    String   @default("Company Formation")
+  active      Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@map("products")
 }

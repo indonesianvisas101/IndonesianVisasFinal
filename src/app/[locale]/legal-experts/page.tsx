@@ -81,8 +81,8 @@ export default function LegalExpertsPage({ params }: { params: Promise<{ locale:
                         { name: "Real Estate", icon: MapPin },
                         { name: "Strategic Investment", icon: ShieldIcon },
                     ].map((sector, i) => (
-                        <div key={i} className="space-y-4">
-                            <div className="w-20 h-20 mx-auto rounded-3xl bg-primary text-white flex items-center justify-center shadow-xl shadow-primary/20">
+                        <div key={i} className="space-y-4 group">
+                            <div className="w-20 h-20 mx-auto rounded-3xl bg-slate-100 dark:bg-primary text-primary dark:text-white flex items-center justify-center shadow-xl shadow-primary/5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                                 <sector.icon size={32} />
                             </div>
                             <div className="font-bold mode-aware-text">{sector.name}</div>

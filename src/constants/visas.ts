@@ -1619,4 +1619,4 @@ export const VISA_DATABASE: VisaType[] = [
     }
 ];
 
-export const POPULAR_VISA_IDS = ['B1', 'C1', 'C2', 'C12', 'D1', 'D2', 'D12', 'E33G', 'E28A'];
+export const POPULAR_VISA_IDS = ['B1', 'C1', 'E28A', 'C2', 'C12', 'D1', 'D2', 'D12', 'E33G'];

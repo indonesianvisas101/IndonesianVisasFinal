@@ -39,7 +39,14 @@ const StepDocuments = () => {
                 <ArrowLeft size={16} className="mr-2" /> Back
             </button>
 
-            <h3 className={styles.heading}>Step 3: Document Upload</h3>
+            <div className="flex justify-between items-end mb-6">
+                <h3 className={styles.heading}>Step 3: Document Upload</h3>
+                {numPeople > 1 && (
+                    <div className="text-xs font-bold text-primary bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+                        {docsArray.filter(d => d?.passportPhoto).length} / {numPeople} Passports Uploaded
+                    </div>
+                )}
+            </div>
 
             {error && (
                 <div className="bg-red-50 text-red-600 p-3 rounded-lg flex items-center text-sm font-medium mb-6">
@@ -68,9 +75,9 @@ const StepDocuments = () => {
                                     {passportUploaded && <CheckCircle size={18} className="text-green-500" />}
                                 </div>
                                 <div className={styles.dropZone}>
-                                    <UploadCloud size={32} className={`${passportUploaded ? 'text-green-500' : 'text-gray-400'} mb-2`} />
-                                    <span className="text-sm text-gray-500 mb-2">
-                                        {doc.passportPhoto ? doc.passportPhoto.name : "Click to upload"}
+                                    <UploadCloud size={32} className={`${passportUploaded ? 'text-green-500' : 'text-primary'} mb-2`} />
+                                    <span className={`text-sm mb-2 font-medium ${passportUploaded ? 'text-green-600' : 'text-gray-500'}`}>
+                                        {doc.passportPhoto ? doc.passportPhoto.name : "Click to upload Passport Photo Page"}
                                     </span>
                                     <input
                                         type="file"

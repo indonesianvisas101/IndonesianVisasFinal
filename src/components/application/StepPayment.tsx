@@ -10,6 +10,7 @@ import { Chip, Divider, CircularProgress, Alert, Box, Typography, Button } from 
 import { ArrowLeft, CreditCard, Landmark, Smartphone, QrCode, Settings, CheckCircle, ShoppingCart, Send, Info, RefreshCcw, AlertCircle, Zap, ShieldCheck, ExternalLink } from "lucide-react";
 import { parseCurrency } from "@/lib/utils";
 import PayPalIntegration from "@/components/payment/PayPalIntegration";
+import { COUNTRY_DATA } from "@/constants/countries";
 // 10 Major Currencies for conversion
 const CURRENCIES = [
     { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp', icon: '🇮🇩', rate: 1 },
@@ -42,6 +43,12 @@ const StepPayment = () => {
     // Inline PayPal State
     const [showPayPalButtons, setShowPayPalButtons] = useState(false);
     const [paymentInfo, setPaymentInfo] = useState<{ invoiceId: string, amount: number, currency: string } | null>(null);
+
+    // Identify Special Country for Calling Visa Flow
+    const isSpecialCountry = React.useMemo(() => {
+        const cData = COUNTRY_DATA.find(c => c.name === country);
+        return cData?.isSpecial || cData?.isUnregistered || false;
+    }, [country]);
 
     const handleMethodSelect = (method: string) => {
         setSelectedMethod(method);
@@ -188,9 +195,10 @@ const StepPayment = () => {
                         orderIndex: i + 1,
                         totalTravelers: numPeople
                     },
-                    adminNotes: isPrimary && numPeople > 1 
-                        ? `Primary Payer of Split Order (${numPeople} Travelers total)`
-                        : `Split Order Traveler #${i + 1}`
+                    adminNotes: (selectedMethod === 'DOKU_CALLING_VISA' ? "[CALLING VISA P-LINK] " : "") + 
+                               (isPrimary && numPeople > 1 
+                                 ? `Primary Payer of Split Order (${numPeople} Travelers total)`
+                                 : `Split Order Traveler #${i + 1}`)
                 });
             }
 
@@ -251,6 +259,13 @@ const StepPayment = () => {
                 window.location.href = paymentUrl;
                 return;
             } 
+
+            if (selectedMethod === 'DOKU_CALLING_VISA') {
+                console.log("[CHECKOUT] Redirecting to Calling Visa P-Link...");
+                // Note: We still created the invoice in our DB via Step 3 above
+                window.location.href = `https://pay.doku.com/p-link/p/CallingVIsa`;
+                return;
+            }
             
             if (selectedMethod === 'Manual' || !selectedMethod) {
                 markStepComplete(4);
@@ -305,6 +320,18 @@ const StepPayment = () => {
             </button>
 
             <h3 className={styles.heading}>Fast Checkout</h3>
+            
+            {isSpecialCountry && (
+                <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl flex items-start gap-4 animate-fade-in shadow-sm">
+                    <Zap size={20} className="text-amber-600 mt-1 shrink-0" />
+                    <div>
+                        <p className="text-sm font-bold text-amber-800 dark:text-amber-400">Special Processing Required</p>
+                        <p className="text-[11px] leading-relaxed text-amber-700 dark:text-amber-500 mt-0.5">
+                            Because you are from <strong>{country}</strong>, your application requires specialized manual clearing. Please use the <strong>recommended</strong> payment method below to prioritize your submission.
+                        </p>
+                    </div>
+                </div>
+            )}
 
             {/* 1. PREMIUM ADD-ONS */}
             <div className="mt-4 mb-6">
@@ -532,6 +559,29 @@ const StepPayment = () => {
                         {selectedMethod === 'DOKU' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>
 
+                    {isSpecialCountry && (
+                        <button
+                            className={`${styles.methodOption} ${selectedMethod === 'DOKU_CALLING_VISA' ? styles.selected : ''} border-amber-300 bg-amber-50/30`}
+                            onClick={() => handleMethodSelect('DOKU_CALLING_VISA')}
+                        >
+                            <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
+                                <Zap size={24} />
+                            </div>
+                            <div className={styles.methodInfo}>
+                                <p className={styles.methodName}>Calling Visa Payment (P-Link)</p>
+                                <p className={styles.methodDesc}>Special Treatment Process • Priority Clearing</p>
+                            </div>
+                            {selectedMethod === 'DOKU_CALLING_VISA' ? (
+                                <CheckCircle size={20} className="text-amber-600 ml-auto" />
+                            ) : (
+                                <div className="flex flex-col items-end ml-auto">
+                                    <div className="text-[10px] font-black bg-amber-500 text-white px-2 py-0.5 rounded shadow-sm animate-pulse">RECOMMENDED</div>
+                                    <div className="text-[8px] text-amber-600 font-bold uppercase mt-1">For {country}</div>
+                                </div>
+                            )}
+                        </button>
+                    )}
+
                     <button
                         className={`${styles.methodOption} ${selectedMethod === 'Manual' ? styles.selected : ''}`}
                         onClick={() => handleMethodSelect('Manual')}
@@ -599,8 +649,8 @@ const StepPayment = () => {
                                 </>
                             ) : (
                                 <>
-                                    {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : <ShoppingCart size={24} />)}
-                                    <span>{selectedMethod === 'Manual' ? 'SUBMIT APPLICATION' : (selectedMethod === 'PayPal' ? 'GENERATE PAYPAL LINK' : 'COMPLETE ORDER')}</span>
+                                    {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : (selectedMethod === 'DOKU_CALLING_VISA' ? <Zap size={24} /> : <ShoppingCart size={24} />))}
+                                    <span>{selectedMethod === 'Manual' ? 'SUBMIT APPLICATION' : (selectedMethod === 'PayPal' ? 'GENERATE PAYPAL LINK' : (selectedMethod === 'DOKU_CALLING_VISA' ? 'PAY VIA CALLING VISA P-LINK' : 'COMPLETE ORDER'))}</span>
                                 </>
                             )}
                         </button>

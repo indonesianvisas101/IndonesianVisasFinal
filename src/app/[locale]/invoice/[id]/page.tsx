@@ -25,6 +25,8 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
 import { QRCodeSVG } from 'qrcode.react';
 import Script from 'next/script';
+import { COUNTRY_DATA } from '@/constants/countries';
+import { Zap } from 'lucide-react';
 
 
 
@@ -139,6 +141,16 @@ export default function InvoicePage() {
     };
 
     const handlePayNow = async () => {
+        // Detect Special Country for Calling Visa Flow
+        const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+        const isSpecialCountry = cData?.isSpecial || cData?.isUnregistered || false;
+
+        if (isSpecialCountry) {
+            console.log("[INVOICE] Redirecting to Calling Visa P-Link...");
+            window.location.href = `https://pay.doku.com/p-link/p/CallingVIsa`;
+            return;
+        }
+
         setIsCheckingOut(true);
         try {
             // Extract numeric amount
@@ -505,25 +517,37 @@ export default function InvoicePage() {
                             variant="contained"
                             onClick={handlePayNow}
                             disabled={isCheckingOut || priceDisplay === "Free" || priceDisplay === "Contact Support" || priceDisplay === "Variable"}
+                            startIcon={(() => {
+                                const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                return (cData?.isSpecial || cData?.isUnregistered) ? <Zap /> : null;
+                            })()}
                             sx={{
-                                bgcolor: '#00cc66',
+                                bgcolor: (() => {
+                                    const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                    return (cData?.isSpecial || cData?.isUnregistered) ? '#f59e0b' : '#00cc66';
+                                })(),
                                 px: 4,
                                 py: 1.5,
                                 fontSize: '1rem',
                                 fontWeight: 'bold',
                                 textTransform: 'none',
-                                boxShadow: '0 4px 14px 0 rgba(0, 204, 102, 0.39)',
+                                boxShadow: (() => {
+                                    const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                    return (cData?.isSpecial || cData?.isUnregistered) ? '0 4px 14px 0 rgba(245, 158, 11, 0.39)' : '0 4px 14px 0 rgba(0, 204, 102, 0.39)';
+                                })(),
                                 '&:hover': {
-                                    bgcolor: '#00b359',
-                                    boxShadow: '0 6px 20px 0 rgba(0, 204, 102, 0.23)'
+                                    bgcolor: (() => {
+                                        const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                        return (cData?.isSpecial || cData?.isUnregistered) ? '#d97706' : '#00b359';
+                                    })(),
                                 }
                             }}
                         >
-                            {isCheckingOut ? (
-                                <CircularProgress size={24} color="inherit" />
-                            ) : (
-                                "Pay Now Securely"
-                            )}
+                            {(() => {
+                                const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                if (cData?.isSpecial || cData?.isUnregistered) return "Process Calling Visa Payment";
+                                return isCheckingOut ? "Processing..." : "Pay Now Securely";
+                            })()}
                         </Button>
                     )}
                     <Button

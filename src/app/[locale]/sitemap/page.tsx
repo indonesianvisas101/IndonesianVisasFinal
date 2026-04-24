@@ -143,6 +143,17 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
             ]
         },
         {
+            title: "Foreigner Identity & Legal ID",
+            icon: Building2,
+            links: [
+                { name: "ID Card Guide Indonesia", href: formatNavLink(locale, "/id-card-for-foreigner-in-indonesia") },
+                { name: "KTP for Foreigners", href: formatNavLink(locale, "/ktp-for-foreigner-in-indonesia") },
+                { name: "Family Card (KK) Guide", href: formatNavLink(locale, "/family-card-for-foreigner-in-indonesia") },
+                { name: "How to Get ID Card", href: formatNavLink(locale, "/how-to-get-id-card-in-indonesia") },
+                { name: "Bali ID Specific Guide", href: formatNavLink(locale, "/id-card-for-foreigner-in-bali") }
+            ]
+        },
+        {
             title: "Visa Glossary",
             icon: Search,
             links: [

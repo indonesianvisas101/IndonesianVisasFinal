@@ -107,9 +107,10 @@ export async function proxy(request: NextRequest) {
 
         if (targetLocale === defaultLocale) {
             // BEST PRACTICE: Rewrite instead of Redirect for root domain SEO
-            const response = NextResponse.rewrite(
-                new URL(`/${defaultLocale}${pathname.startsWith('/') ? '' : '/'}${pathname}`, request.url)
-            );
+            const url = request.nextUrl.clone();
+            url.pathname = `/${defaultLocale}${pathname === '/' ? '' : pathname}`;
+            
+            const response = NextResponse.rewrite(url);
             // We still want to handle marketing attribution on rewrites
             return await handleMarketingAttribution(request, response);
         } else {

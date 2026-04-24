@@ -204,7 +204,7 @@ function PaymentContent() {
                                     disabled
                                     sx={{ mt: 2, bgcolor: '#000', '&:hover': { bgcolor: '#333' } }}
                                 >
-                                    Pay with Card (Coming Soon)
+                                    Pay with Card (Available)
                                 </Button>
                                 <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
                                     Contact support for a manual payment link.

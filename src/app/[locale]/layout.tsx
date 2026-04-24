@@ -169,8 +169,7 @@ export default async function LocaleLayout({
           }}
         />
       </head>
-      <body className={inter.className} suppressHydrationWarning>
-
+      <body className={inter.className}>
         <GlobalUIProvider>
           <Suspense fallback={null}>
             <GlobalUIOverlay />
@@ -181,17 +180,11 @@ export default async function LocaleLayout({
                 <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[1000] focus:bg-white focus:text-primary focus:p-4 focus:rounded-xl focus:shadow-xl focus:font-bold border-2 border-primary">
                   Skip to content
                 </a>
+                
                 <Header dict={dict} locale={currentLocale} />
                 <GlobalInfoPopup locale={currentLocale} />
                 
-                {/* 
-                  CRITICAL: Main content wrapper. 
-                  We use a div + main structure to ensure consistent hydration with complex providers. 
-                */}
-                <main 
-                  id="main-content" 
-                  className="flex-grow relative flex flex-col min-h-screen" 
-                >
+                <main id="main-content" className="flex-grow relative flex flex-col min-h-screen">
                   {children}
                 </main>
 

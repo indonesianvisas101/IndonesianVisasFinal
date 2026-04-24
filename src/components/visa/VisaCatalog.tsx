@@ -66,7 +66,7 @@ const VisaCatalog = ({ locale, dict }: { locale?: string; dict?: any }) => {
         return 0;
     });
 
-    const displayVisas = showAll ? sortedVisas : sortedVisas.slice(0, 8);
+    const displayVisas = showAll ? sortedVisas : sortedVisas.slice(0, 12);
 
     return (
         <div className={styles.catalog}>

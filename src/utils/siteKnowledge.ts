@@ -22,8 +22,6 @@ export const SITE_KNOWLEDGE: SiteKnowledgeEntry[] = [
     { title: 'IDiv Hub', description: 'Centralized documentation and digital identifier system for travelers.', link: '/idiv-hub', category: 'Guide', keywords: ['docs', 'manual', 'hub', 'verification'] },
 
     { title: 'Visa Identification Guide', description: 'Major guide on how Indonesian Visa Identification system works.', link: '/id-indonesian-visas', category: 'Guide', keywords: ['guide', 'identification', 'id', 'verification'] },
-    { title: 'Guide Business Bali', description: 'Strategic entry blueprint for business in Bali.', link: 'https://bali.enterprises/strategic-entry-blueprint-bali', category: 'Guide', keywords: ['business', 'bali', 'strategy', 'setup'] },
-    { title: 'Ultimate Start Business Bali', description: 'Comprehensive guide for starting a business in Bali.', link: 'https://bali.enterprises/starting-business-bali-guide', category: 'Guide', keywords: ['business', 'bali', 'start', 'guide'] },
 
     // 2. Visa Deep Dives (From Constants)
     ...VISA_DATABASE.map(v => ({

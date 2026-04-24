@@ -12,6 +12,7 @@ const VisaCatalog = dynamic(() => import("@/components/visa/VisaCatalog"));
 
 import { Metadata } from 'next';
 import { generateCanonical, formatNavLink } from "@/utils/seo";
+import IdentityServices from "@/components/services/identity/IdentityServices";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -235,6 +236,9 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
           </div>
         </div>
       </SectionWrapper>
+      
+      {/* 7.5 IDENTITY & SPECIAL BALI SERVICES - Flagship Visuals */}
+      <IdentityServices />
 
       {/* 8. CTA SECTION - FINAL PUSH */}
       <section className="py-40 text-center">

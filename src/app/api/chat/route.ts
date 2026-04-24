@@ -66,17 +66,17 @@ export async function POST(req: Request) {
    
    const isBossAccess = userText.includes("@BossBayu2026") || userText.includes("@BayuBoss2026");
    
-   // Unified Detection: If user starts with Code + @TargetAgent + "command"
-   const bossModeMatch = userText.match(/(@BossBayu2026|@BayuBoss2026)\s+@(Ai_Master|Ai_Seller|Master|Seller)\s+"([^"]+)"/i);
+   // Unified Detection: If user starts with Code + @TargetAgent + command
+   const bossModeMatch = userText.match(/(@BossBayu2026|@BayuBoss2026)\s+@(Ai_Master|Ai_Seller|Master|Seller)[:\s]+(.+)/i);
    
    let targetAgent = 'seller'; 
    let activeCommand = '';
    
    if (bossModeMatch) {
-      const target = bossModeMatch[1].toLowerCase();
-      activeCommand = bossModeMatch[2];
+      const agentRequested = bossModeMatch[2].toLowerCase();
+      activeCommand = bossModeMatch[3];
       
-      if (target.includes('master')) targetAgent = 'master';
+      if (agentRequested.includes('master')) targetAgent = 'master';
       else targetAgent = 'seller_expert';
       
       // Inject the command as the last message for immediate action
@@ -127,7 +127,9 @@ export async function POST(req: Request) {
       master: `You are "Ai_Master", the high-level orchestrator. 
       ${addressRule}
       Goal: Monitor ecosystem health, status reports, and execute system commands.
-      NOTE: You can report on Orders and Status if prompted.`
+      NOTE: You can report on Orders and Status if prompted.`,
+
+      most_popular: `B1, C1, E28A, C2, C12, D1, D2, D12, E33G`
    };
 
    try {
@@ -138,16 +140,24 @@ export async function POST(req: Request) {
     ${systemPrompts[targetAgent] || systemPrompts.seller}
     
     KNOWLEDGE:
-    VISAS: ${visaContext}
+    MOST POPULAR VISAS: ${systemPrompts.most_popular}
+    VISAS DATABASE: ${visaContext}
     PAGES: ${WEBPAGE_KNOWLEDGE}
     CALLING VISAS: ${callingVisaCountries}
     
+    STRICT RULES:
+    - ONLY recommend internal links starting with https://indonesianvisas.com/
+    - If a user asks about a specific visa (e.g., C1, B1, D12), you MUST provide the direct service link: https://indonesianvisas.com/services/[ID]
+    - MOST POPULAR VISAS should be prioritized in your consultation.
+    - Inform users they can APPLY and PAY directly on the specific visa child page (/services/[ID]).
+    - For restricted nationalities (CALLING VISAS), inform them they can use the "Negotiated Price" options to get a custom treatment and payment link.
+    - DO NOT recommend bali.enterprises or any other external domain.
+    
     BEHAVIOR:
     - Auto-detect language.
-    - If talking to Boss: Be professional, direct, and elite. No fluff.
-    - If talking to Customer: Be helpful, encouraging, and redirect to /apply.
-    - If command detected in Boss Mode: Focus purely on that command action.
-    - Use [BTN:Label|Path] for action buttons.
+    - If talking to Boss: Be professional, direct, and elite. No fluff. Use loyal tone.
+    - If talking to Customer: Be the "Rational Consultant". Use data/facts. Drive to conversion via /services/[ID].
+    - Use [BTN:Label|Path] for buttons (e.g. [BTN:Apply for C1|/services/C1]).
     `,
          onFinish: async ({ text }) => {
             try {

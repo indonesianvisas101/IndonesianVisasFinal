@@ -301,7 +301,15 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [refreshVisas, refreshAddons]);
 
-    const openPanel = () => setState((prev) => ({ ...prev, isPanelOpen: true }));
+    const openPanel = () => {
+        setState((prev) => {
+            const updates: Partial<ApplicationState> = { isPanelOpen: true };
+            if (!prev.arrivalDate) {
+                updates.arrivalDate = new Date().toISOString().split('T')[0];
+            }
+            return { ...prev, ...updates };
+        });
+    };
     const closePanel = () => setState((prev) => ({ ...prev, isPanelOpen: false }));
 
     const setStep = (step: number) => setState((prev) => ({ ...prev, currentStep: step }));

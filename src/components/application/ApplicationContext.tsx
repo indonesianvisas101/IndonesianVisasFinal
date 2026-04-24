@@ -76,10 +76,9 @@ interface ApplicationState {
         idiv: boolean; // NEW: ID Indonesian Visas
         idg: boolean; // NEW: Indonesian ID Guide
     };
-    // New: Dynamic Addons from DB
     addons: any[];
-    // New: Popular Visas logic
     popularVisaIds: string[];
+    customPrice: number | null;
 }
 
 export interface AppNotification {
@@ -102,7 +101,7 @@ interface ApplicationContextType extends ApplicationState {
     updateData: (key: keyof ApplicationState, value: any) => void;
     updatePersonalInfo: (key: keyof ApplicationState['personalInfo'], value: string) => void;
     updateTraveler: (index: number, key: string, value: string) => void;
-    updateTravelerDocument: (index: number, type: 'passportPhoto'|'recentPhoto'|'proofOfAccommodation', file: File | null) => void;
+    updateTravelerDocument: (index: number, type: 'passportPhoto' | 'recentPhoto' | 'proofOfAccommodation', file: File | null) => void;
     markStepComplete: (step: number) => void;
     resetApplication: () => void;
     // Documents
@@ -169,7 +168,8 @@ const defaultState: ApplicationState = {
         idg: false
     },
     addons: [],
-    popularVisaIds: []
+    popularVisaIds: [],
+    customPrice: null
 };
 
 // Types
@@ -316,13 +316,13 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 ...prev,
                 personalInfo: { ...prev.personalInfo, [key]: value },
             };
-            
+
             // SIDE EFFECT: Ghost Lead Capture
             // If we have email and at least one other field (name or phone), save as lead
             if (newState.personalInfo.email && (newState.personalInfo.firstName || newState.personalInfo.phone)) {
                 saveLead(newState);
             }
-            
+
             return newState;
         });
     };
@@ -368,7 +368,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
-    const updateTravelerDocument = (index: number, type: 'passportPhoto'|'recentPhoto'|'proofOfAccommodation', file: File | null) => {
+    const updateTravelerDocument = (index: number, type: 'passportPhoto' | 'recentPhoto' | 'proofOfAccommodation', file: File | null) => {
         setState((prev) => {
             const newDocs = [...(Array.isArray(prev.documents) ? prev.documents : [prev.documents])];
             // Ensure the nested object exists

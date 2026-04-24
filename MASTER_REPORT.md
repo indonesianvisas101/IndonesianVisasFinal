@@ -1,5 +1,5 @@
 # 🧠 INDONESIAN VISAS: COMPREHENSIVE MASTER INTELLIGENCE REPORT
-**Version:** 55.5.0 (GCI Hardened & Global Dominance) | **Date:** April 1, 2026
+**Version:** 56.2.0 (Negotiated Pricing Hardened) | **Date:** April 24, 2026
 **Status:** Hardened & Production Ready | **Confidentiality:** Boss Bayu Authorized
 
 ---
@@ -63,6 +63,12 @@ The system is governed by a **Semi-Autonomous Multi-Agent Framework** where role
     - **Midtrans**: Generates a 24-hour Snap Token for IDR payments.
     - **PayPal**: Direct capture integration with auto-invoice generation and **localized redirect support** (maintains `/en`, `/id` paths).
 5. **Step 4 (Success & Onboarding)**: Immediate redirection to `/thanks`. An automated "Create Hub Account" suggestion is sent to the user's email to facilitate status tracking.
+6. **Negotiated Pricing Tier**: Specialized "Negotiated" tier selection added to all visas. 
+    - **Step 1/2**: User selects "Negotiated" (Custom Price) tier in the visa card.
+    - **Step 4**: A dynamic input field allows manual IDR price entry. 
+    - **Tax & Fees**: The system automatically calculates **2% PPh 23 Tax** and a **4% Platform Fee** on top of the manual amount.
+    - **Audit**: Every negotiated order is tagged with `[NEGOTIATED RATE: <rate>]` in the admin notes for 1:1 invoice transparency.
+7. **Calling Visa Logic**: Now unified with the standard flow for maximum security. High-risk nationalities are no longer redirected to static expired paylinks, but instead utilize the dynamic "Negotiated" pricing Tier, ensuring fresh, secure DOKU/PayPal links for every transaction.
 
 ### 3.2 Tracking and Management
 - **Customer Side**: `/check-status` and the private Dashboard allow users to track their application.

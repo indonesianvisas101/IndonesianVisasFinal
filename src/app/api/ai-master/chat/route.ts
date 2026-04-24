@@ -420,8 +420,12 @@ ${siteKnowledgeContext}`
                         const visas = await prisma.visa.findMany();
                         const issues: string[] = [];
                         visas.forEach(v => {
-                            if (!v.price || v.price === '{}' || v.price === 'null') issues.push(`${v.id}: missing price`);
-                            if (!v.fee || v.fee === '{}') issues.push(`${v.id}: missing fee`);
+                            // Harden check: Only flag if truly empty/null/default JSON
+                            const isMissingPrice = !v.price || v.price.trim() === '' || v.price === '{}' || v.price === 'null' || v.price === '0';
+                            const isMissingFee = !v.fee || v.fee.trim() === '' || v.fee === '{}';
+                            
+                            if (isMissingPrice) issues.push(`${v.id}: missing price`);
+                            if (isMissingFee) issues.push(`${v.id}: missing fee`);
                         });
 
                         const log = await prisma.aIRiskLog.create({

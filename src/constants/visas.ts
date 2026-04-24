@@ -227,7 +227,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Single-Entry Visitor Visas",
         "name": "Content Creator Visitor Visa",
         "description": "Indonesian Content Creator Visitor Visa",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -311,7 +311,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Single-Entry Visitor Visas",
         "name": "Sports Event Visitor Visa",
         "description": "Indonesian Sports Event Visitor Visa",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -686,7 +686,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Multiple-Entry Visitor Visas",
         "name": "Government Mission Visa",
         "description": "Indonesian Government Mission Visa",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -714,7 +714,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Multiple-Entry Visitor Visas",
         "name": "Sports Event Visa",
         "description": "Indonesian Sports Event Visa",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -774,7 +774,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "SEZ Work Visa",
         "description": "Indonesian SEZ Work Visa",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -788,7 +788,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Domestic Staff Diplomat",
         "description": "Indonesian Domestic Staff Diplomat",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -802,7 +802,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Economic/Trade Office Work",
         "description": "Indonesian Economic/Trade Office Work",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -816,7 +816,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Gov-Appointed Expert",
         "description": "Indonesian Gov-Appointed Expert",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -830,7 +830,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Digital Sector Expert",
         "description": "Indonesian Digital Sector Expert",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -844,7 +844,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Commissioner/Executive",
         "description": "Indonesian Commissioner/Executive",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -858,7 +858,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Non-Executive Commissioner",
         "description": "Indonesian Non-Executive Commissioner",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -872,7 +872,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Company Director",
         "description": "Indonesian Company Director",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -886,7 +886,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Deputy Director",
         "description": "Indonesian Deputy Director",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -900,7 +900,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "General Manager",
         "description": "Indonesian General Manager",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -914,7 +914,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Company Manager",
         "description": "Indonesian Company Manager",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -928,7 +928,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Company Supervisor",
         "description": "Indonesian Company Supervisor",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -942,7 +942,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Offshore/Maritime Crew",
         "description": "Indonesian Offshore/Maritime Crew",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -956,7 +956,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Work Visas",
         "name": "Religious Worker",
         "description": "Indonesian Religious Worker",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -984,7 +984,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Investor Visas",
         "name": "Investor Visa",
         "description": "Indonesian Investor Visa",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1057,7 +1057,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Investor Visas",
         "name": "SEZ Investor Visa",
         "description": "Indonesian SEZ Investor Visa",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1099,7 +1099,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Student Visas",
         "name": "Student Visa",
         "description": "Indonesian Student Visa",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1342,7 +1342,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Repatriation and Descendant Visas",
         "name": "Repatriation Visa",
         "description": "Indonesian Repatriation Visa",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1412,7 +1412,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Repatriation and Descendant Visas",
         "name": "Permanent Resident Repatriation",
         "description": "Indonesian Permanent Resident Repatriation",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1426,7 +1426,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Repatriation and Descendant Visas",
         "name": "Special Expertise Repatriation",
         "description": "Indonesian Special Expertise Repatriation",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1440,7 +1440,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Repatriation and Descendant Visas",
         "name": "Permanent Resident Descendant",
         "description": "Indonesian Permanent Resident Descendant",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1454,7 +1454,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Repatriation and Descendant Visas",
         "name": "Special Expertise Descendant",
         "description": "Indonesian Special Expertise Descendant",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1524,7 +1524,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Special Residency Visas",
         "name": "Distinguished Entrepreneur",
         "description": "Indonesian Distinguished Entrepreneur",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1580,7 +1580,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Special Residency Visas",
         "name": "Medical Treatment Resident",
         "description": "Indonesian Medical Treatment Resident",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [
@@ -1608,7 +1608,7 @@ export const VISA_DATABASE: VisaType[] = [
         "category": "Working Holiday Visas",
         "name": "Australia Working Holiday",
         "description": "Indonesian Australia Working Holiday",
-        "price": 0,
+        "price": "Contact Us",
         "fee": 0,
         "validity": "Select Duration",
         "requirements": [

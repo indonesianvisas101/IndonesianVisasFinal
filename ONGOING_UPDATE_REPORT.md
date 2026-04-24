@@ -3883,3 +3883,44 @@ If any test fails:
 ---
 
 ***PHASE 56 / 102 COMPLETE — HARDENED & PRODUCTION READY***
+
+---
+
+***PHASE 102.1 — SPECIALIZED PAYMENT FLOW & CALLING VISA HARDENING (APRIL 14, 2026)***
+
+#### 💳 Specialized Calling Visa Payment Engine
+- **Custom DOKU Paylink Integration**: Implemented a specialized redirection flow to `https://pay.doku.com/p-link/p/CallingVIsa` for "Calling Visa" and "Special Treatment" countries (e.g., Afghanistan, Nigeria, Somalia, Israel, Cameroon, Guinea, Liberia, North Korea).
+- **Recommended Method UI**: In Step 4 (Payment), users from target countries are now presented with a high-visibility "RECOMMENDED" payment block with specialized Zap icons and amber branding.
+- **Invoicing Synchronization**: Fixed the synchronization logic to ensure an `Invoice` record and `VisaApplication` are created in the database *before* the external redirect.
+- **Audit Trails**: Added auto-generated internal admin notes `[CALLING VISA P-LINK]` for every transaction processed via this flow to assist manual reconciliation.
+
+#### 📄 Public Invoice Hardening & UX
+- **Intelligent Pay Now Button**: The public invoice page (`/invoice/[id]`) now dynamically detects restricted countries and provides a "Process Calling Visa Payment" button with specialized logic and premium visuals.
+- **Status Maintenance**: Re-verified that "Manual" (Consult with Agent) remains an option while prioritizing the DOKU Paylink.
+
+---
+
+***PHASE 102.1 COMPLETE — HARDENED & PRODUCTION READY***
+
+---
+
+***PHASE 102.2 — NEGOTIATED PRICING & DYNAMIC TIER HARDENING (APRIL 24, 2026)***
+
+#### 💰 Negotiated Price Tier & Custom Billing
+- **Dynamic Tier Integration**: Implemented a "Negotiated" (Custom) tier available globally for all visa types.
+- **Informational UI**: Added a "Flexible Payment Options Available" info box in Step 1 to educate users about negotiated pricing possibilities via WhatsApp.
+- **Manual Price Input (Step 4)**: Developed a dynamic input field appearing strictly when the "Negotiated" tier is selected.
+- **Tax & Fee Automation**: Integrated real-time calculations for **2% PPh 23 Tax** and a **4% Platform Fee** on top of any custom amount, ensuring 100% financial transparency.
+- **Audit Logging**: Automated tagging in `adminNotes` with the exact negotiated rate to prevent invoice reconciliation errors.
+
+#### 🛠️ System Hardening & Redundancy Removal
+- **Calling Visa Flow Optimization**: Entirely removed the redundant and expired "Calling Visa P-Link" buttons. Restricted countries are now funneled through the more secure and fresh "Negotiated" tier flow.
+- **Legend & Documentation**: Updated the "Visa Type Information" master legend in the application panel to include the Negotiated tier description.
+- **Production Validation**: Successfully ran a clean production build (`npm run build`) following the removal of legacy DOKU shortlink code.
+- **UI Refining**: Refined payment method labels for better conversion:
+    - PayPal → "PayPal or Visa/Master Card or Credit Card"
+    - DOKU → "Local Bank, QRIS, Visa/Master Card, JCB & Amex"
+
+---
+
+***PHASE 102.2 COMPLETE — HARDENED & PRODUCTION READY***

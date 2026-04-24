@@ -86,6 +86,10 @@ const ApplicationPanel = () => {
                                                     <span className={styles.infoLabel}>Priority</span>
                                                     <span className={styles.infoValue}>5-7 Work Days Application</span>
                                                 </div>
+                                                <div className={styles.infoItem}>
+                                                    <span className={styles.infoLabel}>Negotiated</span>
+                                                    <span className={styles.infoValue}>Custom Rate Agreed with Support (Step 4)</span>
+                                                </div>
                                             </div>
                                             <div className={styles.infoAddOn}>
                                                 <span className={styles.infoLabel}>Add-Ons "Express Processing"</span>

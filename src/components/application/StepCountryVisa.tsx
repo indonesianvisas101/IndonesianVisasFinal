@@ -7,7 +7,7 @@ import Image from "next/image";
 import styles from "./StepCountryVisa.module.css";
 import { COUNTRY_DATA } from "@/constants/countries";
 import { VisaType, POPULAR_VISA_IDS } from "@/constants/visas";
-import { Search, Users, Calendar, ArrowRight, CheckCircle, Flag, Info, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Users, Calendar, ArrowRight, CheckCircle, Flag, Info, AlertCircle, ChevronDown, ChevronUp, Zap, ShieldCheck } from "lucide-react";
 import { calculateVisaTotal } from "@/lib/utils";
 import { Typography, Box } from "@mui/material";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
@@ -17,15 +17,15 @@ import { useParams } from "next/navigation";
 
 
 const StepCountryVisa = () => {
-    const { 
-        country, 
-        updateData, 
-        setStep, 
-        numPeople, 
-        arrivalDate, 
-        visaType, 
+    const {
+        country,
+        updateData,
+        setStep,
+        numPeople,
+        arrivalDate,
+        visaType,
         priceTier,
-        markStepComplete, 
+        markStepComplete,
         visas,
         upsells,
         toggleUpsell,
@@ -64,9 +64,9 @@ const StepCountryVisa = () => {
     const handleVisaSelect = (visaName: string) => {
         let isTierResolved = false;
 
-        if (visaType !== visaName) { 
+        if (visaType !== visaName) {
             updateData("visaType", visaName);
-            
+
             // Auto-select tier if there is exactly ONE option
             const selectedVisa = visas.find(v => v.name === visaName);
             if (selectedVisa) {
@@ -110,7 +110,7 @@ const StepCountryVisa = () => {
         updateData("visaType", visaName); // Single-click selection link
         updateData("priceTier", tierName);
         setValidationError(null);
-        
+
         // AUTO DIRECT TO CTA CONTINUE AFTER SELECT TIER
         setTimeout(() => {
             actionAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -135,7 +135,7 @@ const StepCountryVisa = () => {
 
         // Validation: If visa has multiple tiers, one must be selected
         const selectedVisa = visas.find(v => v.name === visaType || v.id === visaType);
-        
+
         if (selectedVisa && typeof selectedVisa.price === 'object' && selectedVisa.price !== null) {
             if (!priceTier) {
                 setValidationError(`Please select a duration/tier for ${selectedVisa.name}.`);
@@ -182,14 +182,14 @@ const StepCountryVisa = () => {
         .sort((a, b) => POPULAR_VISA_IDS.indexOf(a.id) - POPULAR_VISA_IDS.indexOf(b.id));
 
     const otherVisas = visas.filter(v => !POPULAR_VISA_IDS.includes(v.id));
-    
+
     const displayedVisas = React.useMemo(() => {
         const baseVisas = showAllVisas ? [...popularVisas, ...otherVisas] : popularVisas;
         if (!visaSearch) return baseVisas;
-        
+
         const lowerSearch = visaSearch.toLowerCase();
-        return (showAllVisas ? baseVisas : [...popularVisas, ...otherVisas]).filter(v => 
-            v.name.toLowerCase().includes(lowerSearch) || 
+        return (showAllVisas ? baseVisas : [...popularVisas, ...otherVisas]).filter(v =>
+            v.name.toLowerCase().includes(lowerSearch) ||
             v.description.toLowerCase().includes(lowerSearch) ||
             v.id.toLowerCase().includes(lowerSearch)
         );
@@ -198,8 +198,8 @@ const StepCountryVisa = () => {
     return (
         <div className={styles.container}>
             <motion.div
-                animate={{ 
-                    height: isTopRowCollapsed ? 0 : "auto", 
+                animate={{
+                    height: isTopRowCollapsed ? 0 : "auto",
                     opacity: isTopRowCollapsed ? 0 : 1,
                     marginBottom: isTopRowCollapsed ? 0 : 24,
                     scale: isTopRowCollapsed ? 0.95 : 1
@@ -251,7 +251,7 @@ const StepCountryVisa = () => {
                 <div className="flex items-center gap-2">
                     <h4 className={styles.subHeading}>Select Your Country</h4>
                     {isTopRowCollapsed && (
-                        <button 
+                        <button
                             onClick={() => { setSearchTerm(""); setIsSearchFocused(false); }}
                             className="text-[10px] text-primary hover:underline"
                         >
@@ -295,6 +295,29 @@ const StepCountryVisa = () => {
                 </div>
             </div>
 
+            {/* NEW: Custom / Negotiated Tier Information */}
+            <div className="mt-6 mb-8 p-6 bg-primary/5 border border-primary/20 rounded-[2rem] animate-fade-in shadow-sm">
+                <div className="flex items-start gap-4">
+                    <div className="p-3 bg-primary/10 text-primary rounded-2xl shrink-0 shadow-inner">
+                        <Zap size={24} />
+                    </div>
+                    <div>
+                        <h4 className="text-lg font-black mode-aware-text mb-1 tracking-tight">Flexible Payment Options Available</h4>
+                        <p className="text-gray-500 dark:text-gray-400 text-[11px] leading-relaxed font-medium">
+                            Already negotiated a price with our agent on WhatsApp? Use the <strong>"Negotiated"</strong> tier after selecting your visa type to input your agreed custom rate.
+                        </p>
+                        <div className="flex gap-4 mt-3">
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600">
+                                <CheckCircle size={12} /> Standard Tax & Fees Apply
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600">
+                                <ShieldCheck size={12} /> Secure Gateway Access
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Visa Selection */}
             <div className={styles.visaSection} ref={visaSectionRef}>
                 <div className={styles.visaHeaderContainer}>
@@ -305,7 +328,7 @@ const StepCountryVisa = () => {
                     <div className={styles.visaActionArea}>
                         <div className={`${styles.visaSearchBox} ${visaSearch ? styles.visaSearchActive : ''}`}>
                             <Search size={14} className="text-gray-400" />
-                            <input 
+                            <input
                                 type="text"
                                 placeholder="Search visa..."
                                 className="bg-transparent border-none outline-none text-xs w-full py-1"
@@ -323,56 +346,56 @@ const StepCountryVisa = () => {
                 </div>
 
                 {/* Special Country Warning */
-                (() => {
-                    const c = COUNTRY_DATA.find(x => x.name === country);
-                    if (!c) return null;
-                    if (c.isSpecial) {
-                        return (
-                            <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl animate-fade-in">
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-amber-100 text-amber-600 rounded-full shrink-0">
-                                        <Info size={24} />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-lg font-bold text-amber-800 mb-2">Special Visa Requirements Apply</h4>
-                                        <div className="text-amber-700 text-sm leading-relaxed space-y-2">
-                                            <p>Citizens of <strong>{country}</strong> are subject to <strong>Calling Visa</strong> regulations (Special Treatment).</p>
-                                            <ul className="list-disc pl-5 mt-2 space-y-1">
-                                                <li>Additional processing time is required (approx. 2-3 months).</li>
-                                                <li>Must obtain approval from the Director General of Immigration.</li>
-                                                <li>A specialized clearing house process is involved.</li>
-                                            </ul>
-                                            <p className="mt-2 text-xs font-bold uppercase tracking-wider">Please contact our support team for specialized assistance.</p>
+                    (() => {
+                        const c = COUNTRY_DATA.find(x => x.name === country);
+                        if (!c) return null;
+                        if (c.isSpecial) {
+                            return (
+                                <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl animate-fade-in">
+                                    <div className="flex items-start gap-4">
+                                        <div className="p-2 bg-amber-100 text-amber-600 rounded-full shrink-0">
+                                            <Info size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-lg font-bold text-amber-800 mb-2">Special Visa Requirements Apply</h4>
+                                            <div className="text-amber-700 text-sm leading-relaxed space-y-2">
+                                                <p>Citizens of <strong>{country}</strong> are subject to <strong>Calling Visa</strong> regulations (Special Treatment).</p>
+                                                <ul className="list-disc pl-5 mt-2 space-y-1">
+                                                    <li>Additional processing time is required (approx. 2-3 months).</li>
+                                                    <li>Must obtain approval from the Director General of Immigration.</li>
+                                                    <li>A specialized clearing house process is involved.</li>
+                                                </ul>
+                                                <p className="mt-2 text-xs font-bold uppercase tracking-wider">Please contact our support team for specialized assistance.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    }
-                    if (c.isUnregistered) {
-                        return (
-                            <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl animate-fade-in">
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-red-100 text-red-600 rounded-full shrink-0">
-                                        <AlertCircle size={24} />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-lg font-bold text-red-800 mb-2">Unregistered / Special Treatment Country</h4>
-                                        <div className="text-red-700 text-sm leading-relaxed space-y-2">
-                                            <p>Citizens of <strong>{country}</strong> are currently categorized as Special Treatment in our system.</p>
-                                            <ul className="list-disc pl-5 mt-2 space-y-1">
-                                                <li>Your visa might require custom clearing or sponsorship.</li>
-                                                <li>Pricing and validity will be customized based on immigration policies.</li>
-                                            </ul>
-                                            <p className="mt-2 text-xs font-bold uppercase tracking-wider">Please proceed, and our agent will contact you shortly to verify your eligibility.</p>
+                            );
+                        }
+                        if (c.isUnregistered) {
+                            return (
+                                <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl animate-fade-in">
+                                    <div className="flex items-start gap-4">
+                                        <div className="p-2 bg-red-100 text-red-600 rounded-full shrink-0">
+                                            <AlertCircle size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-lg font-bold text-red-800 mb-2">Unregistered / Special Treatment Country</h4>
+                                            <div className="text-red-700 text-sm leading-relaxed space-y-2">
+                                                <p>Citizens of <strong>{country}</strong> are currently categorized as Special Treatment in our system.</p>
+                                                <ul className="list-disc pl-5 mt-2 space-y-1">
+                                                    <li>Your visa might require custom clearing or sponsorship.</li>
+                                                    <li>Pricing and validity will be customized based on immigration policies.</li>
+                                                </ul>
+                                                <p className="mt-2 text-xs font-bold uppercase tracking-wider">Please proceed, and our agent will contact you shortly to verify your eligibility.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    }
-                    return null;
-                })()}
+                            );
+                        }
+                        return null;
+                    })()}
 
                 <div className={styles.visaGrid}>
                     {displayedVisas.map((visa) => (
@@ -400,7 +423,7 @@ const StepCountryVisa = () => {
                                                     <div className="text-xl font-black text-amber-500">
                                                         {totalData as string}
                                                     </div>
-                                                    <Link 
+                                                    <Link
                                                         href={`/${locale}/services/${visa.id}`}
                                                         className={styles.detailsBtn}
                                                         onClick={(e) => {
@@ -418,14 +441,14 @@ const StepCountryVisa = () => {
                                             <div className="flex flex-col gap-3 items-center w-full">
                                                 <AnimatePresence mode="wait">
                                                     {!isExpanded ? (
-                                                        <motion.div 
+                                                        <motion.div
                                                             key="collapsed"
                                                             initial={{ opacity: 0, y: 10 }}
                                                             animate={{ opacity: 1, y: 0 }}
                                                             exit={{ opacity: 0, y: -10 }}
                                                             className={styles.ctaGroup}
                                                         >
-                                                            <Link 
+                                                            <Link
                                                                 href={`/${locale}/services/${visa.id}`}
                                                                 className={styles.detailsBtn}
                                                                 onClick={(e) => {
@@ -435,7 +458,7 @@ const StepCountryVisa = () => {
                                                             >
                                                                 Details
                                                             </Link>
-                                                            <button 
+                                                            <button
                                                                 className={styles.selectTierBtn}
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
@@ -447,7 +470,7 @@ const StepCountryVisa = () => {
                                                             </button>
                                                         </motion.div>
                                                     ) : (
-                                                        <motion.div 
+                                                        <motion.div
                                                             key="expanded"
                                                             initial={{ opacity: 0, height: 0 }}
                                                             animate={{ opacity: 1, height: "auto" }}
@@ -457,7 +480,7 @@ const StepCountryVisa = () => {
                                                             <div className="text-xl font-black text-amber-500 mb-2">
                                                                 {priceTier && totalData[priceTier] ? totalData[priceTier] : "Select Pricing"}
                                                             </div>
-                                                            
+
                                                             <div className={styles.tierSelection}>
                                                                 {Object.entries(totalData).map(([tier, price]) => (
                                                                     <button
@@ -469,9 +492,17 @@ const StepCountryVisa = () => {
                                                                         <div>{price as string}</div>
                                                                     </button>
                                                                 ))}
+                                                                {/* NEW: Custom / Negotiated Tier */}
+                                                                <button
+                                                                    onClick={(e) => handleTierSelect("Custom", visa.name, e)}
+                                                                    className={`${styles.tierBtn} ${priceTier === "Custom" ? styles.tierBtnActive : ''} border-dashed border-primary/40`}
+                                                                >
+                                                                    <div className="opacity-70 text-[10px] uppercase font-bold text-primary">Negotiated</div>
+                                                                    <div className="text-[11px] font-bold">Custom Price</div>
+                                                                </button>
                                                             </div>
 
-                                                            <button 
+                                                            <button
                                                                 className="mt-3 text-[10px] text-gray-400 uppercase font-black hover:text-primary transition-colors"
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
@@ -483,7 +514,7 @@ const StepCountryVisa = () => {
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
-                                                
+
                                                 {isExpanded && visaType === visa.name && !priceTier && (
                                                     <div className="w-full mt-2 p-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold text-center rounded flex items-center justify-center gap-1.5 animate-fade-in shadow-sm">
                                                         <AlertCircle size={14} /> Please select a tier to continue
@@ -526,13 +557,13 @@ const StepCountryVisa = () => {
 
             {/* IDIV PREMIUM ADD-ON (NEW) */}
             <div className="mt-10 mb-6">
-                <div 
+                <div
                     className={`glass-card p-6 border-2 transition-all cursor-pointer relative overflow-hidden group ${upsells.idiv ? 'border-primary bg-primary/5 ring-4 ring-primary/10' : 'border-slate-200 dark:border-white/10'}`}
                     onClick={() => toggleUpsell('idiv')}
                 >
                     {/* Highlight Effect */}
                     <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-                    
+
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                         <div className="flex items-start gap-4">
                             <div className={`p-4 rounded-2xl transition-colors ${upsells.idiv ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-500'}`}>
@@ -546,7 +577,7 @@ const StepCountryVisa = () => {
                                 <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">
                                     Get your dedicated Digital ID Card. This acts as a verified sponsor ID for travelers and has proven to help a lot of travelers during their stay in Indonesia.
                                 </p>
-                                
+
                                 <div className="mt-3 flex items-center gap-4">
                                     <div className="flex items-center gap-1.5 text-xs font-bold text-success-main">
                                         <CheckCircle size={14} /> Official Verified Sponsor ID
@@ -564,7 +595,7 @@ const StepCountryVisa = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="text-right flex flex-col items-end gap-2">
                             {upsells.idiv && (
                                 <div className="scale-75 origin-right mb-[-40px] mt-[-20px] hidden md:block">

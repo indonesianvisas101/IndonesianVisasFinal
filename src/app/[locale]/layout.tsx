@@ -145,9 +145,6 @@ export default async function LocaleLayout({
         <link rel="preload" as="image" href="/Favicon.webp" fetchPriority="high" type="image/webp" />
         
         <GoogleTagManagerWrapper gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
-      </head>
-      <body className={inter.className} suppressHydrationWarning>
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -171,6 +168,9 @@ export default async function LocaleLayout({
             })
           }}
         />
+      </head>
+      <body className={inter.className} suppressHydrationWarning>
+
         <GlobalUIProvider>
           <Suspense fallback={null}>
             <GlobalUIOverlay />

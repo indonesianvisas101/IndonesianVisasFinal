@@ -30,7 +30,7 @@ const StepPayment = () => {
     const {
         visaType, country, personalInfo, setStep, documents, markStepComplete, resetApplication, closePanel,
         visas, numPeople, travelers, upsells, toggleUpsell, addons,
-        priceTier, arrivalDate
+        priceTier, arrivalDate, updateData, customPrice
     } = useApplication();
     const params = useParams();
     const locale = params?.locale || 'en';
@@ -39,7 +39,7 @@ const StepPayment = () => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
     const [isConverting, setIsConverting] = useState(false);
-    
+
     // Inline PayPal State
     const [showPayPalButtons, setShowPayPalButtons] = useState(false);
     const [paymentInfo, setPaymentInfo] = useState<{ invoiceId: string, amount: number, currency: string } | null>(null);
@@ -76,7 +76,7 @@ const StepPayment = () => {
                 // Prioritize priceTier from context, fallback to first key
                 const tier = priceTier || Object.keys(currentVisa.price)[0];
                 baseAmount = parseCurrency(String((currentVisa.price as any)[tier] || "0"));
-                
+
                 // Also sync fee if it's tier-based
                 if (typeof currentVisa.fee === 'object' && currentVisa.fee !== null) {
                     feeAmount = parseCurrency(String((currentVisa.fee as any)[tier] || "0"));
@@ -93,7 +93,11 @@ const StepPayment = () => {
             feeAmount = parseCurrency(String(currentVisa.fee));
         }
 
-        visaTotal = (baseAmount + feeAmount) * numPeople;
+        if (priceTier === 'Custom') {
+            visaTotal = (customPrice || 0) * numPeople;
+        } else {
+            visaTotal = (baseAmount + feeAmount) * numPeople;
+        }
 
         const getAddonPrice = (sku: string) => {
             const addon = addons?.find(a => a.sku === sku);
@@ -126,7 +130,7 @@ const StepPayment = () => {
             docsArray.forEach((docSet, index) => {
                 if (!docSet) return;
                 travelerDocs[index] = {};
-                
+
                 Object.entries(docSet).forEach(([key, fileObj]) => {
                     const typedFile = fileObj as File | null;
                     if (typedFile && typedFile.size > 0) {
@@ -139,13 +143,13 @@ const StepPayment = () => {
                                 method: 'POST',
                                 body: formData
                             })
-                            .then(res => res.json())
+                                .then(res => res.json())
                                 .then(data => {
-                                if (data.url) {
-                                    travelerDocs[index][key] = data.url;
-                                }
-                            })
-                            .catch(e => console.error(`Failed to upload file for traveler ${index + 1}:`, key, e))
+                                    if (data.url) {
+                                        travelerDocs[index][key] = data.url;
+                                    }
+                                })
+                                .catch(e => console.error(`Failed to upload file for traveler ${index + 1}:`, key, e))
                         );
                     }
                 });
@@ -161,15 +165,15 @@ const StepPayment = () => {
 
             // 2. Aggregate Applications for each traveler
             console.log(`[CHECKOUT] Preparing ${numPeople} applications for consolidated submission...`);
-            
+
             for (let i = 0; i < numPeople; i++) {
                 const isPrimary = i === 0;
                 const travelerData = isPrimary ? null : travelers[i - 1];
-                
-                const name = isPrimary 
+
+                const name = isPrimary
                     ? `${personalInfo.firstName} ${personalInfo.lastName}`
                     : `${travelerData?.firstName} ${travelerData?.lastName}`;
-                
+
                 const email = isPrimary ? (personalInfo.email || "") : (travelerData?.email || "");
 
                 applications.push({
@@ -179,7 +183,7 @@ const StepPayment = () => {
                     guestName: name,
                     guestEmail: email,
                     paymentMethod: selectedMethod || 'Manual',
-                    customAmount: perPersonBaseAmount.toFixed(0), 
+                    customAmount: perPersonBaseAmount.toFixed(0),
                     visaAmount: perPersonVisaAmount.toFixed(0), // Decoupled Visa weight
                     addonsAmount: perPersonAddonsAmount.toFixed(0), // Decoupled Addons weight
                     quantity: 1,
@@ -195,7 +199,7 @@ const StepPayment = () => {
                         orderIndex: i + 1,
                         totalTravelers: numPeople
                     },
-                    adminNotes: (selectedMethod === 'DOKU_CALLING_VISA' ? "[CALLING VISA P-LINK] " : "") + 
+                    adminNotes: (priceTier === 'Custom' ? `[NEGOTIATED RATE: ${perPersonVisaAmount}] ` : "") +
                                (isPrimary && numPeople > 1 
                                  ? `Primary Payer of Split Order (${numPeople} Travelers total)`
                                  : `Split Order Traveler #${i + 1}`)
@@ -211,7 +215,7 @@ const StepPayment = () => {
 
             const checkoutData = await checkoutRes.json();
             if (!checkoutRes.ok) throw new Error(checkoutData.error || "Failed to process checkout");
-            
+
             const results = checkoutData.results || [checkoutData];
             if (!results || results.length === 0) throw new Error("No invoices generated.");
 
@@ -224,7 +228,7 @@ const StepPayment = () => {
                 const usdRate = CURRENCIES.find(c => c.code === 'USD')?.rate || 16250;
                 const grandTotalUSD = Math.ceil(finalInvoiceAmount / usdRate);
                 console.log("[CHECKOUT] Starting Inline PayPal for Primary Invoice:", invoiceId);
-                
+
                 // Store payment info for inline rendering
                 setPaymentInfo({
                     invoiceId: invoiceId,
@@ -233,15 +237,15 @@ const StepPayment = () => {
                 });
                 setShowPayPalButtons(true);
                 return;
-            } 
-            
+            }
+
             if (selectedMethod === 'DOKU') {
                 const dokuRes = await fetch("/api/payments/doku/checkout", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         invoiceId,
-                        amount: finalInvoiceAmount, 
+                        amount: finalInvoiceAmount,
                         customerDetails: {
                             first_name: personalInfo.firstName,
                             last_name: personalInfo.lastName,
@@ -250,7 +254,7 @@ const StepPayment = () => {
                         }
                     })
                 });
- 
+
                 if (!dokuRes.ok) {
                     const errorDetail = await dokuRes.json();
                     throw new Error(errorDetail.error || "Failed to fetch DOKU payment URL");
@@ -258,7 +262,7 @@ const StepPayment = () => {
                 const { paymentUrl } = await dokuRes.json();
                 window.location.href = paymentUrl;
                 return;
-            } 
+            }
 
             if (selectedMethod === 'DOKU_CALLING_VISA') {
                 console.log("[CHECKOUT] Redirecting to Calling Visa P-Link...");
@@ -266,7 +270,7 @@ const StepPayment = () => {
                 window.location.href = `https://pay.doku.com/p-link/p/CallingVIsa`;
                 return;
             }
-            
+
             if (selectedMethod === 'Manual' || !selectedMethod) {
                 markStepComplete(4);
                 setIsSuccess(true);
@@ -320,7 +324,7 @@ const StepPayment = () => {
             </button>
 
             <h3 className={styles.heading}>Fast Checkout</h3>
-            
+
             {isSpecialCountry && (
                 <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl flex items-start gap-4 animate-fade-in shadow-sm">
                     <Zap size={20} className="text-amber-600 mt-1 shrink-0" />
@@ -339,7 +343,7 @@ const StepPayment = () => {
                     <Zap size={16} className="text-primary" /> Premium Add-ons (Optional)
                 </h4>
                 <div className="space-y-3">
-                    <div 
+                    <div
                         className={`${styles.upsellItem} ${upsells.express ? styles.upsellActive : ''}`}
                         onClick={() => toggleUpsell('express')}
                     >
@@ -352,7 +356,7 @@ const StepPayment = () => {
                         </span>
                     </div>
 
-                    <div 
+                    <div
                         className={`${styles.upsellItem} ${upsells.insurance ? styles.upsellActive : ''}`}
                         onClick={() => toggleUpsell('insurance')}
                     >
@@ -365,7 +369,7 @@ const StepPayment = () => {
                         </span>
                     </div>
 
-                    <div 
+                    <div
                         className={`${styles.upsellItem} ${upsells.vip ? styles.upsellActive : ''}`}
                         onClick={() => toggleUpsell('vip')}
                     >
@@ -378,7 +382,7 @@ const StepPayment = () => {
                         </span>
                     </div>
 
-                    <div 
+                    <div
                         className={`${styles.upsellItem} ${upsells.idiv ? styles.upsellActive : ''}`}
                         onClick={() => toggleUpsell('idiv')}
                     >
@@ -391,7 +395,7 @@ const StepPayment = () => {
                         </span>
                     </div>
 
-                    <div 
+                    <div
                         className={`${styles.upsellItem} ${upsells.idg ? styles.upsellActive : ''}`}
                         onClick={() => toggleUpsell('idg')}
                     >
@@ -405,6 +409,31 @@ const StepPayment = () => {
                     </div>
                 </div>
             </div>
+
+            {/* NEW: Custom Price Input (Visible only if Custom tier selected) */}
+            {priceTier === 'Custom' && (
+                <div className={`glass-card p-6 mb-6 border-primary/20 bg-primary/5 animate-fade-in`}>
+                    <h4 className="text-sm font-black text-primary mb-4 flex items-center gap-2">
+                        <Zap size={16} /> Enter Negotiated Price
+                    </h4>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-[10px] uppercase font-black text-gray-400 mb-2 block">Agreed Price Per Person (IDR)</label>
+                            <div className="relative">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-500">IDR</div>
+                                <input 
+                                    type="number"
+                                    className="w-full bg-white dark:bg-slate-900 border-2 border-primary/20 rounded-2xl py-4 pl-14 pr-4 font-black text-xl text-primary outline-none focus:border-primary transition-all"
+                                    placeholder="Enter amount..."
+                                    value={customPrice || ""}
+                                    onChange={(e) => updateData("customPrice", parseInt(e.target.value) || 0)}
+                                />
+                            </div>
+                            <p className="text-[10px] text-gray-400 mt-2 font-medium">This price was agreed upon via WhatsApp or Support agent.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* 2. PERSONAL INFORMATION */}
             <div className={`glass-card p-4 mb-6 border-slate-100 dark:border-white/5`}>
@@ -439,7 +468,7 @@ const StepPayment = () => {
                     <h4 className={styles.summaryTitle}>Order Summary</h4>
                     <Chip label="Final Step" size="small" color="primary" variant="outlined" />
                 </div>
-                
+
                 <div className={styles.priceSummary}>
                     <div className={styles.priceRow}>
                         <span>{visaType}</span>
@@ -451,15 +480,15 @@ const StepPayment = () => {
                     </div>
 
                     {/* Upsells List */}
-                    {Object.entries(upsells).filter(([k,v]) => v).map(([k,v]) => (
+                    {Object.entries(upsells).filter(([k, v]) => v).map(([k, v]) => (
                         <div key={k} className={styles.priceRow}>
                             <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k === 'idg' ? 'Indonesian ID Guide' : k} Add-on</span>
                             <span className="text-xs font-bold text-primary">
-                               + IDR {k === 'idiv' ? (parseCurrency(addons?.find(a => a.sku === 'IDIV')?.price || "325000") * numPeople).toLocaleString() : 
-                                      k === 'idg' ? (parseCurrency(addons?.find(a => a.sku === 'IDG')?.price || "162500") * numPeople).toLocaleString() :
-                                      k === 'express' ? parseCurrency(addons?.find(a => a.sku === 'EXPRESS')?.price || "800000").toLocaleString() : 
-                                      k === 'insurance' ? parseCurrency(addons?.find(a => a.sku === 'INSURANCE')?.price || "500000").toLocaleString() : 
-                                      parseCurrency(addons?.find(a => a.sku === 'VIP')?.price || "1500000").toLocaleString()}
+                                + IDR {k === 'idiv' ? (parseCurrency(addons?.find(a => a.sku === 'IDIV')?.price || "325000") * numPeople).toLocaleString() :
+                                    k === 'idg' ? (parseCurrency(addons?.find(a => a.sku === 'IDG')?.price || "162500") * numPeople).toLocaleString() :
+                                        k === 'express' ? parseCurrency(addons?.find(a => a.sku === 'EXPRESS')?.price || "800000").toLocaleString() :
+                                            k === 'insurance' ? parseCurrency(addons?.find(a => a.sku === 'INSURANCE')?.price || "500000").toLocaleString() :
+                                                parseCurrency(addons?.find(a => a.sku === 'VIP')?.price || "1500000").toLocaleString()}
                             </span>
                         </div>
                     ))}
@@ -468,7 +497,7 @@ const StepPayment = () => {
                         <span>Tax (PPh 23 - 2%)</span>
                         <span className="font-bold">IDR {pph23Amount.toLocaleString()}</span>
                     </div>
-                    
+
                     <div className={styles.priceRow}>
                         <div className="flex items-center gap-1">
                             <span>Processing Fee</span>
@@ -495,7 +524,7 @@ const StepPayment = () => {
                     <RefreshCcw size={16} className="text-primary" />
                     <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Currency Converter</span>
                 </div>
-                
+
                 <div className={styles.currencyGrid}>
                     {CURRENCIES.map((curr) => (
                         <button
@@ -539,7 +568,7 @@ const StepPayment = () => {
                             <CreditCard size={24} />
                         </div>
                         <div className={styles.methodInfo}>
-                            <p className={styles.methodName}>PayPal / Credit Card</p>
+                            <p className={styles.methodName}>PayPal or Visa/Master Card or Credit Card</p>
                             <p className={styles.methodDesc}>Instant confirmation • International Card</p>
                         </div>
                         {selectedMethod === 'PayPal' && <CheckCircle size={20} className="text-accent ml-auto" />}
@@ -553,34 +582,11 @@ const StepPayment = () => {
                             <CreditCard size={24} />
                         </div>
                         <div className={styles.methodInfo}>
-                            <p className={styles.methodName}>Visa / Master Card (DOKU)</p>
+                            <p className={styles.methodName}>Local Bank, QRIS, Visa/Master Card, JCB & Amex</p>
                             <p className={styles.methodDesc}>Secure Local & Intl Payment gateway</p>
                         </div>
                         {selectedMethod === 'DOKU' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>
-
-                    {isSpecialCountry && (
-                        <button
-                            className={`${styles.methodOption} ${selectedMethod === 'DOKU_CALLING_VISA' ? styles.selected : ''} border-amber-300 bg-amber-50/30`}
-                            onClick={() => handleMethodSelect('DOKU_CALLING_VISA')}
-                        >
-                            <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
-                                <Zap size={24} />
-                            </div>
-                            <div className={styles.methodInfo}>
-                                <p className={styles.methodName}>Calling Visa Payment (P-Link)</p>
-                                <p className={styles.methodDesc}>Special Treatment Process • Priority Clearing</p>
-                            </div>
-                            {selectedMethod === 'DOKU_CALLING_VISA' ? (
-                                <CheckCircle size={20} className="text-amber-600 ml-auto" />
-                            ) : (
-                                <div className="flex flex-col items-end ml-auto">
-                                    <div className="text-[10px] font-black bg-amber-500 text-white px-2 py-0.5 rounded shadow-sm animate-pulse">RECOMMENDED</div>
-                                    <div className="text-[8px] text-amber-600 font-bold uppercase mt-1">For {country}</div>
-                                </div>
-                            )}
-                        </button>
-                    )}
 
                     <button
                         className={`${styles.methodOption} ${selectedMethod === 'Manual' ? styles.selected : ''}`}
@@ -609,7 +615,7 @@ const StepPayment = () => {
             {/* 7. CTA ORDER */}
             <div className={styles.actions}>
                 {selectedMethod === 'PayPal' && !showPayPalButtons && (
-                     <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-500/30 flex items-center gap-3">
+                    <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-500/30 flex items-center gap-3">
                         <Info size={18} className="text-blue-600" />
                         <p className="text-xs text-blue-700 dark:text-blue-400 font-medium">Review your order details above then click to generate your secure PayPal checkout.</p>
                     </div>
@@ -620,15 +626,15 @@ const StepPayment = () => {
                         <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2, textAlign: 'center', color: '#003087' }}>
                             SECURE PAYPAL CHECKOUT READY
                         </Typography>
-                        <PayPalIntegration 
+                        <PayPalIntegration
                             invoiceId={paymentInfo.invoiceId}
                             amount={paymentInfo.amount}
                             currency={paymentInfo.currency}
                         />
-                        <Button 
-                            variant="text" 
-                            size="small" 
-                            fullWidth 
+                        <Button
+                            variant="text"
+                            size="small"
+                            fullWidth
                             onClick={() => setShowPayPalButtons(false)}
                             sx={{ mt: 2, color: 'text.secondary', textTransform: 'none' }}
                         >
@@ -649,8 +655,8 @@ const StepPayment = () => {
                                 </>
                             ) : (
                                 <>
-                                    {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : (selectedMethod === 'DOKU_CALLING_VISA' ? <Zap size={24} /> : <ShoppingCart size={24} />))}
-                                    <span>{selectedMethod === 'Manual' ? 'SUBMIT APPLICATION' : (selectedMethod === 'PayPal' ? 'GENERATE PAYPAL LINK' : (selectedMethod === 'DOKU_CALLING_VISA' ? 'PAY VIA CALLING VISA P-LINK' : 'COMPLETE ORDER'))}</span>
+                                    {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : <ShoppingCart size={24} />)}
+                                    <span>{selectedMethod === 'Manual' ? 'SUBMIT APPLICATION' : (selectedMethod === 'PayPal' ? 'GENERATE PAYPAL LINK' : 'COMPLETE ORDER')}</span>
                                 </>
                             )}
                         </button>

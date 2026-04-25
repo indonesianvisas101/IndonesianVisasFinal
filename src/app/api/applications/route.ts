@@ -238,15 +238,26 @@ export async function POST(request: Request) {
                     const passportNum = `DUMMY-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
                     const guestNameFinal = guestName || (finalUserId ? (await tx.user.findUnique({ where: { id: finalUserId } }))?.name : null) || "Guest";
 
+                    const photoUrl = documents?.recentPhoto || null;
+                    const packedAddress = JSON.stringify({
+                        street: "",
+                        birthPlaceDate: attribution?.dob || "",
+                        gender: "",
+                        occupation: ""
+                    });
+                    const nationality = attribution?.country || "VERIFIED HOLDER";
+
                     await tx.$executeRawUnsafe(`
                         INSERT INTO "Verification" (
                             "id", "userId", "fullName", "passportNumber", "visaType", 
-                            "status", "slug", "createdAt", "updatedAt", "issuedDate", "expiresAt"
+                            "status", "slug", "createdAt", "updatedAt", "issuedDate", "expiresAt",
+                            "photoUrl", "address", "nationality"
                         ) VALUES (
                             $1, $2, $3, $4, $5, 
-                            $6, $7, $8::timestamptz, $8::timestamptz, $8::timestamptz, NULL
+                            $6, $7, $8::timestamptz, $8::timestamptz, $8::timestamptz, NULL,
+                            $9, $10, $11
                         )
-                    `, newVerifId, finalUserId || null, guestNameFinal, passportNum, visaName || visaId || 'Visa', status === 'Approved' || status === 'Active' ? 'VALID' : 'PENDING', verifSlug, now);
+                    `, newVerifId, finalUserId || null, guestNameFinal, passportNum, visaName || visaId || 'Visa', status === 'Approved' || status === 'Active' ? 'VALID' : 'PENDING', verifSlug, now, photoUrl, packedAddress, nationality);
 
                     finalVerificationId = newVerifId;
                 }

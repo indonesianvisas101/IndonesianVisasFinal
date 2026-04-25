@@ -44,36 +44,101 @@ export default function SmartIDHub() {
                     </motion.p>
                 </Box>
 
-                {/* 2. DUAL CARD GRID */}
-                <Grid container spacing={6}>
-                    {/* IDIV CARD */}
-                    <Grid size={{ xs: 12, md: 6 }}>
+                {/* 2. TRIPLE CARD GRID */}
+                <Grid container spacing={4}>
+                    {/* SMART ID CARD (NEW) */}
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <motion.div
-                            initial={{ opacity: 0, x: -40 }}
-                            whileInView={{ opacity: 1, x: 0 }}
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
                             style={{ height: '100%' }}
                         >
                             <Card sx={{ 
-                                height: '100%', borderRadius: 8, p: 4, 
+                                height: '100%', borderRadius: 8, p: 3, 
                                 border: '1px solid #f1f5f9', bgcolor: 'white',
                                 boxShadow: '0 20px 50px rgba(0,0,0,0.03)',
                                 display: 'flex', flexDirection: 'column',
                                 transition: 'transform 0.3s ease',
                                 '&:hover': { transform: 'translateY(-5px)', boxShadow: '0 30px 60px rgba(0,0,0,0.06)' }
                             }}>
-                                <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', transform: 'scale(0.9)' }}>
+                                <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', transform: 'scale(0.85)', transformOrigin: 'top center' }}>
+                                    <IDivCardModern mode="SMART" showDownload={false} autoRotate={false} />
+                                </Box>
+                                <CardContent sx={{ flexGrow: 1, p: 0, display: 'flex', flexDirection: 'column' }}>
+                                    <Stack direction="row" alignItems="center" gap={1} mb={1}>
+                                        <Star size={16} color="#0369a1" fill="#0369a1" />
+                                        <Typography variant="subtitle2" color="#0369a1" fontWeight="800">RESIDENT IDENTITY</Typography>
+                                    </Stack>
+                                    <Typography variant="h4" fontWeight="900" gutterBottom>Smart ID</Typography>
+                                    <Typography variant="body2" color="text.secondary" paragraph sx={{ minHeight: 80 }}>
+                                        The ultimate digital identity for **GCI and ITAP Holders**. Features full KTP-style data layout with NFC and secure global verification.
+                                    </Typography>
+
+                                    <Stack spacing={2} sx={{ mb: 4 }}>
+                                        <Box display="flex" gap={1.5} alignItems="center">
+                                            <ShieldCheck size={20} color="#0369a1" />
+                                            <Typography variant="body2" fontWeight="600">Full KTP-style Biometric Data</Typography>
+                                        </Box>
+                                        <Box display="flex" gap={1.5} alignItems="center">
+                                            <QrCode size={20} color="#0369a1" />
+                                            <Typography variant="body2" fontWeight="600">NFC & Dual Verification System</Typography>
+                                        </Box>
+                                        <Box display="flex" gap={1.5} alignItems="center">
+                                            <Settings size={20} color="#0369a1" />
+                                            <Typography variant="body2" fontWeight="600">Passport Integration Node</Typography>
+                                        </Box>
+                                    </Stack>
+
+                                    <Box sx={{ mt: 'auto' }}>
+                                        <Button 
+                                            component={Link} 
+                                            href={`/${locale}/ktp-id-card-smart-id`} 
+                                            variant="contained" 
+                                            fullWidth
+                                            sx={{ 
+                                                bgcolor: '#0369a1', '&:hover': { bgcolor: '#0284c7' },
+                                                py: 2, borderRadius: 4, fontWeight: 'bold', textTransform: 'none', fontSize: '1rem'
+                                            }}
+                                            endIcon={<ArrowRight size={18} />}
+                                        >
+                                            Get Smart ID
+                                        </Button>
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    </Grid>
+
+                    {/* IDIV CARD */}
+                    <Grid size={{ xs: 12, md: 4 }}>
+                        <motion.div
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.1 }}
+                            style={{ height: '100%' }}
+                        >
+                            <Card sx={{ 
+                                height: '100%', borderRadius: 8, p: 3, 
+                                border: '1px solid #f1f5f9', bgcolor: 'white',
+                                boxShadow: '0 20px 50px rgba(0,0,0,0.03)',
+                                display: 'flex', flexDirection: 'column',
+                                transition: 'transform 0.3s ease',
+                                '&:hover': { transform: 'translateY(-5px)', boxShadow: '0 30px 60px rgba(0,0,0,0.06)' }
+                            }}>
+                                <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', transform: 'scale(0.85)', transformOrigin: 'top center' }}>
                                     <IDivCardModern showDownload={false} autoRotate={false} />
                                 </Box>
                                 <CardContent sx={{ flexGrow: 1, p: 0, display: 'flex', flexDirection: 'column' }}>
                                     <Stack direction="row" alignItems="center" gap={1} mb={1}>
                                         <Star size={16} color="#D32F2F" fill="#D32F2F" />
-                                        <Typography variant="subtitle2" color="#D32F2F" fontWeight="800">PREMIUM ADD-ON</Typography>
+                                        <Typography variant="subtitle2" color="#D32F2F" fontWeight="800">SPONSOR VERIFIED</Typography>
                                     </Stack>
-                                    <Typography variant="h4" fontWeight="900" gutterBottom>Smart IDiv</Typography>
-                                    <Typography variant="body2" color="text.secondary" paragraph sx={{ minHeight: 60 }}>
-                                        The official **Sponsor Verification ID** for travelers with active visas issued by IndonesianVisas.com. Legally guarantees your sponsorship standing node.
+                                    <Typography variant="h4" fontWeight="900" gutterBottom>IDiv</Typography>
+                                    <Typography variant="body2" color="text.secondary" paragraph sx={{ minHeight: 80 }}>
+                                        The official **Sponsor Verification ID** for travelers with active ITAS or Multiple Entry Visas. Proof of legal sponsorship.
                                     </Typography>
 
                                     <Stack spacing={2} sx={{ mb: 4 }}>
@@ -83,7 +148,7 @@ export default function SmartIDHub() {
                                         </Box>
                                         <Box display="flex" gap={1.5} alignItems="center">
                                             <QrCode size={20} color="#10b981" />
-                                            <Typography variant="body2" fontWeight="600">Instant Immigration Verification Node</Typography>
+                                            <Typography variant="body2" fontWeight="600">Instant Verification Node</Typography>
                                         </Box>
                                         <Box display="flex" gap={1.5} alignItems="center">
                                             <Settings size={20} color="#10b981" />
@@ -103,7 +168,7 @@ export default function SmartIDHub() {
                                             }}
                                             endIcon={<ArrowRight size={18} />}
                                         >
-                                            Explore IDiv Features
+                                            Explore IDiv
                                         </Button>
                                     </Box>
                                 </CardContent>
@@ -112,23 +177,23 @@ export default function SmartIDHub() {
                     </Grid>
 
                     {/* IDG CARD */}
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <motion.div
-                            initial={{ opacity: 0, x: 40 }}
-                            whileInView={{ opacity: 1, x: 0 }}
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
                             style={{ height: '100%' }}
                         >
                             <Card sx={{ 
-                                height: '100%', borderRadius: 8, p: 4, 
+                                height: '100%', borderRadius: 8, p: 3, 
                                 border: '1px solid #f1f5f9', bgcolor: 'white',
                                 boxShadow: '0 20px 50px rgba(0,0,0,0.03)',
                                 display: 'flex', flexDirection: 'column',
                                 transition: 'transform 0.3s ease',
                                 '&:hover': { transform: 'translateY(-5px)', boxShadow: '0 30px 60px rgba(0,0,0,0.06)' }
                             }}>
-                                <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', transform: 'scale(0.9)' }}>
+                                <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', transform: 'scale(0.85)', transformOrigin: 'top center' }}>
                                     <IDivCardModern mode="IDG" variant="purple" showDownload={false} autoRotate={false} />
                                 </Box>
                                 <CardContent sx={{ flexGrow: 1, p: 0, display: 'flex', flexDirection: 'column' }}>
@@ -137,8 +202,8 @@ export default function SmartIDHub() {
                                         <Typography variant="subtitle2" color="#7c3aed" fontWeight="800">DIGITAL COMPANION</Typography>
                                     </Stack>
                                     <Typography variant="h4" fontWeight="900" gutterBottom>Smart IDg</Typography>
-                                    <Typography variant="body2" color="text.secondary" paragraph sx={{ minHeight: 60 }}>
-                                        Your **24/7 Digital Assistant Hub**. Designed for short-term visitors who want legal backup and administrative support without requiring a local sponsor node.
+                                    <Typography variant="body2" color="text.secondary" paragraph sx={{ minHeight: 80 }}>
+                                        Your **24/7 Digital Assistant Hub**. Designed for short-term visitors (VOA/B211A) who want legal backup and guidance.
                                     </Typography>
 
                                     <Stack spacing={2} sx={{ mb: 4 }}>
@@ -168,7 +233,7 @@ export default function SmartIDHub() {
                                             }}
                                             endIcon={<ArrowRight size={18} />}
                                         >
-                                            Explore IDg Features
+                                            Explore IDg
                                         </Button>
                                     </Box>
                                 </CardContent>

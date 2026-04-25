@@ -114,7 +114,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                     <section className="grid lg:grid-cols-2 gap-12 items-center">
                         <div className="relative h-[500px] rounded-[3rem] overflow-hidden group">
                             <Image
-                                src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2670&auto=format&fit=crop"
+                                src="/IndonesianVisasOffice.webp"
                                 alt="Bali Enterprises Headquarters"
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-110 shadow-2xl"

@@ -10,17 +10,17 @@ export default function SustainabilityImpact() {
         {
             title: "Beach Cleanups",
             desc: "Preserving Indonesia's pristine coastlines from plastic pollution through consistent community-driven efforts.",
-            image: "/images/csr-beach.webp" // Placeholders
+            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop"
         },
         {
             title: "Forest Restoration",
             desc: "Active reforestation efforts partnering with local NGOs to secure a greener, sustainable future.",
-            image: "/images/csr-forest.webp"
+            image: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1200&auto=format&fit=crop"
         },
         {
             title: "Coral Planting",
             desc: "Rehabilitating underwater ecosystems vital to the archipelago's diverse and fragile marine life.",
-            image: "/images/csr-coral.webp"
+            image: "https://images.unsplash.com/photo-1546500840-ae38253aba9b?q=80&w=1200&auto=format&fit=crop"
         }
     ];
 

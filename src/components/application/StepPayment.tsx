@@ -109,6 +109,7 @@ const StepPayment = () => {
         if (upsells.vip) addonsTotal += getAddonPrice('VIP');
         if (upsells.idiv) addonsTotal += getAddonPrice('IDIV') * numPeople;
         if (upsells.idg) addonsTotal += getAddonPrice('IDG') * numPeople;
+        if (upsells.smartId) addonsTotal += getAddonPrice('SMART_ID') || 1000000 * numPeople;
     }
 
     const totalAmount = visaTotal + addonsTotal; // Backward-compatible aggregate for processCheckout array division
@@ -407,6 +408,19 @@ const StepPayment = () => {
                             +IDR {(addons?.find(a => a.sku === 'IDG')?.price || 162500).toLocaleString()}
                         </span>
                     </div>
+
+                    <div
+                        className={`${styles.upsellItem} ${upsells.smartId ? styles.upsellActive : ''}`}
+                        onClick={() => toggleUpsell('smartId')}
+                    >
+                        <div className="flex-grow">
+                            <p className="text-sm font-bold">✨ Smart ID Premium (KTP-Style)</p>
+                            <p className="text-[10px] text-gray-500">NFC-ready KTP equivalent for ITAP/GCI holders.</p>
+                        </div>
+                        <span className="text-sm font-bold text-primary">
+                            +IDR {(addons?.find(a => a.sku === 'SMART_ID')?.price || 1000000).toLocaleString()}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -482,13 +496,14 @@ const StepPayment = () => {
                     {/* Upsells List */}
                     {Object.entries(upsells).filter(([k, v]) => v).map(([k, v]) => (
                         <div key={k} className={styles.priceRow}>
-                            <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k === 'idg' ? 'Indonesian ID Guide' : k} Add-on</span>
+                            <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k === 'idg' ? 'Indonesian ID Guide' : k === 'smartId' ? 'Smart ID Premium' : k} Add-on</span>
                             <span className="text-xs font-bold text-primary">
                                 + IDR {k === 'idiv' ? (parseCurrency(addons?.find(a => a.sku === 'IDIV')?.price || "325000") * numPeople).toLocaleString() :
                                     k === 'idg' ? (parseCurrency(addons?.find(a => a.sku === 'IDG')?.price || "162500") * numPeople).toLocaleString() :
-                                        k === 'express' ? parseCurrency(addons?.find(a => a.sku === 'EXPRESS')?.price || "800000").toLocaleString() :
-                                            k === 'insurance' ? parseCurrency(addons?.find(a => a.sku === 'INSURANCE')?.price || "500000").toLocaleString() :
-                                                parseCurrency(addons?.find(a => a.sku === 'VIP')?.price || "1500000").toLocaleString()}
+                                        k === 'smartId' ? (parseCurrency(addons?.find(a => a.sku === 'SMART_ID')?.price || "1000000") * numPeople).toLocaleString() :
+                                            k === 'express' ? parseCurrency(addons?.find(a => a.sku === 'EXPRESS')?.price || "800000").toLocaleString() :
+                                                k === 'insurance' ? parseCurrency(addons?.find(a => a.sku === 'INSURANCE')?.price || "500000").toLocaleString() :
+                                                    parseCurrency(addons?.find(a => a.sku === 'VIP')?.price || "1500000").toLocaleString()}
                             </span>
                         </div>
                     ))}

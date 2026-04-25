@@ -41,16 +41,14 @@ const IdentityServices: React.FC = () => {
                     
                     {/* SMART ID */}
                     <Link href={formatNavLink(locale, "/smart-id")} className="group">
-                        <div className="glass-card p-10 rounded-[3rem] border border-slate-200 dark:border-white/10 hover:border-primary/40 transition-all duration-500 flex flex-col md:flex-row items-center gap-10">
-                            <ThreeDCardVisual 
-                                title="Smart ID" 
-                                subtitle="Next-Gen Digital ID" 
-                                className="scale-90 md:scale-100 flex-shrink-0"
-                            />
-                            <div className="space-y-4 text-center md:text-left">
+                        <div className="glass-card p-10 rounded-[3rem] border border-slate-200 dark:border-white/10 hover:border-primary/40 transition-all duration-500 flex flex-col items-center gap-10">
+                            <div className="w-full max-w-[400px] flex-shrink-0 origin-center scale-90 md:scale-100">
+                                <IDivCardModern mode="SMART" showActions={false} />
+                            </div>
+                            <div className="space-y-4 text-center">
                                 <h3 className="text-3xl font-black mode-aware-text">Smart ID</h3>
-                                <p className="mode-aware-subtext text-sm leading-relaxed">Integrated biometric identity for faster processing at immigration and local legal offices.</p>
-                                <div className="text-primary font-black text-sm uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start">
+                                <p className="mode-aware-subtext text-sm leading-relaxed">Integrated KTP-style biometric identity for permanent and long-term residents in Indonesia.</p>
+                                <div className="text-primary font-black text-sm uppercase tracking-widest flex items-center gap-2 justify-center">
                                     Learn More <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                                 </div>
                             </div>
@@ -75,16 +73,19 @@ const IdentityServices: React.FC = () => {
 
                     {/* GUIDE ID & ID CARD FOR FOREIGNER */}
                     <div className="lg:col-span-2 grid md:grid-cols-2 gap-8">
-                        <Link href={formatNavLink(locale, "/id-guide")} className="group bg-slate-100 dark:bg-white/5 rounded-[3rem] p-10 mode-aware-text overflow-hidden relative border border-slate-200 dark:border-white/5 shadow-2xl hover:scale-[1.02] transition-all">
-                            <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
+                        <Link href={formatNavLink(locale, "/id-guide")} className="group bg-purple-50/50 dark:bg-purple-900/10 rounded-[3rem] p-10 mode-aware-text overflow-hidden relative border border-purple-100 dark:border-purple-800/30 shadow-2xl hover:scale-[1.02] hover:border-purple-300 dark:hover:border-purple-500/50 transition-all">
+                            <div className="flex flex-col xl:flex-row items-center gap-10 relative z-10">
                                 <div className="w-full max-w-[340px] flex-shrink-0 scale-75 md:scale-90 origin-center">
-                                    <IDivCardModern mode="IDG" variant="gold" showActions={false} />
+                                    <IDivCardModern mode="IDG" variant="purple" showActions={false} />
                                 </div>
-                                <div className="space-y-4 text-center md:text-left">
-                                    <h3 className="text-3xl font-black">Guide ID</h3>
-                                    <p className="mode-aware-subtext text-sm leading-relaxed font-medium">Step-by-step identity navigation for new arrivals and long-term expats in Indonesia.</p>
-                                    <div className="text-amber-500 font-black text-xs uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start">
-                                        Open Guide <ArrowRight size={16} />
+                                <div className="space-y-4 text-center xl:text-left">
+                                    <div className="inline-block px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 text-[10px] font-bold border border-purple-200 dark:border-purple-700">
+                                        24/7 COMPANION
+                                    </div>
+                                    <h3 className="text-3xl font-black text-purple-900 dark:text-purple-100">Indonesian ID Guide (IDg)</h3>
+                                    <p className="text-purple-800/70 dark:text-purple-200/70 text-sm leading-relaxed font-medium">Your Digital Support Hub for 24/7 assistance with local rules, disputes, and emergency guidance without requiring a visa sponsor.</p>
+                                    <div className="text-purple-600 dark:text-purple-400 font-black text-xs uppercase tracking-widest flex items-center gap-2 justify-center xl:justify-start">
+                                        Open Guide <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                                     </div>
                                 </div>
                             </div>

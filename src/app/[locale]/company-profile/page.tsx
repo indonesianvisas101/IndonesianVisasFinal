@@ -10,8 +10,9 @@ import TestimonialCarousel from '@/components/company-profile/TestimonialCarouse
 import VisualAssets from '@/components/company-profile/VisualAssets';
 import CorporateCTA from '@/components/company-profile/CorporateCTA';
 
-export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
-    const canonical = `https://indonesianvisas.com/${params.locale}/company-profile`;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    const canonical = `https://indonesianvisas.com/${locale}/company-profile`;
     const title = "Company Profile | PT Indonesian Visas Agency™";
     const description = "Your trusted legal gateway to Indonesia. We are the certified corporate partner for living, working, and thriving in Indonesia. 16+ years of excellence.";
 

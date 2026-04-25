@@ -3,7 +3,7 @@
 
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Container, Typography, Box, Card, CardContent, Grid, Button, Divider, Stack, Alert, Skeleton, CircularProgress } from '@mui/material';
+import { Container, Typography, Box, Card, CardContent, Grid, Button, Divider, Stack, Alert, CircularProgress } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -64,31 +64,32 @@ function PaymentContent() {
                 )}
 
                 <Grid container spacing={3}>
-                    {/* PAYPAL & CARD */}
+
+                    {/* DOKU / PAYPAL */}
                     <Grid size={{ xs: 12 }}>
-                        <Card sx={{ height: '100%', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', overflow: 'hidden', border: isValid ? '2px solid #003087' : '1px solid transparent' }}>
+                        <Card sx={{ borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', overflow: 'hidden', border: isValid ? '2px solid #003087' : '1px solid transparent' }}>
                             <CardContent sx={{ p: 4 }}>
                                 <Stack direction="row" alignItems="center" spacing={2} mb={3}>
                                     <PaymentIcon sx={{ color: '#003087', fontSize: 32 }} />
                                     <div>
-                                        <Typography variant="h6" fontWeight="bold">PayPal & Credit/Debit Card</Typography>
+                                        <Typography variant="h6" fontWeight="bold">PayPal & Doku (Complete Indonesian Bank)</Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            Instant activation. Secure Checkout via PayPal API.
+                                            Instant activation. Secure Checkout via Doku API. All Banks, Visa/Master Card, JCB, AMEX & Google Pay.
                                         </Typography>
                                     </div>
                                 </Stack>
-                                
+
                                 {isValid ? (
                                     <Box sx={{ mt: 2, minHeight: 150, display: 'flex', justifyContent: 'center' }}>
-                                        <PayPalIntegration 
-                                            invoiceId={invoiceId!} 
-                                            amount={Number(amount)} 
-                                            currency={currency} 
+                                        <PayPalIntegration
+                                            invoiceId={invoiceId!}
+                                            amount={Number(amount)}
+                                            currency={currency}
                                         />
                                     </Box>
                                 ) : (
                                     <Box sx={{ p: 4, textAlign: 'center', border: '1px dashed #ccc', borderRadius: 2 }}>
-                                        <Typography color="text.secondary">PayPal checkout requires a valid invoice ID and amount.</Typography>
+                                        <Typography color="text.secondary">Checkout requires a valid invoice ID and amount.</Typography>
                                     </Box>
                                 )}
 
@@ -104,14 +105,7 @@ function PaymentContent() {
                         <Card sx={{ borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
                             <CardContent sx={{ p: 4 }}>
                                 <Stack direction={{ xs: 'column', sm: 'row' }} alignItems="center" spacing={3}>
-                                    <Box
-                                        sx={{
-                                            width: 80, height: 80,
-                                            borderRadius: '50%',
-                                            bgcolor: 'rgba(145, 85, 253, 0.1)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                        }}
-                                    >
+                                    <Box sx={{ width: 80, height: 80, borderRadius: '50%', bgcolor: 'rgba(145, 85, 253, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         <AccountBalanceIcon sx={{ fontSize: 40, color: '#9155FD' }} />
                                     </Box>
                                     <Box flex={1} textAlign={{ xs: 'center', sm: 'left' }}>
@@ -121,7 +115,9 @@ function PaymentContent() {
                                         </Typography>
                                     </Box>
                                 </Stack>
+
                                 <Divider sx={{ my: 3 }} />
+
                                 <Box sx={{ mb: 3 }}>
                                     <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2, color: 'primary.main', textTransform: 'uppercase', letterSpacing: 1 }}>
                                         Corporate Account (International/Local)
@@ -135,7 +131,7 @@ function PaymentContent() {
                                             <Grid size={{ xs: 12, sm: 6 }}>
                                                 <Typography variant="caption" color="text.secondary">ACCOUNT NUMBER</Typography>
                                                 <Typography variant="h6" fontWeight="bold" fontFamily="monospace" sx={{ color: '#9155FD' }}>
-                                                    611-017850
+                                                    6116-0178-50
                                                 </Typography>
                                             </Grid>
                                             <Grid size={{ xs: 12, sm: 6 }}>
@@ -184,15 +180,15 @@ function PaymentContent() {
                     </Grid>
 
                     {/* STRIPE / APPLE PAY */}
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <Card sx={{ height: '100%', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                    <Grid size={{ xs: 12 }}>
+                        <Card sx={{ borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
                             <CardContent sx={{ p: 4 }}>
                                 <Stack direction="row" alignItems="center" spacing={2} mb={3}>
                                     <Stack direction="row" spacing={1}>
                                         <CreditCardIcon color="secondary" fontSize="large" />
                                         <AppleIcon sx={{ fontSize: 32 }} />
                                     </Stack>
-                                    <Typography variant="h6" fontWeight="bold">Stripe / Apple Pay</Typography>
+                                    <Typography variant="h6" fontWeight="bold">Wise / Stripe / Apple Pay</Typography>
                                 </Stack>
                                 <Typography variant="body2" color="text.secondary" paragraph>
                                     Pay securely using your Credit Card, Debit Card, or Apple Pay wallet.
@@ -204,7 +200,7 @@ function PaymentContent() {
                                     disabled
                                     sx={{ mt: 2, bgcolor: '#000', '&:hover': { bgcolor: '#333' } }}
                                 >
-                                    Pay with Card (Available)
+                                    Pay with Card (Available Soon)
                                 </Button>
                                 <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
                                     Contact support for a manual payment link.
@@ -212,6 +208,7 @@ function PaymentContent() {
                             </CardContent>
                         </Card>
                     </Grid>
+
                 </Grid>
 
                 <Box mt={6} textAlign="center">

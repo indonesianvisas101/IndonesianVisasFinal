@@ -136,13 +136,19 @@ export default async function LocaleLayout({
   return (
     <html lang={currentLocale}>
       <head>
+        {/* ── Critical Connection Hints ── */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://thvdfcogdxmqipybqzot.supabase.co" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.paypal.com" />
         <link rel="dns-prefetch" href="https://checkout.doku.com" />
-        <link rel="dns-prefetch" href="https://thvdfcogdxmqipybqzot.supabase.co" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://randomuser.me" />
         
-        {/* Extreme Speed Boosts: Preload critical above-the-fold assets */}
+        {/* ── LCP / Above-fold critical asset preloads ── */}
         <link rel="preload" as="image" href="/Favicon.webp" fetchPriority="high" type="image/webp" />
+        <link rel="preload" as="image" href="/og-image.webp" fetchPriority="low" type="image/webp" />
         
         <GoogleTagManagerWrapper gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
         <script

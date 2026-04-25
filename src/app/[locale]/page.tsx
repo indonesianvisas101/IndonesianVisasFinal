@@ -6,9 +6,9 @@ import { getMessages } from "@/i18n/getMessages";
 import ApplyExtend from "@/components/sections/ApplyExtend";
 import type { Metadata } from 'next';
 
-// ISR: Cache the landing page for 1 hour — avoids DB/Supabase hits on every visitor request
-// ISR: Cache disabled temporarily to debug hydration/404 issues
-// export const revalidate = 3600;
+// ISR: Cache the landing page for 1 hour — avoids DB/Supabase hits on every visitor
+export const revalidate = 3600;
+
 
 // Lazy load all below-fold components
 // Note: ssr: false is not allowed in Server Components, so we rely on LazySection 

@@ -65,6 +65,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         issuedDate: new Date().toISOString().split('T')[0],
         expiresAt: "",
         address: "",
+        birthPlaceDate: "",
+        gender: "",
+        occupation: "",
         nationality: "VERIFIED HOLDER",
         photoUrl: "",
         slug: "",
@@ -150,8 +153,17 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             const { data: { session } } = await supabase.auth.getSession();
             const token = session?.access_token;
 
+            // Pack Smart ID fields into address as JSON
+            const packedAddress = JSON.stringify({
+                street: formData.address,
+                birthPlaceDate: formData.birthPlaceDate,
+                gender: formData.gender,
+                occupation: formData.occupation
+            });
+
             const payload = {
                 ...formData,
+                address: packedAddress,
                 ...(isEditing && { id: editId }),
                 userId: verificationMode === 'linked' ? selectedUserId : null
             };
@@ -240,6 +252,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             issuedDate: new Date().toISOString().split('T')[0],
             expiresAt: "",
             address: "",
+            birthPlaceDate: "",
+            gender: "",
+            occupation: "",
             nationality: "VERIFIED HOLDER",
             photoUrl: "",
             slug: "",
@@ -252,13 +267,31 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
     };
 
     const handleEdit = (item: any) => {
+        let unpackedAddress = item.address || "";
+        let parsedBirth = "";
+        let parsedGender = "";
+        let parsedOcc = "";
+
+        if (unpackedAddress.startsWith("{")) {
+            try {
+                const parsed = JSON.parse(unpackedAddress);
+                unpackedAddress = parsed.street || "";
+                parsedBirth = parsed.birthPlaceDate || "";
+                parsedGender = parsed.gender || "";
+                parsedOcc = parsed.occupation || "";
+            } catch (e) {}
+        }
+
         setFormData({
             fullName: item.fullName || "",
             passportNumber: item.passportNumber || "",
             visaType: item.visaType || "",
             issuedDate: item.issuedDate ? new Date(item.issuedDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             expiresAt: item.expiresAt ? new Date(item.expiresAt).toISOString().split('T')[0] : "",
-            address: item.address || "",
+            address: unpackedAddress,
+            birthPlaceDate: parsedBirth,
+            gender: parsedGender,
+            occupation: parsedOcc,
             nationality: item.nationality || "VERIFIED HOLDER",
             photoUrl: item.photoUrl || "",
             slug: item.slug || "",
@@ -521,14 +554,36 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                             InputLabelProps={{ shrink: true }}
                         />
                         <TextField
-                            label="Residential Address (for IDiv Header)"
+                            label="Residential Address"
                             fullWidth
                             multiline
                             rows={2}
                             value={formData.address}
                             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                            helperText="Used to derive Province (e.g. Bali, Jakarta, etc.)"
                         />
+                        <Stack direction="row" spacing={2}>
+                            <TextField
+                                label="Birth Place & Date"
+                                fullWidth
+                                value={formData.birthPlaceDate}
+                                onChange={(e) => setFormData({ ...formData, birthPlaceDate: e.target.value })}
+                                helperText="e.g. LONDON, 01-01-1990"
+                            />
+                            <TextField
+                                label="Gender"
+                                fullWidth
+                                value={formData.gender}
+                                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                helperText="e.g. LAKI-LAKI"
+                            />
+                            <TextField
+                                label="Occupation"
+                                fullWidth
+                                value={formData.occupation}
+                                onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
+                                helperText="e.g. INVESTOR"
+                            />
+                        </Stack>
                         <TextField
                             label="Nationality / Designation"
                             fullWidth
@@ -698,24 +753,47 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                 >
                                     <Tab label="IDiv Card" value="IDIV" />
                                     <Tab label="IDg Card" value="IDG" />
+                                    <Tab label="Smart ID (KTP)" value="SMART" />
                                 </Tabs>
 
-                                <IDivCardModern 
-                                    mode={previewCardMode}
-                                    variant={previewCardMode === 'IDG' ? 'purple' : 'purple'}
-                                    data={{
-                                        id_number: selectedItem.id,
-                                        name: selectedItem.fullName,
-                                        nationality: selectedItem.nationality || "VERIFIED HOLDER",
-                                        visa_type: selectedItem.visaType,
-                                        expiry_date: selectedItem.expiresAt ? new Date(selectedItem.expiresAt).toLocaleDateString() : 'N/A',
-                                        issue_date: selectedItem.issuedDate ? new Date(selectedItem.issuedDate).toLocaleDateString() : 'N/A',
-                                        address: selectedItem.address || "",
-                                        order_id: selectedItem.slug || "N/A",
-                                        photoUrl: selectedItem.photoUrl,
-                                        sponsor: "INDONESIAN VISAS AGENCY"
-                                    }} 
-                                />
+                                {(() => {
+                                    const parsedData = (() => {
+                                        let data = { address: selectedItem.address || "", birthPlaceDate: "", gender: "", occupation: "" };
+                                        if (selectedItem.address && selectedItem.address.startsWith("{")) {
+                                            try {
+                                                const parsed = JSON.parse(selectedItem.address);
+                                                data.address = parsed.street || "";
+                                                data.birthPlaceDate = parsed.birthPlaceDate || "";
+                                                data.gender = parsed.gender || "";
+                                                data.occupation = parsed.occupation || "";
+                                            } catch (e) {}
+                                        }
+                                        return data;
+                                    })();
+
+                                    return (
+                                        <IDivCardModern 
+                                            mode={previewCardMode as any}
+                                            variant={previewCardMode === 'IDG' ? 'purple' : 'purple'}
+                                            data={{
+                                                id_number: selectedItem.id,
+                                                passport_number: selectedItem.passportNumber,
+                                                name: selectedItem.fullName,
+                                                nationality: selectedItem.nationality || "VERIFIED HOLDER",
+                                                visa_type: selectedItem.visaType,
+                                                birth_place_date: parsedData.birthPlaceDate,
+                                                gender: parsedData.gender,
+                                                occupation: parsedData.occupation,
+                                                expiry_date: selectedItem.expiresAt ? new Date(selectedItem.expiresAt).toLocaleDateString() : 'N/A',
+                                                issue_date: selectedItem.issuedDate ? new Date(selectedItem.issuedDate).toLocaleDateString() : 'N/A',
+                                                address: parsedData.address,
+                                                order_id: selectedItem.slug || "N/A",
+                                                photoUrl: selectedItem.photoUrl,
+                                                sponsor: "INDONESIAN VISAS AGENCY"
+                                            }} 
+                                        />
+                                    );
+                                })()}
                                 
                                 <Typography variant="caption" sx={{ mt: 3, color: 'text.secondary', textAlign: 'center' }}>
                                     Standard IDiv Digital Format (KTP Style)

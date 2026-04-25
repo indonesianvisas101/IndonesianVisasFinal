@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Flag, Globe, Info, QrCode as QrIcon, Download, Share2, X, ExternalLink, User } from 'lucide-react';
+import { ShieldCheck, Flag, Globe, Info, QrCode as QrIcon, Download, Share2, X, ExternalLink, User, Nfc, Barcode } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadIDivDual } from '@/utils/idivDownloadTools';
 import { Button } from '@mui/material';
@@ -18,9 +18,13 @@ const floatTransition = {
 interface IDivCardProps {
     data?: {
         id_number?: string;
+        passport_number?: string;
         name?: string;
+        birth_place_date?: string;
+        gender?: string;
         nationality?: string;
         visa_type?: string;
+        occupation?: string;
         expiry_date?: string;
         issue_date?: string;
         sponsor?: string;
@@ -30,7 +34,7 @@ interface IDivCardProps {
         order_id?: string;
         isUnlimited?: boolean;
     };
-    mode?: 'IDIV' | 'IDG';
+    mode?: 'IDIV' | 'IDG' | 'SMART';
     variant?: 'purple' | 'indigo' | 'gold';
     autoRotate?: boolean;
     onDownload?: () => void;
@@ -71,8 +75,12 @@ export default function IDivCardModern({
 
     const cardData = {
         id_number: data?.id_number || "99710024889100",
+        passport_number: privacyMode ? "XXXXXXX" : (data?.passport_number || "A1234567"),
         formatted_id: (data?.id_number || "99710024889100").slice(0, 14).replace(/(\d{4})(\d{4})(\d{6})/, "$1-$2-$3"),
         name: data?.name || "SARAH J. WILLIAMS", 
+        birth_place_date: privacyMode ? "XXXX, XX-XX-XXXX" : (data?.birth_place_date || "LONDON, 01-01-1990"),
+        gender: data?.gender || "PEREMPUAN",
+        occupation: data?.occupation || "INVESTOR",
         nationality: privacyMode ? "XXXXXXXX" : (data?.nationality || "UNITED KINGDOM").toUpperCase(),
         visa_type: (data?.visa_type || "VERIFIED E-VOA").toUpperCase(),
         expiry_date: privacyMode ? "XX-XX-XXXX" : (data?.expiry_date || "2024-12-01"),
@@ -96,6 +104,7 @@ export default function IDivCardModern({
         : cardData.order_id;
 
     const isIDG = mode === 'IDG';
+    const isSmart = mode === 'SMART';
 
     const colorSchemes = {
         purple: {
@@ -128,7 +137,7 @@ export default function IDivCardModern({
 
     const handleDownload = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        await downloadIDivDual('idiv-front', 'idiv-back', `${isIDG ? 'IDg' : 'IDiv'}-${cardData.name.replace(/\s+/g, '-')}-${cardData.order_id}`);
+        await downloadIDivDual('idiv-front', 'idiv-back', `${isSmart ? 'SMART' : isIDG ? 'IDg' : 'IDiv'}-${cardData.name.replace(/\s+/g, '-')}-${cardData.order_id}`);
     };
 
     const handleShare = (e: React.MouseEvent) => {
@@ -279,7 +288,7 @@ export default function IDivCardModern({
                                         whiteSpace: 'nowrap', 
                                         textAlign: 'left' 
                                     }}>
-                                        {isIDG ? 'OFFICIAL DIGITAL GUIDE ID' : 'INDONESIAN VISAS DIGITAL ID'}
+                                        {isIDG ? 'OFFICIAL DIGITAL GUIDE ID' : isSmart ? 'SMART SYSTEM IDENTITY' : 'INDONESIAN VISAS DIGITAL ID'}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -295,7 +304,7 @@ export default function IDivCardModern({
                                     letterSpacing: 0.5,
                                     whiteSpace: 'nowrap'
                                 }}>
-                                    IDg NO: {displayOrderId}
+                                    REG NO: {displayOrderId}
                                 </Typography>
                             </Box>
                         </Box>
@@ -312,122 +321,239 @@ export default function IDivCardModern({
                             pointerEvents: isFlipped ? 'none' : 'auto',
                             pt: 0.5
                         }}>
-                            {/* ID No Restored to Body */}
-                            <Typography variant="h6" fontWeight="900" sx={{ 
-                                fontSize: { xs: '0.8rem', sm: '0.95rem' }, 
-                                mb: 0.5, 
-                                mt: 0.2,
-                                pl: 0.8,
-                                textAlign: 'left',
-                                letterSpacing: { xs: 0.5, sm: 1.5 }, 
-                                color: currentColors.accent, 
-                                zIndex: 2,
-                                whiteSpace: 'nowrap'
-                            }}>
-                                {isIDG ? 'GUIDE NO' : 'ID No'} : {displayId}
-                            </Typography>
+                            {isSmart ? (
+                                <Box sx={{ width: '100%', mt: 0, px: 0.5 }}>
+                                    <Box sx={{ mb: 0.5 }}>
+                                        <Typography variant="h6" fontWeight="900" sx={{ fontSize: { xs: '0.9rem', sm: '1.05rem' }, letterSpacing: 1.5, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1 }}>
+                                            ID No &nbsp;&nbsp;&nbsp;&nbsp;: {displayId}
+                                        </Typography>
+                                    </Box>
+                                    <Box display="flex" gap={1}>
+                                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                            {[
+                                                { label: 'Nama', value: cardData.name },
+                                                { label: 'No Passport', value: cardData.passport_number },
+                                                { label: 'Tempat/Tgl Lahir', value: cardData.birth_place_date },
+                                                { label: 'Jenis Kelamin', value: cardData.gender },
+                                                { label: 'Alamat', value: cardData.address, isAddress: true },
+                                                { label: 'Pekerjaan', value: cardData.occupation },
+                                                { label: 'Kewarganegaraan', value: cardData.nationality },
+                                                { label: 'Jenis Visa', value: cardData.visa_type },
+                                            ].map((item, idx) => (
+                                                <Box key={idx} sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                                                    <Typography sx={{ width: '85px', fontSize: '0.5rem', fontWeight: 700, color: '#334155' }}>
+                                                        {item.label}
+                                                    </Typography>
+                                                    <Typography sx={{ width: '10px', fontSize: '0.5rem', fontWeight: 700, color: '#334155' }}>:</Typography>
+                                                    <Typography sx={{ 
+                                                        flex: 1, 
+                                                        fontSize: '0.55rem', 
+                                                        fontWeight: 800, 
+                                                        color: '#0f172a',
+                                                        lineHeight: 1.1,
+                                                        ...(item.isAddress ? {
+                                                            display: '-webkit-box',
+                                                            WebkitLineClamp: 2,
+                                                            WebkitBoxOrient: 'vertical',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis'
+                                                        } : {
+                                                            whiteSpace: 'nowrap',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis'
+                                                        })
+                                                    }}>
+                                                        {item.value}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
 
-                             {/* Details Container */}
-                             <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0, width: '100%' }}>
-                                 {/* Data Fields */}
-                                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.8, justifyContent: 'center', pl: 0.8, textAlign: 'left', alignItems: 'flex-start', mt: -1 }}>
-                                     <Box sx={{ minHeight: '1.2rem' }}>
-                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
-                                         <Typography sx={{ fontSize: { xs: '0.65rem', sm: '0.8rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
-                                     </Box>
-                                     <Box sx={{ minHeight: '1.2rem' }}>
-                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
-                                         <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
-                                     </Box>
-                                     <Box sx={{ minHeight: '1.2rem' }}>
-                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>{isIDG ? 'GUIDE TYPE' : 'JENIS VISA'}</Typography>
-                                         <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: currentColors.secondary, lineHeight: 1.1 }}>{isIDG ? 'VISITOR GUIDE 24/7' : cardData.visa_type}</Typography>
-                                     </Box>
-                                     
-                                     {/* INDONESIAN ADDRESS */}
-                                     <Box sx={{ minHeight: '1.6rem' }}>
-                                         <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ADDRESS</Typography>
-                                         <Typography sx={{ 
-                                             fontSize: '0.55rem', 
-                                             fontWeight: 800, 
-                                             color: '#1e293b', 
-                                             lineHeight: 1.1,
-                                             display: '-webkit-box',
-                                             WebkitLineClamp: 2,
-                                             WebkitBoxOrient: 'vertical',
-                                             overflow: 'hidden',
-                                             textOverflow: 'ellipsis'
-                                         }}>
-                                             {cardData.address}
-                                         </Typography>
-                                     </Box>
+                                            {/* HORIZONTAL ISSUED / EXPIRES */}
+                                            <Box display="flex" gap={3} sx={{ mt: 0.2 }}>
+                                                <Box>
+                                                    <Typography sx={{ fontSize: '0.45rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
+                                                    <Typography sx={{ fontSize: '0.6rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>{cardData.issue_date}</Typography>
+                                                </Box>
+                                                <Box>
+                                                    <Typography sx={{ fontSize: '0.45rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
+                                                    {cardData.isUnlimited ? (
+                                                        <Box display="flex" alignItems="center" gap={0.3}>
+                                                            <Typography sx={{ fontSize: '0.6rem', fontWeight: 900, color: '#d97706', lineHeight: 1.1 }}>LIFETIME ACCESS</Typography>
+                                                            <Globe size={9} className="text-amber-600 animate-pulse" />
+                                                        </Box>
+                                                    ) : (
+                                                        <Typography sx={{ fontSize: '0.6rem', fontWeight: 800, color: '#ef4444', lineHeight: 1.1 }}>{cardData.expiry_date}</Typography>
+                                                    )}
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                        
+                                        <Box sx={{ 
+                                            display: 'flex', 
+                                            flexDirection: 'column', 
+                                            alignItems: 'center',
+                                            width: { xs: '75px', sm: '85px' },
+                                            mt: 2.5
+                                        }}>
+                                            <Box sx={{ 
+                                                width: '100%', 
+                                                height: { xs: '95px', sm: '105px' }, 
+                                                bgcolor: 'rgba(255,255,255,0.7)', 
+                                                borderRadius: 1, 
+                                                border: '1px solid rgba(0,0,0,0.1)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                position: 'relative',
+                                                overflow: 'hidden',
+                                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
+                                            }}>
+                                                {cardData.photoUrl ? (
+                                                    <Box 
+                                                        component="img" 
+                                                        src={cardData.photoUrl} 
+                                                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                        onError={(e) => {
+                                                            (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <User size={30} className="text-blue-200 opacity-60" />
+                                                )}
+                                                <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '20%', bgcolor: 'rgba(3,105,161,0.15)', backdropFilter: 'blur(2px)', borderTop: '1px solid rgba(255,255,255,0.5)' }} />
+                                            </Box>
+                                            <Box sx={{ textAlign: 'center', mt: 1.5, width: '100%' }}>
+                                                <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, lineHeight: 1.1, color: '#0f172a', opacity: 0.9 }}>
+                                                    Smart ID by<br/>indonesianvisas.com
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </Box>
+                            ) : (
+                                <>
+                                    {/* ID No Restored to Body */}
+                                    <Typography variant="h6" fontWeight="900" sx={{ 
+                                        fontSize: { xs: '0.8rem', sm: '0.95rem' }, 
+                                        mb: 0.5, 
+                                        mt: 0.2,
+                                        pl: 0.8,
+                                        textAlign: 'left',
+                                        letterSpacing: { xs: 0.5, sm: 1.5 }, 
+                                        color: currentColors.accent, 
+                                        zIndex: 2,
+                                        whiteSpace: 'nowrap'
+                                    }}>
+                                        {isIDG ? 'GUIDE NO' : 'ID No'} : {displayId}
+                                    </Typography>
 
-                                     <Box display="flex" gap={2.5} sx={{ minHeight: '1.2rem' }}>
-                                         <Box>
-                                             <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
-                                             <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.1 }}>{cardData.issue_date}</Typography>
-                                         </Box>
-                                         <Box>
-                                             <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
-                                             {cardData.isUnlimited ? (
-                                                 <Box display="flex" alignItems="center" gap={0.3}>
-                                                     <Typography sx={{ fontSize: '0.7rem', fontWeight: 900, color: '#d97706', lineHeight: 1.1 }}>LIFETIME ACCESS</Typography>
-                                                     <Globe size={10} className="text-amber-600 animate-pulse" />
-                                                 </Box>
-                                             ) : (
-                                                 <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#ef4444', lineHeight: 1.1 }}>{cardData.expiry_date}</Typography>
-                                             )}
-                                         </Box>
-                                     </Box>
-                                 </Box>
+                                    {/* Details Container */}
+                                    <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0, width: '100%' }}>
+                                        {/* Data Fields */}
+                                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.6, justifyContent: 'center', pl: 0.8, textAlign: 'left', alignItems: 'flex-start', mt: -1 }}>
+                                            <Box>
+                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
+                                                <Typography sx={{ fontSize: { xs: '0.65rem', sm: '0.8rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NO PASSPORT</Typography>
+                                                <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.passport_number}</Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
+                                                <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>{isIDG ? 'GUIDE TYPE' : 'JENIS VISA'}</Typography>
+                                                <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: currentColors.secondary, lineHeight: 1.1 }}>{isIDG ? 'VISITOR GUIDE 24/7' : cardData.visa_type}</Typography>
+                                            </Box>
+                                            
+                                            {/* INDONESIAN ADDRESS */}
+                                            <Box>
+                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ALAMAT</Typography>
+                                                <Typography sx={{ 
+                                                    fontSize: '0.55rem', 
+                                                    fontWeight: 800, 
+                                                    color: '#1e293b', 
+                                                    lineHeight: 1.1,
+                                                    display: '-webkit-box',
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: 'vertical',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis'
+                                                }}>
+                                                    {cardData.address}
+                                                </Typography>
+                                            </Box>
 
-                                 {/* Photo & Beneath Text Column */}
-                                 <Box sx={{ 
-                                     display: 'flex', 
-                                     flexDirection: 'column', 
-                                     alignItems: 'center',
-                                     width: { xs: '70px', sm: '90px' },
-                                     gap: 0.5,
-                                     mt: 0.5,
-                                     position: 'relative'
-                                 }}>
-                                     {/* Photo/Avatar Placeholder */}
-                                     <Box sx={{ 
-                                         width: '100%', 
-                                         height: { xs: '90px', sm: '110px' }, 
-                                         bgcolor: 'rgba(255,255,255,0.7)', 
-                                         borderRadius: 1.5, 
-                                         border: '1px solid rgba(0,0,0,0.08)',
-                                         display: 'flex',
-                                         alignItems: 'center',
-                                         justifyContent: 'center',
-                                         position: 'relative',
-                                         overflow: 'hidden',
-                                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
-                                     }}>
-                                         {cardData.photoUrl ? (
-                                             <Box 
-                                                 component="img" 
-                                                 src={cardData.photoUrl} 
-                                                 sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                                                 onError={(e) => {
-                                                     (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
-                                                 }}
-                                             />
-                                         ) : (
-                                             <User size={40} className="text-blue-200 opacity-60" />
-                                         )}
-                                         <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '20%', bgcolor: 'rgba(3,105,161,0.15)', backdropFilter: 'blur(2px)', borderTop: '1px solid rgba(255,255,255,0.5)' }} />
-                                     </Box>
+                                            <Box display="flex" gap={2.5} sx={{ minHeight: '1.2rem' }}>
+                                                <Box>
+                                                    <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
+                                                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.1 }}>{cardData.issue_date}</Typography>
+                                                </Box>
+                                                <Box>
+                                                    <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
+                                                    {cardData.isUnlimited ? (
+                                                        <Box display="flex" alignItems="center" gap={0.3}>
+                                                            <Typography sx={{ fontSize: '0.7rem', fontWeight: 900, color: '#d97706', lineHeight: 1.1 }}>LIFETIME ACCESS</Typography>
+                                                            <Globe size={10} className="text-amber-600 animate-pulse" />
+                                                        </Box>
+                                                    ) : (
+                                                        <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#ef4444', lineHeight: 1.1 }}>{cardData.expiry_date}</Typography>
+                                                    )}
+                                                </Box>
+                                            </Box>
+                                        </Box>
 
-                                     {/* DESCRIPTIVE TEXT BENEATH IMAGE */}
-                                     <Box sx={{ textAlign: 'center', width: '100%', mt: 0.5 }}>
-                                         <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, lineHeight: 1.1, color: currentColors.accent, opacity: 0.9 }}>
-                                             {isIDG ? 'Smart Guide by:' : 'Smart IDiv by:'}<br/>indonesianvisas.com
-                                         </Typography>
-                                     </Box>
-                                 </Box>
-                             </Box>
+                                        {/* Photo & Beneath Text Column */}
+                                        <Box sx={{ 
+                                            display: 'flex', 
+                                            flexDirection: 'column', 
+                                            alignItems: 'center',
+                                            width: { xs: '70px', sm: '90px' },
+                                            gap: 0.5,
+                                            mt: 0.5,
+                                            position: 'relative'
+                                        }}>
+                                            {/* Photo/Avatar Placeholder */}
+                                            <Box sx={{ 
+                                                width: '100%', 
+                                                height: { xs: '90px', sm: '110px' }, 
+                                                bgcolor: 'rgba(255,255,255,0.7)', 
+                                                borderRadius: 1.5, 
+                                                border: '1px solid rgba(0,0,0,0.08)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                position: 'relative',
+                                                overflow: 'hidden',
+                                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
+                                            }}>
+                                                {cardData.photoUrl ? (
+                                                    <Box 
+                                                        component="img" 
+                                                        src={cardData.photoUrl} 
+                                                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                        onError={(e) => {
+                                                            (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <User size={40} className="text-blue-200 opacity-60" />
+                                                )}
+                                                <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '20%', bgcolor: 'rgba(3,105,161,0.15)', backdropFilter: 'blur(2px)', borderTop: '1px solid rgba(255,255,255,0.5)' }} />
+                                            </Box>
+
+                                            {/* DESCRIPTIVE TEXT BENEATH IMAGE */}
+                                            <Box sx={{ textAlign: 'center', width: '100%', mt: 0.5 }}>
+                                                <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, lineHeight: 1.1, color: currentColors.accent, opacity: 0.9 }}>
+                                                    {isIDG ? 'Smart Guide ID by:' : 'Smart IDiv by:'}<br/>indonesianvisas.com
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </>
+                            )}
                         </Box>
                     </Box>
 
@@ -465,6 +591,32 @@ export default function IDivCardModern({
                             </Box>
 
                             <Box sx={{ flex: 1, display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
+                                {isSmart && (
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                                        {/* NFC Icon with ping animation */}
+                                        <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0369a1', mt: 1 }}>
+                                            <Nfc size={36} strokeWidth={1.5} />
+                                            <Box sx={{ position: 'absolute', width: '100%', height: '100%', borderRadius: '50%', border: '2px solid rgba(3,105,161,0.4)', animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
+                                            <style>
+                                                {`
+                                                    @keyframes ping {
+                                                        75%, 100% { transform: scale(1.8); opacity: 0; }
+                                                    }
+                                                `}
+                                            </style>
+                                        </Box>
+                                        <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, color: '#64748b', mt: -0.5 }}>CONTACTLESS</Typography>
+                                        
+                                        {/* Barcode Mock */}
+                                        <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                            <Barcode size={40} strokeWidth={1} color="#1e293b" />
+                                            <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, letterSpacing: 1.5, fontFamily: 'monospace', color: '#1e293b', mt: -0.5 }}>
+                                                {cardData.passport_number}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                )}
+                                
                                 {/* QR Code Section */}
                                 <Box sx={{ 
                                     p: { xs: 1, sm: 1.5 }, 
@@ -480,12 +632,12 @@ export default function IDivCardModern({
                                     {isMounted ? (
                                         <QRCodeSVG 
                                             value={`${window.location.origin}/verify/${cardData.order_id}`} 
-                                            size={typeof window !== 'undefined' && window.innerWidth < 640 ? 75 : 100}
+                                            size={typeof window !== 'undefined' && window.innerWidth < 640 ? (isSmart ? 65 : 75) : (isSmart ? 85 : 100)}
                                             level="H"
                                             includeMargin={false}
                                         />
                                     ) : (
-                                        <Box sx={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
+                                        <Box sx={{ width: isSmart ? 85 : 100, height: isSmart ? 85 : 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
                                     )}
                                     <Typography sx={{ fontSize: '0.5rem', fontWeight: 900, letterSpacing: 0.5, color: currentColors.accent, fontFamily: 'monospace', mt: 0.2 }}>
                                         {cardData.order_id}

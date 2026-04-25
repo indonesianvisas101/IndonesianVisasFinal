@@ -75,6 +75,7 @@ interface ApplicationState {
         vip: boolean;
         idiv: boolean; // NEW: ID Indonesian Visas
         idg: boolean; // NEW: Indonesian ID Guide
+        smartId: boolean; // NEW: Smart ID (KTP-style)
     };
     addons: any[];
     popularVisaIds: string[];
@@ -112,7 +113,7 @@ interface ApplicationContextType extends ApplicationState {
     // Notifications
     notifications: Record<string, AppNotification[]>;
     allNotifications: AppNotification[];
-    toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg') => void;
+    toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId') => void;
     pushNotification: (userId: string, message: string) => void;
     setNotifications: (userId: string, notifications: AppNotification[]) => void;
     setAllNotifications: (notifications: AppNotification[]) => void;
@@ -165,7 +166,8 @@ const defaultState: ApplicationState = {
         insurance: false,
         vip: false,
         idiv: false,
-        idg: false
+        idg: false,
+        smartId: false
     },
     addons: [],
     popularVisaIds: [],
@@ -508,7 +510,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
-    const toggleUpsell = (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg') => {
+    const toggleUpsell = (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId') => {
         setState(prev => ({
             ...prev,
             upsells: {

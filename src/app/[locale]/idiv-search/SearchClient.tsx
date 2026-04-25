@@ -10,6 +10,16 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
 
+// Parse JSON-packed address
+function parseAddress(raw: string | null | undefined) {
+    const fb = { street: "", birthPlaceDate: "", gender: "", occupation: "" };
+    if (!raw) return fb;
+    try {
+        const p = JSON.parse(raw);
+        return { street: p.street || "", birthPlaceDate: p.birthPlaceDate || p.dob || "", gender: p.gender || "", occupation: p.occupation || "" };
+    } catch { return { ...fb, street: raw }; }
+}
+
 export default function SearchClient({ locale }: { locale: string }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -147,22 +157,34 @@ export default function SearchClient({ locale }: { locale: string }) {
                              <div className="bg-primary/10 text-primary px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] font-black tracking-widest uppercase italic">
                                 <QrCode size={14} /> System Verified ID
                              </div>
-                             <IDivCardModern 
-                                 mode={result.visaType?.toUpperCase().includes('IDG') || result.visaType?.toUpperCase().includes('GUIDE') ? 'IDG' : 'IDIV'}
-                                 variant="purple"
-                                 data={{
-                                     id_number: result.id,
-                                     name: result.fullName,
-                                     nationality: result.nationality || "VERIFIED HOLDER",
-                                     visa_type: result.visaType,
-                                     expiry_date: result.expiresAt ? new Date(result.expiresAt).toLocaleDateString() : 'N/A',
-                                     issue_date: result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A',
-                                     address: result.address || "",
-                                     order_id: result.slug || result.application?.slug || "N/A"
-                                 }} 
-                                 autoRotate={true} 
-                                 showDownload={false}
-                             />
+                             {(() => {
+                                 const addr = parseAddress(result.address);
+                                 const isSmart = result.visaType?.toUpperCase().includes('SMART') || result.visaType?.toUpperCase().includes('KITAS') || result.visaType?.toUpperCase().includes('ITAP');
+                                 const isIDG = result.visaType?.toUpperCase().includes('IDG') || result.visaType?.toUpperCase().includes('GUIDE');
+                                 return (
+                                     <IDivCardModern
+                                         mode={isSmart ? 'SMART' : (isIDG ? 'IDG' : 'IDIV')}
+                                         variant="purple"
+                                         data={{
+                                             id_number:        result.id,
+                                             name:             result.fullName,
+                                             passport_number:  result.passportNumber,
+                                             nationality:      result.nationality || "VERIFIED HOLDER",
+                                             visa_type:        result.visaType,
+                                             expiry_date:      result.expiresAt ? new Date(result.expiresAt).toLocaleDateString() : 'N/A',
+                                             issue_date:       result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A',
+                                             address:          addr.street || result.address || "",
+                                             birth_place_date: addr.birthPlaceDate,
+                                             gender:           addr.gender,
+                                             occupation:       addr.occupation,
+                                             photoUrl:         result.photoUrl,
+                                             order_id:         result.slug || result.application?.slug || "N/A"
+                                         }}
+                                         autoRotate={true}
+                                         showDownload={false}
+                                     />
+                                 );
+                             })()}
                              
                              <div className="p-8 bg-slate-900 dark:bg-white/10 rounded-[2.5rem] text-white space-y-4">
                                 <div className="flex items-center gap-2 text-[10px] font-black text-primary tracking-widest uppercase italic">
@@ -183,14 +205,21 @@ export default function SearchClient({ locale }: { locale: string }) {
                                 </div>
                                 <div className="p-10 space-y-8">
                                     <div className="grid grid-cols-2 gap-8">
-                                        {[
-                                            { label: "Full Name", value: result.fullName, icon: Info },
-                                            { label: "ID No.", value: result.id, icon: LayoutGrid },
-                                            { label: "Visa Permit", value: result.visaType, icon: FileText },
-                                            { label: "Smart ID", value: result.slug, icon: QrCode, highlight: true },
-                                            { label: "Permit Status", value: result.application?.status || result.status, icon: ShieldCheck, highlight: true },
-                                            { label: "Issued Date", value: new Date(result.issuedDate).toLocaleDateString(), icon: Clock }
-                                        ].map((item: any, i) => (
+                                        {(() => {
+                                            const addr2 = parseAddress(result.address);
+                                            const rows = [
+                                                { label: "Full Name",     value: result.fullName, icon: Info },
+                                                { label: "ID No.",        value: result.id, icon: LayoutGrid },
+                                                { label: "Visa Permit",   value: result.visaType, icon: FileText },
+                                                { label: "Smart ID",      value: result.slug, icon: QrCode, highlight: true },
+                                                { label: "Permit Status", value: result.application?.status || result.status, icon: ShieldCheck, highlight: true },
+                                                { label: "Issued Date",   value: result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A', icon: Clock },
+                                                { label: "Tempat/Tgl Lahir", value: addr2.birthPlaceDate || '—', icon: Info },
+                                                { label: "Pekerjaan",     value: addr2.occupation || '—', icon: Info },
+                                                { label: "Alamat",        value: addr2.street || '—', icon: Info },
+                                            ];
+                                            return rows;
+                                        })().map((item: any, i) => (
                                             <div key={i} className="space-y-1">
                                                 <div className="text-[10px] font-black mode-aware-subtext uppercase tracking-widest opacity-50 flex items-center gap-2">
                                                     {item.icon && <item.icon size={12} />}

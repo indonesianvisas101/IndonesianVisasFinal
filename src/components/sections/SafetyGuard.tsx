@@ -158,74 +158,43 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                     transition={{ delay: 0.5 }}
                     className="mt-20 glass-card p-1 pb-10 rounded-[3rem] overflow-hidden bg-gradient-to-br from-blue-600/10 to-primary/10"
                 >
+                   {/* Smart ID Explained Section */}
                    <div className="bg-white/80 dark:bg-black/80 backdrop-blur-3xl p-8 md:p-12 rounded-[2.9rem] flex flex-col md:flex-row items-center gap-10">
                         <div className="md:w-1/2 space-y-6">
-                            <h3 className="text-3xl font-black mode-aware-text">Proven Protection for Thousands</h3>
+                            <div className="inline-block px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold border border-blue-200 dark:border-blue-800">
+                                PREMIUM KTP-STYLE ID
+                            </div>
+                            <h3 className="text-3xl font-black mode-aware-text">Indonesian Visas Smart System (Smart ID)</h3>
                             <p className="mode-aware-subtext text-lg">
-                                Our verification system has processed over <strong>10,000+</strong> applications without a single data breach. IndonesianVisas.com is the only agency in Bali that offers real-time QR-code verification for every visa issued.
+                                The high-density, KTP-inspired digital identity card for long-term residents. Designed specifically for ITAP, GCI, and long-term visa holders with a stay permit of 2 to 10 years, featuring full biometric and biographical mapping.
                             </p>
-                            <div className="flex gap-4">
-                                <div className="flex -space-x-3">
-                                    {[1,2,3,4].map(i => (
-                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center overflow-hidden">
-                                            <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" />
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="text-sm font-bold mode-aware-text">
-                                    <span className="text-primary">+10k</span> Verified travelers already protected
-                                </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <Box className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-slate-200 dark:border-white/10">
+                                    <Typography variant="caption" color="primary" fontWeight="bold">NFC READY</Typography>
+                                    <Typography variant="body2" fontWeight="bold" className="mode-aware-text">Seamless Scans</Typography>
+                                </Box>
+                                <Box className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl border border-slate-200 dark:border-white/10">
+                                    <Typography variant="caption" color="primary" fontWeight="bold">FULL BIODATA</Typography>
+                                    <Typography variant="body2" fontWeight="bold" className="mode-aware-text">KTP Equivalent</Typography>
+                                </Box>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
+                                <Link href={formatNavLink(locale, "/ktp-id-card-smart-id")} className="flex-1">
+                                    <button className="cta-primary w-full justify-center">
+                                        Learn More <ArrowRight size={18} className="ml-2" />
+                                    </button>
+                                </Link>
+                                 <Link href={formatNavLink(locale, "/idiv-search")} className="flex-1">
+                                    <button className="w-full justify-center py-4 rounded-full bg-transparent text-black dark:text-white font-black border-2 border-black dark:border-white/20 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex items-center gap-2 shadow-sm uppercase tracking-widest text-sm">
+                                        <Search size={18} /> Search ID
+                                    </button>
+                                </Link>
                             </div>
                         </div>
-                        <div className="md:w-1/2 relative perspective-1000 group hidden md:block">
-                             <div className="relative w-full aspect-video transform-gpu preserve-3d">
-                                 <motion.div 
-                                    animate={{ rotateY: isFlipped ? 180 : 0 }}
-                                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                                    className="relative w-full h-full transform-style-3d cursor-pointer"
-                                    onClick={() => setIsFlipped(!isFlipped)}
-                                >
-                                    {/* Front Side: Visa Advance Branding */}
-                                    <div className={`absolute inset-0 backface-hidden bg-gradient-to-tr from-blue-600 to-primary rounded-[2rem] shadow-2xl flex items-center justify-center text-white p-8 text-center overflow-hidden ${isFlipped ? 'pointer-events-none' : ''}`}>
-                                        <div className="absolute inset-0 opacity-10 pointer-events-none">
-                                            <svg width="100%" height="100%"><pattern id="grid-safety" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1"/></pattern><rect width="100%" height="100%" fill="url(#grid-safety)" /></svg>
-                                        </div>
-                                        <div className="space-y-4 relative z-10">
-                                            <div className="w-20 h-20 bg-white/20 rounded-3xl backdrop-blur-xl flex items-center justify-center mx-auto mb-6 border border-white/30 shadow-inner">
-                                                <Zap size={40} className="text-white animate-pulse" />
-                                            </div>
-                                            <h4 className="text-3xl font-black tracking-tight">Visa Advance™</h4>
-                                            <p className="opacity-80 font-medium">Click to reveal your encrypted verification code.</p>
-                                            <div className="inline-flex items-center gap-2 bg-green-400/20 text-green-300 px-4 py-1.5 rounded-full text-xs font-bold border border-green-400/30 mt-4 backdrop-blur-sm">
-                                                <div className="w-2 h-2 bg-green-400 rounded-full animate-ping"></div>
-                                                SYSTEM ACTIVE & SECURED
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Back Side: Smart Code / QR */}
-                                    <div className="absolute inset-0 backface-hidden rotate-y-180 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl flex flex-col items-center justify-center p-8 border-2 border-primary/20">
-                                        <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-[2rem] mb-4 border border-dashed border-primary/30 relative">
-                                            <QRCodeSVG 
-                                                value="https://indonesianvisas.com/en/verification-explained"
-                                                size={160}
-                                                level="H"
-                                                includeMargin={false}
-                                                className="dark:invert"
-                                            />
-                                            <div className="absolute -top-3 -right-3 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white shadow-lg">
-                                                <ShieldCheck size={16} />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1 text-center">
-                                            <div className="inline-flex items-center gap-2 text-primary font-black tracking-tighter text-sm uppercase">
-                                                <Lock size={14} /> Encrypted Smart Code
-                                            </div>
-                                            <p className="text-[10px] text-gray-400 font-mono uppercase tracking-widest">UID: IV-AUTO-SECURE-8829</p>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                             </div>
+                        <div className="md:w-1/2 flex justify-center">
+                            <div className="scale-90 md:scale-100">
+                                <IDivCardModern mode="SMART" showDownload={false} shareUrl="https://indonesianvisas.com/ktp-id-card-smart-id" />
+                            </div>
                         </div>
                    </div>
 

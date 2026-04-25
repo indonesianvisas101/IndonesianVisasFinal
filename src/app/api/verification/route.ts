@@ -58,6 +58,16 @@ export async function GET(request: Request) {
         const data = await appendCombinedData(JSON.parse(JSON.stringify(verification)));
         const maskedData = maskVerificationData(data);
         
+        // Unpack visaActiveUrl from JSON-packed address
+        if (maskedData && maskedData.address) {
+            try {
+                const addrParsed = JSON.parse(maskedData.address);
+                if (addrParsed.visaActiveUrl) {
+                    maskedData.visaActiveUrl = addrParsed.visaActiveUrl;
+                }
+            } catch { /* address is plain text, no visaActiveUrl */ }
+        }
+        
         return NextResponse.json(maskedData);
     } catch (error) {
         console.error('Get verification error:', error);

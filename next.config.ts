@@ -39,16 +39,21 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ['image/avif', 'image/webp'],
+    // Cache optimized images for 1 year at CDN/browser level
+    minimumCacheTTL: 31536000,
+    // Tune breakpoints to real traffic — fewer variants = faster build + less disk
+    deviceSizes: [640, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 64, 128, 256],
     remotePatterns: [
       { protocol: 'https', hostname: 'randomuser.me' },
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
       { protocol: 'https', hostname: 'flagcdn.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
       { protocol: 'https', hostname: '**.googleusercontent.com' },
-      { protocol: 'https', hostname: 'thvdfcogdxmqipybqzot.supabase.co' }, // Supabase Storage
-      { protocol: 'https', hostname: 'images.unsplash.com' }, // Unsplash
-      { protocol: 'https', hostname: 'plus.unsplash.com' }, // Unsplash Plus
-      { protocol: 'https', hostname: 'www.google.com' }, // Google Logo
+      { protocol: 'https', hostname: 'thvdfcogdxmqipybqzot.supabase.co' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'plus.unsplash.com' },
+      { protocol: 'https', hostname: 'www.google.com' },
       { protocol: 'https', hostname: 'www.indonesianvisas.com' },
     ],
   },

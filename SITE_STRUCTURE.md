@@ -47,6 +47,11 @@ Massive authority clusters designed for SEO dominance.
 - `/visa-glossary` — Dictionary of visa terms (VOA, KITAS, B211A explained).
 - `/visa-faq` — Categorized help repository.
 - `/comparisons` — Head-to-head analysis (e.g., Bali vs. Thailand).
+- `/indonesian-visas-in-2026-2027-all-types-and-prices` — **[NEW]** Strategic Authority Hub.
+- `/bali-visas-in-2026-2027-all-types-and-prices` — **[NEW]** Bali Specialist Roadmap.
+- `/jakarta-visas-in-2026-2027-all-types-and-prices` — **[NEW]** Jakarta Corporate Specialist.
+- `/indonesian-visas-lates-updated` — **[NEW]** National Policy News Hub.
+- `/bali-visas-lates-updated` — **[NEW]** Bali Local Updates Hub.
 
 ### 3.4 Regulation Depth (Authority Hub)
 - `/regulations/indonesia-visa-regulations` — Comprehensive guide to legal frameworks.
@@ -121,5 +126,16 @@ High-value diaspora and ultra-high-net-worth investor pathways.
 | `/services/Australia/indonesia-citizenship` | **Oceania GCI Hub** | Hardened (v55.5) — Active Redirects |
 
 ---
-**Document Status:** Verified Production v55.5 (GCI Hardened Lead Engine Architecture)
+## 10. SATELLITE DIVISIONS & REGIONAL ASSETS (EXTENDED CLUSTER)
+Official satellite domains linked to the Master HQ via JSON-LD and Regional Authority.
+
+| Asset | Domain | Role | Status |
+|---|---|---|---|
+| **Bali Division** | `balivisa.agency` | Regional Specialist | Active / Linked |
+| **Jakarta Division** | `jakartavisas.agency` | Corporate Specialist | Active / Linked |
+| **Lifestyle Hub** | `balihelp.id` | Concierge & Expat Support | Active / Hub |
+| **Holding Hub** | `bali.enterprises` | Strategic Governance | Active / Parent |
+
+---
+**Document Status:** Verified Production v58.0 (SEO Blitzkrieg & Satellite Hub Hardening)
 *(Reflects 100% of routes in `src/app/[locale]`)*

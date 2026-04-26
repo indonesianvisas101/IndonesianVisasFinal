@@ -1,5 +1,5 @@
 # BALI ENTERPRISES GROUP - CORPORATE MASTER INTELLIGENCE NODE
-**Version**: 2.0 (Hardened & Integrated)
+**Version**: 2.3 (Complete Cluster Intelligence)
 **Last Audit**: 2026-04-27
 **Purpose**: Centralized source of truth for AI Developers and Human Engineers across all group domains.
 
@@ -18,7 +18,21 @@
 
 ---
 
-## 2. DOMAIN PURVIEW & SPECIFICATIONS
+## 2. DIGITAL ECOSYSTEM ASSETS (Domain Cluster)
+
+| Domain | Role | Target Region | Authority |
+| :--- | :--- | :--- | :--- |
+| **indonesianvisas.com** | National Flagship | All Indonesia | Primary Sponsor (HQ) |
+| **balihelp.id** | Lifestyle & Emergency | Bali Local | Service Hub |
+| **balivisa.agency** | Bali Division | Bali | City Division |
+| **jakartavisas.agency** | Jakarta Division | Jakarta / IKN | City Division |
+| **bali.enterprises** | Strategic Holding | Global / IKN | Management |
+| **bali.technology** | R&D / Smart ID | Global | Tech Provider |
+| **indodesign.website** | Creative & UI/UX | Global | Design Studio |
+
+---
+
+## 3. DOMAIN PURVIEW & SPECIFICATIONS
 
 ### A. [indonesianvisas.com] - The National Legal-Tech Flagship
 - **Role**: Official National Immigration & Visa Authority.
@@ -48,14 +62,34 @@
   - Educational Investment Planning.
   - Governance of the "Bali Enterprises Ecosystem".
 
-### D. [bali.technology] & [indodesign.website] - The Innovation Engine
+### D. [balivisa.agency] - The Bali Local Division
+- **Role**: Specialized Regional Division for Bali Operations.
+- **Service Scope**: Bali Local (Uluwatu, Canggu, Ubud, Seminyak).
+- **Core Focus**: 
+  - Tourism Visa extensions in Bali.
+  - Local Bali Sponsorship verification.
+  - Smart ID distribution for Bali tourists.
+- **Tag**: "Official Bali Division of PT Indonesian Visas Agency".
+- **Logic**: All major visa processing is redirected to `indonesianvisas.com`.
+
+### E. [jakartavisas.agency] - The Jakarta Business Division
+- **Role**: Specialized Regional Division for Capital/Business Operations.
+- **Service Scope**: Jakarta & Greater Area (IKN Bridge).
+- **Core Focus**: 
+  - Corporate Visas & Investor KITAS.
+  - PT PMA Legal Assistance.
+  - Executive Identity Hub.
+- **Tag**: "Official Jakarta Division of PT Indonesian Visas Agency".
+- **Logic**: All major visa processing is redirected to `indonesianvisas.com`.
+
+### F. [bali.technology] & [indodesign.website] - The Innovation Engine
 - **Role**: Technology R&D (Bali Technology) & UX/UI Creative (IndoDesign).
 - **Project Lead**: Patent-Pending Smart ID (CHIP, NFC, QR Integrated).
 - **Identity Link**: Must be listed as `creator` and `developer` in all Smart ID schemas.
 
 ---
 
-## 3. TECHNICAL SPECIFICATIONS (FOR AI DEVS)
+## 4. TECHNICAL SPECIFICATIONS (FOR AI DEVS)
 
 ### Brand & Patent Status
 - **Brand**: Indonesian Visas™ (Status: Trademark Pending / TM).
@@ -71,7 +105,7 @@
 
 ---
 
-## 4. MASTER JSON-LD SYNC (COPY-PASTE FOR AI)
+## 5. MASTER JSON-LD SYNC (COPY-PASTE FOR AI)
 All developers must include this `parentOrganization` block to synchronize the Knowledge Graph:
 
 ```json
@@ -80,7 +114,7 @@ All developers must include this `parentOrganization` block to synchronize the K
   "@id": "https://indonesianvisas.com/#organization",
   "name": "PT Indonesian Visas Agency",
   "legalName": "PT Indonesian Visas Agency",
-  "alternateName": ["Indonesian Visas", "Bali Help", "BaliHelp"],
+  "alternateName": ["Indonesian Visas", "Bali Help", "BaliVisa Agency", "Jakarta Visas Agency"],
   "foundingDate": "2010",
   "parentOrganization": {
     "@type": "Organization",
@@ -91,7 +125,8 @@ All developers must include this `parentOrganization` block to synchronize the K
 ```
 
 ---
-## 5. FOUNDER PROFILE (E-E-A-T)
+
+## 6. FOUNDER PROFILE (E-E-A-T)
 - **Name**: Bayu Damopolii-Manoppo
 - **Title**: Founder & Strategic Director
 - **Verified Link 1**: https://www.linkedin.com/in/balihelp/ (New/Brand)

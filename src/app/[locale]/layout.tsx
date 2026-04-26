@@ -25,7 +25,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com'
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const isDefaultLocale = locale === 'en';
-  
+
   // Canonical URL strips the /en/ prefix to match Sitemap.xml
   const canonicalUrl = isDefaultLocale ? APP_URL : `${APP_URL}/${locale}`;
 
@@ -146,11 +146,11 @@ export default async function LocaleLayout({
         <link rel="dns-prefetch" href="https://checkout.doku.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://randomuser.me" />
-        
+
         {/* ── LCP / Above-fold critical asset preloads ── */}
         <link rel="preload" as="image" href="/Favicon.webp" fetchPriority="high" type="image/webp" />
         <link rel="preload" as="image" href="/images/BaliHelpCompress.webp" fetchPriority="low" type="image/webp" />
-        
+
         <GoogleTagManagerWrapper gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
         <script
           id="indonesianvisas-ldjson"
@@ -242,10 +242,10 @@ export default async function LocaleLayout({
                     "@type": "OfferCatalog",
                     "name": "Smart ID & Digital Identity Ecosystem",
                     "itemListElement": [
-                      { 
-                        "@type": "Offer", 
-                        "itemOffered": { 
-                          "@type": "SoftwareApplication", 
+                      {
+                        "@type": "Offer",
+                        "itemOffered": {
+                          "@type": "SoftwareApplication",
                           "name": "Smart ID / Sponsor ID (NFC, QR & CHIP Enabled)",
                           "applicationCategory": "Digital Identity & Security",
                           "operatingSystem": "Web, Android, iOS (via NFC/QR)",
@@ -255,7 +255,7 @@ export default async function LocaleLayout({
                             { "@id": "https://bali.technology" },
                             { "@id": "https://indodesign.website" }
                           ]
-                        } 
+                        }
                       },
                       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "IDiv (Verified Digital Visa Identity Platform)" } },
                       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "IDg (Verified Guide & Personal Assistant Identity)" } }
@@ -309,9 +309,9 @@ export default async function LocaleLayout({
                 ],
                 "subOrganization": [
                   /* Identity & Legal Division */
-                  { 
-                    "@type": "Organization", 
-                    "name": "PT Indonesian Visas Agency", 
+                  {
+                    "@type": "Organization",
+                    "name": "PT Indonesian Visas Agency",
                     "url": "https://indonesianvisas.com",
                     "email": "contact@indonesianvisas.agency",
                     "taxID": "1000000008117681",
@@ -327,11 +327,11 @@ export default async function LocaleLayout({
                       { "@type": "Brand", "name": "Immigration Software", "url": "https://immigration-software.com" }
                     ]
                   },
-                  
+
                   /* Media & News Division */
-                  { 
-                    "@type": "Organization", 
-                    "name": "PT Inaranet Group Sejahtra", 
+                  {
+                    "@type": "Organization",
+                    "name": "PT Inaranet Group Sejahtra",
                     "url": "https://inaranet.com",
                     "email": "info@newsbali.online",
                     "taxID": "200563955824000",
@@ -343,15 +343,15 @@ export default async function LocaleLayout({
                   },
 
                   /* Digital & Tech Division */
-                  { 
-                    "@type": "Organization", 
-                    "name": "Bali Technology", 
+                  {
+                    "@type": "Organization",
+                    "name": "Bali Technology",
                     "url": "https://bali.technology",
                     "description": "Innovation hub focused on robotics, hardware-software integration, and AI solutions."
                   },
-                  { 
-                    "@type": "Organization", 
-                    "name": "CV Tunas Raya", 
+                  {
+                    "@type": "Organization",
+                    "name": "CV Tunas Raya",
                     "url": "https://balihelp.id",
                     "email": "info@balihelp.id",
                     "taxID": "411060296824000",
@@ -364,9 +364,9 @@ export default async function LocaleLayout({
                       { "@type": "Brand", "name": "Kotabunan Shop", "url": "https://kotabunan.shop" }
                     ]
                   },
-                  { 
-                    "@type": "Organization", 
-                    "name": "PT Bali Surga Indah", 
+                  {
+                    "@type": "Organization",
+                    "name": "PT Bali Surga Indah",
                     "url": "https://balihelp.id",
                     "email": "info@balihelp.id",
                     "taxID": "20.180.270.9-824.000",
@@ -377,9 +377,9 @@ export default async function LocaleLayout({
                   },
 
                   /* Ecosystem & Logistics Division */
-                  { 
-                    "@type": "Organization", 
-                    "name": "PT Tropic Tech International", 
+                  {
+                    "@type": "Organization",
+                    "name": "PT Tropic Tech International",
                     "url": "https://tropictech.rent",
                     "email": "cfo@tropictech.online",
                     "taxID": "287935548901000",
@@ -389,9 +389,9 @@ export default async function LocaleLayout({
                     ],
                     "sameAs": ["https://tropictechbali.com", "https://tropictech.online"]
                   },
-                  { 
-                    "@type": "Organization", 
-                    "name": "PT Nawa Cita Bersama", 
+                  {
+                    "@type": "Organization",
+                    "name": "PT Nawa Cita Bersama",
                     "url": "https://mybisnis.app",
                     "taxID": "630071611824000",
                     "identifier": [
@@ -401,9 +401,9 @@ export default async function LocaleLayout({
                   },
 
                   /* Wellness Division */
-                  { 
-                    "@type": "Organization", 
-                    "name": "PT Bali Experience Group", 
+                  {
+                    "@type": "Organization",
+                    "name": "PT Bali Experience Group",
                     "url": "https://massagecanggu.id",
                     "email": "ptbaliexperiencegroup@gmail.com",
                     "taxID": "1000000005790315",
@@ -456,7 +456,7 @@ export default async function LocaleLayout({
               "subOrganization": [
                 /* Digital & Creative Divisions */
                 { "@type": "Organization", "name": "IndoDesignWeb", "url": "https://indodesign.website" },
-                
+
                 /* Country-Based Divisions */
                 { "@type": "Organization", "name": "Indonesian Visa Europe", "url": "https://europeindonesiavisa.online" },
                 { "@type": "Organization", "name": "Indonesian Visa America", "url": "https://americaindonesiavisa.online" },
@@ -466,7 +466,7 @@ export default async function LocaleLayout({
                 { "@type": "Organization", "name": "Indonesian Visa UAE", "url": "https://uaeindonesiavisas.agency" },
                 { "@type": "Organization", "name": "Indonesian Visa China", "url": "https://chinaindonesiavisa.online" },
                 { "@type": "Organization", "name": "Indonesian Visa India", "url": "https://indiaindonesiavisa.online" },
-                
+
                 /* City-Based Divisions & Affiliates */
                 { "@type": "Organization", "name": "Bali Visa Division", "url": "https://balivisa.agency" },
                 { "@type": "Organization", "name": "Jakarta Visa Division", "url": "https://jakartavisa.agency" },
@@ -501,10 +501,10 @@ export default async function LocaleLayout({
                 <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[1000] focus:bg-white focus:text-primary focus:p-4 focus:rounded-xl focus:shadow-xl focus:font-bold border-2 border-primary">
                   Skip to content
                 </a>
-                
+
                 <Header dict={dict} locale={currentLocale} />
                 <GlobalInfoPopup locale={currentLocale} />
-                
+
                 <main id="main-content" className="flex-grow relative flex flex-col min-h-screen">
                   {children}
                 </main>

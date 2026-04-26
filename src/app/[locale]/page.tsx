@@ -52,9 +52,21 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
   
   return {
-    title: "Indonesian Visas | Official Multinational Agency & Immigration Hub",
-    description: "Official Indonesia Visa Agency operated by PT Indonesian Visas Agency. Strategic immigration infrastructure for E-VOA, B211A, and KITAS. Omnibus Law compliant service with 99.9% success rate.",
-    keywords: ["indonesia visa", "bali visa agency", "official indonesian visa", "e-voa indonesia", "kitas bali", "bali help", "bali enterprises group"],
+    title: "Indonesian Visas | Official Direct First-Hand Sponsor & Immigration Hub",
+    description: "The Official Direct First-Hand Sponsor for Indonesian Visas since 2010. Strategic legal-tech infrastructure for B1 VOA, C1/C12, D1/D2/D12, and KITAS. Originally Bali Help. 99.9% Success Rate. Zero Intermediaries.",
+    keywords: ["indonesia visa", "bali visa agency", "official indonesian visa", "direct visa sponsor", "e-voa indonesia", "kitas bali", "bali help", "bali enterprises group", "smart id bali"],
+    robots: {
+      index: true,
+      follow: true,
+      nocache: false,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
     alternates: {
       canonical: locale === 'en' ? APP_URL : `${APP_URL}/${locale}`,
     },
@@ -151,18 +163,34 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       },
       {
         '@type': 'Question',
-        'name': 'Where is your physical office located?',
+        'name': 'Is IndonesianVisas.com a direct sponsor or an intermediary agency?',
         'acceptedAnswer': {
           '@type': 'Answer',
-          'text': 'Our main office is located at Jl. Tibungsari No.11C, Padangsambian Kaja, Denpasar Barat, Bali 80117, Indonesia.'
+          'text': 'We are a First-Hand Direct Legal Sponsor. Unlike many agencies that act as brokers, IndonesianVisas.com (PT Indonesian Visas Agency) provides primary corporate sponsorship, ensuring faster processing, lower costs, and zero intermediaries.'
         }
       },
       {
         '@type': 'Question',
-        'name': 'How long does the Indonesia visa process take?',
+        'name': 'How can I verify the legality of PT Indonesian Visas Agency?',
         'acceptedAnswer': {
           '@type': 'Answer',
-          'text': 'The processing time varies: E-VOA can be instant, while the B211A Business/Tourism visa typically takes 3-5 working days depending on the chosen tier (Standard/Priority).'
+          'text': 'Our legality is fully transparent. You can verify our NIB (0402260034806), AHU (AHU-00065.AH.02.01.TAHUN 2020), and KKPR (04022610215171007) directly on the Indonesian Ministry of Law (AHU) and OSS portals. We provide direct links for public legal audit via Government portals.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'What is Smart ID and why do I need it?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Smart ID is our patent-pending digital identity ecosystem (including Sponsor ID, IDiv, and IDg). It features NFC, QR, and Chip technology that allows tourists to verify their sponsorship status online and offline for hotel bookings, rentals, and emergencies without needing to carry their physical passport.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Do you provide assistance for local documents like KTP or SIM?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Yes, we provide specialized legal assistance for state documentation including Family Card (KK), ID Card (KTP) for KITAS/KITAP holders, Driving License (SIM) for expats, and Police Record (SKCK) for foreigners residing in Indonesia.'
         }
       }
     ]

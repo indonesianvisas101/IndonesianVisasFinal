@@ -16,10 +16,12 @@ export default function Error({
 
   // Handle known non-critical environment blockers (e.g., Safari content blockers breaking WebSockets)
   const isWebSocketBlocker = 
-    error.message?.includes("WebSocket") || 
+    (error.message?.includes("WebSocket") || 
     error.message?.includes("is insecure") || 
     error.stack?.includes("websocket") ||
-    error.stack?.includes("connect");
+    error.stack?.includes("connect")) &&
+    typeof window !== 'undefined' && 
+    sessionStorage.getItem('bypass_blocker_check') !== 'true';
 
   if (isWebSocketBlocker) {
     return (
@@ -40,8 +42,30 @@ export default function Error({
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center', maxWidth: 400 }}>
           Your browser may have some content blockers enabled that restrict non-critical background components. The page layout will proceed shortly.
         </Typography>
-        <Button variant="outlined" color="primary" onClick={() => reset()} sx={{ borderRadius: 2 }}>
-          Retry View
+        <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button variant="contained" color="primary" onClick={() => reset()} sx={{ borderRadius: 2, px: 4 }}>
+                Retry View
+            </Button>
+            <Button variant="outlined" color="inherit" onClick={() => {
+                // Force show the real error by tricking the state if possible, 
+                // but here we just reload or we can add a state to bypass
+                window.location.reload();
+            }} sx={{ borderRadius: 2 }}>
+                Reload Page
+            </Button>
+        </Box>
+        <Button 
+            variant="text" 
+            color="secondary" 
+            size="small"
+            onClick={() => {
+                // Create a temporary override in session storage to skip this check
+                sessionStorage.setItem('bypass_blocker_check', 'true');
+                reset();
+            }}
+            sx={{ mt: 4, opacity: 0.5, fontSize: '10px' }}
+        >
+            Advanced: Show Technical Details & Bypass
         </Button>
       </Box>
     );

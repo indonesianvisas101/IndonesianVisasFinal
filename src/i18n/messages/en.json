@@ -265,24 +265,28 @@
     "view_all": "View Complete FAQ",
     "faqs": [
       {
+        "q": "Is IndonesianVisas.com a direct sponsor or an intermediary agency?",
+        "a": "We are a First-Hand Direct Legal Sponsor. Unlike many agencies that act as brokers, IndonesianVisas.com (PT Indonesian Visas Agency) provides primary corporate sponsorship, ensuring faster processing, lower costs, and zero intermediaries."
+      },
+      {
+        "q": "How can I verify the legality of PT Indonesian Visas Agency?",
+        "a": "Our legality is fully transparent. You can verify our NIB (0402260034806) and AHU (AHU-00065.AH.02.01.TAHUN 2020) directly on the Indonesian Ministry of Law (AHU) and OSS portals. We provide direct links for public legal audit to ensure absolute security for our clients."
+      },
+      {
+        "q": "What is Smart ID and why do I need it?",
+        "a": "Smart ID is our patent-pending digital identity ecosystem (including Sponsor ID, IDiv, and IDg). It features NFC, QR, and Chip technology that allows tourists to verify their sponsorship status online and offline for hotel bookings, rentals, and emergencies without needing to carry their physical passport."
+      },
+      {
+        "q": "Do you provide assistance for local documents like KTP or SIM?",
+        "a": "Yes, we provide specialized legal assistance for state documentation including Family Card (KK), ID Card (KTP) for KITAS/KITAP holders, Driving License (SIM) for expats, and Police Record (SKCK) for foreigners residing in Indonesia."
+      },
+      {
         "q": "How long does visa processing take?",
         "a": "Standard processing: 3-5 business days. Express service: 1-4 hours (additional fees apply). VOA can be obtained on arrival at Indonesian airports for eligible nationalities."
       },
       {
-        "q": "What documents do I need?",
-        "a": "Valid passport (minimum 6 months validity), recent passport photo, proof of accommodation in Indonesia, return/onward flight ticket. Business visas may require additional documents like invitation letters."
-      },
-      {
         "q": "Can I extend my visa?",
         "a": "Yes! We offer visa extension services for most visa types. VOA can be extended once for 30 days. Tourist visas (B211A) can be extended up to 4 times. Apply at least 7 days before your visa expires."
-      },
-      {
-        "q": "What are visa fees?",
-        "a": "Fees vary by visa type. VOA: $20 USD. Tourist Visa: from $40 USD. Business visas: from $50-150 USD depending on type. KITAS: from $500-1500 USD. All prices include government fees and our service charges."
-      },
-      {
-        "q": "Which countries are eligible for Indonesian visas?",
-        "a": "Citizens from 97 countries are eligible for VOA and visa services. This includes most European, American, Asian, and Oceanic countries. Some countries require special treatment or additional documentation."
       }
     ]
   },
@@ -422,7 +426,15 @@
       "q6": "What if my visa is rejected?",
       "a6": "In the rare event of a rejection, we will review the reason provided by immigration and advise on the best course of action, which may include re-application with additional documentation.",
       "q7": "How can I contact support?",
-      "a7": "Our support team is available 24/7 via WhatsApp, email, and our website's chat widget. We are here to help you at every step of your application."
+      "a7": "Our support team is available 24/7 via WhatsApp, email, and our website's chat widget. We are here to help you at every step of your application.",
+      "q28": "Is IndonesianVisas.com a direct sponsor or an intermediary agency?",
+      "a28": "We are a First-Hand Direct Legal Sponsor (PT Indonesian Visas Agency). Unlike many agencies that act as brokers or intermediaries, we provide primary corporate sponsorship, ensuring faster processing, lower costs, and zero intermediaries for our clients.",
+      "q29": "How can I verify the legality of PT Indonesian Visas Agency?",
+      "a29": "Our legality is fully transparent. You can verify our NIB (0402260034806) and AHU (AHU-00065.AH.02.01.TAHUN 2020) directly on the Indonesian Ministry of Law (AHU) and OSS government portals. We maintain an open policy for public legal audits.",
+      "q30": "What is the benefit of the Smart ID ecosystem?",
+      "a30": "Smart ID (including Sponsor ID, IDiv, and IDg) is a patent-pending system featuring NFC, QR, and Chip technology. it allows you to verify your visa and sponsorship status instantly for hotel bookings, rentals, and in emergency situations without needing to carry your physical passport.",
+      "q31": "Do you provide assistance for local KTP, SIM, or SKCK for foreigners?",
+      "a31": "Yes, we provide specialized legal assistance for Indonesian state documentation including Family Card (KK), ID Card (KTP) for KITAS holders, local Driving Licenses (SIM), and Police Records (SKCK) for foreigners."
     }
   },
   "pricing_page": {

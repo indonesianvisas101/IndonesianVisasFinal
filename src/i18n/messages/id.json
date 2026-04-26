@@ -170,24 +170,28 @@
         "view_all": "Lihat FAQ Lengkap",
         "faqs": [
             {
+                "q": "Apakah IndonesianVisas.com adalah sponsor langsung atau agensi perantara?",
+                "a": "Kami adalah Sponsor Legal Tangan Pertama Langsung. Berbeda dengan banyak agensi yang bertindak sebagai makelar/calo, IndonesianVisas.com (PT Indonesian Visas Agency) memberikan sponsor perusahaan utama, menjamin proses lebih cepat, biaya lebih rendah, dan tanpa perantara."
+            },
+            {
+                "q": "Bagaimana cara saya memverifikasi legalitas PT Indonesian Visas Agency?",
+                "a": "Legalitas kami sepenuhnya transparan. Anda dapat memverifikasi NIB (0402260034806) dan AHU (AHU-00065.AH.02.01.TAHUN 2020) kami langsung di portal Kementerian Hukum (AHU) dan OSS. Kami menyediakan tautan langsung untuk audit hukum publik guna memastikan keamanan mutlak bagi klien kami."
+            },
+            {
+                "q": "Apa itu Smart ID dan mengapa saya memerlukannya?",
+                "a": "Smart ID adalah ekosistem identitas digital paten kami (termasuk Sponsor ID, IDiv, dan IDg). Fitur ini dilengkapi teknologi NFC, QR, dan Chip yang memungkinkan turis memverifikasi status sponsor mereka secara online dan offline untuk pemesanan hotel, penyewaan, dan keadaan darurat tanpa perlu membawa paspor fisik."
+            },
+            {
+                "q": "Apakah Anda memberikan bantuan untuk dokumen lokal seperti KTP atau SIM?",
+                "a": "Ya, kami memberikan bantuan hukum khusus untuk dokumentasi negara termasuk Kartu Keluarga (KK), KTP untuk pemegang KITAS/KITAP, Surat Izin Mengemudi (SIM) untuk ekspatriat, dan SKCK untuk orang asing yang tinggal di Indonesia."
+            },
+            {
                 "q": "Berapa lama proses visa berlangsung?",
                 "a": "Pemrosesan standar: 3-5 hari kerja. Layanan ekspres: 1-4 jam (biaya tambahan berlaku). VOA dapat diperoleh saat kedatangan di bandara Indonesia untuk warga negara yang memenuhi syarat."
             },
             {
-                "q": "Dokumen apa yang saya butuhkan?",
-                "a": "Paspor yang berlaku (masa berlaku minimal 6 bulan), foto paspor terbaru, bukti akomodasi di Indonesia, tiket penerbangan pulang/lanjutan. Visa bisnis mungkin memerlukan dokumen tambahan seperti surat undangan."
-            },
-            {
                 "q": "Bisakah saya memperpanjang visa saya?",
                 "a": "Ya! Kami menawarkan layanan perpanjangan visa untuk sebagian besar jenis visa. VOA dapat diperpanjang satu kali selama 30 hari. Visa turis (B211A) dapat diperpanjang hingga 4 kali. Ajukan permohonan setidaknya 7 hari sebelum visa Anda berakhir."
-            },
-            {
-                "q": "Berapa biaya visa?",
-                "a": "Biaya bervariasi berdasarkan jenis visa. VOA: $20 USD. Visa Turis: mulai $40 USD. Visa bisnis: mulai $50-150 USD tergantung jenisnya. KITAS: mulai $500-1500 USD. Semua harga sudah termasuk biaya pemerintah dan biaya layanan kami."
-            },
-            {
-                "q": "Negara mana saja yang memenuhi syarat untuk visa Indonesia?",
-                "a": "Warga negara dari 97 negara memenuhi syarat untuk layanan VOA dan visa. Ini termasuk sebagian besar negara Eropa, Amerika, Asia, dan Oseania. Beberapa negara memerlukan perlakuan khusus atau dokumentasi tambahan."
             }
         ]
     },
@@ -326,7 +330,15 @@
             "q6": "Bagaimana jika visa saya ditolak?",
             "a6": "Dalam peristiwa penolakan yang jarang terjadi, kami akan meninjau alasan yang diberikan oleh imigrasi dan menyarankan tindakan terbaik, yang mungkin termasuk pengajuan ulang dengan dokumentasi tambahan.",
             "q7": "Bagaimana saya bisa menghubungi dukungan?",
-            "a7": "Tim dukungan kami tersedia 24/7 melalui WhatsApp, email, dan widget obrolan situs web kami. Kami di sini untuk membantu Anda di setiap langkah aplikasi Anda."
+            "a7": "Tim dukungan kami tersedia 24/7 melalui WhatsApp, email, dan widget obrolan situs web kami. Kami di sini untuk membantu Anda di setiap langkah aplikasi Anda.",
+            "q28": "Apakah IndonesianVisas.com adalah sponsor langsung atau agensi perantara?",
+            "a28": "Kami adalah Sponsor Legal Tangan Pertama Langsung (PT Indonesian Visas Agency). Berbeda dengan banyak agensi yang bertindak sebagai makelar atau perantara, kami memberikan sponsor perusahaan utama, menjamin proses lebih cepat, biaya lebih rendah, dan tanpa perantara bagi klien kami.",
+            "q29": "Bagaimana cara saya memverifikasi legalitas PT Indonesian Visas Agency?",
+            "a29": "Legalitas kami sepenuhnya transparan. Anda dapat memverifikasi NIB (0402260034806) dan AHU (AHU-00065.AH.02.01.TAHUN 2020) kami langsung di portal pemerintah Kementerian Hukum (AHU) dan OSS. Kami menjaga kebijakan terbuka untuk audit hukum publik.",
+            "q30": "Apa manfaat dari ekosistem Smart ID?",
+            "a30": "Smart ID (termasuk Sponsor ID, IDiv, dan IDg) adalah sistem paten yang dilengkapi teknologi NFC, QR, dan Chip. Sistem ini memungkinkan Anda memverifikasi status visa dan sponsor secara instan untuk pemesanan hotel, penyewaan, dan dalam situasi darurat tanpa perlu membawa paspor fisik.",
+            "q31": "Apakah Anda memberikan bantuan untuk KTP lokal, SIM, atau SKCK untuk orang asing?",
+            "a31": "Ya, kami memberikan bantuan hukum khusus untuk dokumentasi negara Indonesia termasuk Kartu Keluarga (KK), KTP untuk pemegang KITAS, Surat Izin Mengemudi (SIM) lokal, dan SKCK untuk orang asing."
         }
     },
     "pricing_page": {

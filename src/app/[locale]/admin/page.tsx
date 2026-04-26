@@ -405,54 +405,66 @@ function AdminDashboardContent() {
 
     // NEW: Realtime Chat Listener (Admin Side)
     useEffect(() => {
-        const channel = supabase
-            .channel('admin_dashboard_global')
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'messages', filter: "senderType=eq.user" },
-                async (payload: any) => {
-                    const newMsg = payload.new;
-                    // Create a visual notification
-                    const newNotif = {
-                        id: `msg-${newMsg.id}`,
-                        title: "New Support Message",
-                        message: newMsg.message,
-                        type: 'info',
-                        isRead: false,
-                        createdAt: new Date().toISOString(),
-                        actionLink: "/admin?tab=support"
-                    };
+        try {
+            const channel = supabase
+                .channel('admin_dashboard_global')
+                .on(
+                    'postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'messages', filter: "senderType=eq.user" },
+                    async (payload: any) => {
+                        const newMsg = payload?.new;
+                        if (!newMsg) return;
 
-                    setAllNotifications(prev => [newNotif, ...prev]);
-                    setLatestNotification(newNotif);
-                }
-            )
-            .on(
-                'broadcast',
-                { event: 'NEW_ORDER' },
-                (payload: any) => {
-                    const order = payload.payload;
-                    setNewOrdersCount(prev => prev + 1);
-                    
-                    const newNotif = {
-                        id: `order-${order.id}`,
-                        title: "New Order Received!",
-                        message: `Order #${order.slug} from ${order.guestName} for ${order.visaName}`,
-                        type: 'success',
-                        isRead: false,
-                        createdAt: new Date().toISOString(),
-                        actionLink: "/admin?tab=orders"
-                    };
-                    
-                    setAllNotifications(prev => [newNotif, ...prev]);
-                    setLatestNotification(newNotif);
-                }
-            )
-            .subscribe();
+                        // Create a visual notification
+                        const newNotif = {
+                            id: `msg-${newMsg.id}`,
+                            title: "New Support Message",
+                            message: newMsg.message || "New message received",
+                            type: 'info',
+                            isRead: false,
+                            createdAt: new Date().toISOString(),
+                            actionLink: "/admin?tab=support"
+                        };
 
-        return () => {
-            supabase.removeChannel(channel);
-        };
+                        setAllNotifications(prev => [newNotif, ...prev]);
+                        setLatestNotification(newNotif);
+                    }
+                )
+                .on(
+                    'broadcast',
+                    { event: 'NEW_ORDER' },
+                    (payload: any) => {
+                        const order = payload?.payload;
+                        if (!order) return;
+
+                        setNewOrdersCount(prev => prev + 1);
+                        
+                        const newNotif = {
+                            id: `order-${order.id}`,
+                            title: "New Order Received!",
+                            message: `Order #${order.slug || 'N/A'} from ${order.guestName || 'Guest'} for ${order.visaName || 'Visa'}`,
+                            type: 'success',
+                            isRead: false,
+                            createdAt: new Date().toISOString(),
+                            actionLink: "/admin?tab=orders"
+                        };
+                        
+                        setAllNotifications(prev => [newNotif, ...prev]);
+                        setLatestNotification(newNotif);
+                    }
+                )
+                .subscribe((status) => {
+                    if (status === 'CHANNEL_ERROR') {
+                        console.warn("Supabase Realtime subscription error - Content Blocker might be active");
+                    }
+                });
+
+            return () => {
+                supabase.removeChannel(channel);
+            };
+        } catch (error) {
+            console.error("Failed to initialize realtime dashboard:", error);
+        }
     }, []);
 
     useEffect(() => {

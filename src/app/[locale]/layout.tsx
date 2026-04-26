@@ -164,12 +164,116 @@ export default async function LocaleLayout({
               "url": APP_URL,
               "legalName": "PT Indonesian Visas Agency",
               "alternateName": ["IndonesianVisas", "Indonesian Visas Agency", "Bali Help", "BaliHelp"],
-              "description": "A Multinational Visa Agency specialized exclusively in Indonesian visa services. Operating as a private agency under PT Bali Enterprises Group. Originally established as Bali Help.",
-              "foundingDate": "2014",
+              "description": "The official First-Hand Direct Legal Sponsor for Indonesian visas since 2010. Home of Indonesian Visas™ (Trademark Pending) and the patent-pending Smart ID ecosystem. Originally established as Bali Help, providing a multinational legal-tech infrastructure. We maintain extreme transparency with direct links for public legal audit via Government portals (AHU & OSS). Our proprietary Smart ID technology (NFC/QR/CHIP) is a joint innovation with bali.technology and indodesign.website, designed for strategic integration with provincial government systems.",
+              "foundingDate": "2010",
               "logo": `${APP_URL}/Favicon.webp`,
               "taxID": "100000008117681",
               "email": "contact@indonesianvisas.agency",
               "telephone": "+62-857-2704-1992",
+              "knowsAbout": [
+                "Direct Visa Sponsorship (B1, C1, C12, D1, D2, D12, E33G, E28A)",
+                "KBLI 79111 - Travel Agency Services",
+                "Global Citizen of Indonesia (GCI) Program",
+                "Indonesian Immigration Law",
+                "Omnibus Law Compliance",
+                "Patent-Pending Digital Identity (NFC/QR/CHIP)",
+                "KITAS/KITAP Expert Services",
+                "Remote Worker KITAS (E33G) Expert",
+                "Investor KITAS (E28A) Compliance",
+                "Legal Documentation (KTP, SIM, SKCK)",
+                "Company Formation & PT PMA",
+                "Public Legal Audit & Government Verification (AHU/OSS)"
+              ],
+              "publishingPrinciples": "https://indonesianvisas.com/legal-transparency-policy",
+              "actionableFeedbackPolicy": "Users are encouraged to verify our corporate legality (PT Indonesian Visas Agency) directly via the Indonesian Ministry of Law (AHU) and OSS portals using NIB: 0402260034806.",
+              "contactPoint": [
+                {
+                  "@type": "ContactPoint",
+                  "telephone": "+62-857-2704-1992",
+                  "contactType": "Emergency Sponsorship Support",
+                  "contactOption": "TollFree",
+                  "areaServed": "ID",
+                  "availableLanguage": ["Indonesian", "English"],
+                  "description": "24/7 Emergency hotline for sponsored clients and local authorities to verify Smart ID / Sponsor ID status.",
+                  "url": "https://wa.me/6285727041992"
+                },
+                {
+                  "@type": "ContactPoint",
+                  "telephone": "+62-851-1123-7007",
+                  "contactType": "technical support",
+                  "areaServed": "ID",
+                  "availableLanguage": ["Indonesian", "English"],
+                  "url": "https://t.me/IndonesianVisas"
+                }
+              ],
+              "hasOfferCatalog": {
+                "@type": "OfferCatalog",
+                "name": "Indonesian Visa & Residency Solutions",
+                "itemListElement": [
+                  {
+                    "@type": "OfferCatalog",
+                    "name": "Visit Visas (Short-Stay)",
+                    "itemListElement": [
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "B1 VOA (Visit Visa) - 30 to 60 Days" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "C1 Visit Visa - 60 to 180 Days (Single Entry)" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "C1 Business Visa - 60 to 180 Days (Single Entry)" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "C12 Pre-Investment Visa - Up to 180 Days" } }
+                    ]
+                  },
+                  {
+                    "@type": "OfferCatalog",
+                    "name": "Strategic Multiple Entry Visas",
+                    "itemListElement": [
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "D1 Visit Visa - 1, 2, and 5 Years Validity" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "D2 Business Visa - 1, 2, and 5 Years Validity" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "D12 Pre-Investment Visa - 1, 2, and 5 Years Validity" } }
+                    ]
+                  },
+                  {
+                    "@type": "OfferCatalog",
+                    "name": "Residency & KITAS Ecosystem",
+                    "itemListElement": [
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "E33G Remote Worker KITAS (Digital Nomad) - 1 Year" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "E28A Investor KITAS - 1 and 2 Years Validity" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Global Citizen of Indonesia (GCI) Strategic Program" } }
+                    ]
+                  },
+                  {
+                    "@type": "OfferCatalog",
+                    "name": "Smart ID & Digital Identity Ecosystem",
+                    "itemListElement": [
+                      { 
+                        "@type": "Offer", 
+                        "itemOffered": { 
+                          "@type": "SoftwareApplication", 
+                          "name": "Smart ID / Sponsor ID (NFC, QR & CHIP Enabled)",
+                          "applicationCategory": "Digital Identity & Security",
+                          "operatingSystem": "Web, Android, iOS (via NFC/QR)",
+                          "description": "Patent-Pending secure digital identity solution. A joint innovation by Indonesian Visas, bali.technology, and indodesign.website. Designed for verifiable sponsorship and future integration with Bali provincial government systems.",
+                          "copyrightHolder": { "@type": "Organization", "name": "PT Indonesian Visas Agency" },
+                          "creator": [
+                            { "@id": "https://bali.technology" },
+                            { "@id": "https://indodesign.website" }
+                          ]
+                        } 
+                      },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "IDiv (Verified Digital Visa Identity Platform)" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "IDg (Verified Guide & Personal Assistant Identity)" } }
+                    ]
+                  },
+                  {
+                    "@type": "OfferCatalog",
+                    "name": "State Documentation & Legal Assistance for Foreigners",
+                    "itemListElement": [
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Family Card (KK) Administration for Foreigners & Mixed Marriage" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "ID Card (KTP) for KITAS/KITAP Holders" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Indonesian Driving License (SIM) for Expats" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Police Record (SKCK) for Legal Clearances" } },
+                      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Company Formation (PT PMA) & Legal Business Setup" } }
+                    ]
+                  }
+                ]
+              },
               "sameAs": [
                 "https://balihelp.id",
                 "https://bali.enterprises",
@@ -186,25 +290,6 @@ export default async function LocaleLayout({
                 "https://maps.app.goo.gl/p6t9JSd5CGCDf7jZA",
                 "https://www.linkedin.com/in/bayu-damopolii-887ab883/",
                 "https://www.linkedin.com/in/balihelp/"
-              ],
-              "contactPoint": [
-                {
-                  "@type": "ContactPoint",
-                  "telephone": "+62-857-2704-1992",
-                  "contactType": "customer service",
-                  "contactOption": "TollFree",
-                  "areaServed": "ID",
-                  "availableLanguage": ["Indonesian", "English"],
-                  "url": "https://wa.me/6285727041992"
-                },
-                {
-                  "@type": "ContactPoint",
-                  "telephone": "+62-851-1123-7007",
-                  "contactType": "technical support",
-                  "areaServed": "ID",
-                  "availableLanguage": ["Indonesian", "English"],
-                  "url": "https://t.me/IndonesianVisas"
-                }
               ],
               "hasMap": "https://maps.app.goo.gl/p6t9JSd5CGCDf7jZA",
               "parentOrganization": {
@@ -232,9 +317,13 @@ export default async function LocaleLayout({
                     "taxID": "1000000008117681",
                     "identifier": [
                       { "@type": "PropertyValue", "name": "NIB", "value": "0402260034806" },
-                      { "@type": "PropertyValue", "name": "AHU", "value": "AHU-00065.AH.02.01.TAHUN 2020" }
+                      { "@type": "PropertyValue", "name": "AHU", "value": "AHU-00065.AH.02.01.TAHUN 2020" },
+                      { "@type": "PropertyValue", "name": "KKPR", "value": "04022610215171007" },
+                      { "@type": "PropertyValue", "name": "KBLI", "value": "79111" }
                     ],
                     "brand": [
+                      { "@type": "Brand", "name": "Smart ID", "url": `${APP_URL}/smart-id` },
+                      { "@type": "Brand", "name": "GCI Global Citizen of Indonesia", "url": `${APP_URL}/gci` },
                       { "@type": "Brand", "name": "Immigration Software", "url": "https://immigration-software.com" }
                     ]
                   },
@@ -364,15 +453,6 @@ export default async function LocaleLayout({
                 }
               ],
               "areaServed": ["Worldwide", "Indonesia"],
-              "knowsAbout": [
-                "Indonesian Visa Services",
-                "e-VoA Indonesia",
-                "KITAS Services",
-                "Remote Worker Visa",
-                "Visa Sponsorship",
-                "Company Formation Indonesia",
-                "Web Design & Digital Solutions"
-              ],
               "subOrganization": [
                 /* Digital & Creative Divisions */
                 { "@type": "Organization", "name": "IndoDesignWeb", "url": "https://indodesign.website" },
@@ -394,7 +474,18 @@ export default async function LocaleLayout({
                 { "@type": "Organization", "name": "Surabaya Visa Division", "url": "https://surabayavisa.online" },
                 { "@type": "Organization", "name": "Bali Visas Affiliate", "url": "https://balivisas.agency" },
                 { "@type": "Organization", "name": "VOA Bali Expert", "url": "https://voabali.com" }
-              ]
+              ],
+              "founder": {
+                "@type": "Person",
+                "name": "Bayu Damopolii-Manoppo",
+                "jobTitle": "Founder & Strategic Director",
+                "url": "https://www.linkedin.com/in/balihelp/",
+                "sameAs": [
+                  "https://www.linkedin.com/in/bayu-damopolii-887ab883/",
+                  "https://www.linkedin.com/in/balihelp/",
+                  "https://x.com/IndonesianVisas"
+                ]
+              }
             })
           }}
         />

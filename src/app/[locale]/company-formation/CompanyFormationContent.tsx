@@ -331,7 +331,7 @@ const CompanyFormationWizard = ({ dict }: { dict: any }) => {
                             </div>
                             <button 
                                 onClick={addStakeholder}
-                                className="bg-primary text-white p-4 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                                className="bg-primary text-black p-4 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
                             >
                                 <Plus size={24} />
                             </button>

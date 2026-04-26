@@ -77,7 +77,7 @@ const ServiceFormPopup: React.FC<ServiceFormPopupProps> = ({ isOpen, onClose, se
                                     <p className="text-sm mode-aware-subtext px-8">We have received your request for {serviceName}. Please check your WhatsApp or Email shortly.</p>
                                     <button 
                                         onClick={onClose}
-                                        className="mt-4 px-8 py-3 bg-primary text-white rounded-xl font-bold"
+                                        className="mt-4 px-8 py-3 bg-primary text-black rounded-xl font-bold"
                                     >
                                         Close
                                     </button>
@@ -147,7 +147,7 @@ const ServiceFormPopup: React.FC<ServiceFormPopupProps> = ({ isOpen, onClose, se
                                     <button 
                                         type="submit"
                                         disabled={status === "submitting"}
-                                        className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                        className="w-full py-5 bg-primary text-black rounded-2xl font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                                     >
                                         {status === "submitting" ? "Processing..." : "Submit Application"}
                                     </button>

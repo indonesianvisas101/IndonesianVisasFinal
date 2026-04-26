@@ -7,7 +7,7 @@ export function ApplicationCTA() {
 
   return (
     <button
-      onClick={openPanel}
+      onClick={() => openPanel()}
       className="btn btn-primary text-lg px-12 py-5"
     >
       Select Your Country

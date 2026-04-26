@@ -11,6 +11,7 @@ import { parseCurrency } from '@/lib/utils';
 import SEOPageLayout from '@/components/layout/SEOPageLayout';
 import { Globe, MapPin, Shield, Star, Users, Zap, Calendar } from 'lucide-react';
 import prisma from '@/lib/prisma';
+import VisaChildQuickCTA from '@/components/application/VisaChildQuickCTA';
 
 // Force fresh DB fetch on every request so admin price edits are reflected immediately
 export const dynamic = 'force-dynamic';
@@ -446,57 +447,8 @@ const VisaDetailPage = async (props: PageProps) => {
                         <p className="text-black leading-loose text-lg font-medium">{visaDetails.processing.text}</p>
                     </section>
 
-                    {/* CTA */}
-                    <div className="bg-slate-900 text-white p-12 rounded-3xl text-center shadow-2xl relative overflow-hidden">
-                        <div className="relative z-10">
-                            <h2 className="text-3xl font-bold mb-4">{visaDetails.cta.title}</h2>
-                            <p className="text-gray-300 text-lg mb-10 max-w-xl mx-auto">{visaDetails.cta.subtitle}</p>
-
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                {/* Calculate Total Price for Modal */}
-                                {(() => {
-                                    let totalPriceStr = "Contact Us";
-                                    const currentDbVisa = dbVisa; // Local alias to satisfy TS
-                                    if (currentDbVisa) {
-                                        // Simplified calculation for the primary option (1st one or simple string)
-                                        let tax = 0;
-                                        let fee = 0;
-                                        if (typeof currentDbVisa.price === 'string') {
-                                            tax = parseInt(currentDbVisa.price.replace(/[^0-9]/g, ''), 10) || 0;
-                                            fee = typeof currentDbVisa.fee === 'number' ? currentDbVisa.fee : 0;
-                                        } else if (typeof currentDbVisa.price === 'object' && currentDbVisa.price) {
-                                            const priceValues = Object.values(currentDbVisa.price);
-                                            const firstVal = (priceValues[0] as string) || null;
-                                            // Guard: firstVal may be undefined if price object is empty
-                                            if (firstVal && typeof firstVal === 'string') {
-                                                tax = parseInt(firstVal.replace(/[^0-9]/g, ''), 10) || 0;
-                                            }
-                                            // Handle fee object/number
-                                            if (typeof currentDbVisa.fee === 'number') fee = currentDbVisa.fee;
-                                            else if (typeof currentDbVisa.fee === 'object' && currentDbVisa.fee) {
-                                                const firstFee = Object.values(currentDbVisa.fee)[0] as number;
-                                                fee = typeof firstFee === 'number' ? firstFee : 0;
-                                            }
-                                        }
-                                        if (tax > 0) {
-                                            totalPriceStr = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(tax + fee);
-                                        }
-                                    }
-
-                                    return (
-                                        <VisaActionButtons
-                                            visaId={visaDetails.id}
-                                            visaName={visaDetails.badge}
-                                            price={totalPriceStr}
-                                        />
-                                    );
-                                })()}
-                            </div>
-                        </div>
-
-                        {/* Decorative */}
-                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-900/50 to-blue-900/50 pointer-events-none opacity-50 dark:opacity-80"></div>
-                    </div>
+                    {/* CTA - Now uses Smart Context Quick Application */}
+                    <VisaChildQuickCTA visa={dbVisa} />
                 </div>
 
                 {/* Footer Note */}

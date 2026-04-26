@@ -87,12 +87,74 @@ export default async function KnowledgeDetailPage(props: PageProps) {
     }));
 
     const metadata = page.metadata as any;
+    const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+
+    const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+            {
+                '@type': 'ListItem',
+                'position': 1,
+                'name': 'Home',
+                'item': APP_URL
+            },
+            {
+                '@type': 'ListItem',
+                'position': 2,
+                'name': 'Visa Knowledge',
+                'item': `${APP_URL}/${locale}/visa-knowledge`
+            },
+            {
+                '@type': 'ListItem',
+                'position': 3,
+                'name': page.title,
+                'item': `${APP_URL}/${locale}/visa-knowledge/${slug}`
+            }
+        ]
+    };
+
+    const articleSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        'headline': page.title,
+        'description': metadata?.description || `Strategic immigration guide covering ${page.title}.`,
+        'image': metadata?.image || `${APP_URL}/Logo.webp`,
+        'datePublished': page.createdAt.toISOString(),
+        'dateModified': page.updatedAt.toISOString(),
+        'author': {
+            '@type': 'Person',
+            'name': 'Bayu Damopolii-Manoppo',
+            'jobTitle': 'Founder & Managing Director',
+            'url': `${APP_URL}/${locale}/company-profile`
+        },
+        'publisher': {
+            '@type': 'Organization',
+            'name': 'PT Indonesian Visas Agency',
+            'logo': {
+                '@type': 'ImageObject',
+                'url': `${APP_URL}/Favicon.webp`
+            }
+        },
+        'mainEntityOfPage': {
+            '@type': 'WebPage',
+            '@id': `${APP_URL}/${locale}/visa-knowledge/${slug}`
+        }
+    };
 
     return (
         <SEOPageLayout
             title={page.title}
             description={metadata?.description || `Comprehensive guide on ${page.title}.`}
         >
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+            />
             <div className="min-h-screen bg-slate-50 dark:bg-[#030712] transition-colors duration-500">
                 {/* PREMIUM HERO SECTION */}
                 <div className="relative pt-40 pb-20 overflow-hidden border-b border-slate-200 dark:border-white/5">
@@ -107,7 +169,7 @@ export default async function KnowledgeDetailPage(props: PageProps) {
                             </Link>
 
                             <div className="flex flex-wrap items-center gap-3 mb-8">
-                                <span className="px-4 py-1.5 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">
+                                <span className="px-4 py-1.5 rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">
                                     {page.category || 'Strategic Guide'}
                                 </span>
                                 <span className="px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest italic flex items-center gap-2">
@@ -230,7 +292,7 @@ export default async function KnowledgeDetailPage(props: PageProps) {
                                     <h4 className="font-black text-slate-900 dark:text-white mb-4">Need Personalized Entry?</h4>
                                     <Link 
                                         href={`/${locale}/apply`}
-                                        className="inline-block w-full py-4 rounded-xl bg-primary text-white font-black text-sm hover:shadow-xl hover:shadow-primary/40 transition-all"
+                                        className="inline-block w-full py-4 rounded-xl bg-primary text-black font-black text-sm hover:shadow-xl hover:shadow-primary/40 transition-all"
                                     >
                                         Apply Now
                                     </Link>

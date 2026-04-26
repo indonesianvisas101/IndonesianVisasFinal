@@ -186,7 +186,7 @@ export default function AddOnPage() {
                                             <Button 
                                                 variant="contained" 
                                                 size="large"
-                                                onClick={openPanel}
+                                                onClick={() => openPanel()}
                                                 endIcon={<ArrowRight size={18} />}
                                                 sx={{ 
                                                     borderRadius: 4, 

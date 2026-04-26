@@ -176,7 +176,7 @@ export default function ExtendPage({ params }: { params: Promise<{ locale: strin
                    <div className="p-12 rounded-[3rem] border border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md space-y-6">
                         <h3 className="text-3xl font-black mode-aware-text">Browse Resources</h3>
                         <p className="text-lg mode-aware-subtext">Check our comprehensive guides for specific visa extension rules and required documents.</p>
-                        <Link href={`/${locale}/faq`} className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:scale-105 transition-all shadow-xl shadow-primary/20">
+                        <Link href={`/${locale}/faq`} className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-black rounded-2xl font-bold hover:scale-105 transition-all shadow-xl shadow-primary/20">
                             Knowledge Center <ArrowRight size={20} />
                         </Link>
                    </div>

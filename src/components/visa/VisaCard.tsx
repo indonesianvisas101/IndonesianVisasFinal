@@ -8,8 +8,10 @@ import { ChevronDown, ChevronUp, Clock, CheckCircle, ArrowRight, Tag } from "luc
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function VisaCard({ visa, dict }: { visa: any, dict?: any }) {
-  const { selectVisa } = useApplication();
+  const { quickApply, openPanel } = useApplication();
   const [showPrices, setShowPrices] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const [isShaking, setIsShaking] = useState(false);
   const commonT = dict?.common || {};
 
   const totalPrice = calculateVisaTotal(visa.price, visa.fee);
@@ -99,10 +101,18 @@ export default function VisaCard({ visa, dict }: { visa: any, dict?: any }) {
                 >
                     <div className="space-y-2 pt-2">
                         {Object.entries(totalPrice).map(([label, price]: [string, any]) => (
-                            <div key={label} className="flex justify-between items-center p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent hover:border-primary/20 transition-all">
-                                <span className="text-[10px] font-black uppercase text-gray-400 tracking-tight">{label}</span>
+                            <button 
+                                key={label} 
+                                type="button"
+                                onClick={() => {
+                                    setSelectedTier(label);
+                                    setIsShaking(false);
+                                }}
+                                className={`w-full flex justify-between items-center p-3 rounded-2xl border transition-all ${selectedTier === label ? 'bg-primary/10 border-primary shadow-sm' : 'bg-slate-50 dark:bg-white/5 border-transparent hover:border-primary/20'}`}
+                            >
+                                <span className={`text-[10px] font-black uppercase tracking-tight ${selectedTier === label ? 'text-primary' : 'text-gray-400'}`}>{label}</span>
                                 <span className="font-black text-sm mode-aware-text">{price}</span>
-                            </div>
+                            </button>
                         ))}
                     </div>
                 </motion.div>
@@ -111,21 +121,38 @@ export default function VisaCard({ visa, dict }: { visa: any, dict?: any }) {
 
         {/* CTA ACTION */}
         <div className="flex flex-col gap-3">
-            <button
-                onClick={() => selectVisa(visa.id)}
-                className="
-                    w-full flex items-center justify-center gap-2
-                    rounded-2xl
-                    bg-[#9155FD] hover:bg-[#804bdf]
-                    text-white font-black text-base
-                    py-4 text-center
-                    shadow-xl shadow-[#9155FD]/20
-                    transition-all duration-300
-                    hover:-translate-y-1 active:scale-95
-                "
+            <motion.div
+                animate={isShaking ? { x: [-10, 10, -10, 10, 0] } : {}}
+                transition={{ duration: 0.4 }}
+                onAnimationComplete={() => setIsShaking(false)}
             >
-                {commonT.apply_now || "Apply Now"} <ArrowRight size={18} />
-            </button>
+                <button
+                    onClick={() => {
+                        if (hasMultiplePrices && !selectedTier) {
+                            setIsShaking(true);
+                            setShowPrices(true);
+                        } else {
+                            openPanel({
+                                visaId: visa.id,
+                                priceTier: selectedTier || (typeof totalPrice === 'string' ? 'Standard' : Object.keys(totalPrice)[0]),
+                                isLocked: true
+                            });
+                        }
+                    }}
+                    className="
+                        w-full flex items-center justify-center gap-2
+                        rounded-2xl
+                        bg-[#9155FD] hover:bg-[#804bdf]
+                        text-white font-black text-base
+                        py-4 text-center
+                        shadow-xl shadow-[#9155FD]/20
+                        transition-all duration-300
+                        hover:-translate-y-1 active:scale-95
+                    "
+                >
+                    {commonT.apply_now || "Apply Now"} <ArrowRight size={18} />
+                </button>
+            </motion.div>
             <div className="text-center">
                 <Link href={`/services/${visa.id}`} className="text-xs font-bold text-gray-400 hover:text-primary transition-colors underline decoration-dotted underline-offset-4">
                 {commonT.see_details || "See details"}

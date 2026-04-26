@@ -49,16 +49,39 @@ const SafetyGuard = dynamic(() => import("@/components/sections/SafetyGuard"), {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+  
   return {
-    title: "Indonesian Visas | Fast & Reliable Application Service",
-    description: "Apply for your Indonesia Visa online. Tourist VOA, B211A, KITAS and more. Trusted agents with 99% success rate based in Bali.",
+    title: "Indonesian Visas | Official Multinational Agency & Immigration Hub",
+    description: "Official Indonesia Visa Agency operated by PT Indonesian Visas Agency. Strategic immigration infrastructure for E-VOA, B211A, and KITAS. Omnibus Law compliant service with 99.9% success rate.",
+    keywords: ["indonesia visa", "bali visa agency", "official indonesian visa", "e-voa indonesia", "kitas bali", "bali help", "bali enterprises group"],
     alternates: {
-      canonical: locale === 'en' ? 'https://indonesianvisas.com' : `https://indonesianvisas.com/${locale}`,
+      canonical: locale === 'en' ? APP_URL : `${APP_URL}/${locale}`,
     },
     openGraph: {
-      title: "Indonesian Visas | Fast Office Bali",
-      description: "Official Indonesia Visa Agency in Bali. 99.9% Success Rate.",
-      images: ['/images/IndonesianVisas/16K.webp'],
+      title: "Indonesian Visas | Multinational Agency Bali",
+      description: "Official Indonesia Visa Intelligence Hub. Secure your E-VOA, B211A, and KITAS with Bali's most trusted legal agency.",
+      url: APP_URL,
+      siteName: "Indonesian Visas",
+      images: [
+        {
+          url: '/images/BaliHelpCompress.webp',
+          width: 1200,
+          height: 630,
+          alt: "Indonesian Visas Official Banner"
+        }
+      ],
+      locale: locale === 'id' ? 'id_ID' : 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: "Indonesian Visas | Official Agency",
+      description: "Official Indonesia Visa Agency. 99.9% Success Rate. Secure your visa online.",
+      images: ['/images/BaliHelpCompress.webp'],
+    },
+    verification: {
+      google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
     }
   };
 }
@@ -66,9 +89,95 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const dict = await getMessages(locale);
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+
+  const localBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    'name': 'PT Indonesian Visas Agency (Bali Help)',
+    'image': `${APP_URL}/Logo.webp`,
+    'url': APP_URL,
+    'telephone': '+62-857-2704-1992',
+    'address': {
+      '@type': 'PostalAddress',
+      'streetAddress': 'Jl. Tibungsari No.11C, Padangsambian Kaja',
+      'addressLocality': 'Denpasar Barat, Denpasar',
+      'addressRegion': 'Bali',
+      'postalCode': '80117',
+      'addressCountry': 'ID'
+    },
+    'geo': {
+      '@type': 'GeoCoordinates',
+      'latitude': -8.6441,
+      'longitude': 115.1789
+    },
+    'openingHoursSpecification': {
+      '@type': 'OpeningHoursSpecification',
+      'dayOfWeek': [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday'
+      ],
+      'opens': '09:00',
+      'closes': '17:00'
+    },
+    'sameAs': [
+      'https://maps.app.goo.gl/p6t9JSd5CGCDf7jZA',
+      'https://www.instagram.com/balihelp.id'
+    ]
+  };
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': 'Can I apply for an Indonesia visa online?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Yes, through IndonesianVisas.com you can apply for various Indonesia visas online, including E-VOA, B211A, and KITAS, with 24/7 assistance.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Is IndonesianVisas.com an official legal agency?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Yes, IndonesianVisas.com is operated by PT Indonesian Visas Agency (NIB: 0402260034806), a legally registered multinational visa agency based in Bali.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Where is your physical office located?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Our main office is located at Jl. Tibungsari No.11C, Padangsambian Kaja, Denpasar Barat, Bali 80117, Indonesia.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'How long does the Indonesia visa process take?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'The processing time varies: E-VOA can be instant, while the B211A Business/Tourism visa typically takes 3-5 working days depending on the chosen tier (Standard/Priority).'
+        }
+      }
+    ]
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       {/* Hero — critical, server-rendered immediately */}
       <Hero dict={dict} />
 

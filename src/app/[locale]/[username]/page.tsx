@@ -845,7 +845,7 @@ const UserDashboard = () => {
                                                     setIsChangingPassword(false);
                                                 }}
                                                 disabled={!newPassword || !confirmNewPassword || isChangingPassword}
-                                                className="w-full py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="w-full py-2 rounded-lg bg-primary text-black text-sm font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {isChangingPassword ? "Updating..." : "Update Password"}
                                             </button>
@@ -1093,7 +1093,7 @@ const UserDashboard = () => {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <a
-                                    href="https://tropictechbali.com"
+                                    href="https://tropictech.rent"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="group flex items-center gap-4 p-5 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-[2rem] transition-all border border-gray-100 dark:border-white/5 hover:border-blue-200 dark:hover:border-blue-500/30 shadow-sm hover:shadow-md"

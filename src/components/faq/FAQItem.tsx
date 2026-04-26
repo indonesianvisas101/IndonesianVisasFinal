@@ -19,7 +19,7 @@ const FAQItem = ({ question, answer }: FAQItemProps) => {
                 aria-expanded={isOpen}
             >
                 <span className="text-lg md:text-xl font-bold mode-aware-text">{question}</span>
-                <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-primary text-white rotate-180' : 'bg-slate-100 dark:bg-white/10 text-primary'}`}>
+                <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-primary text-black rotate-180' : 'bg-slate-100 dark:bg-white/10 text-primary'}`}>
                     {isOpen ? <Minus size={18} /> : <Plus size={18} />}
                 </div>
             </button>

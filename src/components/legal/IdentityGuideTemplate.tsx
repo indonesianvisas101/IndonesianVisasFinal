@@ -150,7 +150,7 @@ const IdentityGuideTemplate: React.FC<IdentityGuideTemplateProps> = ({ title, de
                         Since 2008, Indonesian Visas has been the premier choice for expats navigating the complexities of local identity documents. Whether you reside in Canggu, Ubud, Uluwatu, or Seminyak, our local agents understand the unique requirements of the Bali Disdukcapil and the involvement of the local Banjar community. Don't risk your residency with amateur services—trust the agency with over 16 years of legal immigration experience.
                     </p>
                     <div className="flex flex-wrap justify-center gap-4">
-                        <Link href="/services" className="px-8 py-4 bg-primary text-white rounded-2xl font-black shadow-lg hover:scale-105 transition-all">Start Your Application</Link>
+                        <Link href="/services" className="px-8 py-4 bg-primary text-black rounded-2xl font-black shadow-lg hover:scale-105 transition-all">Start Your Application</Link>
                         <Link href="/faq" className="px-8 py-4 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 mode-aware-text rounded-2xl font-black shadow-lg hover:scale-105 transition-all">Identity FAQ Guide</Link>
                     </div>
                 </div>

@@ -96,7 +96,7 @@ export default function PaymentMethodsPage() {
                                 </div>
                                 <div>
                                     <Typography variant="caption" fontWeight="bold" color="text.secondary">ACCOUNT NUMBER</Typography>
-                                    <Typography variant="body1" fontWeight="bold">611-017850</Typography>
+                                    <Typography variant="body1" fontWeight="bold">6116017850</Typography>
                                 </div>
                                 <div>
                                     <Typography variant="caption" fontWeight="bold" color="text.secondary">ACCOUNT HOLDER</Typography>

@@ -30,7 +30,7 @@ const BaliServiceCard: React.FC<BaliServiceCardProps> = ({ title, description, i
                 <div className="mt-10 space-y-3">
                     <button 
                         onClick={() => setIsPopupOpen(true)}
-                        className="w-full py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-primary text-black rounded-2xl font-black text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
                         Apply Now <ArrowRight size={16} />
                     </button>

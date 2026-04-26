@@ -139,7 +139,7 @@ export function ThemeLanguageToggle({ toggleTheme, theme }: ThemeLanguageToggleP
 
                     {/* Mobile Tooltip - Different Logic */}
                     <div
-                        className={`md:hidden absolute top-12 left-1/2 -translate-x-1/2 px-3 py-2 bg-primary text-white text-[11px] font-bold rounded-xl transition-all duration-300 pointer-events-none whitespace-nowrap z-[1006] shadow-2xl ${showTooltip ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+                        className={`md:hidden absolute top-12 left-1/2 -translate-x-1/2 px-3 py-2 bg-primary text-black text-[11px] font-bold rounded-xl transition-all duration-300 pointer-events-none whitespace-nowrap z-[1006] shadow-2xl ${showTooltip ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
                     >
                         Hold 4s (Language) • Click (Theme)
                     </div>

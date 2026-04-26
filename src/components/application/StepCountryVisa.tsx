@@ -12,8 +12,9 @@ import { calculateVisaTotal } from "@/lib/utils";
 import { Typography, Box } from "@mui/material";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import { useParams } from "next/navigation";
+import Link from "next/link";
+import { addWorkingDays, formatDateForInput, getDaysForTier } from "@/lib/dateUtils";
 
 
 const StepCountryVisa = () => {
@@ -29,7 +30,8 @@ const StepCountryVisa = () => {
         visas,
         upsells,
         toggleUpsell,
-        closePanel
+        closePanel,
+        isLocked
     } = useApplication();
 
     const params = useParams();
@@ -50,15 +52,27 @@ const StepCountryVisa = () => {
     const [showAllVisas, setShowAllVisas] = useState(false);
     const visaSectionRef = useRef<HTMLDivElement>(null);
     const actionAreaRef = useRef<HTMLDivElement>(null);
+    const [hasManuallySetDate, setHasManuallySetDate] = useState(false);
+    const [minArrivalDate, setMinArrivalDate] = useState("");
+    const [isTierShaking, setIsTierShaking] = useState(false);
 
     const isTopRowCollapsed = searchTerm !== "" || isSearchFocused;
 
     const handleCountrySelect = (selectedCountry: string) => {
         updateData("country", selectedCountry);
         setValidationError(null);
-        setTimeout(() => {
-            visaSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        
+        if (isLocked) {
+            // IF LOCKED, SKIP VISA SECTION AND GO STRAIGHT TO CONTINUE
+            setTimeout(() => {
+                actionAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        } else {
+            // NORMAL FLOW: SCROLL TO VISA SELECTION
+            setTimeout(() => {
+                visaSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
     };
 
     const handleVisaSelect = (visaName: string) => {
@@ -117,6 +131,26 @@ const StepCountryVisa = () => {
         }, 300);
     };
 
+    // NEW: Smart Arrival Date Automation
+    useEffect(() => {
+        if (!priceTier) {
+            const absoluteMin = addWorkingDays(new Date(), 5);
+            setMinArrivalDate(formatDateForInput(absoluteMin));
+            return;
+        }
+
+        const days = getDaysForTier(priceTier);
+        const calculatedDate = addWorkingDays(new Date(), days);
+        const dateStr = formatDateForInput(calculatedDate);
+        
+        setMinArrivalDate(dateStr);
+
+        // Auto-update if user hasn't touched the date yet or it's currently empty
+        if (!hasManuallySetDate || !arrivalDate) {
+            updateData("arrivalDate", dateStr);
+        }
+    }, [priceTier]);
+
     const handlePeopleChange = (change: number) => {
         const newVal = Math.max(1, Math.min(20, numPeople + change));
         updateData("numPeople", newVal);
@@ -139,6 +173,8 @@ const StepCountryVisa = () => {
         if (selectedVisa && typeof selectedVisa.price === 'object' && selectedVisa.price !== null) {
             if (!priceTier) {
                 setValidationError(`Please select a duration/tier for ${selectedVisa.name}.`);
+                setIsTierShaking(true);
+                setTimeout(() => setIsTierShaking(false), 500);
                 visaSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
                 return;
             }
@@ -237,9 +273,13 @@ const StepCountryVisa = () => {
                             <Calendar size={20} className={styles.dateIcon} />
                             <input
                                 type="date"
+                                min={minArrivalDate}
                                 className={styles.dateInput}
                                 value={arrivalDate}
-                                onChange={(e) => updateData("arrivalDate", e.target.value)}
+                                onChange={(e) => {
+                                    updateData("arrivalDate", e.target.value);
+                                    setHasManuallySetDate(true);
+                                }}
                             />
                         </div>
                     </div>
@@ -319,7 +359,7 @@ const StepCountryVisa = () => {
             </div>
 
             {/* Visa Selection */}
-            <div className={styles.visaSection} ref={visaSectionRef}>
+            <div className={`${styles.visaSection} ${isTierShaking ? 'animate-shake' : ''}`} ref={visaSectionRef}>
                 <div className={styles.visaHeaderContainer}>
                     <div className={styles.visaTitleArea}>
                         <h4 className={styles.subHeading}>Choose Your Visa Type</h4>
@@ -426,7 +466,7 @@ const StepCountryVisa = () => {
                                                     <Link
                                                         href={`/${locale}/services/${visa.id}`}
                                                         className={styles.detailsBtn}
-                                                        onClick={(e) => {
+                                                        onClick={(e: React.MouseEvent) => {
                                                             e.stopPropagation();
                                                             closePanel();
                                                         }}
@@ -451,7 +491,7 @@ const StepCountryVisa = () => {
                                                             <Link
                                                                 href={`/${locale}/services/${visa.id}`}
                                                                 className={styles.detailsBtn}
-                                                                onClick={(e) => {
+                                                                onClick={(e: React.MouseEvent) => {
                                                                     e.stopPropagation();
                                                                     closePanel();
                                                                 }}
@@ -460,7 +500,7 @@ const StepCountryVisa = () => {
                                                             </Link>
                                                             <button
                                                                 className={styles.selectTierBtn}
-                                                                onClick={(e) => {
+                                                                onClick={(e: React.MouseEvent) => {
                                                                     e.stopPropagation();
                                                                     setExpandedVisaId(visa.id);
                                                                     handleVisaSelect(visa.name);
@@ -485,7 +525,7 @@ const StepCountryVisa = () => {
                                                                 {Object.entries(totalData).map(([tier, price]) => (
                                                                     <button
                                                                         key={tier}
-                                                                        onClick={(e) => handleTierSelect(tier, visa.name, e)}
+                                                                        onClick={(e: React.MouseEvent) => handleTierSelect(tier, visa.name, e)}
                                                                         className={`${styles.tierBtn} ${priceTier === tier ? styles.tierBtnActive : ''} ${visaType === visa.name && !priceTier ? 'ring-2 ring-amber-400 ring-offset-2 animate-pulse' : ''}`}
                                                                     >
                                                                         <div className="opacity-70 text-[10px] uppercase font-bold">{tier}</div>
@@ -504,7 +544,7 @@ const StepCountryVisa = () => {
 
                                                             <button
                                                                 className="mt-3 text-[10px] text-gray-400 uppercase font-black hover:text-primary transition-colors"
-                                                                onClick={(e) => {
+                                                                onClick={(e: React.MouseEvent) => {
                                                                     e.stopPropagation();
                                                                     setExpandedVisaId(null);
                                                                 }}
@@ -566,7 +606,7 @@ const StepCountryVisa = () => {
 
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                         <div className="flex items-start gap-4">
-                            <div className={`p-4 rounded-2xl transition-colors ${upsells.idiv ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-500'}`}>
+                            <div className={`p-4 rounded-2xl transition-colors ${upsells.idiv ? 'bg-primary text-black' : 'bg-slate-100 dark:bg-white/5 text-slate-500'}`}>
                                 <Users size={28} />
                             </div>
                             <div>
@@ -605,7 +645,7 @@ const StepCountryVisa = () => {
                             <Typography variant="h5" fontWeight="900" className="text-primary">$20.00</Typography>
                             <Typography variant="caption" className="text-gray-400">One-time fee • Per Person</Typography>
                             <div className="mt-3">
-                                <button className={`btn btn-sm px-6 py-2 rounded-xl border-2 font-bold transition-all ${upsells.idiv ? 'bg-primary text-white border-primary' : 'border-primary text-primary hover:bg-primary/5'}`}>
+                                <button className={`btn btn-sm px-6 py-2 rounded-xl border-2 font-bold transition-all ${upsells.idiv ? 'bg-primary text-black border-primary' : 'border-primary text-primary hover:bg-primary/5'}`}>
                                     {upsells.idiv ? "Included in Order" : "Add to Order"}
                                 </button>
                             </div>

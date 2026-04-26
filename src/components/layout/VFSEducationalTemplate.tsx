@@ -128,7 +128,7 @@ export default function VFSEducationalTemplate({ data, locale }: VFSEducationalT
                                                 <div className="space-y-4">
                                                     {["Identify Visa Type (B1, C1, etc.)", "Secure Authorized Sponsorship", "Submit Digital Application", "Receive eVisa Confirmation"].map((step, i) => (
                                                         <div key={i} className="flex items-center gap-4">
-                                                            <div className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">{i+1}</div>
+                                                            <div className="w-6 h-6 rounded-full bg-primary text-black text-xs flex items-center justify-center font-bold">{i+1}</div>
                                                             <span className="text-sm font-bold">{step}</span>
                                                         </div>
                                                     ))}
@@ -193,7 +193,7 @@ export default function VFSEducationalTemplate({ data, locale }: VFSEducationalT
                                 <HelpCircle className="text-accent mb-4" size={32} />
                                 <h4 className="font-black mode-aware-text mb-2">Need Direct Clarity?</h4>
                                 <p className="text-xs mode-aware-subtext mb-6">If you are abroad and unsure about the official entry path, our legal team can verify your documents within 24 hours.</p>
-                                <Link href={formatNavLink(locale, "/apply")} className="block w-full text-center py-4 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:-translate-y-1 transition-transform">
+                                <Link href={formatNavLink(locale, "/apply")} className="block w-full text-center py-4 bg-primary text-black rounded-2xl font-bold shadow-lg shadow-primary/20 hover:-translate-y-1 transition-transform">
                                     Verify My Application
                                 </Link>
                             </div>
@@ -217,7 +217,7 @@ export default function VFSEducationalTemplate({ data, locale }: VFSEducationalT
                     </div>
 
                     <div className="mt-20 text-center">
-                        <Link href={formatNavLink(locale, "/apply")} className="inline-flex items-center gap-3 px-10 py-5 bg-primary text-white text-lg rounded-3xl font-black shadow-2xl shadow-primary/30 hover:-translate-y-1 transition-all">
+                        <Link href={formatNavLink(locale, "/apply")} className="inline-flex items-center gap-3 px-10 py-5 bg-primary text-black text-lg rounded-3xl font-black shadow-2xl shadow-primary/30 hover:-translate-y-1 transition-all">
                             Start Application Now <ArrowRight size={22} />
                         </Link>
                     </div>

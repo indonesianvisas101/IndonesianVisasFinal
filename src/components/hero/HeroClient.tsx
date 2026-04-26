@@ -85,7 +85,7 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center md:justify-start mt-8">
 
             <button
-                onClick={openPanel}
+                onClick={() => openPanel()}
                 className="group relative px-8 py-4 bg-[#4B0082] text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all overflow-hidden hover:scale-105 active:scale-95"
                 aria-label="Select your country to start visa application"
             >

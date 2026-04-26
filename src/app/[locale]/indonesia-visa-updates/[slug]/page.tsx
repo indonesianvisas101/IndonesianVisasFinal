@@ -61,7 +61,7 @@ export default async function NewsDetailPage(props: PageProps) {
                             </Link>
 
                             <div className="flex flex-wrap items-center gap-3 mb-8">
-                                <span className="px-4 py-1.5 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">
+                                <span className="px-4 py-1.5 rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">
                                     {update.category}
                                 </span>
                                 <span className="px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest">
@@ -177,7 +177,7 @@ export default async function NewsDetailPage(props: PageProps) {
                                 </div>
                                 <Link 
                                     href={`/${locale}/indonesia-visa-guide-2026`}
-                                    className="px-10 py-5 rounded-2xl bg-primary text-white font-black hover:shadow-2xl hover:shadow-primary/40 transition-all hover:-translate-y-1"
+                                    className="px-10 py-5 rounded-2xl bg-primary text-black font-black hover:shadow-2xl hover:shadow-primary/40 transition-all hover:-translate-y-1"
                                 >
                                     Read Ultimate Guide 2026
                                 </Link>

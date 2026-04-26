@@ -52,7 +52,7 @@ export default function CentralInfoPopup({ isOpen, onClose, info }: CentralInfoP
                                 <Box
                                     sx={{
                                         bgcolor: 'rgba(255, 255, 255, 0.95)',
-                                        backgroundImage: 'radial-gradient(at 0% 0%, rgba(145, 85, 253, 0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(3, 105, 161, 0.05) 0, transparent 50%)',
+                                        backgroundImage: 'radial-gradient(at 0% 0%, rgba(145, 85, 253, 0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 180, 0, 0.05) 0, transparent 50%)',
                                         backdropFilter: 'blur(20px)',
                                         borderRadius: 8,
                                         border: '1px solid rgba(255, 255, 255, 0.5)',
@@ -71,10 +71,10 @@ export default function CentralInfoPopup({ isOpen, onClose, info }: CentralInfoP
                                             borderRadius: '10px',
                                         },
                                         '&::-webkit-scrollbar-thumb': {
-                                            background: 'rgba(3, 105, 161, 0.2)',
+                                            background: 'rgba(145, 85, 253, 0.2)',
                                             borderRadius: '10px',
                                             '&:hover': {
-                                                background: 'rgba(3, 105, 161, 0.3)',
+                                                background: 'rgba(145, 85, 253, 0.3)',
                                             }
                                         }
                                     }}
@@ -98,9 +98,9 @@ export default function CentralInfoPopup({ isOpen, onClose, info }: CentralInfoP
                                             <Box sx={{ 
                                                 p: 2, 
                                                 borderRadius: '24px', 
-                                                bgcolor: 'rgba(3, 105, 161, 0.08)', 
-                                                color: '#0369a1',
-                                                boxShadow: '0 8px 16px rgba(3, 105, 161, 0.1)'
+                                                bgcolor: 'rgba(145, 85, 253, 0.08)', 
+                                                color: '#9155FD',
+                                                boxShadow: '0 8px 16px rgba(145, 85, 253, 0.1)'
                                             }}>
                                                 {info.icon || <Info size={32} />}
                                             </Box>
@@ -133,13 +133,13 @@ export default function CentralInfoPopup({ isOpen, onClose, info }: CentralInfoP
                                                 sx={{
                                                     borderRadius: 4,
                                                     py: 2,
-                                                    bgcolor: '#0369a1',
-                                                    '&:hover': { bgcolor: '#075985' },
+                                                    bgcolor: '#9155FD',
+                                                    '&:hover': { bgcolor: '#804BDF' },
                                                     fontWeight: '900',
                                                     textTransform: 'uppercase',
                                                     letterSpacing: 2,
                                                     fontSize: '0.8rem',
-                                                    boxShadow: '0 10px 20px rgba(3, 105, 161, 0.2)'
+                                                    boxShadow: '0 10px 20px rgba(145, 85, 253, 0.2)'
                                                 }}
                                             >
                                                 Got it, Close

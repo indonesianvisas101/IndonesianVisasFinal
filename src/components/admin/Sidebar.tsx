@@ -56,7 +56,7 @@ export default function Sidebar() {
                             href={item.href}
                             className={`flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group ${
                                 active 
-                                ? 'bg-primary text-white shadow-xl shadow-primary/20 font-bold scale-[1.02]' 
+                                ? 'bg-primary text-black shadow-xl shadow-primary/20 font-bold scale-[1.02]' 
                                 : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-primary font-medium'
                             }`}
                         >

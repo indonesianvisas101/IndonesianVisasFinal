@@ -26,7 +26,7 @@ export default function PrimaryCTA({
 
   return (
     <button
-      onClick={openPanel}
+      onClick={() => openPanel()}
       className={`
         btn
         btn-primary

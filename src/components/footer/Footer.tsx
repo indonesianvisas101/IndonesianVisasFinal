@@ -45,7 +45,7 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                         <Link href={formatNavLink(locale, "/company-formation")} className={styles.footerLink}>{t.company_reg || "Company Registration"}</Link>
                         <Link href={formatNavLink(locale, "/travel")} className={styles.footerLink}>{t.travel || "Travel"}</Link>
                         <Link href={formatNavLink(locale, "/smart-id")} className={styles.footerLink}>
-                            Smart ID <span className="text-[8px] bg-primary text-white px-1.5 py-0.5 rounded-full ml-1 font-bold">HOT</span>
+                            Smart ID <span className="text-[8px] bg-primary text-black px-1.5 py-0.5 rounded-full ml-1 font-bold">HOT</span>
                         </Link>
                     </div>
 

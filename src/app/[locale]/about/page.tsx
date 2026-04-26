@@ -15,6 +15,7 @@ const WhyChooseUs = dynamic(() => import("@/components/sections/WhyChooseUs"), {
 const GoogleReviews = dynamic(() => import("@/components/sections/GoogleReviews"), {
     loading: () => <div className="h-64 flex items-center justify-center text-gray-400">Loading Reviews...</div>
 });
+import LeadershipProfile from "@/components/company-profile/LeadershipProfile";
 
 import { Metadata } from 'next';
 
@@ -103,6 +104,9 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
                     {/* Mission Section */}
                     <AboutFullExpansion dict={dict} />
+
+                    {/* NEW: Leadership Section Added here to showcase Real Image */}
+                    <LeadershipProfile />
 
                     {/* Why Choose Us Section with custom styling */}
                     <div className="relative">
@@ -197,7 +201,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                             </div>
                         </div>
                         <div className="relative h-[450px] rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white dark:border-white/10">
-                           <Image src="/images/visa/B1.webp" alt="Integrity" fill className="object-cover" />
+                           <Image src="/images/pages/immigration-hub.webp" alt="Integrity" fill className="object-cover" />
                         </div>
                     </section>
 

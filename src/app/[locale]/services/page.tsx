@@ -7,12 +7,12 @@ import SectionWrapper from "@/components/layout/SectionWrapper";
 import { getMessages } from "@/i18n/getMessages";
 
 // Lazy Load Components
-const DiscountCard = dynamic(() => import("@/components/ui/cards/DiscountCard"));
 const VisaCatalog = dynamic(() => import("@/components/visa/VisaCatalog"));
 
 import { Metadata } from 'next';
 import { generateCanonical, formatNavLink } from "@/utils/seo";
 import IdentityServices from "@/components/services/identity/IdentityServices";
+import ServicesHero from "@/components/services/ServicesHero";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -32,24 +32,8 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#030712] transition-colors duration-300">
-      {/* 1. HERO SECTION - Premium Deep Gradient */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-60" />
-        <div className="container relative z-10 mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm mb-8 animate-fade-in-up">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-bold mode-aware-text">{t.hero_subtitle || "Official Visa Partner"}</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-8 mode-aware-text tracking-tight animate-fade-in-up [animation-delay:200ms]">
-              {t.hero_title || "Your Passport to Paradise"}
-            </h1>
-            <p className="text-xl md:text-2xl mode-aware-subtext max-w-2xl mx-auto leading-relaxed animate-fade-in-up [animation-delay:400ms]">
-              {t.hero_description || "Professional, secure, and expedited visa processing. We handle the bureaucracy so you can focus on your journey."}
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* 1. HERO SECTION - Client Side for 3D Map */}
+      <ServicesHero locale={locale} t={t} />
 
       {/* 2. STATS & TRUST - Floating Cards */}
       <section className="py-12 relative z-20 -mt-10">
@@ -72,12 +56,6 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
         </div>
       </section>
 
-      {/* 3. PROMO BANNER - Flashy Special Offer */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <DiscountCard dict={dict} />
-        </div>
-      </section>
 
       {/* 4. VISA CATALOG - Main Product Section */}
       <section className="py-20" id="catalog">

@@ -92,7 +92,7 @@ const IdentityServices: React.FC = () => {
                         </Link>
 
                         <Link href={formatNavLink(locale, "/id-card-for-foreigner-in-indonesia")} className="group glass-card p-10 rounded-[3rem] border border-slate-200 dark:border-white/10 hover:border-primary/40 transition-all duration-500 flex flex-col justify-center gap-6">
-                            <div className="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-xl shadow-primary/20">
+                            <div className="w-14 h-14 bg-primary text-black rounded-2xl flex items-center justify-center shadow-xl shadow-primary/20">
                                 <UserCheck size={28} />
                             </div>
                             <div className="space-y-2">

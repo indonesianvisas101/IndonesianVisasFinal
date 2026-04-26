@@ -80,6 +80,8 @@ interface ApplicationState {
     addons: any[];
     popularVisaIds: string[];
     customPrice: number | null;
+    optionalNotes: string; // NEW: Quick application notes
+    isLocked: boolean; // NEW: Prevent visa selection changes when context is specific
 }
 
 export interface AppNotification {
@@ -96,7 +98,7 @@ export interface AppNotification {
 interface ApplicationContextType extends ApplicationState {
     visas: VisaType[]; // New
     refreshVisas: () => Promise<void>;
-    openPanel: () => void;
+    openPanel: (data?: { visaId?: string; priceTier?: string; isLocked?: boolean }) => void;
     closePanel: () => void;
     setStep: (step: number) => void;
     updateData: (key: keyof ApplicationState, value: any) => void;
@@ -124,6 +126,18 @@ interface ApplicationContextType extends ApplicationState {
     adminUsers: AdminUser[];
     updateAdminUser: (user: AdminUser) => void;
     selectVisa: (visaId: string) => void;
+    quickApply: (data: { 
+        name: string, 
+        email: string, 
+        phone: string, 
+        country: string, 
+        visaId: string, 
+        notes: string,
+        priceTier?: string,
+        customPrice?: number,
+        isLocked?: boolean,
+        arrivalDate?: string
+    }) => void;
     // Addons
     addons: any[];
     refreshAddons: () => Promise<void>;
@@ -171,7 +185,9 @@ const defaultState: ApplicationState = {
     },
     addons: [],
     popularVisaIds: [],
-    customPrice: null
+    customPrice: null,
+    optionalNotes: "",
+    isLocked: false
 };
 
 // Types
@@ -303,12 +319,30 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [refreshVisas, refreshAddons]);
 
-    const openPanel = () => {
+    const openPanel = (data?: { visaId?: string; priceTier?: string; isLocked?: boolean }) => {
         setState((prev) => {
             const updates: Partial<ApplicationState> = { isPanelOpen: true };
-            if (!prev.arrivalDate) {
+            
+            if (data?.visaId) {
+                const foundVisa = visas.find(v => v.id === data.visaId);
+                updates.visaType = foundVisa ? foundVisa.name : data.visaId;
+                updates.currentStep = 2; // SKIP TO COUNTRY SELECTION
+                updates.completedSteps = [1];
+            }
+
+            if (data?.priceTier) {
+                updates.priceTier = data.priceTier;
+            }
+
+            if (data?.isLocked !== undefined) {
+                updates.isLocked = data.isLocked;
+            }
+
+            // Ensure arrival date is initialized
+            if (!prev.arrivalDate && !updates.arrivalDate) {
                 updates.arrivalDate = new Date().toISOString().split('T')[0];
             }
+
             return { ...prev, ...updates };
         });
     };
@@ -399,7 +433,13 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
-    const resetApplication = () => setState(defaultState);
+    const resetApplication = () => setState({
+        ...defaultState,
+        adminUsers: state.adminUsers,
+        notifications: state.notifications,
+        userDocuments: state.userDocuments,
+        announcement: state.announcement
+    });
 
     // Document Management (Mock)
     const addDocument = (userId: string, doc: UserDocument) => {
@@ -449,21 +489,62 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
 
         setState((prev) => ({
             ...prev,
-            // Reset application data
             currentStep: 1,
             isPanelOpen: true,
-            country: null,
-            numPeople: 1,
             visaType: visaName,
             priceTier: null,
-            arrivalDate: "",
-            personalInfo: defaultState.personalInfo,
-            travelers: [],
-            documents: defaultState.documents,
-            paymentMethod: null,
-            completedSteps: [],
-            upsells: defaultState.upsells
+            isLocked: false
         }));
+    };
+
+    const quickApply = (data: { 
+        name: string, 
+        email: string, 
+        phone: string, 
+        country: string, 
+        visaId: string, 
+        notes: string,
+        priceTier?: string,
+        customPrice?: number,
+        isLocked?: boolean,
+        arrivalDate?: string
+    }) => {
+        const foundVisa = visas.find(v => v.id === data.visaId);
+        const visaName = foundVisa ? foundVisa.name : data.visaId;
+        
+        // Split name into first and last
+        const nameParts = data.name.trim().split(/\s+/);
+        const firstName = nameParts[0] || "";
+        const lastName = nameParts.slice(1).join(" ") || "";
+
+        setState((prev) => ({
+            ...prev,
+            currentStep: 4, // JUMP TO PAYMENT
+            isPanelOpen: true,
+            country: data.country,
+            numPeople: 1,
+            visaType: visaName,
+            priceTier: data.priceTier || null,
+            customPrice: data.customPrice || null,
+            optionalNotes: data.notes,
+            personalInfo: {
+                ...defaultState.personalInfo,
+                firstName,
+                lastName,
+                email: data.email,
+                phone: data.phone
+            },
+            completedSteps: [1, 2, 3], // Mark previous steps as done
+            isLocked: data.isLocked || false,
+            arrivalDate: data.arrivalDate || prev.arrivalDate
+        }));
+
+        // Side effect: Save lead
+        saveLead({
+            ...state,
+            personalInfo: { ...defaultState.personalInfo, firstName, lastName, email: data.email, phone: data.phone },
+            visaType: visaName
+        } as any);
     };
 
     const clearNotifications = async (userId: string) => {
@@ -560,6 +641,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 adminUsers: state.adminUsers,
                 updateAdminUser,
                 selectVisa,
+                quickApply,
                 toggleUpsell,
                 addons,
                 refreshAddons,

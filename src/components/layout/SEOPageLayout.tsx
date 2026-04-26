@@ -119,7 +119,7 @@ export default function SEOPageLayout({
                                     <p className="mode-aware-subtext mb-8 text-lg">{cta?.desc || "Let our experts handle the bureaucracy while you focus on your journey. 100% legal, secure, and fast."}</p>
                                     <Link 
                                         href={formatNavLink(locale, cta?.link || "/apply")} 
-                                        className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white rounded-xl font-bold shadow-xl shadow-primary/20 hover:-translate-y-1 transition-transform"
+                                        className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-black rounded-xl font-bold shadow-xl shadow-primary/20 hover:-translate-y-1 transition-transform"
                                     >
                                         {cta?.buttonText || "Start Application Now"}
                                         <ArrowRight size={18} />

@@ -134,7 +134,7 @@ export const generateInvoicePDF = async (invoice: any) => {
     if (invoice.status === 'Paid' || invoice.status === 'Active') {
         doc.text("PAYMENT CAPTURED", rightX, y, { align: "right" });
     } else {
-        doc.text("BCA: 611-017850", rightX, y, { align: "right" });
+        doc.text("BCA: 6116-017850", rightX, y, { align: "right" });
         y += 4;
         doc.setFont("helvetica", "normal");
         doc.setFontSize(7);

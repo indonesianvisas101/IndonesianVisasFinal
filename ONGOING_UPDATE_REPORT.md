@@ -4022,4 +4022,12 @@ If any test fails:
     - Added descriptive `aria-labels` across all Hero CTA buttons and navigation links.
     - Optimized color contrast ratios for better readability in both Dark and Light modes.
 
+### 22.4 Supabase Infrastructure Hardening
+- **Storage Security:**
+    - Restricted `SELECT` policies on `avatars` and `documents` buckets to prevent public file listing.
+    - Implemented folder-level RLS where users can only manage objects within their own `auth.uid` folder.
+- **Auth Security:**
+    - Enabled **Leaked Password Protection** to prevent the use of compromised credentials from public data breaches.
+    - Re-verified schema permissions to ensure `anon` and `authenticated` roles have minimal necessary access.
+
 **Phase 22 Status: ✅ PRODUCTION READY & GLOBALLY COMPLIANT**

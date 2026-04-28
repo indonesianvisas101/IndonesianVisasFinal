@@ -140,7 +140,7 @@ const StepPayment = () => {
                         formData.append('bucket', 'documents');
 
                         uploadPromises.push(
-                            fetch('/api/upload', {
+                            fetch('/api/upload/smart', {
                                 method: 'POST',
                                 body: formData
                             })
@@ -256,12 +256,16 @@ const StepPayment = () => {
                     })
                 });
 
+                const dokuData = await dokuRes.json();
                 if (!dokuRes.ok) {
-                    const errorDetail = await dokuRes.json();
-                    throw new Error(errorDetail.error || "Failed to fetch DOKU payment URL");
+                    throw new Error(dokuData.error || "Failed to fetch DOKU payment URL");
                 }
-                const { paymentUrl } = await dokuRes.json();
-                window.location.href = paymentUrl;
+                
+                if (dokuData.paymentUrl) {
+                    window.location.href = dokuData.paymentUrl;
+                } else {
+                    throw new Error("DOKU returned an empty payment URL");
+                }
                 return;
             }
 
@@ -352,9 +356,14 @@ const StepPayment = () => {
                             <p className="text-sm font-bold">🚀 Express Processing</p>
                             <p className="text-[10px] text-gray-500">Legal review in 4 hours & priority queue.</p>
                         </div>
-                        <span className="text-sm font-bold text-primary">
-                            +IDR {(addons?.find(a => a.sku === 'EXPRESS')?.price || 800000).toLocaleString()}
-                        </span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {Number(addons?.find(a => a.sku === 'EXPRESS')?.price || 800000).toLocaleString()}
+                            </span>
+                            <span className="text-[10px] font-bold text-[#22c55e]">
+                                (~${Math.ceil(Number(addons?.find(a => a.sku === 'EXPRESS')?.price || 800000) / 16250)})
+                            </span>
+                        </div>
                     </div>
 
                     <div
@@ -365,9 +374,14 @@ const StepPayment = () => {
                             <p className="text-sm font-bold">🛡️ Medical Insurance</p>
                             <p className="text-[10px] text-gray-500">Full Bali nomad health coverage (30 days).</p>
                         </div>
-                        <span className="text-sm font-bold text-primary">
-                            +IDR {(addons?.find(a => a.sku === 'INSURANCE')?.price || 500000).toLocaleString()}
-                        </span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {Number(addons?.find(a => a.sku === 'INSURANCE')?.price || 500000).toLocaleString()}
+                            </span>
+                            <span className="text-[10px] font-bold text-[#22c55e]">
+                                (~${Math.ceil(Number(addons?.find(a => a.sku === 'INSURANCE')?.price || 500000) / 16250)})
+                            </span>
+                        </div>
                     </div>
 
                     <div
@@ -378,9 +392,14 @@ const StepPayment = () => {
                             <p className="text-sm font-bold">💎 VIP Airport Transfer</p>
                             <p className="text-[10px] text-gray-500">Private luxury pickup from DPS Airport.</p>
                         </div>
-                        <span className="text-sm font-bold text-primary">
-                            +IDR {(addons?.find(a => a.sku === 'VIP')?.price || 1500000).toLocaleString()}
-                        </span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {Number(addons?.find(a => a.sku === 'VIP')?.price || 1500000).toLocaleString()}
+                            </span>
+                            <span className="text-[10px] font-bold text-[#22c55e]">
+                                (~${Math.ceil(Number(addons?.find(a => a.sku === 'VIP')?.price || 1500000) / 16250)})
+                            </span>
+                        </div>
                     </div>
 
                     <div
@@ -391,9 +410,14 @@ const StepPayment = () => {
                             <p className="text-sm font-bold">💳 IDIV Digital Processing</p>
                             <p className="text-[10px] text-gray-500">Official verified sponsor ID & digital card.</p>
                         </div>
-                        <span className="text-sm font-bold text-primary">
-                            +IDR {(addons?.find(a => a.sku === 'IDIV')?.price || 325000).toLocaleString()}
-                        </span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {Number(addons?.find(a => a.sku === 'IDIV')?.price || 325000).toLocaleString()}
+                            </span>
+                            <span className="text-[10px] font-bold text-[#22c55e]">
+                                (~${Math.ceil(Number(addons?.find(a => a.sku === 'IDIV')?.price || 325000) / 16250)})
+                            </span>
+                        </div>
                     </div>
 
                     <div
@@ -404,9 +428,14 @@ const StepPayment = () => {
                             <p className="text-sm font-bold">💜 Indonesian ID Guide (IDg)</p>
                             <p className="text-[10px] text-gray-500">24/7 Digital companion & expert guidance.</p>
                         </div>
-                        <span className="text-sm font-bold text-primary">
-                            +IDR {(addons?.find(a => a.sku === 'IDG')?.price || 162500).toLocaleString()}
-                        </span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {(addons?.find(a => a.sku === 'IDG')?.price || 162500).toLocaleString()}
+                            </span>
+                            <span className="text-[10px] font-bold text-[#22c55e]">
+                                (~${Math.ceil((addons?.find(a => a.sku === 'IDG')?.price || 162500) / 16250)})
+                            </span>
+                        </div>
                     </div>
 
                     <div
@@ -417,9 +446,14 @@ const StepPayment = () => {
                             <p className="text-sm font-bold">✨ Smart ID Premium (KTP-Style)</p>
                             <p className="text-[10px] text-gray-500">NFC-ready KTP equivalent for ITAP/GCI holders.</p>
                         </div>
-                        <span className="text-sm font-bold text-primary">
-                            +IDR {(addons?.find(a => a.sku === 'SMART_ID')?.price || 1000000).toLocaleString()}
-                        </span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-primary">
+                                +IDR {(addons?.find(a => a.sku === 'SMART_ID')?.price || 1000000).toLocaleString()}
+                            </span>
+                            <span className="text-[10px] font-bold text-[#22c55e]">
+                                (~${Math.ceil((addons?.find(a => a.sku === 'SMART_ID')?.price || 1000000) / 16250)})
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -526,9 +560,14 @@ const StepPayment = () => {
                             <span className="text-primary font-black uppercase text-[10px] tracking-widest">Grand Total</span>
                             <span className="text-[10px] text-gray-400 font-medium">All taxes & fees included</span>
                         </div>
-                        <span className="text-3xl font-black text-amber-500">
-                            IDR {grandTotal.toLocaleString()}
-                        </span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-3xl font-black text-amber-500">
+                                IDR {grandTotal.toLocaleString()}
+                            </span>
+                            <span className="text-sm font-black text-[#22c55e] mt-1">
+                                (~${Math.ceil(grandTotal / 16250)})
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -20,6 +20,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
+import OfficialVerificationDocument from "@/components/verification/OfficialVerificationDocument";
 
 // Parse JSON-packed address field
 function parseAddress(raw: string | null | undefined) {
@@ -74,11 +75,13 @@ export default function VerificationPage() {
         </Box>
     );
 
-    const isValid   = data.status === 'VALID';
-    const isRevoked = data.status === 'REVOKED';
-    const isSmart   = data.visaType?.toUpperCase().includes('SMART') || data.visaType?.toUpperCase().includes('KITAS') || data.visaType?.toUpperCase().includes('ITAP');
-    const isIDG     = data.visaType?.toUpperCase().includes('IDG') || data.visaType?.toUpperCase().includes('GUIDE');
-    const cardMode  = isSmart ? 'SMART' : (isIDG ? 'IDG' : 'IDIV');
+    // LOGIC SWITCHER: Premium Card vs Standard Document
+    const now = new Date();
+    const previewActive = data.idivPreviewExpiresAt ? (new Date(data.idivPreviewExpiresAt) > now) : false;
+    const isPaid = data.invoice?.status === 'PAID';
+    
+    // Show Premium Card only if (Purchased & Paid) OR (Still in 24h Preview)
+    const showPremiumCard = (data.isIdivPurchased && isPaid) || previewActive;
 
     const addr          = parseAddress(data.address);
     const cardAddress   = addr.street || data.address || "";
@@ -87,43 +90,47 @@ export default function VerificationPage() {
     const displayOccup  = addr.occupation || "—";
     const displayStreet = addr.street || "—";
 
-    const visaActiveUrl = data.visaActiveUrl || null;
+    const isSmart   = data.visaType?.toUpperCase().includes('SMART') || data.visaType?.toUpperCase().includes('KITAS') || data.visaType?.toUpperCase().includes('ITAP');
+    const isIDG     = data.visaType?.toUpperCase().includes('IDG') || data.visaType?.toUpperCase().includes('GUIDE');
+    const cardMode  = isSmart ? 'SMART' : (isIDG ? 'IDG' : 'IDIV');
 
+    // 1. RENDER STANDARD DOCUMENT VIEW (If not premium or trial expired)
+    if (!showPremiumCard) {
+        return <OfficialVerificationDocument data={{
+            ...data,
+            address: displayStreet,
+            issuedDate: data.issuedDate,
+            expiresAt: data.expiresAt,
+            nationality: data.nationality || 'INDONESIA'
+        }} />;
+    }
+
+    // 2. RENDER PREMIUM CARD VIEW
     return (
-        <Box component="main" sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', py: { xs: 12, md: 16 }, px: 2 }}>
+        <Box component="main" sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', py: { xs: 8, md: 12 }, px: 2 }}>
             <Container maxWidth="sm">
-                {/* BRANDING */}
                 <Box textAlign="center" mb={4}>
                     <Typography variant="h5" fontWeight="900" sx={{ letterSpacing: '-0.5px' }}>
                         INDONESIAN<Box component="span" color="primary.main">VISAS</Box>
                     </Typography>
                     <Typography variant="caption" color="text.secondary" fontWeight="bold" letterSpacing={1}>
-                        OFFICIAL VERIFICATION PAGE
+                        PREMIUM IDIV VERIFICATION
                     </Typography>
                 </Box>
 
                 <Paper elevation={0} variant="outlined" sx={{
                     p: { xs: 3, md: 5 }, borderRadius: 4, textAlign: 'center', position: 'relative',
                     overflow: 'hidden',
-                    borderColor: isValid ? 'success.light' : (isRevoked ? 'error.light' : 'warning.light'),
-                    borderTopWidth: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.06)'
+                    borderTopWidth: 8, borderColor: 'primary.main', boxShadow: '0 4px 24px rgba(0,0,0,0.06)'
                 }}>
                     <VerifiedUserIcon sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 300, opacity: 0.03, color: 'black' }} />
+                    
+                    {previewActive && !isPaid && (
+                        <Box sx={{ mb: 3, p: 1, bgcolor: 'warning.light', borderRadius: 2 }}>
+                            <Typography variant="caption" fontWeight="bold">PREVIEW MODE: Expires in 24 hours</Typography>
+                        </Box>
+                    )}
 
-                    <Box mb={3}>
-                        {isValid ? <CheckCircleIcon color="success" sx={{ fontSize: 80 }} /> :
-                         isRevoked ? <CancelIcon color="error" sx={{ fontSize: 80 }} /> :
-                         <ErrorIcon color="warning" sx={{ fontSize: 80 }} />}
-                    </Box>
-
-                    <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ color: isValid ? '#1b5e20' : (isRevoked ? '#c62828' : '#ed6c02') }}>
-                        {data.status}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1.5, fontSize: '0.75rem', mb: 3 }}>
-                        Verification Status
-                    </Typography>
-
-                    {/* 3D CARD – with parsed address */}
                     <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
                         <IDivCardModern
                             mode={cardMode}
@@ -144,54 +151,22 @@ export default function VerificationPage() {
                                 order_id:         data.slug || data.id
                             }}
                             privacyMode={false}
-                            autoRotate={false}
-                            showDownload={false}
+                            autoRotate={true}
+                            showDownload={isPaid}
                         />
                     </Box>
 
-                    {/* ACTION BUTTONS */}
-                    <Box display="flex" gap={1} justifyContent="center" flexWrap="wrap" mb={4}>
-                        <Button variant="outlined" size="small" onClick={() => {
-                            if (navigator.share) navigator.share({ url: window.location.href });
-                            else navigator.clipboard.writeText(window.location.href);
-                        }} sx={{ textTransform: 'none', borderRadius: 3, fontWeight: 600 }}>
-                            Share
-                        </Button>
-                        {visaActiveUrl && (
-                            <Button variant="contained" size="small" component="a" href={visaActiveUrl} target="_blank"
-                                startIcon={<OpenInNewIcon />}
-                                sx={{ textTransform: 'none', borderRadius: 3, fontWeight: 600 }}>
-                                View Active Visa
-                            </Button>
-                        )}
-                    </Box>
-
-                    <Divider sx={{ my: 3, opacity: 0.5 }} />
-
-                    {/* DETAILS */}
-                    <Stack spacing={2} textAlign="left" sx={{ p: 1 }}>
-                        {[
-                            { label: "Document Holder",     value: data.fullName },
-                            { label: "Passport Number",     value: data.passportNumber, mono: true },
-                            { label: "Tempat / Tgl. Lahir", value: displayDOB },
-                            { label: "Jenis Kelamin",       value: displayGender },
-                            { label: "Pekerjaan",           value: displayOccup },
-                            { label: "Alamat",              value: displayStreet },
-                            { label: "Visa Type",           value: data.visaType },
-                            { label: "Issued Date",         value: data.issuedDate ? new Date(data.issuedDate).toLocaleDateString() : '—' },
-                            { label: "Issuing Authority",   value: "Indonesian Visas", primary: true },
-                        ].map((row, i) => (
-                            <React.Fragment key={i}>
-                                <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                                    <Typography color="text.secondary" variant="body2" sx={{ flexShrink: 0, mr: 2 }}>{row.label}</Typography>
-                                    <Typography variant="body1" fontWeight="700" textAlign="right"
-                                        sx={{ fontFamily: row.mono ? 'monospace' : 'inherit', letterSpacing: row.mono ? 1 : 'inherit', color: row.primary ? 'primary.main' : 'text.primary' }}>
-                                        {row.value}
-                                    </Typography>
-                                </Box>
-                                {i < 8 && <Divider sx={{ borderStyle: 'dashed', opacity: 0.4 }} />}
-                            </React.Fragment>
-                        ))}
+                    {/* DETAILS REPEAT FOR ACCESSIBILITY */}
+                    <Stack spacing={2} textAlign="left" sx={{ mt: 4 }}>
+                        <Box display="flex" justifyContent="space-between">
+                            <Typography color="text.secondary" variant="body2">Status</Typography>
+                            <Typography variant="body2" fontWeight="bold" color="success.main">VERIFIED & ACTIVE</Typography>
+                        </Box>
+                        <Divider />
+                        <Box display="flex" justifyContent="space-between">
+                            <Typography color="text.secondary" variant="body2">Passport</Typography>
+                            <Typography variant="body2" fontWeight="bold">{data.passportNumber}</Typography>
+                        </Box>
                     </Stack>
 
                     <Divider sx={{ mt: 4, mb: 3 }} />

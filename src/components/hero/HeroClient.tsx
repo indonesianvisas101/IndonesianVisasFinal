@@ -7,7 +7,7 @@ import { useApplication } from "../application/ApplicationContext";
 import { runWhenIdle } from "@/utils/scheduler";
 import dynamic from "next/dynamic";
 import Link from "next/link"; 
-import { ArrowRight, ShieldCheck, RefreshCcw, Globe, Clock, Star, Zap, Lock, Info } from "lucide-react"; 
+import { ArrowRight, ShieldCheck, RefreshCcw, Globe, Clock, Star, Zap, Lock, Info, Copy, Check } from "lucide-react"; 
 import { LazyMotion, domMax, m, AnimatePresence } from "framer-motion";
 import { formatNavLink } from "@/utils/seo";
 import { useParams } from "next/navigation";
@@ -98,6 +98,7 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
                 <Link
                     href={formatNavLink(locale, "/arrival-card")}
                     className={`cta-secondary ${styles.ctaBtn} !text-white !no-underline flex items-center justify-center hover:scale-105 transition-transform duration-300`}
+                    aria-label="Process your Electronic Customs Declaration or Arrival Card"
                     style={{
                         background: 'linear-gradient(135deg, #fbbf24 0%, #f97316 100%)',
                         boxShadow: '0 8px 30px rgba(251, 191, 36, 0.4)',
@@ -105,7 +106,6 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
                         padding: '0.75rem 1.75rem',
                         border: 'none',
                     }}
-                    aria-label="Submit Arrival Card"
                 >
                     {arrivalCardLabel || "Arrival Card"}
                 </Link>
@@ -131,7 +131,10 @@ const LEGAL_JSON_LD = {
     "name": LEGAL_DATA.legalName,
     "legalName": LEGAL_DATA.legalName,
     "url": LEGAL_DATA.url,
+    "logo": "https://indonesianvisas.com/Favicon.webp",
     "taxID": LEGAL_DATA.npwp,
+    "privacyPolicy": "https://indonesianvisas.com/privacy-policy",
+    "knowsAbout": ["GDPR", "Data Privacy", "Indonesian Immigration Regulations"],
     "identifier": [
         { "@type": "PropertyValue", "propertyID": "NIB", "value": LEGAL_DATA.nib },
         { "@type": "PropertyValue", "propertyID": "AHU", "value": LEGAL_DATA.ahu },
@@ -143,8 +146,36 @@ const LEGAL_JSON_LD = {
     "sameAs": ["https://companieshouse.id/indonesian-visas-agency?ref=search"],
 };
 
+const CopyFeedback = ({ value }: { value: string }) => {
+    const [copied, setCopied] = React.useState(false);
+    
+    const handleCopy = () => {
+        navigator.clipboard.writeText(value);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <button 
+            onClick={handleCopy}
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1.5 bg-white shadow-sm border border-gray-100 rounded-lg text-gray-400 hover:text-primary transition-all hover:scale-110 active:scale-95"
+            title="Copy to clipboard"
+        >
+            {copied ? <Check size={10} className="text-green-500" /> : <Copy size={10} />}
+        </button>
+    );
+};
+
 export const HeroBadge = () => {
     const [open, setOpen] = React.useState(false);
+    const [showMiniTip, setShowMiniTip] = React.useState(false);
+
+    // Mini Tip Timer: Appear after 4s, stay for 4s, then gone forever
+    React.useEffect(() => {
+        const timerIn = setTimeout(() => setShowMiniTip(true), 4000);
+        const timerOut = setTimeout(() => setShowMiniTip(false), 8000);
+        return () => { clearTimeout(timerIn); clearTimeout(timerOut); };
+    }, []);
 
     // ESC key to close popup
     React.useEffect(() => {
@@ -164,14 +195,14 @@ export const HeroBadge = () => {
     ];
 
     const buttons = [
-        { label: "Check Company (AHU)", href: "https://www.ahu.go.id/pencarian/profil-pt" },
+        { label: "Check Company Name", href: "https://www.ahu.go.id/pencarian/profil-pt" },
         { label: "Verify NIB",          href: "https://www.badanperizinan.co.id/nib.html" },
         { label: "Public Listing",      href: "https://companieshouse.id/indonesian-visas-agency?ref=search" },
         { label: "Company Profile",     href: "https://indonesianvisas.com/company-profile" },
     ];
 
     return (
-        <>
+        <LazyMotion features={domMax}>
             {/* ── JSON-LD: Organization schema (SEO / machine-readable) ── */}
             <script
                 type="application/ld+json"
@@ -184,18 +215,37 @@ export const HeroBadge = () => {
             </div>
 
             {/* ── TRIGGER: "Registered Company" badge ── */}
-            <button
-                onClick={() => setOpen(true)}
-                className={`inline-flex items-center gap-2 bg-gray-500 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-6 cursor-pointer hover:bg-gray-600 transition-colors ${styles.animateSlideUp}`}
-                aria-label="Check company legality"
-                aria-haspopup="dialog"
-            >
-                <div className="bg-green-500 rounded-full p-1 text-white">
-                    <ShieldCheck size={14} />
-                </div>
-                <span className="text-white text-xs font-bold tracking-wider uppercase">Registered Company</span>
-                <Info size={12} className="text-white/60" />
-            </button>
+            <div className="relative inline-block">
+                <AnimatePresence>
+                    {showMiniTip && !open && (
+                        <m.div
+                            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[100] whitespace-nowrap pointer-events-none"
+                        >
+                            <div className="bg-[#4B0082] text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2">
+                                <Zap size={12} className="text-amber-400" />
+                                CHECK LEGALITY HERE
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-[#4B0082]" />
+                            </div>
+                        </m.div>
+                    )}
+                </AnimatePresence>
+                
+                <button
+                    onClick={() => { setOpen(true); setShowMiniTip(false); }}
+                    className={`inline-flex items-center gap-2 bg-gray-500 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-6 cursor-pointer hover:bg-gray-600 transition-colors ${styles.animateSlideUp}`}
+                    aria-label="Check company legality"
+                    aria-haspopup="dialog"
+                >
+                    <div className="bg-green-500 rounded-full p-1 text-white">
+                        <ShieldCheck size={14} />
+                    </div>
+                    <span className="text-white text-xs font-bold tracking-wider uppercase">Registered Company</span>
+                    <Info size={12} className="text-white/60" />
+                </button>
+            </div>
 
             {/* ── POPUP (lazy — zero LCP impact, only rendered when open) ── */}
             {open && (
@@ -237,12 +287,19 @@ export const HeroBadge = () => {
 
                             {/* Data grid — 2 columns, 3 rows */}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: 12 }}>
-                                {gridRows.map(([label, value]) => (
-                                    <div key={label} className="bg-gray-50 rounded-lg p-3">
-                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">{label}</div>
-                                        <div className="text-[11px] font-bold text-gray-800 break-words leading-tight">{value}</div>
-                                    </div>
-                                ))}
+                                {gridRows.map(([label, value]) => {
+                                    const canCopy = label.includes("Entity") || label.includes("NIB");
+                                    return (
+                                        <div key={label} className="bg-gray-50 rounded-lg p-3 group relative">
+                                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">{label}</div>
+                                            <div className="text-[11px] font-bold text-gray-800 break-words leading-tight">{value}</div>
+                                            
+                                            {canCopy && (
+                                                <CopyFeedback value={value} />
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
 
                             {/* Divider */}
@@ -265,13 +322,14 @@ export const HeroBadge = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="px-5 pb-4 text-center">
-                            <p className="text-[10px] text-gray-400">All links open official government portals in a new tab.</p>
+                        <div className="px-5 pb-5 pt-2 text-center bg-slate-50">
+                            <p className="text-[10px] text-gray-400 font-bold mb-1">NOTICE: The verification links provided are Official Indonesian Government portals. (AHU & OSS)</p>
+                            <p className="text-[9px] text-gray-300">Pleae Copy the text above and paste it into the search bar of the verification portals.</p>
                         </div>
                     </div>
                 </div>
             )}
-        </>
+        </LazyMotion>
     );
 };
 
@@ -415,7 +473,7 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
                 </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/10">
+            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/10 space-y-3">
                 <Link 
                     href={formatNavLink(locale, "/check-status")} 
                     className="flex items-center justify-between w-full px-6 py-4 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/20 rounded-2xl transition-all group"
@@ -431,6 +489,23 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
                         </div>
                     </div>
                     <ArrowRight className="text-slate-400 dark:text-gray-500 group-hover:text-primary dark:group-hover:text-white group-hover:translate-x-1 transition-all" size={18} />
+                </Link>
+
+                <Link 
+                    href={formatNavLink(locale, "/idiv-search")} 
+                    className="flex items-center justify-between w-full px-6 py-3 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-xl transition-all group/idiv"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="p-1.5 bg-primary/10 text-primary rounded-lg group-hover/idiv:scale-110 transition-transform">
+                            <Globe size={16} />
+                        </div>
+                        <div className="text-left">
+                            <p className="text-xs font-black text-primary uppercase tracking-tighter">Search IDiv</p>
+                            <p className="text-[9px] text-slate-500 dark:text-gray-400">Public Verification System</p>
+                        </div>
+                    </div>
+                    <ArrowRight className="text-primary/40 group-hover/idiv:text-primary group-hover/idiv:translate-x-1 transition-all" size={14} />
                 </Link>
             </div>
 

@@ -25,7 +25,10 @@ import {
     Alert,
     CircularProgress,
     Tabs,
-    Tab
+    Tab,
+    Divider,
+    FormControlLabel,
+    Switch
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import QrCodeIcon from "@mui/icons-material/QrCode";
@@ -71,7 +74,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         nationality: "VERIFIED HOLDER",
         photoUrl: "",
         slug: "",
-        status: "VALID"
+        status: "VALID",
+        isIdivPurchased: false,
+        idivPreviewExpiresAt: ""
     });
 
     // Selected Item for QR or Edit
@@ -258,7 +263,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             nationality: "VERIFIED HOLDER",
             photoUrl: "",
             slug: "",
-            status: "VALID"
+            status: "VALID",
+            isIdivPurchased: false,
+            idivPreviewExpiresAt: ""
         });
         setSelectedUserId("");
         setVerificationMode('manual');
@@ -295,7 +302,9 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             nationality: item.nationality || "VERIFIED HOLDER",
             photoUrl: item.photoUrl || "",
             slug: item.slug || "",
-            status: item.status || "VALID"
+            status: item.status || "VALID",
+            isIdivPurchased: item.isIdivPurchased || false,
+            idivPreviewExpiresAt: item.idivPreviewExpiresAt ? new Date(item.idivPreviewExpiresAt).toISOString().split('T')[0] : ""
         });
         setEditId(item.id);
         setIsEditing(true);
@@ -368,6 +377,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                 <TableCell>VISA TYPE</TableCell>
                                 <TableCell>ISSUED</TableCell>
                                 <TableCell>EXPIRES</TableCell>
+                                <TableCell>IDIV CARD</TableCell>
                                 <TableCell>STATUS</TableCell>
                                 <TableCell align="right">ACTIONS</TableCell>
                             </TableRow>
@@ -388,6 +398,15 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                     <TableCell>{new Date(item.issuedDate).toLocaleDateString()}</TableCell>
                                     <TableCell>
                                         {item.expiresAt ? new Date(item.expiresAt).toLocaleDateString() : "-"}
+                                    </TableCell>
+                                    <TableCell>
+                                        {(() => {
+                                            const now = new Date();
+                                            const trialActive = item.idivPreviewExpiresAt && new Date(item.idivPreviewExpiresAt) > now;
+                                            if (item.isIdivPurchased) return <Chip label="PURCHASED" size="small" color="primary" variant="filled" />;
+                                            if (trialActive) return <Chip label="TRIAL ACTIVE" size="small" color="warning" variant="outlined" />;
+                                            return <Chip label="OFF" size="small" variant="outlined" />;
+                                        })()}
                                     </TableCell>
                                     <TableCell>
                                         <Chip
@@ -664,6 +683,62 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                             <MenuItem value="REVOKED">NOT VERIFIED (REVOKED)</MenuItem>
                             <MenuItem value="PENDING">PENDING</MenuItem>
                         </TextField>
+                        
+                        <Box sx={{ p: 2, bgcolor: 'rgba(145, 85, 253, 0.05)', borderRadius: 2, border: '1px solid rgba(145, 85, 253, 0.2)' }}>
+                            <Typography variant="subtitle2" color="primary" fontWeight="bold" gutterBottom>
+                                💳 IDiv Card Access Control
+                            </Typography>
+                            <FormControlLabel
+                                control={
+                                    <Switch 
+                                        checked={formData.isIdivPurchased} 
+                                        onChange={(e) => setFormData({ ...formData, isIdivPurchased: e.target.checked })}
+                                        color="primary"
+                                    />
+                                }
+                                label={<Typography variant="body2" fontWeight="600">IDiv Card Purchased (Permanent ON)</Typography>}
+                            />
+                            <TextField
+                                label="Trial Preview Expiration"
+                                type="date"
+                                fullWidth
+                                size="small"
+                                sx={{ mt: 2 }}
+                                value={formData.idivPreviewExpiresAt}
+                                onChange={(e) => setFormData({ ...formData, idivPreviewExpiresAt: e.target.value })}
+                                slotProps={{ inputLabel: { shrink: true } }}
+                                helperText="Card view automatically turns OFF after this date if not purchased."
+                            />
+                        </Box>
+
+                        {/* CUSTOMER SUBMISSION SUMMARY (Admin Only) */}
+                        {isEditing && (
+                            <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0', mt: 2 }}>
+                                <Typography variant="subtitle2" color="slate.700" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    📋 Customer Submission Summary
+                                </Typography>
+                                <Stack spacing={1}>
+                                    <Typography variant="caption" display="block">
+                                        <strong>Full Name:</strong> {formData.fullName}
+                                    </Typography>
+                                    <Typography variant="caption" display="block">
+                                        <strong>Passport:</strong> {formData.passportNumber}
+                                    </Typography>
+                                    <Typography variant="caption" display="block">
+                                        <strong>Nationality:</strong> {formData.nationality}
+                                    </Typography>
+                                    {selectedUserId && (
+                                        <Typography variant="caption" display="block" color="primary">
+                                            <strong>Linked Account:</strong> {users.find(u => u.id === selectedUserId)?.email || "User Account"}
+                                        </Typography>
+                                    )}
+                                    <Divider sx={{ my: 1 }} />
+                                    <Typography variant="caption" display="block" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                                        Note: This data is pulled from the verification record. Cross-reference with the Invoicing panel for full trip attribution.
+                                    </Typography>
+                                </Stack>
+                            </Box>
+                        )}
                     </Stack>
                 </DialogContent>
                 <DialogActions>

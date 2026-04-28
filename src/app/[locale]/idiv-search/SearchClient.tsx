@@ -8,7 +8,9 @@ import {
     Globe, Lock, Shield, LayoutGrid
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Box, Stack } from "@mui/material";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
+import OfficialVerificationDocument from "@/components/verification/OfficialVerificationDocument";
 
 // Parse JSON-packed address
 function parseAddress(raw: string | null | undefined) {
@@ -150,111 +152,105 @@ export default function SearchClient({ locale }: { locale: string }) {
                     <motion.div 
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="grid lg:grid-cols-2 gap-16 items-start"
+                        className="w-full"
                     >
-                        {/* 3D Visual Preview */}
-                        <div className="space-y-8 sticky top-32">
-                             <div className="bg-primary/10 text-primary px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] font-black tracking-widest uppercase italic">
-                                <QrCode size={14} /> System Verified ID
-                             </div>
-                             {(() => {
-                                 const addr = parseAddress(result.address);
-                                 const isSmart = result.visaType?.toUpperCase().includes('SMART') || result.visaType?.toUpperCase().includes('KITAS') || result.visaType?.toUpperCase().includes('ITAP');
-                                 const isIDG = result.visaType?.toUpperCase().includes('IDG') || result.visaType?.toUpperCase().includes('GUIDE');
-                                 return (
-                                     <IDivCardModern
-                                         mode={isSmart ? 'SMART' : (isIDG ? 'IDG' : 'IDIV')}
-                                         variant="purple"
-                                         data={{
-                                             id_number:        result.id,
-                                             name:             result.fullName,
-                                             passport_number:  result.passportNumber,
-                                             nationality:      result.nationality || "VERIFIED HOLDER",
-                                             visa_type:        result.visaType,
-                                             expiry_date:      result.expiresAt ? new Date(result.expiresAt).toLocaleDateString() : 'N/A',
-                                             issue_date:       result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A',
-                                             address:          addr.street || result.address || "",
-                                             birth_place_date: addr.birthPlaceDate,
-                                             gender:           addr.gender,
-                                             occupation:       addr.occupation,
-                                             photoUrl:         result.photoUrl,
-                                             order_id:         result.slug || result.application?.slug || "N/A"
-                                         }}
-                                         autoRotate={true}
-                                         showDownload={false}
-                                     />
-                                 );
-                             })()}
-                             
-                             <div className="p-8 bg-slate-900 dark:bg-white/10 rounded-[2.5rem] text-white space-y-4">
-                                <div className="flex items-center gap-2 text-[10px] font-black text-primary tracking-widest uppercase italic">
-                                    <Shield size={14} /> Security Notice
-                                </div>
-                                <p className="text-sm font-medium text-white/60 leading-relaxed">
-                                    This visual preview is a real-time rendering of your official record. Authorized officers can scan the Smart Code on your physical card to reach this authenticated portal.
-                                </p>
-                             </div>
-                        </div>
+                        {(() => {
+                            const now = new Date();
+                            const previewActive = result.idivPreviewExpiresAt ? (new Date(result.idivPreviewExpiresAt) > now) : false;
+                            const isPaid = result.invoice?.status === 'PAID';
+                            const showPremiumCard = (result.isIdivPurchased && isPaid) || previewActive;
 
-                        {/* Detailed Data */}
-                        <div className="space-y-8">
-                            <div className="bg-white dark:bg-white/5 rounded-[3rem] border border-slate-200 dark:border-white/10 overflow-hidden">
-                                <div className="bg-primary/5 p-8 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
-                                    <h3 className="text-2xl font-black mode-aware-text tracking-tighter uppercase italic">Record Integrity</h3>
-                                    <CheckCircle2 className="text-green-500" size={32} />
-                                </div>
-                                <div className="p-10 space-y-8">
-                                    <div className="grid grid-cols-2 gap-8">
-                                        {(() => {
-                                            const addr2 = parseAddress(result.address);
-                                            const rows = [
-                                                { label: "Full Name",     value: result.fullName, icon: Info },
-                                                { label: "ID No.",        value: result.id, icon: LayoutGrid },
-                                                { label: "Visa Permit",   value: result.visaType, icon: FileText },
-                                                { label: "Smart ID",      value: result.slug, icon: QrCode, highlight: true },
-                                                { label: "Permit Status", value: result.application?.status || result.status, icon: ShieldCheck, highlight: true },
-                                                { label: "Issued Date",   value: result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A', icon: Clock },
-                                                { label: "Tempat/Tgl Lahir", value: addr2.birthPlaceDate || '—', icon: Info },
-                                                { label: "Pekerjaan",     value: addr2.occupation || '—', icon: Info },
-                                                { label: "Alamat",        value: addr2.street || '—', icon: Info },
-                                            ];
-                                            return rows;
-                                        })().map((item: any, i) => (
-                                            <div key={i} className="space-y-1">
-                                                <div className="text-[10px] font-black mode-aware-subtext uppercase tracking-widest opacity-50 flex items-center gap-2">
-                                                    {item.icon && <item.icon size={12} />}
-                                                    {item.label}
-                                                </div>
-                                                <div className={`text-lg font-black tracking-tight ${item.highlight ? 'text-primary' : 'mode-aware-text'}`}>
-                                                    {item.value}
+                            if (!showPremiumCard) {
+                                return (
+                                    <Box sx={{ mt: -8 }}>
+                                        <OfficialVerificationDocument data={{
+                                            ...result,
+                                            address: parseAddress(result.address).street || result.address || "",
+                                            issuedDate: result.issuedDate,
+                                            expiresAt: result.expiresAt,
+                                            nationality: result.nationality || 'INDONESIA'
+                                        }} />
+                                    </Box>
+                                );
+                            }
+
+                            // RENDER PREMIUM VIEW
+                            const addr = parseAddress(result.address);
+                            const isSmart = result.visaType?.toUpperCase().includes('SMART') || result.visaType?.toUpperCase().includes('KITAS') || result.visaType?.toUpperCase().includes('ITAP');
+                            const isIDG = result.visaType?.toUpperCase().includes('IDG') || result.visaType?.toUpperCase().includes('GUIDE');
+                            
+                            return (
+                                <div className="grid lg:grid-cols-2 gap-16 items-start">
+                                    <div className="space-y-8 lg:sticky lg:top-32">
+                                        <div className="bg-primary/10 text-primary px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] font-black tracking-widest uppercase italic">
+                                            <QrCode size={14} /> System Verified ID
+                                        </div>
+                                        
+                                        {previewActive && !isPaid && (
+                                            <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-3xl">
+                                                <p className="text-xs font-black text-amber-500 uppercase tracking-widest">
+                                                    Preview Mode: Active for 24 Hours
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        <IDivCardModern
+                                            mode={isSmart ? 'SMART' : (isIDG ? 'IDG' : 'IDIV')}
+                                            variant="purple"
+                                            data={{
+                                                id_number:        result.id,
+                                                name:             result.fullName,
+                                                passport_number:  result.passportNumber,
+                                                nationality:      result.nationality || "VERIFIED HOLDER",
+                                                visa_type:        result.visaType,
+                                                expiry_date:      result.expiresAt ? new Date(result.expiresAt).toLocaleDateString() : 'N/A',
+                                                issue_date:       result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A',
+                                                address:          addr.street || result.address || "",
+                                                birth_place_date: addr.birthPlaceDate,
+                                                gender:           addr.gender,
+                                                occupation:       addr.occupation,
+                                                photoUrl:         result.photoUrl,
+                                                order_id:         result.slug || result.application?.slug || "N/A"
+                                            }}
+                                            autoRotate={true}
+                                            showDownload={isPaid}
+                                        />
+                                    </div>
+
+                                    {/* Detailed Data */}
+                                    <div className="space-y-8">
+                                        <div className="bg-white dark:bg-white/5 rounded-[3rem] border border-slate-200 dark:border-white/10 overflow-hidden">
+                                            <div className="bg-primary/5 p-8 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
+                                                <h3 className="text-2xl font-black mode-aware-text tracking-tighter uppercase italic">Record Integrity</h3>
+                                                <CheckCircle2 className="text-green-500" size={32} />
+                                            </div>
+                                            <div className="p-10 space-y-8">
+                                                <div className="grid grid-cols-2 gap-8">
+                                                    {[
+                                                        { label: "Full Name",     value: result.fullName, icon: Info },
+                                                        { label: "Passport",      value: result.passportNumber, icon: Lock },
+                                                        { label: "Visa Permit",   value: result.visaType, icon: FileText },
+                                                        { label: "Smart ID",      value: result.slug, icon: QrCode, highlight: true },
+                                                        { label: "Permit Status", value: result.application?.status || result.status, icon: ShieldCheck, highlight: true },
+                                                        { label: "Issued Date",   value: result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A', icon: Clock },
+                                                    ].map((item: any, i) => (
+                                                        <div key={i} className="space-y-1">
+                                                            <div className="text-[10px] font-black mode-aware-subtext uppercase tracking-widest opacity-50 flex items-center gap-2">
+                                                                {item.icon && <item.icon size={12} />}
+                                                                {item.label}
+                                                            </div>
+                                                            <div className={`text-lg font-black tracking-tight ${item.highlight ? 'text-primary' : 'mode-aware-text'}`}>
+                                                                {item.value}
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
-                                        ))}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="p-8 bg-slate-50 dark:bg-white/5 rounded-[2.5rem] border border-slate-100 dark:border-white/5">
-                                    <h4 className="font-black mode-aware-text uppercase italic tracking-tight mb-4">Verification Explained</h4>
-                                    <p className="text-xs font-medium mode-aware-subtext leading-relaxed opacity-70">
-                                        The IDiv system is Indonesia's most advanced private verification layer, providing instant authenticity checks for foreigners under PT Indonesian Visas Agency sponsorship.
-                                    </p>
-                                    <a href={`/${locale}/verification-explained`} className="mt-4 text-[10px] font-black text-primary tracking-widest uppercase flex items-center gap-2 hover:gap-4 transition-all">
-                                        Learn More <ArrowRight size={14} />
-                                    </a>
-                                </div>
-                                <div className="p-8 bg-slate-50 dark:bg-white/5 rounded-[2.5rem] border border-slate-100 dark:border-white/5">
-                                    <h4 className="font-black mode-aware-text uppercase italic tracking-tight mb-4">Official Sponsor</h4>
-                                    <p className="text-xs font-medium mode-aware-subtext leading-relaxed opacity-70">
-                                        All records represent verified clients of Indonesian Visas. In case of verification discrepancies, please contact our 24/7 legal team immediately.
-                                    </p>
-                                    <a href={`/${locale}/about`} className="mt-4 text-[10px] font-black text-primary tracking-widest uppercase flex items-center gap-2 hover:gap-4 transition-all">
-                                        Corporate Profile <ArrowRight size={14} />
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                            );
+                        })()}
                     </motion.div>
                 )}
             </AnimatePresence>

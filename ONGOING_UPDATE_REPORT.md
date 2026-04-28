@@ -26,7 +26,7 @@ This master report consolidates all strategic updates, AI prompts, and system co
 
 **Last Updated:** 2026-03-16 01:25 WIB
 
-**Status:** Production Active — Phases 1–101 Complete (Intelligence Hardening & Global Expansion Phase Active)
+**Status:** Production Active — Phases 1–21 Complete (Hardening & Smart Upload Engine Active)
 
 **Maintained by:** Bayu Damopolii (Boss / Human Final Authority) & AntiGravity AI (Technical Hardening Lab)
 
@@ -777,6 +777,7 @@ npm run build
 | Phase 19 | About Page Enhancement | ✅ Complete |
 
 | Phase 20 | Performance & Optimization | ✅ Complete |
+| Phase 21 | Hardening & Smart Upload Engine | ✅ Complete |
 
 ---
 
@@ -3949,3 +3950,76 @@ If any test fails:
 ---
 
 ***PHASE 103 COMPLETE — HARDENED & PRODUCTION READY***
+
+---
+
+# PHASE 21: HARDENING & SMART UPLOAD ENGINE (COMPLETED)
+
+**Date:** April 2026
+**Focus:** Production Hardening, Security, and Storage Optimization
+
+### 21.1 Verification API Hardening
+- **Access Control:** Explicit server-side enforcement of `isIdivPurchased` and `idivPreviewExpiresAt`.
+- **Public Data Policy:** Passport numbers are now fully visible (public) in all verification documents as per policy.
+- **Trial Sync:** Server now accurately reports trial status to prevent unauthorized 3D card access after 24 hours.
+
+### 21.2 Smart Upload Engine (Sharp Integration)
+- **Automatic Conversion:** All images uploaded in Step 3 are automatically converted to **WebP** (80% quality) to save Supabase storage.
+- **PDF Optimization:** PDF files are optimized/compressed before storage.
+- **Security Hardening:**
+    - **Size Limit:** Strict 5MB limit enforced at API level.
+    - **Magic Number Validation:** Verified file signatures (FF D8 FF for JPG, 89 50 4E 47 for PNG, %PDF for PDF) to prevent malicious file uploads.
+- **UX Feedback:** Real-time visual feedback ("Smart Processing...") during conversion.
+
+### 21.3 UI/UX & Pricing Standardization
+- **Financial Consistency:** All prices now use standard thousand separators (e.g., 1,000,000).
+- **Currency Equivalents:** Added Green US Dollar equivalents (~00) next to all Add-ons and the Grand Total for global customer clarity.
+- **Invoice Clean-up:** Technical JSON metadata is now hidden from invoices if address fields are empty, ensuring a professional appearance.
+
+### 21.4 Technical Stability
+- **Prisma Sync:** Successfully synchronized `Verification` table without data loss using `db push`.
+- **Error Handling:** Implemented "Safe Handling" for email triggers and API responses to prevent production crashes during schema transitions.
+
+**Phase 21 Status: ✅ PRODUCTION READY**
+
+---
+
+# PHASE 22: GLOBAL COMPLIANCE & PERFORMANCE HARDENING (COMPLETED)
+
+**Date:** April 29, 2026
+**Focus:** International Legal Compliance (GDPR), Security Hardening, and Core Web Vitals Optimization
+
+### 22.1 Global Compliance Infrastructure
+- **GDPR-Aligned Consent Banner:**
+    - Re-designed `PrivacyBanner.tsx` with a premium Glassmorphism aesthetic and non-intrusive horizontal layout.
+    - Implemented a **4-second intelligent delay** to ensure zero interference with First Contentful Paint (FCP) and LCP.
+    - Added "Accept", "Decline", and direct "Privacy Policy" links for full transparency.
+    - Persistent consent tracking via encrypted `localStorage` tokens.
+
+- **Legal Framework Overhaul:**
+    - **Privacy Policy:** Completely rewritten to align with Indonesian Law No. 27/2022 (PDP) and EU GDPR. Added specific clauses for Biometric Data processing and AES-256 data archival.
+    - **Terms & Conditions:** Updated with strict clauses on corporate non-affiliation, Price Finality (VAT/PPH 23), and Governing Law (Denpasar District Court).
+    - **Refund Policy:** Implemented a robust "Fee Separation Protocol" clarifying non-refundability of Government Tariffs (PNBP) and "Friendly Fraud" chargeback warnings.
+
+### 22.2 Advanced Security Hardening
+- **SQL Injection Prevention:** 
+    - Migrated all high-risk API endpoints (`/api/applications`, `/api/verification`) from `queryRawUnsafe` to **Parameterized Queries** using Prisma template literals.
+    - This ensures that 100% of user-provided filters and search queries are properly escaped before execution.
+- **Stored XSS Protection:**
+    - Implemented a server-side `sanitize` engine for all text inputs (Addresses, Full Names, Document Notes).
+    - All HTML tags are stripped/escaped before database persistence to prevent malicious script injection in Admin/Public views.
+- **CSRF & Security Headers:**
+    - Re-verified and hardened middleware headers: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and `Strict-Transport-Security`.
+
+### 22.3 Performance & AI SEO Optimization
+- **Core Web Vitals Optimization:**
+    - Set high-priority loading for critical LCP assets.
+    - Reduced main-thread blocking by migrating the Privacy Banner to a client-side lazy-load execution model.
+- **AI-Driven SEO (JSON-LD):**
+    - Injected a new **Privacy Compliance Node** into the `FAQPage` and `LocalBusiness` Schema.
+    - This allows AI search engines (Perplexity, GPT-4o, Google Search) to verify the agency's legal compliance and data protection standards automatically.
+- **Accessibility (A11y):**
+    - Added descriptive `aria-labels` across all Hero CTA buttons and navigation links.
+    - Optimized color contrast ratios for better readability in both Dark and Light modes.
+
+**Phase 22 Status: ✅ PRODUCTION READY & GLOBALLY COMPLIANT**

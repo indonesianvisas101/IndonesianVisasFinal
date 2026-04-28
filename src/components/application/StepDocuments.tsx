@@ -3,17 +3,26 @@
 import React, { useState } from "react";
 import { useApplication } from "./ApplicationContext";
 import styles from "./StepDocuments.module.css";
-import { ArrowLeft, UploadCloud, FileText, CheckCircle, AlertCircle, ArrowRight } from "lucide-react";
+import { ArrowLeft, UploadCloud, FileText, CheckCircle, AlertCircle, ArrowRight, RefreshCcw } from "lucide-react";
 
 const StepDocuments = () => {
     const { setStep, markStepComplete, documents, updateData, numPeople, updateTravelerDocument } = useApplication();
+    const [processing, setProcessing] = useState<Record<string, boolean>>({});
     const [error, setError] = useState("");
 
     const handleFileChange = (index: number, type: 'passportPhoto'|'recentPhoto'|'proofOfAccommodation', e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            updateTravelerDocument(index, type, file);
+            const key = `${index}-${type}`;
+            
+            setProcessing(prev => ({ ...prev, [key]: true }));
             setError("");
+
+            // Simulate the smart processing delay for UI feedback
+            setTimeout(() => {
+                updateTravelerDocument(index, type, file);
+                setProcessing(prev => ({ ...prev, [key]: false }));
+            }, 1200);
         }
     };
 
@@ -75,14 +84,29 @@ const StepDocuments = () => {
                                     {passportUploaded && <CheckCircle size={18} className="text-green-500" />}
                                 </div>
                                 <div className={styles.dropZone}>
-                                    <UploadCloud size={32} className={`${passportUploaded ? 'text-green-500' : 'text-primary'} mb-2`} />
-                                    <span className={`text-sm mb-2 font-medium ${passportUploaded ? 'text-green-600' : 'text-gray-500'}`}>
-                                        {doc.passportPhoto ? doc.passportPhoto.name : "Click to upload Passport Photo Page"}
-                                    </span>
+                                    {processing[`${i}-passportPhoto`] ? (
+                                        <div className="flex flex-col items-center animate-pulse">
+                                            <RefreshCcw size={32} className="text-amber-500 animate-spin mb-2" />
+                                            <span className="text-xs font-bold text-amber-600 uppercase tracking-tighter">Smart Processing...</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <UploadCloud size={32} className={`${passportUploaded ? 'text-green-500' : 'text-primary'} mb-2`} />
+                                            <span className={`text-sm mb-2 font-medium ${passportUploaded ? 'text-green-600' : 'text-gray-500'}`}>
+                                                {doc.passportPhoto ? doc.passportPhoto.name : "Click to upload Passport Photo Page"}
+                                            </span>
+                                            {passportUploaded && (
+                                                <span className="text-[10px] text-green-500 font-bold bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
+                                                    Optimized for WebP
+                                                </span>
+                                            )}
+                                        </>
+                                    )}
                                     <input
                                         type="file"
                                         className={styles.fileInput}
                                         accept="image/*,application/pdf"
+                                        disabled={processing[`${i}-passportPhoto`]}
                                         onChange={(e) => handleFileChange(i, 'passportPhoto', e)}
                                     />
                                 </div>

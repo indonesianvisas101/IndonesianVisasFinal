@@ -25,15 +25,10 @@ export function calculateOrderFees(visaAmount: number, channel: PaymentChannel, 
     const pph23Amount = Math.round(visaAmount * 0.02);
     
     const subtotal = serviceFee + pph23Amount;
-    let gatewayFee = 0;
-
-    const normalizedChannel = channel?.toUpperCase() || 'MANUAL';
-
-    if (normalizedChannel !== 'MANUAL' && normalizedChannel !== 'NONE') {
-        // Standardized for 3rd Party Payments (DOKU/PayPal)
-        // Platform Fee = 4%
-        gatewayFee = Math.round((subtotal * 0.04));
-    }
+    
+    // Platform / Service Fee = 4% on (Subtotal)
+    // Consistently applied as per Frontend (StepPayment.tsx) logic
+    const gatewayFee = Math.round(subtotal * 0.04);
 
     return {
         serviceFee,

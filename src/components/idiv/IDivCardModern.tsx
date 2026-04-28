@@ -75,7 +75,7 @@ export default function IDivCardModern({
 
     const cardData = {
         id_number: data?.id_number || "99710024889100",
-        passport_number: privacyMode ? "XXXXXXX" : (data?.passport_number || "A1234567"),
+        passport_number: data?.passport_number || "A1234567",
         formatted_id: (data?.id_number || "99710024889100").slice(0, 14).replace(/(\d{4})(\d{4})(\d{6})/, "$1-$2-$3"),
         name: data?.name || "SARAH J. WILLIAMS", 
         birth_place_date: privacyMode ? "XXXX, XX-XX-XXXX" : (data?.birth_place_date || "LONDON, 01-01-1990"),
@@ -154,13 +154,14 @@ export default function IDivCardModern({
                 sx={{ 
                     perspective: '1200px', 
                     width: '100%',
-                    maxWidth: { xs: '340px', sm: '420px' },
-                    height: { xs: '215px', sm: '265px' },
+                    maxWidth: { xs: '350px', sm: '420px' },
                     aspectRatio: '1.58 / 1',
                     margin: '0 auto',
                     cursor: 'pointer',
                     position: 'relative',
-                    zIndex: 10
+                    zIndex: 10,
+                    // Reclaim height on mobile to prevent clipping
+                    minHeight: { xs: '200px', sm: '265px' }
                 }}
                 onClick={() => setIsFlipped(!isFlipped)}
             >
@@ -197,7 +198,7 @@ export default function IDivCardModern({
                             border: '1px solid rgba(255,255,255,0.6)',
                             display: 'flex',
                             flexDirection: 'column',
-                            p: { xs: 2.5, sm: 3 },
+                            p: { xs: 1.8, sm: 3 }, // Reduced padding on mobile
                             color: '#1e293b',
                             transform: 'translateZ(1px)' 
                         }}
@@ -434,12 +435,12 @@ export default function IDivCardModern({
                                 <>
                                     {/* ID No Restored to Body */}
                                     <Typography variant="h6" fontWeight="900" sx={{ 
-                                        fontSize: { xs: '0.8rem', sm: '0.95rem' }, 
-                                        mb: 0.5, 
-                                        mt: 0.2,
+                                        fontSize: { xs: '0.75rem', sm: '0.95rem' }, // Shrink header ID
+                                        mb: 0.2, 
+                                        mt: 0.1,
                                         pl: 0.8,
                                         textAlign: 'left',
-                                        letterSpacing: { xs: 0.5, sm: 1.5 }, 
+                                        letterSpacing: { xs: 0.2, sm: 1.5 }, 
                                         color: currentColors.accent, 
                                         zIndex: 2,
                                         whiteSpace: 'nowrap'
@@ -450,32 +451,32 @@ export default function IDivCardModern({
                                     {/* Details Container */}
                                     <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0, width: '100%' }}>
                                         {/* Data Fields */}
-                                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.6, justifyContent: 'center', pl: 0.8, textAlign: 'left', alignItems: 'flex-start', mt: -1 }}>
+                                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: { xs: 0.45, sm: 0.7 }, justifyContent: 'center', pl: 0.8, textAlign: 'left', alignItems: 'flex-start', mt: -1 }}>
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
-                                                <Typography sx={{ fontSize: { xs: '0.65rem', sm: '0.8rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
+                                                <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
+                                                <Typography sx={{ fontSize: { xs: '0.62rem', sm: '0.8rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
                                             </Box>
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NO PASSPORT</Typography>
-                                                <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.passport_number}</Typography>
+                                                <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NO PASSPORT</Typography>
+                                                <Typography sx={{ fontSize: '0.62rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.passport_number}</Typography>
                                             </Box>
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
-                                                <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
+                                                <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
+                                                <Typography sx={{ fontSize: '0.62rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
                                             </Box>
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>{isIDG ? 'GUIDE TYPE' : 'JENIS VISA'}</Typography>
-                                                <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: currentColors.secondary, lineHeight: 1.1 }}>{isIDG ? 'VISITOR GUIDE 24/7' : cardData.visa_type}</Typography>
+                                                <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>{isIDG ? 'GUIDE TYPE' : 'JENIS VISA'}</Typography>
+                                                <Typography sx={{ fontSize: { xs: '0.62rem', sm: '0.7rem' }, fontWeight: 800, color: currentColors.secondary, lineHeight: 1.1 }}>{isIDG ? 'VISITOR GUIDE 24/7' : cardData.visa_type}</Typography>
                                             </Box>
                                             
                                             {/* INDONESIAN ADDRESS */}
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ALAMAT</Typography>
+                                                <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ALAMAT</Typography>
                                                 <Typography sx={{ 
-                                                    fontSize: '0.55rem', 
+                                                    fontSize: '0.5rem', 
                                                     fontWeight: 800, 
                                                     color: '#1e293b', 
-                                                    lineHeight: 1.1,
+                                                    lineHeight: 1.1, 
                                                     display: '-webkit-box',
                                                     WebkitLineClamp: 2,
                                                     WebkitBoxOrient: 'vertical',
@@ -486,20 +487,20 @@ export default function IDivCardModern({
                                                 </Typography>
                                             </Box>
 
-                                            <Box display="flex" gap={2.5} sx={{ minHeight: '1.2rem' }}>
+                                            <Box display="flex" gap={2} sx={{ minHeight: '1rem', mt: 0.6 }}>
                                                 <Box>
-                                                    <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
-                                                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.1 }}>{cardData.issue_date}</Typography>
+                                                    <Typography sx={{ fontSize: '0.45rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
+                                                    <Typography sx={{ fontSize: { xs: '0.58rem', sm: '0.7rem' }, fontWeight: 700, lineHeight: 1 }}>{cardData.issue_date}</Typography>
                                                 </Box>
                                                 <Box>
-                                                    <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
+                                                    <Typography sx={{ fontSize: '0.45rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
                                                     {cardData.isUnlimited ? (
                                                         <Box display="flex" alignItems="center" gap={0.3}>
-                                                            <Typography sx={{ fontSize: '0.7rem', fontWeight: 900, color: '#d97706', lineHeight: 1.1 }}>LIFETIME ACCESS</Typography>
-                                                            <Globe size={10} className="text-amber-600 animate-pulse" />
+                                                            <Typography sx={{ fontSize: { xs: '0.58rem', sm: '0.7rem' }, fontWeight: 900, color: '#d97706', lineHeight: 1 }}>LIFETIME ACCESS</Typography>
+                                                            <Globe size={8} className="text-amber-600 animate-pulse" />
                                                         </Box>
                                                     ) : (
-                                                        <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#ef4444', lineHeight: 1.1 }}>{cardData.expiry_date}</Typography>
+                                                        <Typography sx={{ fontSize: { xs: '0.58rem', sm: '0.7rem' }, fontWeight: 700, color: '#ef4444', lineHeight: 1 }}>{cardData.expiry_date}</Typography>
                                                     )}
                                                 </Box>
                                             </Box>

@@ -24,13 +24,13 @@ export async function GET(request: Request) {
         let verification = null;
 
         if (query) {
-            // SEARCH BY QUERY (ID, Slug, or Passport)
+            // SEARCH BY QUERY (ID, Slug, or Passport) - Case Insensitive
             verification = await (prisma.verification as any).findFirst({
                 where: {
                     OR: [
-                        { id: query },
-                        { slug: query },
-                        { passportNumber: query }
+                        { id: { equals: query, mode: 'insensitive' } },
+                        { slug: { equals: query, mode: 'insensitive' } },
+                        { passportNumber: { equals: query, mode: 'insensitive' } }
                     ]
                 }
             });
@@ -55,40 +55,30 @@ export async function GET(request: Request) {
 
         if (!verification) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-        const data = await appendCombinedData(JSON.parse(JSON.stringify(verification)));
-        const maskedData = maskVerificationData(data);
+        // Hardening: Explicitly ensure the access control fields are part of the object
+        const verificationData = {
+            ...JSON.parse(JSON.stringify(verification)),
+            isIdivPurchased: verification.isIdivPurchased || false,
+            idivPreviewExpiresAt: verification.idivPreviewExpiresAt || null
+        };
+
+        const data = await appendCombinedData(verificationData);
         
         // Unpack visaActiveUrl from JSON-packed address
-        if (maskedData && maskedData.address) {
+        if (data && data.address) {
             try {
-                const addrParsed = JSON.parse(maskedData.address);
+                const addrParsed = JSON.parse(data.address);
                 if (addrParsed.visaActiveUrl) {
-                    maskedData.visaActiveUrl = addrParsed.visaActiveUrl;
+                    data.visaActiveUrl = addrParsed.visaActiveUrl;
                 }
             } catch { /* address is plain text, no visaActiveUrl */ }
         }
         
-        return NextResponse.json(maskedData);
+        return NextResponse.json(data);
     } catch (error) {
         console.error('Get verification error:', error);
         return NextResponse.json({ error: 'Failed to fetch verification' }, { status: 500 });
     }
-}
-
-// HELPER: Mask Sensitive Information for Public Search
-function maskVerificationData(data: any) {
-    if (!data) return null;
-    
-    // Passport: Mask everything except last 3
-    if (data.passportNumber && typeof data.passportNumber === 'string') {
-        const p = data.passportNumber;
-        data.passportNumber = p.length > 5 ? p.substring(0, 2) + "*****" + p.slice(-3) : "*****" + p.slice(-2);
-    }
-    
-    // If we have an invoice, mask its exact ID if it's sensitive, 
-    // but the user wants it to match the slug, so it's probably fine.
-    
-    return data;
 }
 
 // HELPER: Fetch Combined Data (Application + Invoice)
@@ -150,8 +140,17 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { id, userId, fullName, passportNumber, visaType, status, address, nationality, photoUrl } = body;
 
+        // Normalization & Sanitization: Uppercase and strip HTML tags
+        const sanitize = (str: any) => (typeof str === 'string' && str) ? str.replace(/<[^>]*>?/gm, '').toUpperCase() : str;
+
+        const fullNameFinal = sanitize(fullName);
+        const passportNumberFinal = sanitize(passportNumber);
+        const visaTypeFinal = sanitize(visaType);
+        const nationalityFinal = sanitize(nationality);
+        const addressFinal = sanitize(address); // Also sanitize address as it could contain XSS payloads
+
         // Basic validation
-        if (!fullName || !passportNumber) {
+        if (!fullNameFinal || !passportNumberFinal) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
@@ -165,14 +164,14 @@ export async function POST(request: Request) {
             const updated = await (prisma.verification as any).update({
                 where: { id },
                 data: {
-                    fullName,
-                    passportNumber,
-                    visaType,
+                    fullName: fullNameFinal,
+                    passportNumber: passportNumberFinal,
+                    visaType: visaTypeFinal,
                     status: status || 'VALID',
                     issuedDate,
                     expiresAt,
-                    address,
-                    nationality,
+                    address: addressFinal,
+                    nationality: nationalityFinal,
                     photoUrl,
                     updatedAt: now
                 }
@@ -189,15 +188,15 @@ export async function POST(request: Request) {
             const newVerification = await (prisma.verification as any).create({
                 data: {
                     userId: userId || null,
-                    fullName,
-                    passportNumber,
-                    visaType,
+                    fullName: fullNameFinal,
+                    passportNumber: passportNumberFinal,
+                    visaType: visaTypeFinal,
                     status: status || 'VALID',
                     slug,
                     issuedDate,
                     expiresAt,
-                    address,
-                    nationality,
+                    address: addressFinal,
+                    nationality: nationalityFinal,
                     photoUrl
                 }
             });

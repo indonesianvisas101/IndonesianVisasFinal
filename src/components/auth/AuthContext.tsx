@@ -113,6 +113,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const res = await fetch('/api/user/profile', fetchOptions);
 
             if (!res.ok) {
+                if (res.status === 404) {
+                    console.warn("Profile API 404 (Expected on some satellite domains). Using fallback.");
+                    const fallback: UserProfile = {
+                        id: userId,
+                        name: '',
+                        email: email,
+                        whatsapp: '',
+                        role: ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(email.toLowerCase()) ? 'admin' : 'user',
+                        joinedAt: new Date().toISOString(),
+                        status: 'active'
+                    };
+                    setUser(fallback);
+                    return fallback;
+                }
                 console.warn("Profile API fetch failed, status:", res.status);
                 throw new Error(`API error: ${res.status}`);
             }

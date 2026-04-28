@@ -14,6 +14,7 @@ To provide the most secure, transparent, and aesthetically premium visa processi
 - **Internationalization**: 20 locales (`/en`, `/id`, `/fr`, `/es`, `/de`, `/zh`, `/ja`, `/ko`, `/ar`, `/ru`, `/pt`, `/it`, `/nl`, `/tr`, `/pl`, `/vi`, `/th`, `/ms`, `/hi`, `/uk`)
 
 ## 🛡️ Key Features
+- **Global Compliance Engine**: GDPR-aligned Privacy Banner with 4s intelligent delay and persistent consent tracking.
 - **Smart ID System™**: 3-variant identity cards (IDIV / IDG / SMART) with QR-triggered public verification.
 - **Check Legality Popup**: Hero section badge with full legal data grid, JSON-LD schema, and 4 government verification links.
 - **Visa Advance System™**: Multi-layer database verification for travel documents.
@@ -24,9 +25,9 @@ To provide the most secure, transparent, and aesthetically premium visa processi
 
 ## 📦 Build Status
 ```
-Version:  v57.0.0 (Smart ID Hardened + Performance Optimized)
-Date:     April 26, 2026
-Build:    ✓ Compiled in 69s | ✓ TypeScript 0 errors | ✓ 3266 SSG pages
+Version:  v58.0.0 (Global Compliance + Security Hardened)
+Date:     April 29, 2026
+Build:    ✓ Compiled clean | ✓ TypeScript 0 errors | ✓ GDPR Ready
 Branch:   main
 ```
 

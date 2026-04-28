@@ -13,7 +13,6 @@ import GlobalUIOverlay from "@/components/ui/GlobalUIOverlay";
 import { Suspense } from "react";
 import GoogleTagManagerWrapper from "@/components/common/GoogleTagManagerWrapper";
 import GlobalInfoPopup from "@/components/common/GlobalInfoPopup";
-
 const inter = Inter({
   subsets: ["latin"],
   display: 'swap',
@@ -168,9 +167,11 @@ export default async function LocaleLayout({
               "foundingDate": "2010",
               "logo": `${APP_URL}/Favicon.webp`,
               "taxID": "100000008117681",
+              "privacyPolicy": `${APP_URL}/privacy-policy`,
               "email": "contact@indonesianvisas.agency",
               "telephone": "+62-857-2704-1992",
               "knowsAbout": [
+                "GDPR", "Data Privacy", "Indonesian Immigration Law",
                 "Direct Visa Sponsorship (B1, C1, C12, D1, D2, D12, E33G, E28A)",
                 "KBLI 79111 - Travel Agency Services",
                 "Global Citizen of Indonesia (GCI) Program",

@@ -3,6 +3,7 @@ import SectionWrapper from "@/components/layout/SectionWrapper";
 import { getMessages } from "@/i18n/getMessages";
 
 import { Metadata } from 'next';
+import { ShieldCheck } from "lucide-react";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -21,77 +22,133 @@ export default async function TermsAndConditionsPage({ params }: { params: Promi
     const t = dict?.terms_conditions_page || {};
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#030712] transition-colors duration-300 pt-32 pb-20">
+        <div className="min-h-screen bg-white dark:bg-[#030712] transition-colors duration-300 pt-32 pb-20 overflow-x-hidden">
             <SectionWrapper>
-                <div className="max-w-4xl mx-auto px-4">
-                    <h1 className="text-4xl md:text-6xl font-black mode-aware-text mb-8 tracking-tighter">
-                        {t.title || "Terms & Conditions"}
-                    </h1>
+                <div className="max-w-4xl mx-auto px-4 md:px-0">
+                    <div className="space-y-2 mb-12">
+                        <h4 className="text-primary font-black uppercase tracking-[0.3em] text-xs">Contractual Agreement</h4>
+                        <h1 className="text-5xl md:text-8xl font-black mode-aware-text tracking-tighter leading-[0.9]">
+                            Terms & <br/>Conditions.
+                        </h1>
+                    </div>
 
-                    <div className="space-y-12">
-                        <div className="bg-white dark:bg-white/5 p-10 rounded-[3rem] border border-slate-100 dark:border-white/10 shadow-sm space-y-4 font-bold mode-aware-subtext">
-                            <p className="text-primary uppercase tracking-widest text-sm">Official Entity: PT Indonesian Visas Agency™</p>
-                            <p>Parent Ecosystem: <span className="text-primary">Bali Enterprises Group</span></p>
-                            <p>NIB (Registration): 0402260034806</p>
-                            <p>AHU (Justice Min): AHU-00065.AH.02.01.TAHUN 2020</p>
-                            <p>Address: Jl. Tibung Sari No.11C, Denpasar, Bali 80117</p>
-                        </div>
-
-                        <div className="bg-amber-50 dark:bg-amber-900/10 border-l-4 border-amber-500 p-8 rounded-[2rem]">
-                            <h3 className="text-xl font-black text-amber-900 dark:text-amber-100 mb-2 uppercase">Strict Legal Disclaimer</h3>
-                            <p className="text-amber-800 dark:text-amber-200 leading-relaxed font-medium">
-                                We are a private administrative agency. We <strong>cannot guarantee</strong> visa approval as all final decisions are made by the Indonesian Directorate General of Immigration. We operate as your representative to bridge the administrative gap.
+                    <div className="space-y-16">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 border-y border-slate-200 dark:border-white/10">
+                            <p className="font-black text-slate-500 uppercase tracking-widest text-[10px]">
+                                Version 4.1.2 | Revised April 2026
+                            </p>
+                            <p className="font-black text-primary uppercase tracking-widest text-[10px]">
+                                Governing Law: Republic of Indonesia
                             </p>
                         </div>
 
-                        <div className="grid gap-12 mode-aware-subtext leading-relaxed text-lg font-medium">
-                            <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">1. Scope of Private Agency Services</h2>
+                        <div className="bg-slate-900 text-white p-10 md:p-14 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+                            <div className="absolute -bottom-10 -right-10 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <ShieldCheck size={300} />
+                            </div>
+                            <div className="relative z-10 space-y-6">
+                                <h3 className="text-2xl font-black tracking-tight italic">Corporate Identification</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                                    <div className="space-y-1 text-slate-400">
+                                        <p className="text-primary uppercase tracking-widest text-[10px] font-black">Contracting Entity</p>
+                                        <p className="text-white font-black text-lg">PT Indonesian Visas Agency™</p>
+                                        <p>Bali Enterprises Group Ecosystem</p>
+                                    </div>
+                                    <div className="space-y-1 text-slate-400">
+                                        <p className="text-primary uppercase tracking-widest text-[10px] font-black">Registration Authority</p>
+                                        <p className="text-white font-black">NIB: 0402260034806</p>
+                                        <p>AHU-00065.AH.02.01.TAHUN 2020</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-16 mode-aware-subtext leading-relaxed text-base md:text-lg font-medium">
+                            {/* Section 1 */}
+                            <section className="space-y-6">
+                                <div className="flex items-center gap-4">
+                                    <span className="text-4xl font-black text-primary/20 italic">01</span>
+                                    <h2 className="text-3xl font-black mode-aware-text tracking-tight">Scope of Professional Agency</h2>
+                                </div>
                                 <p>
-                                    PT Indonesian Visas Agency™ provides document preparation, legal consultation, and sponsorship facilitation. By using this service, you acknowledge that you are hiring a <strong>third-party logistics and legal provider</strong>, not dealing directly with the government via this portal.
+                                    PT Indonesian Visas Agency™ (the "Agency") acts exclusively as a private administrative facilitator and legal liaison. We provide document preparation, sponsorship guarantees, and logistics for Indonesian immigration processes. We are <strong>not</strong> the visa-issuing authority. The sovereign right to grant or deny entry remains solely with the Indonesian Directorate General of Immigration.
                                 </p>
                             </section>
 
-                            <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">2. Absolute Data Accuracy</h2>
+                            {/* Section 2 */}
+                            <section className="space-y-6 p-8 md:p-12 bg-amber-500/5 border border-amber-500/20 rounded-[3rem]">
+                                <div className="flex items-center gap-4">
+                                    <span className="text-4xl font-black text-amber-500/20 italic">02</span>
+                                    <h2 className="text-3xl font-black mode-aware-text tracking-tight">Financial Terms & Pricing</h2>
+                                </div>
                                 <p>
-                                    Clients are solely responsible for the authenticity of the documents provided. Any rejection based on falsified data or documentation is the sole liability of the client. The Agency shall not be held liable for immigration bans resulting from client misinformation.
+                                    Our service fees are transparent and all-inclusive of <strong>VAT (PPN 11%)</strong> and applicable <strong>PPH 23</strong> corporate taxes. 
+                                </p>
+                                <ul className="space-y-4">
+                                    <li className="flex items-start gap-4">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2.5 shrink-0" />
+                                        <span className="text-sm"><strong>Price Finality:</strong> All quoted prices on the platform are final at the time of payment.</span>
+                                    </li>
+                                    <li className="flex items-start gap-4">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2.5 shrink-0" />
+                                        <span className="text-sm"><strong>Payment Gateways:</strong> Transaction fees (DOKU/PayPal/Midtrans) are processed as part of the total invoice and are non-refundable.</span>
+                                    </li>
+                                </ul>
+                            </section>
+
+                            {/* Section 3 */}
+                            <section className="space-y-6">
+                                <div className="flex items-center gap-4">
+                                    <span className="text-4xl font-black text-primary/20 italic">03</span>
+                                    <h2 className="text-3xl font-black mode-aware-text tracking-tight">Absolute Document Integrity</h2>
+                                </div>
+                                <p>
+                                    The Client warrants that all information provided—specifically Passport Biometrics and Financial Statements—is authentic and unaltered. The Agency holds <strong>zero liability</strong> for immigration rejections, blacklisting, or legal prosecution resulting from the submission of fraudulent data by the client.
                                 </p>
                             </section>
 
-                            <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">3. Rejection & Discretionary Delays</h2>
+                            {/* Section 4 */}
+                            <section className="space-y-6">
+                                <div className="flex items-center gap-4">
+                                    <span className="text-4xl font-black text-primary/20 italic">04</span>
+                                    <h2 className="text-3xl font-black mode-aware-text tracking-tight">Sponsorship & Legal Conduct</h2>
+                                </div>
                                 <p>
-                                    Visa processing times are estimates provided by the government. The Agency is not responsible for "System Maintenances" at the Immigration level or discretionary delays caused by governmental scrutiny. We do not provide "guaranteed processing speed" as we do not control the final issuance.
+                                    For KITAS/KITAP residents where the Agency serves as the "Sponsor of Record", the Client must adhere to all local regulations. Any involvement in illegal activities or unauthorized employment gives the Agency the immediate right to <strong>revoke sponsorship</strong> and report the Client to the authorities.
                                 </p>
                             </section>
 
-                            <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">4. Sponsorship Obligations</h2>
+                            {/* Section 5 */}
+                            <section className="space-y-6">
+                                <div className="flex items-center gap-4">
+                                    <span className="text-4xl font-black text-primary/20 italic">05</span>
+                                    <h2 className="text-3xl font-black mode-aware-text tracking-tight">Governing Law & Jurisdiction</h2>
+                                </div>
                                 <p>
-                                    For KITAS/KITAP clients where the Agency acts as the official sponsor, the client agrees to maintain strict compliance with Indonesian law. Failure to report address changes or engage in illegal work allows the Agency to unilaterally report and cancel sponsored stay permits.
-                                </p>
-                            </section>
-
-                            <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">5. Limitation of Liability</h2>
-                                <p>
-                                    In no event shall PT Indonesian Visas Agency™ be liable for any indirect, incidental, or consequential damages (including missed flights or business losses) arising out of visa rejections or processing delays. Our liability is limited to the service fee paid to the Agency.
-                                </p>
-                            </section>
-
-                            <section className="space-y-4">
-                                <h2 className="text-2xl font-black mode-aware-text">6. Governing Law & Dispute</h2>
-                                <p>
-                                    These terms are governed by the laws of the Republic of Indonesia. Any disputes arising from these terms shall be settled via the Denpasar District Court, Bali.
+                                    This agreement is governed by the laws of the Republic of Indonesia. Any disputes that cannot be resolved through amicable mediation shall be brought before the <strong>District Court of Denpasar (Pengadilan Negeri Denpasar)</strong>, Bali.
                                 </p>
                             </section>
                         </div>
 
-                        <div className="p-10 bg-primary/5 dark:bg-primary/20 rounded-[3rem] border border-primary/20">
-                            <p className="text-lg font-bold italic mode-aware-text leading-relaxed">
-                                Binding Agreement: By making a payment or initiating a document upload, you legally bind yourself to these Terms & Conditions.
-                            </p>
+                        {/* Agreement Card */}
+                        <div className="relative bg-primary p-12 md:p-20 rounded-[4rem] text-white text-center shadow-2xl overflow-hidden group">
+                            <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-10" />
+                            <div className="relative z-10 space-y-8">
+                                <h2 className="text-4xl md:text-7xl font-black tracking-tighter leading-tight">Legally <br/>Binding.</h2>
+                                <p className="text-lg md:text-2xl font-bold opacity-80 max-w-2xl mx-auto">
+                                    By initiating any financial transaction or uploading documentation, you acknowledge full acceptance of these Terms & Conditions without reservation.
+                                </p>
+                                <div className="pt-8 flex flex-col md:flex-row items-center justify-center gap-8">
+                                    <div className="text-left border-l-4 border-white/20 pl-6">
+                                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Corporate Seal</p>
+                                        <p className="font-black text-lg">Indonesian Visas Agency</p>
+                                    </div>
+                                    <div className="text-left border-l-4 border-white/20 pl-6">
+                                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Verified Compliance</p>
+                                        <p className="font-black text-lg">NIB 0402260034806</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

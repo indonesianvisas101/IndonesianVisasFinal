@@ -8,7 +8,7 @@ import { slugify } from '@/utils/slugify'
 import { IDIV_DOC_PATHS } from '@/constants/paths'
 
 const RATE_LIMIT_MAP = new Map<string, { count: number, reset: number }>();
-const LIMIT = 100; // 100 requests
+const LIMIT = 1000; // Increased to 1000 requests to prevent 429 in dashboard usage
 const WINDOW = 60 * 1000; // 1 minute
 
 export async function middleware(request: NextRequest) {
@@ -46,9 +46,10 @@ export async function proxy(request: NextRequest) {
     }
 
     // Handle API specifically - usually global/non-localized
+    // OPTIMIZATION: Skip session update in middleware for API routes to avoid latency.
+    // The API routes themselves (src/app/api/...) handle their own auth/refresh via createClient().
     if (pathname.startsWith('/api')) {
-        const { response } = await updateSession(request);
-        return response; // NextResponse.next() correctly continues to API route
+        return NextResponse.next();
     }
 
     // 0. NEW: Support for clean IDIV Doc URLs
@@ -151,7 +152,16 @@ export async function proxy(request: NextRequest) {
     }
 
     // 8. Finalize Marketing Attribution
-    return await handleMarketingAttribution(request, response);
+    response = await handleMarketingAttribution(request, response);
+
+    // 9. Hardening: Security Headers
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+
+    return response;
 }
 
 function isPublicRoute(path: string) {

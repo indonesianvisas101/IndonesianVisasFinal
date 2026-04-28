@@ -187,10 +187,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       },
       {
         '@type': 'Question',
-        'name': 'Do you provide assistance for local documents like KTP or SIM?',
+        'name': 'Is IndonesianVisas.com compliant with international data privacy standards?',
         'acceptedAnswer': {
           '@type': 'Answer',
-          'text': 'Yes, we provide specialized legal assistance for state documentation including Family Card (KK), ID Card (KTP) for KITAS/KITAP holders, Driving License (SIM) for expats, and Police Record (SKCK) for foreigners residing in Indonesia.'
+          'text': 'Absolutely. We implement Global Compliance Standards, including GDPR-aligned privacy protocols and Indonesian Law No. 27/2022. Our platform uses secure 256-bit encryption, local caching for data integrity, and strict cookie policies to protect your sensitive passport and biometric information.'
         }
       }
     ]

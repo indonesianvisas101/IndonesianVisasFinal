@@ -18,28 +18,29 @@ export async function GET(request: Request) {
 
         // 1. GET SINGLE INVOICE (Detailed) - By ID OR Slug
         if (id || slug) {
-            let whereClause = '';
-            let param = '';
+            let rawApps: any[] = [];
 
             if (id) {
-                whereClause = 'WHERE a."id" = $1';
-                param = id;
+                // Use safe parameterized queryRaw
+                rawApps = await prisma.$queryRaw`
+                    SELECT a.*, i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
+                           i."serviceFee", i."gatewayFee", i."pph23Amount"
+                    FROM "visa_applications" a
+                    LEFT JOIN "invoices" i ON a.id = i."applicationId"
+                    WHERE a."id" = ${id}
+                `;
             } else {
-                whereClause = 'WHERE a."slug" = $1';
-                param = slug!;
+                rawApps = await prisma.$queryRaw`
+                    SELECT a.*, i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
+                           i."serviceFee", i."gatewayFee", i."pph23Amount"
+                    FROM "visa_applications" a
+                    LEFT JOIN "invoices" i ON a.id = i."applicationId"
+                    WHERE a."slug" = ${slug}
+                `;
             }
 
-            // Fetch with Invoice joined to ensure latest Admin Edits are visible
-            const rawApps = await prisma.$queryRawUnsafe(`
-                SELECT a.*, i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
-                       i."serviceFee", i."gatewayFee", i."pph23Amount"
-                FROM "visa_applications" a
-                LEFT JOIN "invoices" i ON a.id = i."applicationId"
-                ${whereClause}
-            `, param) as any[];
-
             if (!rawApps || rawApps.length === 0) {
-                console.error(`Application not found for ${id ? 'id' : 'slug'}: ${param}`);
+                console.error(`Application not found for ${id ? 'id' : 'slug'}: ${id || slug}`);
                 return NextResponse.json({ error: 'Invoice or Application not found' }, { status: 404 });
             }
             const app = rawApps[0];
@@ -52,12 +53,12 @@ export async function GET(request: Request) {
 
             let verificationData = null;
             if (app.verificationId) {
-                const verifResult: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM "Verification" WHERE id = $1`, app.verificationId);
+                const verifResult: any[] = await prisma.$queryRaw`SELECT * FROM "Verification" WHERE id = ${app.verificationId}`;
                 if (verifResult.length > 0) {
                     verificationData = verifResult[0];
                 }
             } else if (uId) {
-                const verifResult: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM "Verification" WHERE "userId" = $1::uuid`, uId);
+                const verifResult: any[] = await prisma.$queryRaw`SELECT * FROM "Verification" WHERE "userId" = ${uId}::uuid`;
                 if (verifResult.length > 0) {
                     verificationData = verifResult[0];
                 }
@@ -198,10 +199,17 @@ export async function POST(request: Request) {
             for (const body of appsToProcess) {
                 const {
                     userId, visaId, visaName, status,
-                    guestName, guestEmail, guestAddress, paymentMethod, customAmount,
+                    guestName: rawGuestName, guestEmail, guestAddress: rawGuestAddress, paymentMethod, customAmount,
                     verificationId, appliedAt, visaAmount, addonsAmount,
                     paymentReference, adminNotes, documents, attribution, quantity, upsells
                 } = body;
+
+                // Normalization & Sanitization: Default to Uppercase and strip HTML tags (TS safe)
+                const sanitize = (str: any) => (typeof str === 'string' && str) ? str.replace(/<[^>]*>?/gm, '').toUpperCase() : null;
+                
+                const guestName = sanitize(rawGuestName);
+                const guestAddress = sanitize(rawGuestAddress);
+                const visaNameFinal = sanitize(visaName) || (typeof visaId === 'string' ? visaId.toUpperCase() : 'VISA');
 
                 const finalUserId = (userId && userId.trim() !== "") ? userId : undefined;
                 const id = crypto.randomUUID();
@@ -232,10 +240,16 @@ export async function POST(request: Request) {
 
                 // --- 1.5 AUTO-CREATE VERIFICATION (If not provided) ---
                 let finalVerificationId = verificationId;
+                let activeVerifSlug = null;
+
                 if (!finalVerificationId) {
                     const newVerifId = crypto.randomUUID();
                     const verifSlug = crypto.randomBytes(4).toString('hex');
-                    const passportNum = `DUMMY-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
+                    activeVerifSlug = verifSlug;
+                    
+                    // SYNC: Pull Passport Number from Attribution if available, otherwise dummy
+                    const passportNum = attribution?.passport || attribution?.passportNumber || `DUMMY-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
+                    
                     const guestNameFinal = guestName || (finalUserId ? (await tx.user.findUnique({ where: { id: finalUserId } }))?.name : null) || "Guest";
 
                     const photoUrl = documents?.recentPhoto || null;
@@ -260,6 +274,9 @@ export async function POST(request: Request) {
                     `, newVerifId, finalUserId || null, guestNameFinal, passportNum, visaName || visaId || 'Visa', status === 'Approved' || status === 'Active' ? 'VALID' : 'PENDING', verifSlug, now, photoUrl, packedAddress, nationality);
 
                     finalVerificationId = newVerifId;
+                } else {
+                    const existingVerif = await tx.$queryRawUnsafe(`SELECT slug FROM "Verification" WHERE id = $1`, finalVerificationId) as any[];
+                    activeVerifSlug = existingVerif[0]?.slug;
                 }
 
                 // --- 2. CREATE APPLICATION ---
@@ -268,7 +285,7 @@ export async function POST(request: Request) {
                         id,
                         userId: finalUserId,
                         visaId,
-                        visaName,
+                        visaName: visaNameFinal,
                         status: status || 'Apply to Agent',
                         guestName,
                         guestEmail,
@@ -346,14 +363,14 @@ ${adminNotes || 'No additional notes provided.'}
                     }
                 });
 
-                createdData.push({ application, invoice, slug, actor, richSummary });
+                createdData.push({ application, invoice, slug, actor, richSummary, verificationSlug: activeVerifSlug });
             }
             return createdData;
         });
 
         // --- SIDE EFFECTS (Post-Transaction) ---
         for (const data of results) {
-            const { application, invoice, slug, actor, richSummary } = data;
+            const { application, invoice, slug, actor, richSummary, verificationSlug } = data;
             
             // 4.5 REALTIME BROADCAST
             try {
@@ -377,17 +394,28 @@ ${adminNotes || 'No additional notes provided.'}
                 await logAdminAction(actor.id, "CREATE_APPLICATION", "Application", application.id, { slug, status: application.status, userId: application.userId });
             }
 
-            // 6. EMAILS
+            // 6. EMAILS (DELAYED 15s)
             const recipientEmail = application.guestEmail || (application.userId ? (await prisma.user.findUnique({ where: { id: application.userId } }))?.email : null);
             if (recipientEmail) {
                 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
-                await sendConfirmationEmail(recipientEmail, {
-                    applicantName: application.guestName || 'Applicant',
-                    visaType: application.visaName || application.visaId,
-                    invoiceUrl: `${appUrl}/invoice/${slug}`,
-                    orderId: slug,
-                    isPayPal: application.paymentMethod?.toLowerCase().includes('paypal')
-                });
+                
+                // USER REQUEST: Delay 15 seconds before sending confirmation email
+                setTimeout(async () => {
+                    try {
+                        await sendConfirmationEmail(recipientEmail, {
+                            applicantName: application.guestName || 'Applicant',
+                            visaType: application.visaName || application.visaId,
+                            invoiceUrl: `${appUrl}/invoice/${slug}`,
+                            orderId: slug,
+                            isPayPal: application.paymentMethod?.toLowerCase().includes('paypal'),
+                            hasIdiv: !!application.attribution?.upsells?.idiv,
+                            verificationSlug: verificationSlug
+                        });
+                        // Delayed confirmation email sent successfully
+                    } catch (emailErr) {
+                        console.error("Delayed email failed", emailErr);
+                    }
+                }, 15000); 
             }
 
             // 7. NOTIFICATIONS
@@ -444,8 +472,10 @@ export async function PATCH(request: Request) {
             id: targetId, status: newStatus, paymentReference, adminNotes, 
             paymentMethod, paymentStatus, guestName, guestEmail, 
             visaName, customAmount, userId, quantity, 
-            attribution // FIX: Support attribution edits from frontend
+            attribution 
         } = body;
+
+        const visaNameFinal = visaName?.toUpperCase();
 
         if (!targetId) return NextResponse.json({ error: "ID Required" }, { status: 400 });
 
@@ -454,7 +484,7 @@ export async function PATCH(request: Request) {
         if (newStatus !== undefined) appUpdateData.status = newStatus;
         if (guestName !== undefined) appUpdateData.guestName = guestName;
         if (guestEmail !== undefined) appUpdateData.guestEmail = guestEmail;
-        if (visaName !== undefined) appUpdateData.visaName = visaName;
+        if (visaNameFinal !== undefined) appUpdateData.visaName = visaNameFinal;
         if (customAmount !== undefined) appUpdateData.customAmount = String(customAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '');
         if (userId !== undefined) appUpdateData.userId = userId ? userId : null;
         if (quantity !== undefined) appUpdateData.quantity = parseInt(String(quantity)) || 1;
@@ -533,51 +563,53 @@ export async function PATCH(request: Request) {
         if (newStatus || paymentStatus) {
             try {
                 // Find user associated with this application
-                const appRow: any[] = await prisma.$queryRawUnsafe(`SELECT "user_id", "visaName", "slug" FROM "visa_applications" WHERE id = $1`, targetId);
-                if (appRow.length > 0 && appRow[0].user_id) {
-                    const uId = appRow[0].user_id;
-                    const vName = appRow[0].visaName || "Visa";
-                    const slug = appRow[0].slug;
-                    
-                    let notifTitle = "Application Updated";
-                    let notifMsg = `Your application for ${vName} has been updated.`;
-                    
-                    if (newStatus) {
-                        notifTitle = `Visa Status: ${newStatus}`;
-                        notifMsg = `Your visa application status is now ${newStatus}.`;
-                    } else if (paymentStatus) {
-                        notifTitle = `Payment Status: ${paymentStatus}`;
-                        notifMsg = `Your invoice payment status is now ${paymentStatus}.`;
+                    // Safe Query
+                    const appRow: any[] = await prisma.$queryRaw`SELECT "user_id", "visaName", "slug" FROM "visa_applications" WHERE id = ${targetId}`;
+                    if (appRow.length > 0 && appRow[0].user_id) {
+                        const uId = appRow[0].user_id;
+                        const vName = appRow[0].visaName || "Visa";
+                        const slug = appRow[0].slug;
+                        
+                        let notifTitle = "Application Updated";
+                        let notifMsg = `Your application for ${vName} has been updated.`;
+                        
+                        if (newStatus) {
+                            notifTitle = `Visa Status: ${newStatus}`;
+                            notifMsg = `Your visa application status is now ${newStatus}.`;
+                        } else if (paymentStatus) {
+                            notifTitle = `Payment Status: ${paymentStatus}`;
+                            notifMsg = `Your invoice payment status is now ${paymentStatus}.`;
+                        }
+                        
+                        const notifId = crypto.randomUUID();
+                        await prisma.$executeRaw`
+                            INSERT INTO "Notification" ("id", "userId", "title", "message", "type", "actionLink", "actionText", "createdAt")
+                            VALUES (${notifId}, ${uId}, ${notifTitle}, ${notifMsg}, 'success', ${`/invoice/${slug}`}, 'View Details', NOW())
+                        `;
                     }
-                    
-                    await prisma.$executeRawUnsafe(`
-                        INSERT INTO "Notification" ("id", "userId", "title", "message", "type", "actionLink", "actionText", "createdAt")
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-                    `, crypto.randomUUID(), uId, notifTitle, notifMsg, "success", `/invoice/${slug}`, "View Details");
+                } catch (e) {
+                    console.error("Failed to send update notification", e);
                 }
-            } catch (e) {
-                console.error("Failed to send update notification", e);
             }
+
+            return NextResponse.json({ success: true });
+        } catch (error: any) {
+            console.error("Update error:", error);
+            return NextResponse.json({ error: "Failed to update" }, { status: 500 });
         }
-
-        return NextResponse.json({ success: true });
-    } catch (error: any) {
-        console.error("Update error:", error);
-        return NextResponse.json({ error: "Failed to update" }, { status: 500 });
     }
-}
 
-export async function DELETE(request: Request) {
-    try {
-        const { authorized, error, status, dbUser } = await getAdminAuth();
-        if (!authorized) return NextResponse.json({ error }, { status });
+    export async function DELETE(request: Request) {
+        try {
+            const { authorized, error, status, dbUser } = await getAdminAuth();
+            if (!authorized) return NextResponse.json({ error }, { status });
 
-        const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
+            const { searchParams } = new URL(request.url);
+            const id = searchParams.get('id');
 
-        if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+            if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
-        await prisma.$queryRawUnsafe(`DELETE FROM "visa_applications" WHERE "id" = $1`, id);
+            await prisma.$executeRaw`DELETE FROM "visa_applications" WHERE "id" = ${id}`;
 
         // Also delete hardened invoice if calls cascade doesn't work (Prisma relation usually handles it if formatted right, but Raw SQL might not)
         await prisma.invoice.deleteMany({ where: { applicationId: id } });

@@ -25,7 +25,8 @@ export async function POST(req: Request) {
         const isProduction = process.env.NEXT_PUBLIC_DOKU_IS_PRODUCTION === 'true';
 
         if (!clientId || !secretKey) {
-            return NextResponse.json({ error: "DOKU configuration missing" }, { status: 500 });
+            console.error("[DOKU] Missing Client ID or Secret Key in ENV.");
+            return NextResponse.json({ error: "Payment Gateway configuration error. Please contact administrator." }, { status: 500 });
         }
 
         const baseUrl = isProduction 
@@ -132,14 +133,35 @@ export async function POST(req: Request) {
         try {
             const { sendPaymentReminderEmail } = await import('@/lib/email');
             
+            // Extract the "Real ID" from the unique reference (BaseId-Timestamp)
+            const baseId = invoiceId.includes('-') ? invoiceId.split('-').slice(0, -1).join('-') : invoiceId;
+
             // Fetch application name/visa for the email
-            const invoice = await prisma.invoice.findUnique({
-                where: { id: invoiceId }
+            // We try to find by Invoice ID first
+            let invoice = await prisma.invoice.findUnique({
+                where: { id: baseId }
             });
 
-            if (invoice?.applicationId) {
+            let applicationId = invoice?.applicationId;
+
+            // If not found as an invoice, it might be an Application ID (slug or ID)
+            if (!invoice) {
+                const app = await prisma.visaApplication.findFirst({
+                    where: { OR: [{ id: baseId }, { slug: baseId }] }
+                });
+                applicationId = app?.id;
+                
+                // Try to find the first invoice for this application
+                if (app) {
+                    invoice = await prisma.invoice.findFirst({
+                        where: { applicationId: app.id }
+                    });
+                }
+            }
+
+            if (applicationId) {
                 const application = await prisma.visaApplication.findUnique({
-                    where: { id: invoice.applicationId }
+                    where: { id: applicationId }
                 });
 
                 if (application) {

@@ -310,3 +310,15 @@ vercel-live-feedback,
 .animate-shake {
   animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }
+
+/* =========================
+   MOBILE MENU: Hide ChatBot
+   When mobile menu is open, ChatBot must stay behind the overlay.
+========================= */
+@media (max-width: 768px) {
+  body.mobile-menu-open .fixed.bottom-6.right-6 {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s ease;
+  }
+}

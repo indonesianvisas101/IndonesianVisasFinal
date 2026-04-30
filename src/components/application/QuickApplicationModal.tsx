@@ -378,7 +378,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                     {/* CTA */}
                     <button 
                         type="submit"
-                        className="w-full bg-primary text-black font-black py-5 rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 text-lg"
+                        className="w-full bg-[#4B0082] text-white font-black py-5 rounded-2xl shadow-xl shadow-indigo-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 text-lg"
                     >
                         Apply Now <Send size={20} />
                     </button>

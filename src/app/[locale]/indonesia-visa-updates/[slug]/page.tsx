@@ -43,20 +43,20 @@ export default async function NewsDetailPage(props: PageProps) {
     }
 
     return (
-        <SEOPageLayout
-            title={update.title}
-            description={update.summary || update.content.substring(0, 160)}
-        >
-            <article className="min-h-screen bg-slate-50 dark:bg-[#030712] transition-colors duration-500">
-                {/* PREMIUM HERO SECTION */}
-                <div className="relative pt-40 pb-20 overflow-hidden">
-                    <div className="container mx-auto px-4 relative z-10">
-                        <div className="max-w-4xl mx-auto">
+        <main className="min-h-screen bg-black overflow-x-hidden">
+            {/* PRE-HEADER SPACE */}
+            <div className="h-20 bg-black" />
+
+            <article className="pb-24">
+                {/* PREMIUM HERO SECTION - WIDER */}
+                <div className="relative pt-32 pb-20 overflow-hidden bg-gradient-to-b from-black to-[#050505]">
+                    <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
+                        <div className="max-w-5xl">
                             <Link 
                                 href={`/${locale}/indonesia-visa-updates`}
-                                className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-8 group"
+                                className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[10px] mb-12 group py-2 px-4 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
                             >
-                                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                                <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
                                 Back to All Intelligence
                             </Link>
 
@@ -69,9 +69,15 @@ export default async function NewsDetailPage(props: PageProps) {
                                 </span>
                             </div>
 
-                            <h1 className="text-4xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-10 italic">
+                            <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter leading-none mb-8 italic drop-shadow-2xl">
                                 {update.title}
                             </h1>
+
+                            {update.summary && (
+                                <p className="text-xl md:text-2xl text-white/60 font-medium leading-relaxed mb-10 max-w-4xl animate-fade-in delay-100">
+                                    {update.summary}
+                                </p>
+                            )}
 
                             <div className="flex flex-wrap items-center gap-8 text-slate-500 dark:text-slate-400 text-sm font-bold border-y border-slate-200 dark:border-white/5 py-6 mb-12">
                                 <div className="flex items-center gap-2">
@@ -95,13 +101,15 @@ export default async function NewsDetailPage(props: PageProps) {
                     <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-blue-500/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2" />
                 </div>
 
-                {/* CONTENT SECTION */}
-                <div className="container mx-auto px-4 pb-24">
-                    <div className="max-w-4xl mx-auto">
-                        <div className="grid lg:grid-cols-[1fr_250px] gap-16">
+                {/* CONTENT SECTION - OPTIMIZED READABILITY */}
+                <div className="max-w-[1400px] mx-auto px-6 md:px-12 mt-12">
+                    <div className="max-w-[1000px]">
+                        <div className="grid lg:grid-cols-[1fr_280px] gap-20">
                             {/* Main Content */}
                             <div>
-                                {update.image && (
+                                {update.image && 
+                                 !update.image.includes('gemini.google.com') && 
+                                 !update.image.includes('drive.google.com') && (
                                     <div className="relative aspect-video w-full rounded-[2rem] overflow-hidden mb-16 shadow-2xl border border-slate-200 dark:border-white/10">
                                         <Image 
                                             src={update.image} 
@@ -113,27 +121,47 @@ export default async function NewsDetailPage(props: PageProps) {
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                                     </div>
                                 )}
-
-                                <div className="prose prose-slate dark:prose-invert prose-lg max-w-none 
-                                    prose-headings:font-black prose-headings:tracking-tight prose-headings:italic
-                                    prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-p:leading-relaxed prose-p:text-xl
-                                    prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-black
-                                    prose-ul:list-none prose-ul:pl-0
-                                    prose-li:bg-slate-100 dark:prose-li:bg-white/5 prose-li:p-6 prose-li:rounded-2xl prose-li:mb-4 prose-li:border prose-li:border-slate-200 dark:prose-li:border-white/10
-                                ">
+                                <div className="space-y-8 text-white/80 text-xl leading-relaxed font-medium">
                                     {update.content.split('\n').map((para, i) => {
                                         const trimmed = para.trim();
                                         if (!trimmed) return <br key={i} />;
                                         
-                                        // Detect lists based on markdown-ish bullets
+                                        // SMART-LINK DETECTOR & LIST RENDERER
+                                        const renderTextWithLinks = (text: string) => {
+                                            const urlRegex = /(https?:\/\/[^\s]+)/g;
+                                            const parts = text.split(urlRegex);
+                                            return parts.map((part, index) => {
+                                                if (part.match(urlRegex)) {
+                                                    return (
+                                                        <a 
+                                                            key={index} 
+                                                            href={part} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="text-primary font-black underline underline-offset-4 hover:text-white transition-colors break-all"
+                                                        >
+                                                            {part}
+                                                        </a>
+                                                    );
+                                                }
+                                                return part;
+                                            });
+                                        };
+
                                         if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*')) {
-                                            return <p key={i} className="flex gap-4 items-center">
-                                                <Zap className="text-primary shrink-0" size={18} />
-                                                <span>{trimmed.substring(1).trim()}</span>
-                                            </p>;
+                                            return (
+                                                <div key={i} className="flex gap-6 items-start bg-white/5 p-8 rounded-[2rem] border border-white/10 group hover:bg-white/10 transition-colors">
+                                                    <Zap className="text-primary shrink-0 mt-1" size={24} />
+                                                    <span className="text-white">{renderTextWithLinks(trimmed.substring(1).trim())}</span>
+                                                </div>
+                                            );
                                         }
 
-                                        return <p key={i}>{trimmed}</p>;
+                                        return (
+                                            <p key={i} className="mode-aware-text-force-white text-white">
+                                                {renderTextWithLinks(trimmed)}
+                                            </p>
+                                        );
                                     })}
                                 </div>
                             </div>
@@ -162,31 +190,10 @@ export default async function NewsDetailPage(props: PageProps) {
                                 </div>
                             </aside>
                         </div>
-
-                        {/* AUTHOR FOOTER */}
-                        <footer className="mt-24 pt-16 border-t border-slate-200 dark:border-white/5">
-                            <div className="flex flex-wrap items-center justify-between gap-8">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-20 h-20 rounded-3xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-black">
-                                        <Newspaper size={32} />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Official Intelligence Source</p>
-                                        <p className="text-2xl font-black text-slate-900 dark:text-white italic">Indonesian Visas Agency Team</p>
-                                    </div>
-                                </div>
-                                <Link 
-                                    href={`/${locale}/indonesia-visa-guide-2026`}
-                                    className="px-10 py-5 rounded-2xl bg-primary text-black font-black hover:shadow-2xl hover:shadow-primary/40 transition-all hover:-translate-y-1"
-                                >
-                                    Read Ultimate Guide 2026
-                                </Link>
-                            </div>
-                        </footer>
                     </div>
                 </div>
             </article>
-        </SEOPageLayout>
+        </main>
     );
 }
 

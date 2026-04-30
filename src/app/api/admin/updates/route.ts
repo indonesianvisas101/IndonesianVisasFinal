@@ -4,6 +4,23 @@ import { supabase } from '@/lib/supabase'; // If needed for auth? Or use middlew
 
 export async function GET() {
     try {
+        // SUSTAINABLE HARDENING: Auto-publish drafts older than 10 minutes
+        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+        
+        try {
+            await prisma.immigrationUpdate.updateMany({
+                where: {
+                    published: false,
+                    createdAt: { lt: tenMinutesAgo }
+                },
+                data: {
+                    published: true
+                }
+            });
+        } catch (autoError) {
+            console.error("Auto-publish background task failed:", autoError);
+        }
+
         const updates = await prisma.immigrationUpdate.findMany({
             orderBy: { createdAt: 'desc' }
         });

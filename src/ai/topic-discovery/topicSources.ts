@@ -34,5 +34,20 @@ export const TOPIC_SOURCES = {
     { id: 'news-01', query: "Directorate General of Immigration Indonesia latest announcement", source: 'travel_regulatory', relevance: 1.0, intent: "News" },
     { id: 'news-02', query: "Indonesia visa fee changes 2026", source: 'travel_regulatory', relevance: 1.0, intent: "News" },
     { id: 'news-03', query: "Bali entry requirements update March 2026", source: 'travel_regulatory', relevance: 0.95, intent: "News" }
-  ]
+  ],
+
+  /**
+   * Fetches signals from internal project data (Sitemap, Most Popular, etc.)
+   */
+  getInternalSignals: async (): Promise<TopicSignal[]> => {
+    // 40% Target: Product Knowledge
+    const internalSignals: TopicSignal[] = [
+      { id: 'int-01', query: "C1 Visit Visa Benefits & Requirements", source: 'visa_faq', relevance: 1.0, intent: "Product" },
+      { id: 'int-02', query: "Global Citizen of Indonesia (GCI) Program Details", source: 'visa_faq', relevance: 1.0, intent: "Product" },
+      { id: 'int-03', query: "How Sponsor ID works for Indonesian Visas", source: 'visa_faq', relevance: 1.0, intent: "Product" }
+    ];
+    
+    // In a real execution, we would fetch from /api/sitemap or prisma here
+    return internalSignals;
+  }
 };

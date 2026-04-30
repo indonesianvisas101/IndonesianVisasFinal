@@ -155,13 +155,13 @@ export default function IDivCardModern({
                     perspective: '1200px', 
                     width: '100%',
                     maxWidth: { xs: '350px', sm: '420px' },
-                    aspectRatio: '1.58 / 1',
+                    aspectRatio: { xs: 'auto', sm: '1.58 / 1' },
                     margin: '0 auto',
                     cursor: 'pointer',
                     position: 'relative',
                     zIndex: 10,
-                    // Reclaim height on mobile to prevent clipping
-                    minHeight: { xs: '200px', sm: '265px' }
+                    // Full card visible on mobile — no clipping
+                    minHeight: { xs: '230px', sm: '265px' }
                 }}
                 onClick={() => setIsFlipped(!isFlipped)}
             >
@@ -187,9 +187,9 @@ export default function IDivCardModern({
                     <Box
                         id="idiv-front"
                         sx={{
-                            position: 'absolute',
+                            position: { xs: 'relative', sm: 'absolute' },
                             width: '100%',
-                            height: '100%',
+                            height: { xs: 'auto', sm: '100%' },
                             backfaceVisibility: 'hidden',
                             borderRadius: '16px', 
                             overflow: 'hidden',
@@ -198,7 +198,7 @@ export default function IDivCardModern({
                             border: '1px solid rgba(255,255,255,0.6)',
                             display: 'flex',
                             flexDirection: 'column',
-                            p: { xs: 1.8, sm: 3 }, // Reduced padding on mobile
+                            p: { xs: 1.8, sm: 3 },
                             color: '#1e293b',
                             transform: 'translateZ(1px)' 
                         }}
@@ -563,6 +563,8 @@ export default function IDivCardModern({
                         id="idiv-back"
                         sx={{
                             position: 'absolute',
+                            top: 0,
+                            left: 0,
                             width: '100%',
                             height: '100%',
                             backfaceVisibility: 'hidden',

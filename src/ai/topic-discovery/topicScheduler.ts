@@ -4,60 +4,146 @@ import { SOURCE_REGISTRY, AUTHORITY_CONTROL } from '../analysts/immigration-anal
 import prisma from '@/lib/prisma';
 
 /**
- * AI Topic Scheduler
- * Manages the orchestration of discovery and generation.
+ * AI Topic Scheduler - JARVIS VVIP EDITION
+ * Frequency: Every 10-15 minutes (via worker)
  */
 export const TOPIC_SCHEDULER = {
   /**
-   * Daily cycle to discover topics and propose articles.
+   * Main orchestration cycle.
    */
   async runDailyOrchestration() {
-    console.log("[TOPIC_SCHEDULER] Starting intelligence-hardened orchestration...");
+    console.log("[JARVIS_SCHEDULER] Initiating VVIP orchestration cycle...");
 
-    // 0. Seed Source Registry
-    await SOURCE_REGISTRY.seedSourceRegistry();
+    try {
+      await SOURCE_REGISTRY.seedSourceRegistry().catch(() => {});
 
-    // 1. Discover New Topics with Clusters
-    const opportunities = await AI_IMMIGRATION_ANALYST.identifyTopics();
-    console.log(`[TOPIC_SCHEDULER] Discovered ${opportunities.length} potential topics.`);
+      // --- TRACK 1: MANUAL VVIP PRIORITY (Target: < 10 mins execution) ---
+      await this.processVVIPManualQueue();
 
-    // 2. Filter by Rate Limits (2/day)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+      // --- TRACK 2: AI AUTOMATED RESEARCH (3-day cycle) ---
+      const now = new Date();
+      const hour = now.getHours();
+      if (hour === 2) {
+         await this.processAIAutomatedCycle();
+      }
 
-    const generatedToday = await prisma.aIChangeRequest.count({
-      where: {
-        initiatedBy: 'analyst',
-        createdAt: { gte: today }
+      // --- TRACK 3: AUTO-PUBLISH GUARDIAN (Target: Publish if idle > 10 mins) ---
+      await this.handleAutoPublishWatcher();
+
+    } catch (globalErr) {
+      console.error("[JARVIS_SCHEDULER] Global Error:", globalErr);
+    }
+  },
+
+  /**
+   * Processes the VVIP manual queue.
+   * Logic: Executes 1 per cycle if available. No 24h limit, only 10-min spacing.
+   */
+  async processVVIPManualQueue() {
+    console.log("[JARVIS_SCHEDULER] Scanning VVIP Manual Stack...");
+
+    // 1. Spacing Protection (Ensure at least 10 mins between any manual posts)
+    const recentManual = await prisma.aIChangeRequest.findFirst({
+      where: { 
+        initiatedBy: 'admin',
+        createdAt: { gte: new Date(Date.now() - 10 * 60 * 1000) }
       }
     });
 
-    if (generatedToday >= 2) {
-      console.log("[TOPIC_SCHEDULER] Rate limit reached (2/day). Skipping generation.");
+    if (recentManual) {
+      console.log("[JARVIS_SCHEDULER] VVIP slot occupied. Cooling down.");
       return;
     }
 
-    // 3. Propose Articles for the top opportunities
-    const toProcess = opportunities.slice(0, 2 - generatedToday);
+    // 2. Fetch queue
+    const manualQueue = await prisma.knowledgePage.findMany({
+      where: {
+        published: false,
+        metadata: { path: ['topic'], not: '' }
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 1
+    });
+
+    if (!manualQueue.length) return;
+
+    const target = manualQueue[0];
+    const topic = (target.metadata as any)?.topic;
+
+    console.log(`[JARVIS_SCHEDULER] Executing Master Instruction: ${topic}`);
     const author = await AUTHORITY_CONTROL.getDefaultAuthor();
     const sources = await SOURCE_REGISTRY.getOfficialSources();
+    
+    const article = await generateKnowledgeArticle(topic, author, sources);
+    const requestId = await AI_IMMIGRATION_ANALYST.proposeKnowledgePage(article, (target.category as any) || 'immigration-rules');
+    
+    if (requestId) {
+      await prisma.aIChangeRequest.update({
+        where: { requestId },
+        data: { initiatedBy: 'admin' }
+      });
+      console.log(`[JARVIS_SCHEDULER] VVIP SUCCESS: Article proposed for Master.`);
+    }
+  },
 
-    for (const opp of toProcess) {
-      console.log(`[TOPIC_SCHEDULER] Generating article for: ${opp.topic} [Cluster: ${opp.cluster}]`);
-      try {
-        const article = await generateKnowledgeArticle(opp.topic, author, sources);
-        
-        // Pass to analyst for proposal (analyst handles memory validation)
-        const requestId = await AI_IMMIGRATION_ANALYST.proposeKnowledgePage(article, opp.cluster);
-        
-        if (requestId) {
-          console.log(`[TOPIC_SCHEDULER] Proposed article ${opp.topic} with Request ID: ${requestId}`);
-        }
-      } catch (err) {
-        console.error(`[TOPIC_SCHEDULER] Failed to generate/propose topic: ${opp.topic}`, err);
+  /**
+   * AI cycle (Runs 1 article every 3 days)
+   */
+  async processAIAutomatedCycle() {
+    console.log("[JARVIS_SCHEDULER] Running Deep Discovery...");
+
+    const recentAI = await prisma.aIChangeRequest.findFirst({
+      where: { 
+        initiatedBy: 'analyst',
+        createdAt: { gte: new Date(Date.now() - 70 * 60 * 60 * 1000) }
       }
+    });
+
+    if (recentAI) return;
+
+    const opportunities = await AI_IMMIGRATION_ANALYST.identifyTopics().catch(() => []);
+    if (!opportunities.length) return;
+
+    const opp = opportunities[0];
+    const author = await AUTHORITY_CONTROL.getDefaultAuthor();
+    const sources = await SOURCE_REGISTRY.getOfficialSources();
+    
+    const article = await generateKnowledgeArticle(opp.topic, author, sources);
+    await AI_IMMIGRATION_ANALYST.proposeKnowledgePage(article, opp.cluster);
+  },
+
+  /**
+   * Auto-Publish Watcher
+   * Ensures content is published if Master forgets for > 10 minutes.
+   */
+  async handleAutoPublishWatcher() {
+    console.log("[JARVIS_SCHEDULER] Running Auto-Publish Guardian...");
+    const threshold = new Date(Date.now() - 10 * 60 * 1000); // 10 minutes ago
+
+    // 1. Auto-publish Knowledge Pages
+    const pendingKnowledge = await prisma.knowledgePage.updateMany({
+      where: {
+        published: false,
+        updatedAt: { lt: threshold }
+      },
+      data: { published: true }
+    });
+
+    if (pendingKnowledge.count > 0) {
+      console.log(`[JARVIS_SCHEDULER] AUTO-PUBLISHED: ${pendingKnowledge.count} Knowledge articles.`);
     }
 
-    console.log("[TOPIC_SCHEDULER] Intelligence orchestration complete.");
+    // 2. Auto-publish Immigration News
+    const pendingNews = await prisma.immigrationUpdate.updateMany({
+      where: {
+        published: false,
+        updatedAt: { lt: threshold }
+      },
+      data: { published: true }
+    });
+
+    if (pendingNews.count > 0) {
+      console.log(`[JARVIS_SCHEDULER] AUTO-PUBLISHED: ${pendingNews.count} News updates.`);
+    }
   }
 };

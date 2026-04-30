@@ -227,14 +227,18 @@
         width: 80%;
         max-width: 300px;
         height: 100vh;
-        background: var(--white);
+        background: #cdcacaff;
         flex-direction: column;
         padding: 5rem 2rem;
         gap: 1.5rem;
         transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: -10px 0 30px rgba(144, 144, 144, 0.45);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.45);
         align-items: flex-start;
         z-index: 1001;
+    }
+
+    :global(.dark) .desktopMenu {
+        background: #0f172a;
     }
 
     .desktopMenu.mobileOpen {
@@ -282,15 +286,16 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(107, 107, 107, 0.5);
+        background: rgba(0, 0, 0, 0.65);
         z-index: 1000;
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
     }
 
     .mobileDivider {
         height: 1px;
         width: 100%;
-        background: #f0f0f0;
+        background: #ffffffff;
         margin: 1rem 0;
     }
 

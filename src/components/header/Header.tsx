@@ -70,7 +70,19 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
     };
 
     const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
+        const next = !isMobileMenuOpen;
+        setIsMobileMenuOpen(next);
+        // Toggle body class so ChatBot can hide behind overlay on mobile
+        if (next) {
+            document.body.classList.add('mobile-menu-open');
+        } else {
+            document.body.classList.remove('mobile-menu-open');
+        }
+    };
+
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+        document.body.classList.remove('mobile-menu-open');
     };
 
     const isAdminOnAdminPage = user?.role === 'admin' && pathname?.startsWith('/admin');
@@ -123,16 +135,16 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                         )}
 
                         <div className={`${styles.desktopMenu} ${isMobileMenuOpen ? styles.mobileOpen : ""}`}>
-                            <Link href={formatNavLink(locale, "/")} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href={formatNavLink(locale, "/")} className={styles.navLink} onClick={closeMobileMenu}>
                                 {headerDict.home || "Home"}
                             </Link>
-                            <Link href={formatNavLink(locale, "/services")} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href={formatNavLink(locale, "/services")} className={styles.navLink} onClick={closeMobileMenu}>
                                 {headerDict.services || "Services"}
                             </Link>
-                            <Link href={formatNavLink(locale, "/about")} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href={formatNavLink(locale, "/about")} className={styles.navLink} onClick={closeMobileMenu}>
                                 {headerDict.about || "About"}
                             </Link>
-                            <Link href={formatNavLink(locale, "/faq")} className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href={formatNavLink(locale, "/faq")} className={styles.navLink} onClick={closeMobileMenu}>
                                 {headerDict.faq || "FAQ"}
                             </Link>
 
@@ -141,7 +153,7 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                                     <Link
                                         href={user.role === 'admin' ? formatNavLink(locale, "/admin") : formatNavLink(locale, `/${user.name ? user.name.toLowerCase().replace(/\s+/g, '_') : 'profile'}`)}
                                         className={styles.navLink}
-                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        onClick={closeMobileMenu}
                                     >
                                         {headerDict.dashboard || "Dashboard"}
                                     </Link>
@@ -154,7 +166,7 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                                 <div className="relative group">
                                     <button
                                         onClick={() => {
-                                            setIsMobileMenuOpen(false);
+                                            closeMobileMenu();
                                             setIsSearchOpen(true);
                                         }}
                                         onMouseEnter={() => handleSearchHover(true)}
@@ -174,7 +186,7 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                                 {!user ? (
                                     <Link
                                         href={formatNavLink(locale, "/login")}
-                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        onClick={closeMobileMenu}
                                         className={styles.themeBtn}
                                         role="button"
                                         title={headerDict.login || "Log In"}
@@ -215,7 +227,7 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                                 <button
                                     className={styles.contactBtn}
                                     onClick={() => {
-                                        setIsMobileMenuOpen(false);
+                                        closeMobileMenu();
                                         setIsContactModalOpen(true);
                                     }}
                                     style={{

@@ -17,6 +17,7 @@ interface Message {
     content: string;
     buttons?: ActionButton[];
     isMasterMode?: boolean;
+    timestamp?: Date;
 }
 
 // ─── Button Parser ──────────────────────────────────────────────────────────
@@ -53,7 +54,7 @@ export default function ChatBot() {
     const [masterModeLabel, setMasterModeLabel] = useState('');
 
     const [messages, setMessages] = useState<Message[]>([
-        { id: 'welcome-1', role: 'assistant', content: 'Hi! I\'m the AI assistant for Indonesian Visas. How can I help you today?' }
+        { id: 'welcome-1', role: 'assistant', content: 'Hi! I\'m the AI assistant for Indonesian Visas. How can I help you today?', timestamp: new Date() }
     ]);
     const [isLoading, setIsLoading] = useState(false);
     const [localInput, setLocalInput] = useState('');
@@ -90,11 +91,12 @@ export default function ChatBot() {
             setIsMasterMode(true);
             setMasterModeLabel('🔐 BOSS MODE ACTIVE');
             setMessages(prev => [...prev,
-                { id: Date.now().toString(), role: 'user', content: userMsgText },
+                { id: Date.now().toString(), role: 'user', content: userMsgText, timestamp: new Date() },
                 {
                     id: (Date.now() + 1).toString(), role: 'assistant', content:
                         '🔐 **Boss Mode activated via Secret Code.**\n\nGreetings, Boss. Redirecting your command to AI Master...',
-                    isMasterMode: true
+                    isMasterMode: true,
+                    timestamp: new Date()
                 }
             ]);
             
@@ -121,17 +123,18 @@ export default function ChatBot() {
                     setIsMasterMode(true);
                     setMasterModeLabel('🔐 AI MASTER MODE ACTIVE');
                     setMessages(prev => [...prev,
-                        { id: Date.now().toString(), role: 'user', content: userMsgText },
+                        { id: Date.now().toString(), role: 'user', content: userMsgText, timestamp: new Date() },
                         {
                             id: (Date.now() + 1).toString(), role: 'assistant', content:
                                 '🔐 **AI Master Mode activated.**\n\nGreetings, Boss. I am now in direct communication mode. All subsequent messages will be routed to AI Master. Type `exit` to return to normal mode.',
-                            isMasterMode: true
+                            isMasterMode: true,
+                            timestamp: new Date()
                         }
                     ]);
                 } else {
                     setMessages(prev => [...prev,
-                        { id: Date.now().toString(), role: 'user', content: userMsgText },
-                        { id: (Date.now() + 1).toString(), role: 'assistant', content: 'Hi! How can I assist you with Indonesian visas today?' }
+                        { id: Date.now().toString(), role: 'user', content: userMsgText, timestamp: new Date() },
+                        { id: (Date.now() + 1).toString(), role: 'assistant', content: 'Hi! How can I assist you with Indonesian visas today?', timestamp: new Date() }
                     ]);
                 }
             } catch { }
@@ -144,17 +147,17 @@ export default function ChatBot() {
             setIsMasterMode(false);
             setMasterModeLabel('');
             setMessages(prev => [...prev,
-            { id: Date.now().toString(), role: 'user', content: userMsgText },
-            { id: (Date.now() + 1).toString(), role: 'assistant', content: 'Returning to normal seller mode. How can I help your customers today?' }
+            { id: Date.now().toString(), role: 'user', content: userMsgText, timestamp: new Date() },
+            { id: (Date.now() + 1).toString(), role: 'assistant', content: 'Returning to normal seller mode. How can I help your customers today?', timestamp: new Date() }
             ]);
             setIsLoading(false);
             return;
         }
 
         // Add user message
-        const userMsg: Message = { id: Date.now().toString(), role: 'user', content: userMsgText };
+        const userMsg: Message = { id: Date.now().toString(), role: 'user', content: userMsgText, timestamp: new Date() };
         const assistantMsgId = (Date.now() + 1).toString();
-        setMessages(prev => [...prev, userMsg, { id: assistantMsgId, role: 'assistant', content: '' }]);
+        setMessages(prev => [...prev, userMsg, { id: assistantMsgId, role: 'assistant', content: '', timestamp: new Date() }]);
 
         try {
             const apiEndpoint = isMasterMode ? '/api/ai-master/chat' : '/api/chat';
@@ -173,32 +176,24 @@ export default function ChatBot() {
 
             if (!response.ok) throw new Error(response.statusText);
 
-            if (isMasterMode) {
-                // AI Master returns JSON, not a stream
-                const data = await response.json();
-                const aiText = data.text || '✅ Command received.';
+            // Master and Seller now both return a stream
+            if (!response.body) throw new Error('No response body');
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedContent = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                accumulatedContent += decoder.decode(value, { stream: true });
                 setMessages(prev => prev.map(m => m.id === assistantMsgId
-                    ? { ...m, content: aiText, isMasterMode: true }
+                    ? { ...m, content: accumulatedContent, isMasterMode: isMasterMode }
                     : m
                 ));
-            } else {
-                // Seller returns a stream — read it and parse buttons at end
-                if (!response.body) throw new Error('No response body');
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let accumulatedContent = '';
+            }
 
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    accumulatedContent += decoder.decode(value, { stream: true });
-                    setMessages(prev => prev.map(m => m.id === assistantMsgId
-                        ? { ...m, content: accumulatedContent }
-                        : m
-                    ));
-                }
-
-                // Parse out any [BTN:...] action buttons
+            // After stream ends, check for buttons if in seller mode
+            if (!isMasterMode) {
                 const { cleanText, buttons } = parseButtons(accumulatedContent);
                 if (buttons.length > 0) {
                     setMessages(prev => prev.map(m => m.id === assistantMsgId
@@ -321,6 +316,9 @@ export default function ChatBot() {
                                     }`}>
                                     {msg.content}
                                 </div>
+                                <span className="text-[9px] mt-1 text-gray-400 font-medium px-1">
+                                    {msg.timestamp?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
 
                                 {/* Action Buttons rendered below the message */}
                                 {msg.buttons && msg.buttons.length > 0 && (

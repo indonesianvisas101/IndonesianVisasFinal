@@ -76,7 +76,8 @@ import {
     Delete as DeleteIcon,
     Visibility as ViewIcon,
     Topic as KnowledgeIcon,
-    Search as SearchIcon
+    Search as SearchIcon,
+    Add as AddIcon
 } from '@mui/icons-material';
 
 // --- Types ---
@@ -93,6 +94,9 @@ interface ChangeRequest {
     changeType: string;
     riskScore: string;
     modeStatus: string;
+    currentState?: string;
+    targetPage?: string;
+    proposedChanges?: any;
     createdAt: string;
 }
 
@@ -110,6 +114,7 @@ interface KnowledgePage {
     title: string;
     category: string | null;
     createdAt: string;
+    metadata?: any; // Added metadata for Topic
     quality?: {
         overallScore: number;
         wordCount: number;
@@ -123,6 +128,7 @@ interface ImmigrationUpdate {
     category: string;
     publishedAt?: string;
     createdAt: string;
+    metadata?: any;
 }
 
 interface ClusterSummary {
@@ -135,6 +141,17 @@ interface ClusterSummary {
 interface ChatMessage {
     role: 'user' | 'assistant';
     content: string;
+}
+
+interface EditPageState {
+    id: string;
+    title: string;
+    slug: string;
+    summary: string;
+    content: string;
+    category: string;
+    image?: string;
+    type: 'KNOWLEDGE' | 'NEWS';
 }
 
 // Lightweight markdown renderer — no external dep needed
@@ -239,6 +256,7 @@ export default function AIMasterTab() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [chatInput, setChatInput] = useState('');
+    const [approvingTopicId, setApprovingTopicId] = useState<string | null>(null);
 
     // Data States
     const [systemState, setSystemState] = useState<SystemState | null>(null);
@@ -246,6 +264,10 @@ export default function AIMasterTab() {
     const [riskLogs, setRiskLogs] = useState<RiskLog[]>([]);
     const [intelligence, setIntelligence] = useState<any>(null);
     const [strategicReport, setStrategicReport] = useState<any>(null);
+    const [vvipQueue, setVvipQueue] = useState<any[]>([]);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingPage, setEditingPage] = useState<EditPageState | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     // Seller Conversations State
     const [sellerConversations, setSellerConversations] = useState<any[]>([]);
@@ -260,6 +282,9 @@ export default function AIMasterTab() {
     const [immigrationUpdates, setImmigrationUpdates] = useState<ImmigrationUpdate[]>([]);
     const [clusterSummary, setClusterSummary] = useState<ClusterSummary | null>(null);
     const [searchQueryPages, setSearchQueryPages] = useState('');
+    const [manualTopicInput, setManualTopicInput] = useState('');
+    const [isQueuing, setIsQueuing] = useState(false);
+    const [queueTab, setQueueTab] = useState(0); // 0: Master, 1: AI
 
     // Chat State — plain messages, no useChat dependency
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -334,62 +359,64 @@ export default function AIMasterTab() {
 
     const fetchManagementData = useCallback(async () => {
         setLoading(true);
-        setError(null);
+        // We don't clear error here to avoid flickering during polling
         try {
-            // Fetch Management Data
             const mgmtRes = await fetch('/api/ai-master/management');
             if (mgmtRes.ok) {
                 const data = await mgmtRes.json();
                 setSystemState(data.systemState);
-                setPendingRequests(data.pendingRequests);
-                setRiskLogs(data.riskLogs);
+                setPendingRequests(data.pendingRequests || []);
+                setRiskLogs(data.riskLogs || []);
                 setKnowledgePages(data.knowledgePages || []);
                 setImmigrationUpdates(data.immigrationUpdates || []);
                 setClusterSummary(data.clusterSummary || null);
+                setVvipQueue(data.vvipQueue || []);
+                setError(null); // Clear error on success
+            } else {
+                console.warn(`[JARVIS] Management API returned ${mgmtRes.status}. Retrying in next cycle.`);
             }
         } catch (err) {
-            console.error("Management Data Fetch Error:", err);
-            setError("Failed to fetch management data.");
+            console.error("[JARVIS] Sync Offline:", err);
+            // Don't show fatal error for transient network issues during background polling
         } finally {
-            // setLoading(false); // Will be set by the main fetchData
+            // Loading is handled by main fetchData
         }
     }, []);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
-        setError(null);
         try {
             await fetchManagementData(); // Fetch management data first
 
-            // Fetch Seller Conversations
-            const convRes = await fetch('/api/chat/conversations?limit=30');
-            if (convRes.ok) {
-                const convData = await convRes.json();
-                setSellerConversations(convData.conversations || []);
-                setSellerStats(convData.stats || { todayCount: 0, masterCmdCount: 0 });
-            }
+            // Fetch Seller Conversations (Independent)
+            try {
+                const convRes = await fetch('/api/chat/conversations?limit=30');
+                if (convRes.ok) {
+                    const convData = await convRes.json();
+                    setSellerConversations(convData.conversations || []);
+                    setSellerStats(convData.stats || { todayCount: 0, masterCmdCount: 0 });
+                }
+            } catch (e) { console.warn("[JARVIS] Conversations Sync Offline"); }
 
-            // Fetch Intelligence
-            const intelRes = await fetch('/api/ai-master/order-intelligence');
-            if (intelRes.ok) {
-                const data = await intelRes.json();
-                setIntelligence(data.metrics);
-            }
+            // Fetch Intelligence (Independent)
+            try {
+                const intelRes = await fetch('/api/ai-master/order-intelligence');
+                if (intelRes.ok) {
+                    const data = await intelRes.json();
+                    setIntelligence(data.metrics);
+                }
+            } catch (e) { console.warn("[JARVIS] Intelligence Sync Offline"); }
 
-            // Fetch Strategic Report (Requires elevated auth or sim)
-            // Note: In real production, this might need a specific header
-            // For now, we attempt to fetch if session allows
-            const strategyRes = await fetch('/api/ai-master/strategic-report');
-            if (strategyRes.ok) {
-                const data = await strategyRes.json();
-                setStrategicReport(data.metrics);
-            }
+            // Fetch Strategic Report (Independent)
+            try {
+                const strategyRes = await fetch('/api/ai-master/strategic-report');
+                if (strategyRes.ok) {
+                    const data = await strategyRes.json();
+                    setStrategicReport(data.metrics);
+                }
+            } catch (e) { console.warn("[JARVIS] Strategy Sync Offline"); }
 
-        } catch (err) {
-            console.error("Dashboard Sync Error:", err);
-            setError("Failed to synchronize with Antigravity Neutral Engine.");
-        } finally {
-            // Fetch last sync from audit logs
+            // Fetch Audit Logs (Silent)
             try {
                 const logRes = await fetch('/api/admin/logs?limit=1');
                 if (logRes.ok) {
@@ -402,6 +429,11 @@ export default function AIMasterTab() {
                     }
                 }
             } catch (e) { /* ignore */ }
+
+        } catch (err) {
+            console.error("[JARVIS] Global Dashboard Sync Error:", err);
+            // Critical sync failed, but we keep the UI alive
+        } finally {
             setLoading(false);
         }
     }, [fetchManagementData]);
@@ -494,6 +526,99 @@ export default function AIMasterTab() {
         }
     };
 
+    const handleEditOpen = async (item: any) => {
+        // Fetch full content if not in list
+        try {
+            const res = await fetch(`/api/ai-master/management?action=GET_PAGE&id=${item.id}&type=${item.type}`);
+            if (res.ok) {
+                const data = await res.json();
+                setEditingPage({
+                    id: item.id,
+                    title: data.page?.title || item.title,
+                    slug: data.page?.slug || item.slug,
+                    summary: data.page?.summary || '',
+                    content: data.page?.content || '',
+                    category: item.category || '',
+                    image: data.page?.image || '',
+                    type: item.type
+                });
+                setIsEditModalOpen(true);
+            }
+        } catch (e) {
+            // Fallback to basic data
+            setEditingPage({
+                id: item.id,
+                title: item.title,
+                slug: item.slug,
+                summary: '',
+                content: '',
+                category: item.category || '',
+                type: item.type
+            });
+            setIsEditModalOpen(true);
+        }
+    };
+
+    const handleSavePage = async () => {
+        if (!editingPage) return;
+        setIsSaving(true);
+        try {
+            const res = await fetch('/api/ai-master/management', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'UPDATE_PAGE_CONTENT',
+                    data: editingPage
+                })
+            });
+            if (res.ok) {
+                alert("Master, perubahan telah berhasil dikunci ke basis data.");
+                setIsEditModalOpen(false);
+                fetchData();
+            } else {
+                alert("Gagal menyimpan perubahan, Master.");
+            }
+        } catch (e) {
+            alert("Terjadi kesalahan sistem saat menyimpan.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleQueueManualTopic = async () => {
+        if (!manualTopicInput.trim()) return;
+        setIsQueuing(true);
+        try {
+            const res = await fetch('/api/ai-master/management', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'ADD_MANUAL_TOPIC',
+                    data: { topic: manualTopicInput }
+                })
+            });
+            if (res.ok) {
+                setManualTopicInput('');
+                fetchData(); // Refresh list
+            }
+        } catch (e) {
+            console.error("Failed to queue topic", e);
+        } finally {
+            setIsQueuing(false);
+        }
+    };
+
+    const handleDeleteVvipTopic = async (id: string) => {
+        try {
+            const res = await fetch('/api/ai-master/management', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'DELETE_VVIP_TOPIC', data: { id } })
+            });
+            if (res.ok) fetchData();
+        } catch (e) { console.error(e); }
+    };
+
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -502,8 +627,152 @@ export default function AIMasterTab() {
         }).format(amount);
     };
 
+    const handleApproveDiscoveryTopic = async (topic: string, id: string) => {
+        setApprovingTopicId(id);
+        try {
+            const res = await fetch('/api/ai-master/management', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'UPDATE_TOPIC', data: { type: 'KNOWLEDGE', topic } })
+            });
+            if (res.ok) {
+                // Refresh data
+                fetchData();
+            }
+        } catch (e) {
+            console.error("Failed to approve topic", e);
+        } finally {
+            setApprovingTopicId(null);
+        }
+    };
+
     return (
-        <Stack spacing={4} sx={{ animation: 'fadeIn 0.5s ease', pb: 8 }}>
+        <>
+            {/* Edit Modal (Immigration Updates DNA) */}
+            <Dialog open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} maxWidth="md" fullWidth>
+                <DialogTitle sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), borderBottom: '1px solid', borderColor: 'divider', py: 2 }}>
+                    <Typography component="div" variant="h6" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <AIHeroIcon color="primary" /> Edit {editingPage?.type === 'KNOWLEDGE' ? 'Knowledge Article' : 'Immigration News'}
+                    </Typography>
+                </DialogTitle>
+                <DialogContent sx={{ mt: 3, pt: 2 }}>
+                    <Stack spacing={3}>
+                        <Grid container spacing={2}>
+                            <Grid size={{ xs: 12, md: 8 }}>
+                                <TextField 
+                                    label="Title" 
+                                    fullWidth 
+                                    value={editingPage?.title || ''} 
+                                    onChange={(e) => setEditingPage(prev => prev ? { ...prev, title: e.target.value } : null)}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <TextField 
+                                    label="Category" 
+                                    fullWidth 
+                                    value={editingPage?.category || ''} 
+                                    onChange={(e) => setEditingPage(prev => prev ? { ...prev, category: e.target.value } : null)}
+                                />
+                            </Grid>
+                        </Grid>
+
+                        <TextField 
+                            label="URL Slug" 
+                            fullWidth 
+                            size="small"
+                            disabled
+                            value={editingPage?.slug || ''} 
+                            helperText="Slug is locked to maintain SEO integrity."
+                        />
+
+                        <Box>
+                            <Typography variant="caption" fontWeight="bold" gutterBottom display="block" color="text.secondary">FEATURED IMAGE (AUTO-WEBP CONVERT)</Typography>
+                            {editingPage?.image && (
+                                <Box sx={{ mb: 1, borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider', width: 240, height: 140, bgcolor: 'background.default', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src={editingPage.image} alt="Featured" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                </Box>
+                            )}
+                            <Button variant="outlined" component="label" startIcon={<ExportIcon />}>
+                                {editingPage?.image ? 'Change Image' : 'Upload Image'}
+                                <input 
+                                    type="file" 
+                                    hidden 
+                                    accept="image/*"
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setIsSaving(true);
+                                            try {
+                                                // 1. Create a canvas for WebP conversion
+                                                const img = new Image();
+                                                img.src = URL.createObjectURL(file);
+                                                await new Promise((resolve) => (img.onload = resolve));
+
+                                                const canvas = document.createElement('canvas');
+                                                canvas.width = img.width;
+                                                canvas.height = img.height;
+                                                const ctx = canvas.getContext('2d');
+                                                ctx?.drawImage(img, 0, 0);
+
+                                                // 2. Convert to WebP Blob
+                                                const webpBlob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', 0.8));
+                                                
+                                                if (webpBlob) {
+                                                    const formData = new FormData();
+                                                    formData.append('file', new File([webpBlob], file.name.replace(/\.[^/.]+$/, "") + ".webp", { type: "image/webp" }));
+                                                    
+                                                    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                                                    if (res.ok) {
+                                                        const data = await res.json();
+                                                        setEditingPage(prev => prev ? { ...prev, image: data.url } : null);
+                                                    }
+                                                }
+                                            } catch (err) {
+                                                console.error("Image Processing Failed:", err);
+                                            } finally {
+                                                setIsSaving(false);
+                                            }
+                                        }
+                                    }}
+                                />
+                            </Button>
+                        </Box>
+
+                        <TextField 
+                            label="Summary / Meta Description" 
+                            fullWidth 
+                            multiline 
+                            rows={3}
+                            placeholder="A brief summary for SEO and cards..."
+                            value={editingPage?.summary || ''} 
+                            onChange={(e) => setEditingPage(prev => prev ? { ...prev, summary: e.target.value } : null)}
+                        />
+
+                        <TextField 
+                            label="Main Content (Markdown Supported)" 
+                            fullWidth 
+                            multiline 
+                            rows={15}
+                            value={editingPage?.content || ''} 
+                            onChange={(e) => setEditingPage(prev => prev ? { ...prev, content: e.target.value } : null)}
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                    <Button onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
+                    <Button 
+                        variant="contained" 
+                        color="primary" 
+                        onClick={handleSavePage} 
+                        disabled={isSaving}
+                        startIcon={isSaving ? <CircularProgress size={16} color="inherit" /> : <SuccessIcon />}
+                    >
+                        {isSaving ? 'Saving Master...' : 'Save Changes'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Stack spacing={4} sx={{ animation: 'fadeIn 0.5s ease', pb: 8 }}>
             {/* --- HEADER & CONTROLS --- */}
             <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Stack direction="row" spacing={3} alignItems="center">
@@ -551,7 +820,7 @@ export default function AIMasterTab() {
 
             {/* --- TOP METRICS GRID --- */}
             <Grid container spacing={3}>
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Card sx={{ bgcolor: 'background.paper', borderLeft: '6px solid', borderColor: 'primary.main' }}>
                         <CardContent>
                             <Typography variant="overline" color="text.secondary">Engine Accuracy</Typography>
@@ -560,7 +829,32 @@ export default function AIMasterTab() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Card sx={{ bgcolor: 'background.paper', borderLeft: '6px solid', borderColor: 'success.main' }}>
+                        <CardContent>
+                            <Typography variant="overline" color="text.secondary">Knowledge Distribution (40/40/20)</Typography>
+                            <Box sx={{ mt: 1 }}>
+                                <Box sx={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', mb: 1 }}>
+                                    <Box sx={{ width: '40%', bgcolor: 'primary.main' }} />
+                                    <Box sx={{ width: '40%', bgcolor: 'success.main' }} />
+                                    <Box sx={{ width: '20%', bgcolor: 'warning.main' }} />
+                                </Box>
+                                <Stack direction="row" spacing={2} justifyContent="space-between">
+                                    <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        <Box sx={{ w: 8, h: 8, bgcolor: 'primary.main', borderRadius: '50%' }} /> Core (40%)
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        <Box sx={{ w: 8, h: 8, bgcolor: 'success.main', borderRadius: '50%' }} /> Ops (40%)
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        <Box sx={{ w: 8, h: 8, bgcolor: 'warning.main', borderRadius: '50%' }} /> News (20%)
+                                    </Typography>
+                                </Stack>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Card sx={{ bgcolor: 'background.paper', borderLeft: '6px solid', borderColor: 'warning.main' }}>
                         <CardContent>
                             <Typography variant="overline" color="text.secondary">System Status</Typography>
@@ -579,6 +873,212 @@ export default function AIMasterTab() {
                     </Card>
                 </Grid>
             </Grid>
+
+            {/* --- TOPIC INTELLIGENCE CARD --- */}
+            <Card variant="outlined" sx={{ borderRadius: 4, overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.2) }}>
+                <CardHeader 
+                    title={<Typography variant="h5" fontWeight="900" sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}><KnowledgeIcon color="primary" /> Topic Intelligence & Queue</Typography>}
+                    subheader="Double-Track Content Scheduling: Manual (Daily) | AI (3-Day Cycle)"
+                    sx={{ bgcolor: alpha(theme.palette.primary.main, 0.02), borderBottom: '1px solid', borderColor: 'divider' }}
+                />
+                <CardContent>
+                    <Grid container spacing={3}>
+                        {/* Manual Priority Queue */}
+                        <Grid size={{ xs: 12, md: 7 }}>
+                            <Box sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.warning.main, 0.03), border: '1px dashed', borderColor: 'warning.main', height: '100%' }}>
+                                <Typography variant="subtitle2" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <SellerIcon color="warning" /> MANUAL PRIORITY STACK (1 Post / Day)
+                                </Typography>
+                                <Stack spacing={1.5} sx={{ mt: 2 }}>
+                                    {/* Topic Input Area */}
+                                    <Box display="flex" gap={1}>
+                                        <TextField 
+                                            fullWidth 
+                                            size="small" 
+                                            placeholder="Add strategic topic... (e.g. New B1 Visa Rules 2026)" 
+                                            id="new-manual-topic"
+                                            value={manualTopicInput}
+                                            onChange={(e) => setManualTopicInput(e.target.value)}
+                                            disabled={isQueuing}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleQueueManualTopic()}
+                                        />
+                                        <Button 
+                                            variant="contained" 
+                                            color="warning" 
+                                            startIcon={isQueuing ? <CircularProgress size={16} color="inherit" /> : <AddIcon />}
+                                            onClick={handleQueueManualTopic}
+                                            disabled={isQueuing}
+                                        >
+                                            {isQueuing ? 'Queuing...' : 'Queue'}
+                                        </Button>
+                                    </Box>
+                                    
+                                    {/* Tab Switcher for Queue */}
+                                    <Tabs 
+                                        value={queueTab} 
+                                        onChange={(_, v) => setQueueTab(v)} 
+                                        variant="fullWidth"
+                                        sx={{ 
+                                            minHeight: 32, 
+                                            mb: 1.5,
+                                            '& .MuiTab-root': { py: 0.5, fontSize: '10px', fontWeight: 'bold', minHeight: 32 } 
+                                        }}
+                                    >
+                                        <Tab label="MASTER'S PRIORITY" icon={<AIHeroIcon sx={{ fontSize: 14 }} />} iconPosition="start" />
+                                        <Tab label="AI DISCOVERIES" icon={<SearchIcon sx={{ fontSize: 14 }} />} iconPosition="start" />
+                                    </Tabs>
+                                    
+                                    {/* The Queue List Content */}
+                                    <Paper variant="outlined" sx={{ maxHeight: 250, overflow: 'auto', p: 0, bgcolor: alpha(theme.palette.background.default, 0.5) }}>
+                                        <List disablePadding>
+                                            {queueTab === 0 ? (
+                                                /* MASTER TOPICS */
+                                                vvipQueue.length === 0 ? (
+                                                    <Box sx={{ p: 4, textAlign: 'center', opacity: 0.5 }}>
+                                                        <Typography variant="caption" display="block">No active Master commands.</Typography>
+                                                        <Typography variant="caption" sx={{ fontSize: '9px' }}>Master's direct instructions appear here.</Typography>
+                                                    </Box>
+                                                ) : (
+                                                    vvipQueue.map((item, idx) => (
+                                                        <ListItem key={item.id} divider={idx !== vvipQueue.length - 1}>
+                                                            <ListItemAvatar>
+                                                                <Avatar sx={{ bgcolor: 'warning.main', width: 24, height: 24 }}>
+                                                                    {item.status === 'processing' ? <CircularProgress size={14} color="inherit" /> : <PlayIcon sx={{ fontSize: 14 }} />}
+                                                                </Avatar>
+                                                            </ListItemAvatar>
+                                                            <ListItemText 
+                                                                primary={<Typography variant="caption" fontWeight="bold" sx={{ color: 'warning.main' }}>{item.topicTitle}</Typography>}
+                                                                secondary={<Typography variant="caption" sx={{ fontSize: '9px' }}>Priority: VVIP | Status: {item.status === 'vvip_queued' ? 'Awaiting Research' : 'Searching & Deeper Researching...'}</Typography>}
+                                                            />
+                                                            <IconButton size="small" color="error" onClick={() => handleDeleteVvipTopic(item.id)}>
+                                                                <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </ListItem>
+                                                    ))
+                                                )
+                                            ) : (
+                                                /* AI DISCOVERIES */
+                                                pendingRequests.length === 0 ? (
+                                                    <Box sx={{ p: 4, textAlign: 'center', opacity: 0.5 }}>
+                                                        <Typography variant="caption" display="block">AI hasn't discovered new topics yet today.</Typography>
+                                                        <Typography variant="caption" sx={{ fontSize: '9px' }}>Jarvis is scanning global immigration news...</Typography>
+                                                    </Box>
+                                                ) : (
+                                                    pendingRequests.map((req, idx) => (
+                                                        <ListItem key={req.id} divider={idx !== pendingRequests.length - 1}>
+                                                            <ListItemAvatar>
+                                                                <Avatar sx={{ bgcolor: 'primary.main', width: 24, height: 24 }}>
+                                                                    <SearchIcon sx={{ fontSize: 14 }} />
+                                                                </Avatar>
+                                                            </ListItemAvatar>
+                                                            <ListItemText 
+                                                                primary={<Typography variant="caption" fontWeight="bold">{req.targetPage || req.proposedChanges?.title}</Typography>}
+                                                                secondary={<Typography variant="caption" sx={{ fontSize: '9px' }}>Discovered by AI | Confidence: {req.proposedChanges?.qualityScore || 85}%</Typography>}
+                                                            />
+                                                            <Stack direction="row" spacing={0.5}>
+                                                                <IconButton 
+                                                                    size="small" 
+                                                                    color="success" 
+                                                                    onClick={() => handleManagementAction('APPROVE_REQUEST', { requestId: req.requestId })}
+                                                                    disabled={loadingAction}
+                                                                >
+                                                                    {loadingAction ? <CircularProgress size={14} color="inherit" /> : <SuccessIcon fontSize="inherit" />}
+                                                                </IconButton>
+                                                                <IconButton 
+                                                                    size="small" 
+                                                                    color="error" 
+                                                                    onClick={() => handleManagementAction('REJECT_REQUEST', { requestId: req.requestId })}
+                                                                    disabled={loadingAction}
+                                                                >
+                                                                    <DeleteIcon fontSize="inherit" />
+                                                                </IconButton>
+                                                            </Stack>
+                                                        </ListItem>
+                                                    ))
+                                                )
+                                            )}
+                                        </List>
+                                    </Paper>
+                                </Stack>
+                            </Box>
+                        </Grid>
+
+                        {/* AI Discovery Stack */}
+                        <Grid size={{ xs: 12, md: 5 }}>
+                            <Box sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.03), border: '1px dashed', borderColor: 'primary.main', height: '100%' }}>
+                                <Typography variant="subtitle2" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <RobotIcon color="primary" /> AI DISCOVERY FEED (1 Post / 3 Days)
+                                </Typography>
+                                    {/* Suggested Topics */}
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary" fontWeight="bold" sx={{ mb: 1, display: 'block' }}>NEW OPPORTUNITIES</Typography>
+                                        <Stack spacing={1}>
+                                            <Paper variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                <Box sx={{ width: 4, height: 30, bgcolor: 'primary.main', borderRadius: 2 }} />
+                                                <Box flexGrow={1}>
+                                                    <Typography variant="caption" display="block" fontWeight="bold">Suggested: Bali Tourism Tax Impacts</Typography>
+                                                    <Typography variant="caption" color="text.secondary">Based on Sitemap & Trends</Typography>
+                                                </Box>
+                                                <Button 
+                                                    size="small" 
+                                                    variant="text" 
+                                                    color="primary"
+                                                    disabled={!!approvingTopicId}
+                                                    onClick={() => handleApproveDiscoveryTopic('Bali Tourism Tax Impacts', 'disc-1')}
+                                                    startIcon={approvingTopicId === 'disc-1' ? <CircularProgress size={12} color="inherit" /> : null}
+                                                >
+                                                    {approvingTopicId === 'disc-1' ? 'Approving...' : 'Approve'}
+                                                </Button>
+                                            </Paper>
+                                        </Stack>
+                                    </Box>
+
+                                    <Divider sx={{ my: 1 }} />
+
+                                    {/* Recently Approved Pipeline */}
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary" fontWeight="bold" sx={{ mb: 1, display: 'block' }}>VVIP PIPELINE STATUS</Typography>
+                                        <Stack spacing={1}>
+                                            <Paper variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 2, bgcolor: alpha(theme.palette.success.main, 0.02) }}>
+                                                <Box sx={{ width: 4, height: 30, bgcolor: 'success.main', borderRadius: 2 }} />
+                                                <Box flexGrow={1}>
+                                                    <Typography variant="caption" display="block" fontWeight="bold">Investor KITAS (E28A) Requirements</Typography>
+                                                    <Typography variant="caption" color="success.main" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                        <AIHeroIcon sx={{ fontSize: 12 }} /> Approved by Master - AI Generating Content...
+                                                    </Typography>
+                                                </Box>
+                                                <Typography variant="caption" color="text.secondary">ETA: 6 mins</Typography>
+                                            </Paper>
+                                            <Paper variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 2, opacity: 0.8 }}>
+                                                <Box sx={{ width: 4, height: 30, bgcolor: 'warning.main', borderRadius: 2 }} />
+                                                <Box flexGrow={1}>
+                                                    <Typography variant="caption" display="block" fontWeight="bold">New B1 Visa Rules 2026 Audit</Typography>
+                                                    <Typography variant="caption" color="text.secondary">Draft Ready - Scheduled for Daily Slot</Typography>
+                                                </Box>
+                                                <Typography variant="caption" color="warning.main" fontWeight="bold">LIVE: Tomorrow</Typography>
+                                            </Paper>
+                                        </Stack>
+                                    </Box>
+
+                                    <Box sx={{ textAlign: 'center', mt: 1 }}>
+                                        <Typography variant="caption" color="text.secondary" fontWeight="bold" display="block">
+                                            {new Date().getHours() === 2 ? 'DEEP DISCOVERY ACTIVE' : 'STATUS: POWER SAVING MODE'}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {new Date().getHours() === 2 ? 'AI is scanning government portals & sitemaps...' : 'Next Deep Discovery Window: 02:00 AM'}
+                                        </Typography>
+                                        <LinearProgress 
+                                            variant={new Date().getHours() === 2 ? "indeterminate" : "determinate"} 
+                                            value={new Date().getHours() === 2 ? 100 : 30}
+                                            color={new Date().getHours() === 2 ? "primary" : "inherit"}
+                                            sx={{ mt: 1, height: 2, borderRadius: 1, opacity: 0.5 }} 
+                                        />
+                                    </Box>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </CardContent>
+            </Card>
 
             {/* --- MAIN TABS --- */}
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -1014,7 +1514,7 @@ export default function AIMasterTab() {
                                                         }
                                                         secondary={
                                                             <Typography variant="caption" color="text.secondary">
-                                                                {conv.isMasterCmd ? '🔐 Boss Command' : `${Array.isArray(conv.messages) ? conv.messages.length : 0} messages`} · {new Date(conv.updatedAt).toLocaleTimeString()}
+                                                                {conv.isMasterCmd ? '🔐 Boss Command' : `${Array.isArray(conv.messages) ? conv.messages.length : 0} messages`} · {new Date(conv.updatedAt).toLocaleDateString()} {new Date(conv.updatedAt).toLocaleTimeString()}
                                                             </Typography>
                                                         }
                                                     />
@@ -1160,17 +1660,23 @@ export default function AIMasterTab() {
                             <TableBody>
                                 {/* Combined Knowledge and News for max visibility */}
                                 {[
-                                    ...knowledgePages.map(p => ({ ...p, type: 'KNOWLEDGE' })),
-                                    ...immigrationUpdates.map(u => ({ ...u, type: 'NEWS' }))
+                                    ...(knowledgePages || []).map(p => ({ ...p, type: 'KNOWLEDGE' })),
+                                    ...(immigrationUpdates || []).map(u => ({ ...u, type: 'NEWS' }))
                                 ].filter(p => 
-                                    p.title.toLowerCase().includes(searchQueryPages.toLowerCase()) || 
-                                    p.slug.toLowerCase().includes(searchQueryPages.toLowerCase())
-                                ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                                    (p?.title || '').toLowerCase().includes((searchQueryPages || '').toLowerCase()) || 
+                                    (p?.slug || '').toLowerCase().includes((searchQueryPages || '').toLowerCase())
+                                ).sort((a, b) => {
+                                    const dateA = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+                                    const dateB = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+                                    return dateB - dateA;
+                                })
                                 .map((item: any) => (
-                                    <TableRow key={item.id} hover>
+                                    <TableRow key={item?.id || Math.random()} hover>
                                         <TableCell>
-                                            <Typography variant="body2" fontWeight="bold">{item.title}</Typography>
-                                            <Typography variant="caption" color="text.secondary">{new Date(item.createdAt).toLocaleDateString()}</Typography>
+                                            <Typography variant="body2" fontWeight="bold" sx={{ maxWidth: 250, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {item?.title || 'Untitled Content'}
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary">{item?.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'No Date'}</Typography>
                                         </TableCell>
                                         <TableCell>
                                             <Chip 
@@ -1178,12 +1684,13 @@ export default function AIMasterTab() {
                                                 size="small" 
                                                 color={item.type === 'KNOWLEDGE' ? 'primary' : 'secondary'} 
                                                 variant="outlined" 
+                                                sx={{ fontSize: '9px', height: 20 }}
                                             />
                                         </TableCell>
-                                        <TableCell><Typography variant="caption" sx={{ fontFamily: 'monospace' }}>{item.slug}</Typography></TableCell>
-                                        <TableCell><Chip label={item.category || 'General'} size="small" variant="outlined" /></TableCell>
+                                        <TableCell><Typography variant="caption" sx={{ fontFamily: 'monospace', opacity: 0.7 }}>{item.slug}</Typography></TableCell>
+                                        <TableCell><Chip label={item.category || 'General'} size="small" variant="outlined" sx={{ fontSize: '10px' }} /></TableCell>
                                         <TableCell align="right">
-                                            <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                            <Stack direction="row" spacing={0.5} justifyContent="flex-end">
                                                 <Tooltip title="View Live">
                                                     <IconButton 
                                                         size="small" 
@@ -1194,6 +1701,15 @@ export default function AIMasterTab() {
                                                         }}
                                                     >
                                                         <ViewIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Edit Content">
+                                                    <IconButton 
+                                                        size="small" 
+                                                        color="secondary" 
+                                                        onClick={() => handleEditOpen(item)}
+                                                    >
+                                                        <AIHeroIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Delete">
@@ -1456,5 +1972,6 @@ export default function AIMasterTab() {
                 </DialogActions>
             </Dialog>
         </Stack>
+    </>
     );
 }

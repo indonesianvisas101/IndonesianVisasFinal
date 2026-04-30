@@ -119,7 +119,9 @@ export default async function KnowledgeDetailPage(props: PageProps) {
         '@type': 'Article',
         'headline': page.title,
         'description': metadata?.description || `Strategic immigration guide covering ${page.title}.`,
-        'image': metadata?.image || `${APP_URL}/Logo.webp`,
+        'image': (metadata?.image && !metadata.image.includes('gemini.google.com') && !metadata.image.includes('drive.google.com')) 
+                 ? metadata.image 
+                 : `${APP_URL}/Logo.webp`,
         'datePublished': page.createdAt.toISOString(),
         'dateModified': page.updatedAt.toISOString(),
         'author': {

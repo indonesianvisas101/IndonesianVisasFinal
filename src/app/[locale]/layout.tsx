@@ -13,6 +13,7 @@ import GlobalUIOverlay from "@/components/ui/GlobalUIOverlay";
 import { Suspense } from "react";
 import GoogleTagManagerWrapper from "@/components/common/GoogleTagManagerWrapper";
 import GlobalInfoPopup from "@/components/common/GlobalInfoPopup";
+
 const inter = Inter({
   subsets: ["latin"],
   display: 'swap',
@@ -40,117 +41,99 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       default: "Indonesian Visas | Official Visa Agency Bali & Jakarta",
       template: "%s | Indonesian Visas"
     },
-    description: "Secure your Indonesia Visa online. Expert services for Tourist VOA, B211A, KITAS, and Business Visas. Trusted agency in Bali with a 99% approval rate.",
+    description: "The official first-hand direct legal sponsor for Indonesian visas since 2010. Secure your Indonesia Visa online. Expert services for Tourist VOA, B211A, KITAS, and Business Visas. Trusted agency in Bali with a 99% approval rate.",
     keywords: [
       "Indonesia Visa", "Bali Visa", "VOA Indonesia", "KITAS Indonesia",
       "Business Visa Indonesia", "Indonesian Visas Agency", "Visa Agent Bali",
       "Company Formation Bali", "Company Registration Indonesia", "PT PMA Bali",
-      "Digital Nomad Visa Indonesia", "Retirement Visa Bali"
+      "Digital Nomad Visa Indonesia", "Retirement Visa Bali", "PT Indonesian Visas Agency"
     ],
     authors: [{ name: "Indonesian Visas Official Team" }],
-    creator: "Indonesian Visas",
-    publisher: "Indonesian Visas",
     alternates: {
       canonical: canonicalUrl,
-      languages: {
-        ...languages,
-        'x-default': APP_URL
-      }
-    },
-    formatDetection: {
-      email: false,
-      address: false,
-      telephone: false,
+      languages
     },
     openGraph: {
-      title: "Indonesian Visas | Your Gateway to Indonesia",
-      description: "Expert visa and company formation services in Bali and Indonesia. Get your Tourist, Business, or Retirement visa effortlessly.",
-      url: canonicalUrl,
-      siteName: 'Indonesian Visas',
+      type: "website",
+      siteName: "Indonesian Visas",
+      title: "Indonesian Visas | Official Visa Agency",
+      description: "Official first-hand sponsor for Indonesian visas since 2010. Expert legal-tech infrastructure for Bali & Jakarta.",
       images: [
         {
-          url: '/images/BaliHelpCompress.webp',
+          url: `${APP_URL}/OG_IMAGE.webp`,
           width: 1200,
           height: 630,
-          alt: 'Indonesian Visas Official Agency',
-        },
-      ],
-      locale: isDefaultLocale ? 'en_US' : `${locale}_${locale.toUpperCase()}`,
-      type: 'website',
+          alt: "Indonesian Visas Agency"
+        }
+      ]
     },
     twitter: {
-      card: 'summary_large_image',
-      title: "Indonesian Visas | Expert Agency",
-      description: "Fast & Reliable Visa Services for Bali & Indonesia. Apply online today.",
-      images: ['/images/BaliHelpCompress.webp'],
+      card: "summary_large_image",
+      site: "@IndonesianVisas",
+      title: "Indonesian Visas | Official Visa Agency",
+      description: "Official first-hand sponsor for Indonesian visas.",
+      images: [`${APP_URL}/OG_IMAGE.webp`]
     },
     icons: {
-      icon: [
-        { url: '/Favicon.webp', type: 'image/webp' },
-      ],
-      apple: '/webapp.webp',
-    },
-    manifest: '/manifest.json',
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-    verification: {
-      google: "GOOGLE_SITE_VERIFICATION_ID_PLACEHOLDER",
-    },
+      icon: "/favicon.ico",
+      apple: "/apple-touch-icon.png",
+    }
   };
 }
 
 export const viewport: Viewport = {
-  width: "device-width",
+  themeColor: "#4B0082",
+  width: 'device-width',
   initialScale: 1,
-  themeColor: "#ffffff",
+  maximumScale: 5,
 };
-
-export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
-}
 
 export default async function LocaleLayout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-
-  const isValidLocale = locales.includes(locale as any);
-  const currentLocale = isValidLocale ? locale : 'en';
-
-  const dict = await getMessages(currentLocale);
+  const dict = await getMessages(locale);
+  const currentLocale = locale as any;
 
   return (
     <html lang={currentLocale}>
       <head>
-        {/* ── Critical Connection Hints ── */}
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://bali.enterprises" />
+        {/* PERFORMANCE: Resource Hints — parallel DNS + TLS handshake */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://thvdfcogdxmqipybqzot.supabase.co" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.paypal.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://thvdfcogdxmqipybqzot.supabase.co" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <link rel="dns-prefetch" href="https://checkout.doku.com" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link rel="dns-prefetch" href="https://randomuser.me" />
-
-        {/* ── LCP / Above-fold critical asset preloads ── */}
-        <link rel="preload" as="image" href="/Favicon.webp" fetchPriority="high" type="image/webp" />
-        <link rel="preload" as="image" href="/images/BaliHelpCompress.webp" fetchPriority="low" type="image/webp" />
-
-        <GoogleTagManagerWrapper gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-PLACEHOLDER'} />
+        <link rel="dns-prefetch" href="https://www.paypal.com" />
+        <GoogleTagManagerWrapper gtmId="GTM-N6M9K96X" />
+        {/* PERFORMANCE: WebSite schema for Sitelinks Searchbox */}
+        <script
+          id="indonesianvisas-website-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "@id": `${APP_URL}/#website`,
+              "name": "Indonesian Visas",
+              "url": APP_URL,
+              "publisher": {
+                "@type": "Corporation",
+                "@id": `${APP_URL}/#organization`
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": `${APP_URL}/search?q={search_term}`,
+                "query-input": "required name=search_term"
+              }
+            })
+          }}
+        />
         <script
           id="indonesianvisas-ldjson"
           type="application/ld+json"
@@ -162,11 +145,11 @@ export default async function LocaleLayout({
               "name": "PT Indonesian Visas Agency",
               "url": APP_URL,
               "legalName": "PT Indonesian Visas Agency",
-              "alternateName": ["IndonesianVisas", "Indonesian Visas Agency", "Bali Help", "BaliHelp"],
+              "alternateName": ["Indonesian Visas", "Indonesian Visas Agency", "Bali Help", "BaliHelp", "BaliVisa Agency", "Jakarta Visas Agency"],
               "description": "The official First-Hand Direct Legal Sponsor for Indonesian visas since 2010. Home of Indonesian Visas™ (Trademark Pending) and the patent-pending Smart ID ecosystem. Originally established as Bali Help, providing a multinational legal-tech infrastructure. We maintain extreme transparency with direct links for public legal audit via Government portals (AHU & OSS). Our proprietary Smart ID technology (NFC/QR/CHIP) is a joint innovation with bali.technology and indodesign.website, designed for strategic integration with provincial government systems.",
               "foundingDate": "2010",
               "logo": `${APP_URL}/Favicon.webp`,
-              "taxID": "100000008117681",
+              "taxID": "0100000008117681",
               "privacyPolicy": `${APP_URL}/privacy-policy`,
               "email": "contact@indonesianvisas.agency",
               "telephone": "+62-857-2704-1992",
@@ -285,6 +268,8 @@ export default async function LocaleLayout({
                 "https://tropictech.rent",
                 "https://massagecanggu.id",
                 "https://bali.technology",
+                "https://balivisa.agency",
+                "https://jakartavisas.agency",
                 "https://www.instagram.com/balihelp.id",
                 "https://x.com/IndonesianVisas",
                 "https://t.me/IndonesianVisas",
@@ -315,7 +300,7 @@ export default async function LocaleLayout({
                     "name": "PT Indonesian Visas Agency",
                     "url": "https://indonesianvisas.com",
                     "email": "contact@indonesianvisas.agency",
-                    "taxID": "1000000008117681",
+                    "taxID": "0100000008117681",
                     "identifier": [
                       { "@type": "PropertyValue", "name": "NIB", "value": "0402260034806" },
                       { "@type": "PropertyValue", "name": "AHU", "value": "AHU-00065.AH.02.01.TAHUN 2020" },
@@ -328,7 +313,6 @@ export default async function LocaleLayout({
                       { "@type": "Brand", "name": "Immigration Software", "url": "https://immigration-software.com" }
                     ]
                   },
-
                   /* Media & News Division */
                   {
                     "@type": "Organization",
@@ -342,7 +326,6 @@ export default async function LocaleLayout({
                     ],
                     "sameAs": ["https://newsbali.online"]
                   },
-
                   /* Digital & Tech Division */
                   {
                     "@type": "Organization",
@@ -376,7 +359,6 @@ export default async function LocaleLayout({
                       { "@type": "PropertyValue", "name": "AHU", "value": "AHU-034814.AH.01.30.Tahun 2025" }
                     ]
                   },
-
                   /* Ecosystem & Logistics Division */
                   {
                     "@type": "Organization",
@@ -400,7 +382,6 @@ export default async function LocaleLayout({
                       { "@type": "PropertyValue", "name": "AHU", "value": "AHU-000640.AH.01.30.TAHUN 2022" }
                     ]
                   },
-
                   /* Wellness Division */
                   {
                     "@type": "Organization",
@@ -414,7 +395,6 @@ export default async function LocaleLayout({
                     ],
                     "sameAs": ["https://jacuzzibali.com", "https://wellnessbali.id"]
                   },
-
                   /* Smart Ecosystem Division (Digital Products) */
                   {
                     "@type": "Organization",
@@ -457,7 +437,6 @@ export default async function LocaleLayout({
               "subOrganization": [
                 /* Digital & Creative Divisions */
                 { "@type": "Organization", "name": "IndoDesignWeb", "url": "https://indodesign.website" },
-
                 /* Country-Based Divisions */
                 { "@type": "Organization", "name": "Indonesian Visa Europe", "url": "https://europeindonesiavisa.online" },
                 { "@type": "Organization", "name": "Indonesian Visa America", "url": "https://americaindonesiavisa.online" },
@@ -467,14 +446,13 @@ export default async function LocaleLayout({
                 { "@type": "Organization", "name": "Indonesian Visa UAE", "url": "https://uaeindonesiavisas.agency" },
                 { "@type": "Organization", "name": "Indonesian Visa China", "url": "https://chinaindonesiavisa.online" },
                 { "@type": "Organization", "name": "Indonesian Visa India", "url": "https://indiaindonesiavisa.online" },
-
                 /* City-Based Divisions & Affiliates */
                 { "@type": "Organization", "name": "Bali Visa Division", "url": "https://balivisa.agency" },
                 { "@type": "Organization", "name": "Jakarta Visa Division", "url": "https://jakartavisa.agency" },
                 { "@type": "Organization", "name": "Lombok Visa Division", "url": "https://lombokvisa.online" },
                 { "@type": "Organization", "name": "Surabaya Visa Division", "url": "https://surabayavisa.online" },
                 { "@type": "Organization", "name": "Bali Visas Affiliate", "url": "https://balivisas.agency" },
-                { "@type": "Organization", "name": "VOA Bali Expert", "url": "https://voabali.com" }
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "VOA Bali Expert", "url": "https://voabali.com" } }
               ],
               "founder": {
                 "@type": "Person",
@@ -499,10 +477,6 @@ export default async function LocaleLayout({
           <AuthProvider>
             <ApplicationProvider>
               <div className="flex flex-col min-h-screen relative">
-                <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[1000] focus:bg-white focus:text-primary focus:p-4 focus:rounded-xl focus:shadow-xl focus:font-bold border-2 border-primary">
-                  Skip to content
-                </a>
-
                 <Header dict={dict} locale={currentLocale} />
                 <GlobalInfoPopup locale={currentLocale} />
 

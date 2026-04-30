@@ -217,3 +217,11 @@ function isPublicRoute(path: string) {
 
 export default middleware;
 
+// PERFORMANCE: Only run middleware on actual page navigations,
+// not static assets, images, or internal Next.js resources.
+// This prevents the middleware from being invoked on every single request.
+export const config = {
+    matcher: [
+        '/((?!_next/static|_next/image|favicon\\.ico|images/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$).*)',
+    ],
+};

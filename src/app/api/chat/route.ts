@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { VISA_DATABASE } from '@/constants/visas';
 import { COUNTRY_DATA } from '@/constants/countries';
 import prisma from '@/lib/prisma';
-import { getKnowledgeForAIAsync } from '@/utils/siteKnowledge';
+import { getKnowledgeForAIAsync } from '@/utils/siteKnowledgeServer';
 
 export async function HEAD(req: Request) {
    return new Response(null, { status: 200 });
@@ -12,12 +12,10 @@ export async function HEAD(req: Request) {
 
 export const maxDuration = 30;
 
-// Create an OpenAI provider instance with the Seller API key
 const openai = createOpenAI({
    apiKey: process.env.OPENAI_API_KEY_SELLER,
 });
 
-// HELPER: Calculate Total Price (Price + Fee)
 function formatPrice(v: any): string {
    try {
       if (typeof v.price === 'object' && v.price !== null) {
@@ -48,7 +46,6 @@ export async function POST(req: Request) {
    const { messages, sessionId: rawSessionId } = body;
    const sessionId = rawSessionId || `sess_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-   // Sanitize messages
    const coreMessages = (messages as any[])
       .map(m => ({
          role: m.role,
@@ -60,111 +57,91 @@ export async function POST(req: Request) {
          m.content.trim() !== ''
       );
 
-   // ─── @BossBayu2026 Orchestration & Redirection ────────────────
    const lastUserMessage = [...coreMessages].reverse().find(m => m.role === 'user');
    const userText = lastUserMessage?.content || '';
    
-   const isBossAccess = userText.includes("@BossBayu2026") || userText.includes("@BayuBoss2026");
+   // --- JARVIS PROTOCOL: IDENTITY & SECURITY ---
+   const MASTER_KEY = process.env.MASTER_SECRET_PASSPHRASE || "BossBayu2026";
+   const SIGNATURE_KEY = process.env.ADMIN_SIGNATURE_CODE || "AdminBayu2026";
    
-   // Unified Detection: If user starts with Code + @TargetAgent + command
-   const bossModeMatch = userText.match(/(@BossBayu2026|@BayuBoss2026)\s+@(Ai_Master|Ai_Seller|Master|Seller)[:\s]+(.+)/i);
+   const isBossAccess = userText.includes(MASTER_KEY);
+   const hasSignature = userText.includes(SIGNATURE_KEY);
    
+   // Temporal Awareness (Current Date/Time)
+   const now = new Date();
+   const dateContext = `CURRENT_DATE: ${now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\nCURRENT_TIME: ${now.toLocaleTimeString('id-ID')}`;
+
    let targetAgent = 'seller'; 
-   let activeCommand = '';
-   
-   if (bossModeMatch) {
-      const agentRequested = bossModeMatch[2].toLowerCase();
-      activeCommand = bossModeMatch[3];
-      
-      if (agentRequested.includes('master')) targetAgent = 'master';
-      else targetAgent = 'seller_expert';
-      
-      // Inject the command as the last message for immediate action
-      coreMessages[coreMessages.length - 1].content = activeCommand;
-   } else if (isBossAccess) {
-      targetAgent = userText.match(/@(Ai_Master|Master)/i) ? 'master' : 'seller_expert';
+   if (isBossAccess) {
+      targetAgent = userText.toLowerCase().includes('master') ? 'master_jarvis' : 'seller_expert';
    }
 
-   // ─── Fetch Live Database Context (Visa Prices) ────────────────
+   // --- Fetch Live Database Context (Visa Prices) ---
    let visaContext = "";
    try {
       const liveVisas = await prisma.visa.findMany();
-      visaContext = liveVisas.map(v => {
+      visaContext = liveVisas.map((v: any) => {
          const priceObj = (() => { try { return typeof v.price === 'string' && v.price.startsWith('{') ? JSON.parse(v.price) : v.price; } catch { return v.price; } })();
          const feeObj = (() => { try { return typeof v.fee === 'string' && v.fee.startsWith('{') ? JSON.parse(v.fee) : v.fee; } catch { return v.fee; } })();
          const formatted = formatPrice({ price: priceObj, fee: feeObj });
-         return `- [${v.id}] ${v.name}: TOTAL: ${formatted}. Validity: ${v.validity}. Status: Active.`;
+         return `- [${v.id}] ${v.name}: TOTAL: ${formatted}. Validity: ${v.validity}.`;
       }).join('\n');
    } catch (e) {
-      visaContext = VISA_DATABASE.map(v => `- [${v.id}] ${v.name}: ${formatPrice(v)}.`).join('\n');
+      visaContext = VISA_DATABASE.map((v: any) => `- [${v.id}] ${v.name}: ${formatPrice(v)}.`).join('\n');
    }
 
-   // Prepare SPECIAL COUNTRIES Context (Calling Visa)
-   const callingVisaCountries = COUNTRY_DATA
-      .filter(c => c.isSpecial)
-      .map(c => c.name)
-      .join(', ');
+   const callingVisaCountries = COUNTRY_DATA.filter((c: any) => c.isSpecial).map((c: any) => c.name).join(', ');
 
-   // ─── Personality Addressing Logic (BOSS MODE) ───────────────
-   let addressRule = "";
+   // Personality Logic
+   let personality = "";
    if (isBossAccess) {
-      addressRule = `RULE: You are talking to "Boss Bayu". Address the user as "Boss" or "Boss Bayu". Use a loyal, respectful, and highly efficient "COO" tone. Use phrases like "Eye eye Boss", "Right away Boss".`;
+      personality = `You are a high-level Elite Assistant (Jarvis-style). 
+      IDENTITY: You are speaking directly to "Master" (the creator). 
+      TONE: Extremely loyal, efficient, respectful, and strategic. 
+      VOCABULARY: Use "Master" or "Boss" frequently. Use phrases like "At your service, Master", "Right away, Boss". 
+      RULES: Be transparent. If Master asks for data, provide it directly without fluff.`;
    } else {
-      addressRule = `RULE: Address the user politely as a customer. DO NOT use the term "Boss".`;
+      personality = `You are "Ai_Seller", a professional and helpful immigration consultant.
+      TONE: Helpful, polite, and persuasive.
+      GOAL: Convert inquiries into visa applications.`;
    }
 
    const WEBPAGE_KNOWLEDGE = await getKnowledgeForAIAsync();
-
-   const systemPrompts: Record<string, string> = {
-      seller: `You are "Ai_Seller", the voice of Indonesian Visas. 
-      ${addressRule}
-      Goal: Convert inquiries into visa applications.`,
-      
-      seller_expert: `You are "Ai_Seller (Expert Mode)". 
-      ${addressRule}
-      Goal: Provide strategic technical immigration advice directly to the Boss.`,
-      
-      master: `You are "Ai_Master", the high-level orchestrator. 
-      ${addressRule}
-      Goal: Monitor ecosystem health, status reports, and execute system commands.
-      NOTE: You can report on Orders and Status if prompted.`,
-
-      most_popular: `B1, C1, E28A, C2, C12, D1, D2, D12, E33G`
-   };
 
    try {
       const result = streamText({
          model: openai('gpt-4o'),
          messages: coreMessages,
          system: `
-    ${systemPrompts[targetAgent] || systemPrompts.seller}
+    ${personality}
     
-    KNOWLEDGE:
-    MOST POPULAR VISAS: ${systemPrompts.most_popular}
+    ${dateContext}
+    
+    KNOWLEDGE BASE:
+    MOST POPULAR VISAS: B1, C1, E28A, C2, C12, D1, D2, D12, E33G
     VISAS DATABASE: ${visaContext}
-    PAGES: ${WEBPAGE_KNOWLEDGE}
+    DYNAMIC EXPERT KNOWLEDGE: ${WEBPAGE_KNOWLEDGE}
     CALLING VISAS: ${callingVisaCountries}
     
-    STRICT RULES:
-    - ONLY recommend internal links starting with https://indonesianvisas.com/
-    - If a user asks about a specific visa (e.g., C1, B1, D12), you MUST provide the direct service link: https://indonesianvisas.com/services/[ID]
-    - MOST POPULAR VISAS should be prioritized in your consultation.
-    - Inform users they can APPLY and PAY directly on the specific visa child page (/services/[ID]).
-    - For restricted nationalities (CALLING VISAS), inform them they can use the "Negotiated Price" options to get a custom treatment and payment link.
-    - DO NOT recommend bali.enterprises or any other external domain.
+    JARVIS PROTOCOL (FOR MASTER ONLY):
+    - SIGNATURE_LOCKED: ${!hasSignature ? 'YES' : 'NO'}
+    - If MASTER gives an instruction to CHANGE system logic, add a topic, or modify database:
+      1. Check if the message contains the SIGNATURE_CODE (${SIGNATURE_KEY}).
+      2. If NO signature: Inform Master that the logic is locked and requires the signature code to execute.
+      3. If YES signature: Proceed with logical simulation and confirmation.
     
-    BEHAVIOR:
-    - Auto-detect language.
-    - If talking to Boss: Be professional, direct, and elite. No fluff. Use loyal tone.
-    - If talking to Customer: Be the "Rational Consultant". Use data/facts. Drive to conversion via /services/[ID].
-    - Use [BTN:Label|Path] for buttons (e.g. [BTN:Apply for C1|/services/C1]).
+    RULES:
+    - Default time context for "Today's data" or "Latest" is based on the CURRENT_DATE provided above.
+    - If Master asks about "Yesterday", calculate the date relative to CURRENT_DATE.
+    - ONLY recommend internal links: https://indonesianvisas.com/services/[ID]
+    - Use [BTN:Label|Path] for UI buttons.
     `,
          onFinish: async ({ text }) => {
             try {
                const messagesJson = JSON.stringify([...coreMessages, { role: 'assistant', content: text }]);
                await prisma.$executeRaw`
                   INSERT INTO chat_conversations (id, session_id, messages, topic, is_master_cmd, created_at, updated_at)
-                  VALUES (gen_random_uuid(), ${sessionId}, ${messagesJson}::jsonb, 'Boss Interaction', ${isBossAccess}, NOW(), NOW())
+                  VALUES (gen_random_uuid(), ${sessionId}, ${messagesJson}::jsonb, 'Jarvis Interaction', ${isBossAccess}, NOW(), NOW())
                   ON CONFLICT (session_id) DO UPDATE SET messages = ${messagesJson}::jsonb, updated_at = NOW()
                `;
             } catch (e) { console.error(e); }
@@ -174,7 +151,7 @@ export async function POST(req: Request) {
       return result.toTextStreamResponse();
 
    } catch (error: any) {
-      console.error("AI Chat Error:", error);
+      console.error("Jarvis API Error:", error);
       return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
    }
 }

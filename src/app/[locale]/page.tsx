@@ -1,6 +1,6 @@
 import React from "react";
 import dynamic from "next/dynamic";
-import Hero from "@/components/hero/Hero";
+import HeroClient from "@/components/hero/HeroClient";
 import LazySection from "@/components/layout/LazySection";
 import { getMessages } from "@/i18n/getMessages";
 import ApplyExtend from "@/components/sections/ApplyExtend";
@@ -138,7 +138,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     'sameAs': [
       'https://maps.app.goo.gl/p6t9JSd5CGCDf7jZA',
       'https://www.instagram.com/balihelp.id'
-    ]
+    ],
+    'aggregateRating': {
+      '@type': 'AggregateRating',
+      'ratingValue': '4.9',
+      'reviewCount': '200',
+      'bestRating': '5',
+      'worstRating': '1'
+    }
   };
 
   const faqSchema = {
@@ -206,8 +213,15 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-      {/* Hero — critical, server-rendered immediately */}
-      <Hero dict={dict} />
+      {/* Hero — Interactive Client Component */}
+      <HeroClient 
+        dict={dict} 
+        title={dict?.hero?.title}
+        subtitle={dict?.hero?.subtitle}
+        description={dict?.hero?.description}
+        steps={dict?.hero?.steps}
+        stats={dict?.hero?.stats}
+      />
 
       {/* Just below hero — minimal delay */}
       <ApplyExtend dict={dict} />

@@ -1,10 +1,17 @@
-import { useEffect, useState, RefObject } from 'react';
+import { useEffect, useState, useMemo, RefObject } from 'react';
 
 export function useIntersectionObserver(
     ref: RefObject<Element | null>,
     options: IntersectionObserverInit = { threshold: 0, rootMargin: '200px' }
 ) {
     const [isIntersecting, setIsIntersecting] = useState(false);
+
+    // Stabilize options reference to prevent re-creating the observer on every render
+    const stableOptions = useMemo(() => ({
+        threshold: options.threshold ?? 0,
+        rootMargin: options.rootMargin ?? '200px',
+        root: options.root ?? null,
+    }), [options.threshold, options.rootMargin, options.root]);
 
     useEffect(() => {
         const target = ref.current;
@@ -16,14 +23,14 @@ export function useIntersectionObserver(
                 // Only load once, then keep it around
                 observer.disconnect();
             }
-        }, options);
+        }, stableOptions);
 
         observer.observe(target);
 
         return () => {
             observer.disconnect();
         };
-    }, [ref, options]);
+    }, [ref, stableOptions]);
 
     return isIntersecting;
 }

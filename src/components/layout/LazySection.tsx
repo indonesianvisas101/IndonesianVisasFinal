@@ -12,18 +12,11 @@ interface LazySectionProps {
 
 export default function LazySection({ children, minHeight = '300px', rootMargin = '400px', className = '' }: LazySectionProps) {
     const ref = useRef<HTMLDivElement>(null);
-    const [isMounted, setIsMounted] = React.useState(false);
     const isIntersecting = useIntersectionObserver(ref, { rootMargin, threshold: 0 });
 
-    React.useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    const shouldShow = isMounted && isIntersecting;
-
     return (
-        <div ref={ref} style={{ minHeight: shouldShow ? 'auto' : minHeight }} className={className}>
-            {shouldShow ? children : null}
+        <div ref={ref} style={{ minHeight: isIntersecting ? 'auto' : minHeight }} className={className}>
+            {isIntersecting ? children : null}
         </div>
     );
 }

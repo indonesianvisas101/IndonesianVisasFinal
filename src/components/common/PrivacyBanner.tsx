@@ -83,7 +83,7 @@ const PrivacyBanner = () => {
 
                                     <button
                                         onClick={handleAccept}
-                                        className="group/btn flex items-center gap-3 bg-primary text-white px-8 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-tighter hover:scale-[1.03] active:scale-95 transition-all shadow-xl shadow-primary/25 border border-primary/20"
+                                        className="group/btn flex items-center gap-3 bg-gray-500 text-white px-8 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-tighter hover:bg-gray-600 hover:scale-[1.03] active:scale-95 transition-all shadow-xl shadow-gray-500/25 border border-white/10"
                                     >
                                         Accept & Continue <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                                     </button>

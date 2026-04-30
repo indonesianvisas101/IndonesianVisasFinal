@@ -192,18 +192,14 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                             </div>
                         </div>
                         <div className="md:w-1/2 flex justify-center">
-                            <div className="scale-90 md:scale-100">
                                 <IDivCardModern mode="SMART" showDownload={false} shareUrl="https://indonesianvisas.com/ktp-id-card-smart-id" />
-                            </div>
                         </div>
                    </div>
 
                    {/* IDiv Explained Section */}
                    <div className="mt-1 bg-blue-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-none flex flex-col md:flex-row items-center gap-12">
                         <div className="md:w-1/2 flex justify-center">
-                            <div className="scale-90 md:scale-100">
                                 <IDivCardModern showDownload={false} shareUrl="https://indonesianvisas.com/id-indonesian-visas" />
-                            </div>
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <h3 className="text-3xl font-black mode-aware-text">ID Indonesian Visas (IDIV)</h3>
@@ -238,9 +234,7 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                    {/* IDg Explained Section (New) */}
                    <div className="mt-1 bg-purple-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-b-[2.9rem] flex flex-col md:flex-row-reverse items-center gap-12">
                         <div className="md:w-1/2 flex justify-center">
-                            <div className="scale-90 md:scale-100">
                                 <IDivCardModern mode="IDG" variant="purple" showDownload={false} shareUrl="https://indonesianvisas.com/id-guide" />
-                            </div>
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs font-bold border border-purple-200 dark:border-purple-800">

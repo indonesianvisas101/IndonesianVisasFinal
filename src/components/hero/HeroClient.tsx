@@ -1,5 +1,4 @@
 "use client";
-// forcing recompile
 
 import React from "react";
 import styles from "./Hero.module.css";
@@ -7,8 +6,8 @@ import { useApplication } from "../application/ApplicationContext";
 import { runWhenIdle } from "@/utils/scheduler";
 import dynamic from "next/dynamic";
 import Link from "next/link"; 
-import { ArrowRight, ShieldCheck, RefreshCcw, Globe, Clock, Star, Zap, Lock, Info, Copy, Check } from "lucide-react"; 
-import { LazyMotion, domMax, m, AnimatePresence } from "framer-motion";
+import { ArrowRight, ShieldCheck, Zap, Info, Copy, Check } from "lucide-react"; 
+import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import { formatNavLink } from "@/utils/seo";
 import { useParams } from "next/navigation";
 
@@ -47,7 +46,7 @@ export const HeroGlobeWrapper = () => {
 
     return (
         <div ref={containerRef} className="absolute inset-0 pointer-events-none">
-            <LazyMotion features={domMax}>
+            <LazyMotion features={domAnimation}>
                 <AnimatePresence>
                     {isMounted && (
                         <m.div
@@ -118,8 +117,8 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
 const LEGAL_DATA = {
     legalName:   "PT Indonesian Visas Agency",
     nib:         "0402260034806",
-    npwp:        "100000008117681",
-    skt:         "S-04449/SKT-WP-C/KT/KPP.1701/2026",
+    npwp:        "0100000008117681",
+    skt:         "S-04449/SKT-WP-CT/KPP.1701/2026",
     ahu:         "AHU-00065.AH.02.01.TAHUN 2020",
     sponsor:     "Recorded 2010, 2014, 2023, 2024, 2026",
     url:         "https://indonesianvisas.com",
@@ -202,7 +201,7 @@ export const HeroBadge = () => {
     ];
 
     return (
-        <LazyMotion features={domMax}>
+        <LazyMotion features={domAnimation}>
             {/* ── JSON-LD: Organization schema (SEO / machine-readable) ── */}
             <script
                 type="application/ld+json"
@@ -222,12 +221,12 @@ export const HeroBadge = () => {
                             initial={{ opacity: 0, y: 10, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.9 }}
-                            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[100] whitespace-nowrap pointer-events-none"
+                            className="absolute top-full left-1/2 -translate-x-1/2 mt-3 md:top-auto md:bottom-full md:mt-0 md:mb-3 z-[100] whitespace-nowrap pointer-events-none"
                         >
                             <div className="bg-[#4B0082] text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2">
                                 <Zap size={12} className="text-amber-400" />
                                 CHECK LEGALITY HERE
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-[#4B0082]" />
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-b-[#4B0082] md:bottom-auto md:top-full md:border-b-transparent md:border-t-[#4B0082]" />
                             </div>
                         </m.div>
                     )}
@@ -371,6 +370,7 @@ export const HeroStats = ({ company, processed, success }: { company: string; pr
 // 3. The Rights Steps Card (Client)
 interface HeroStepsProps {
     title: string;
+    onQuickApply?: () => void;
     dict?: any;
     labels?: {
         step1: string;
@@ -384,10 +384,12 @@ interface HeroStepsProps {
     }
 }
 
-export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
+const QuickApplicationModal = dynamic(() => import("../application/QuickApplicationModal"), { ssr: false });
+
+export const HeroSteps = ({ title, labels, dict, onQuickApply }: HeroStepsProps) => {
     const params = useParams();
     const locale = (params?.locale as string) || 'en';
-    const { completedSteps } = useApplication();
+    const { completedSteps, openPanel } = useApplication();
     const [activeIdleStep, setActiveIdleStep] = React.useState<number>(0);
     const [isInitialAnimation, setIsInitialAnimation] = React.useState(true);
 
@@ -425,8 +427,16 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
         <div className={`glass-card ${styles.card} group`}>
             <div className="flex items-center justify-between mb-2">
                 <h3 className={styles.cardTitle}>{title || "Simple 4-Step Process"}</h3>
-                <div className="p-1.5 bg-slate-100 dark:bg-white/10 rounded-full text-slate-400 group-hover:text-primary transition-colors">
-                    <Info size={16} />
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); if (onQuickApply) onQuickApply(); }}
+                        className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black rounded-full transition-all hover:scale-105 active:scale-95 uppercase tracking-wider shadow-sm"
+                    >
+                        Quick Apply
+                    </button>
+                    <div className="p-1.5 bg-slate-100 dark:bg-white/10 rounded-full text-slate-400 group-hover:text-primary transition-colors">
+                        <Info size={12} />
+                    </div>
                 </div>
             </div>
 
@@ -473,39 +483,21 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
                 </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/10 space-y-3">
+            <div className="mt-6 pt-5 border-t border-slate-200 dark:border-white/10 flex flex-row gap-2">
                 <Link 
                     href={formatNavLink(locale, "/check-status")} 
-                    className="flex items-center justify-between w-full px-6 py-4 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/20 rounded-2xl transition-all group"
+                    className="flex-1 flex items-center justify-center px-3 py-2.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/20 rounded-xl transition-all"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-500 rounded-lg group-hover:scale-110 transition-transform">
-                            <RefreshCcw size={18} />
-                        </div>
-                        <div className="text-left">
-                            <p className="text-sm font-bold text-slate-900 dark:text-white">Check Order Status</p>
-                            <p className="text-[10px] text-slate-500 dark:text-gray-400">Track your application real-time</p>
-                        </div>
-                    </div>
-                    <ArrowRight className="text-slate-400 dark:text-gray-500 group-hover:text-primary dark:group-hover:text-white group-hover:translate-x-1 transition-all" size={18} />
+                    <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">Check Order</span>
                 </Link>
 
                 <Link 
                     href={formatNavLink(locale, "/idiv-search")} 
-                    className="flex items-center justify-between w-full px-6 py-3 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-xl transition-all group/idiv"
+                    className="flex-1 flex items-center justify-center px-3 py-2.5 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-xl transition-all"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="flex items-center gap-3">
-                        <div className="p-1.5 bg-primary/10 text-primary rounded-lg group-hover/idiv:scale-110 transition-transform">
-                            <Globe size={16} />
-                        </div>
-                        <div className="text-left">
-                            <p className="text-xs font-black text-primary uppercase tracking-tighter">Search IDiv</p>
-                            <p className="text-[9px] text-slate-500 dark:text-gray-400">Public Verification System</p>
-                        </div>
-                    </div>
-                    <ArrowRight className="text-primary/40 group-hover/idiv:text-primary group-hover/idiv:translate-x-1 transition-all" size={14} />
+                    <span className="text-[10px] font-black text-primary uppercase tracking-wider">Search IDIV</span>
                 </Link>
             </div>
 
@@ -517,3 +509,53 @@ export const HeroSteps = ({ title, labels, dict }: HeroStepsProps) => {
         </div>
     );
 };
+
+// 4. Main Hero Client Entry
+export default function HeroClient({ title, subtitle, description, steps, stats, dict }: any) {
+    const [isQuickApplyOpen, setIsQuickApplyOpen] = React.useState(false);
+
+    return (
+        <section className={styles.hero}>
+            <HeroGlobeWrapper />
+            <div className="container mx-auto px-4 relative z-10">
+                <div className={styles.content}>
+                    <div className={styles.animateSlideUp}>
+                        <HeroBadge />
+                        <h1 className={styles.title}>{title || "Immigration Assistance"}</h1>
+                        <h2 className={styles.subtitle}>{subtitle || "Bali & Indonesia"}</h2>
+                        <p className={styles.description}>{description || "Professional services for all your visa and stay permit needs."}</p>
+                        
+                        <HeroStats 
+                            company={stats?.company}
+                            processed={stats?.processed}
+                            success={stats?.success}
+                        />
+                        
+                        <HeroCTA 
+                            label={dict?.hero?.cta}
+                            arrivalCardLabel={dict?.hero?.arrival_card}
+                        />
+                    </div>
+
+                    <div className={styles.animateSlideUpDelay}>
+                        <HeroSteps 
+                            title={steps?.title} 
+                            labels={steps?.labels}
+                            dict={dict}
+                            onQuickApply={() => setIsQuickApplyOpen(true)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <AnimatePresence>
+                {isQuickApplyOpen && (
+                    <QuickApplicationModal 
+                        isOpen={isQuickApplyOpen} 
+                        onClose={() => setIsQuickApplyOpen(false)} 
+                    />
+                )}
+            </AnimatePresence>
+        </section>
+    );
+}

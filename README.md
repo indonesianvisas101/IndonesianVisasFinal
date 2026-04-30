@@ -14,10 +14,17 @@ To provide the most secure, transparent, and aesthetically premium visa processi
 - **Internationalization**: 20 locales (`/en`, `/id`, `/fr`, `/es`, `/de`, `/zh`, `/ja`, `/ko`, `/ar`, `/ru`, `/pt`, `/it`, `/nl`, `/tr`, `/pl`, `/vi`, `/th`, `/ms`, `/hi`, `/uk`)
 
 ## 🛡️ Key Features
-- **Global Compliance Engine**: GDPR-aligned Privacy Banner with 4s intelligent delay and persistent consent tracking.
-- **Smart ID System™**: 3-variant identity cards (IDIV / IDG / SMART) with QR-triggered public verification.
-- **Check Legality Popup**: Hero section badge with full legal data grid, JSON-LD schema, and 4 government verification links.
-- **Visa Advance System™**: Multi-layer database verification for travel documents.
+# Indonesian Visas Intelligence Suite
+**Version:** 59.0.0 (Visual Supremacy & Sustainable Hardening)
+**Status:** PRODUCTION READY - HARDENED 🛡️
+**Engine:** Next.js 16.1.1 (Turbopack) | Prisma v5 | AI Multi-Agent v2.3
+
+---
+
+### 🛡️ LATEST INTELLIGENCE (April 30, 2026)
+- **Visual Framework**: Successfully deployed cinematic **Edge-to-Edge** layout (1600px width) across News and Knowledge hubs.
+- **Lead Capture**: Hardened `subscribe` API with **Database-First Resilience**, isolating SMTP failures.
+- **Data Sovereignty**: Unified legal data (NPWP 16-digit) for maximum AI/LLM trust and E-E-A-T compliance.
 - **Dynamic Pricing**: Negotiated tier, Standard, Express — synced with Admin Dashboard.
 - **Universal Search**: Advanced semantic search for all visa and company services.
 - **ISR Landing Page**: `revalidate=3600` — 1-hour CDN cache, zero DB hits per visitor.

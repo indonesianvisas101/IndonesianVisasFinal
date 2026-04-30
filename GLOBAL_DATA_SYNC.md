@@ -1,6 +1,6 @@
 # BALI ENTERPRISES GROUP - CORPORATE MASTER INTELLIGENCE NODE
-**Version**: 2.3 (Complete Cluster Intelligence)
-**Last Audit**: 2026-04-27
+**Version**: 3.0 (Complete Cluster Intelligence + JSON-LD Sync Templates)
+**Last Audit**: 2026-04-30
 **Purpose**: Centralized source of truth for AI Developers and Human Engineers across all group domains.
 
 ---
@@ -11,7 +11,7 @@
 | **NIB** | 0402260034806 | (Linked / Parent) |
 | **AHU** | AHU-00065.AH.02.01.TAHUN 2020 | AHU-00065... (Holding) |
 | **KKPR (Land Use)** | 04022610215171007 | 04022610215171007 |
-| **NPWP** | 10.000.000.0-811.7681 | 10.000.000.0-811.7681 |
+| **NPWP** | 01.000.000.0-811.7681 (Raw: 0100000008117681) | 01.000.000.0-811.7681 |
 | **KBLI** | 79111 (Travel Agency / Visa) | 70209 (Management / Holding) |
 | **SKT** | S-04449/SKT-WP-CT/KPP.1701/2026 | S-04449/SKT-WP-CT/KPP.1701/2026 |
 | **Office Address** | Jl. Tibungsari No.11C, Padangsambian Kaja, Denpasar Barat, Bali 80117 | Jl. Tibungsari No.11C, Denpasar Bali |
@@ -20,15 +20,23 @@
 
 ## 2. DIGITAL ECOSYSTEM ASSETS (Domain Cluster)
 
-| Domain | Role | Target Region | Authority |
-| :--- | :--- | :--- | :--- |
-| **indonesianvisas.com** | National Flagship | All Indonesia | Primary Sponsor (HQ) |
-| **balihelp.id** | Lifestyle & Emergency | Bali Local | Service Hub |
-| **balivisa.agency** | Bali Division | Bali | City Division |
-| **jakartavisas.agency** | Jakarta Division | Jakarta / IKN | City Division |
-| **bali.enterprises** | Strategic Holding | Global / IKN | Management |
-| **bali.technology** | R&D / Smart ID | Global | Tech Provider |
-| **indodesign.website** | Creative & UI/UX | Global | Design Studio |
+| Domain | Role | Target Region | Authority | JSON-LD Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **indonesianvisas.com** | National Flagship | All Indonesia | Primary Sponsor (HQ) | ✅ COMPLETE |
+| **balivisa.agency** | Bali Division | Bali | City Division | ✅ SYNCED |
+| **jakartavisas.agency** | Jakarta Division | Jakarta / IKN | City Division | ✅ SYNCED |
+| **balihelp.id** | Lifestyle & Emergency | Bali Local | Service Hub | ❌ PENDING |
+| **bali.enterprises** | Strategic Holding | Global / IKN | Management | ❌ PENDING |
+| **bali.technology** | R&D / Smart ID | Global | Tech Provider | ❌ PENDING |
+| **indodesign.website** | Creative & UI/UX | Global | Design Studio | ❌ PENDING |
+| **europeindonesiavisa.online** | Europe Division | Europe | Country Division | ❌ PENDING |
+| **americaindonesiavisa.online** | America Division | Americas | Country Division | ❌ PENDING |
+| **australiaindonesiavisa.online** | Australia Division | Oceania | Country Division | ❌ PENDING |
+| **russiaindonesiavisa.online** | Russia Division | Russia/CIS | Country Division | ❌ PENDING |
+| **ukindonesiavisa.online** | UK Division | United Kingdom | Country Division | ❌ PENDING |
+| **uaeindonesiavisas.agency** | UAE Division | Middle East | Country Division | ❌ PENDING |
+| **chinaindonesiavisa.online** | China Division | China/ASEAN | Country Division | ❌ PENDING |
+| **indiaindonesiavisa.online** | India Division | South Asia | Country Division | ❌ PENDING |
 
 ---
 
@@ -105,21 +113,202 @@
 
 ---
 
-## 5. MASTER JSON-LD SYNC (COPY-PASTE FOR AI)
-All developers must include this `parentOrganization` block to synchronize the Knowledge Graph:
+## 5. MASTER JSON-LD SYNC TEMPLATES
 
+> **CRITICAL**: All websites in the ecosystem MUST include the `parentOrganization` block below to synchronize the Google Knowledge Graph. The `@id` field is the anchor that links all entities together.
+
+### 5A. Parent Organization Block (REQUIRED ON ALL SITES)
 ```json
 {
   "@type": "Corporation",
   "@id": "https://indonesianvisas.com/#organization",
   "name": "PT Indonesian Visas Agency",
   "legalName": "PT Indonesian Visas Agency",
-  "alternateName": ["Indonesian Visas", "Bali Help", "BaliVisa Agency", "Jakarta Visas Agency"],
+  "alternateName": ["Indonesian Visas", "Indonesian Visas Agency", "Bali Help", "BaliVisa Agency", "Jakarta Visas Agency"],
   "foundingDate": "2010",
+  "taxID": "0100000008117681",
   "parentOrganization": {
     "@type": "Organization",
     "name": "PT Bali Enterprises Group",
     "url": "https://bali.enterprises"
+  }
+}
+```
+
+### 5B. Template: City Division Sites (balivisa.agency, jakartavisas.agency, lombokvisa.online, surabayavisa.online)
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "@id": "https://[DOMAIN]/#organization",
+  "name": "[DIVISION NAME] - Official Division of PT Indonesian Visas Agency",
+  "url": "https://[DOMAIN]",
+  "description": "[CUSTOM DESCRIPTION FOR THIS CITY]",
+  "telephone": "+62-857-2704-1992",
+  "email": "contact@indonesianvisas.agency",
+  "parentOrganization": {
+    "@type": "Corporation",
+    "@id": "https://indonesianvisas.com/#organization",
+    "name": "PT Indonesian Visas Agency",
+    "legalName": "PT Indonesian Visas Agency",
+    "taxID": "0100000008117681",
+    "url": "https://indonesianvisas.com"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Jl. Tibungsari No.11C, Padangsambian Kaja",
+    "addressLocality": "Denpasar Barat, Denpasar",
+    "addressRegion": "Bali",
+    "postalCode": "80117",
+    "addressCountry": "ID"
+  },
+  "identifier": [
+    { "@type": "PropertyValue", "name": "NIB", "value": "0402260034806" },
+    { "@type": "PropertyValue", "name": "AHU", "value": "AHU-00065.AH.02.01.TAHUN 2020" },
+    { "@type": "PropertyValue", "name": "KKPR", "value": "04022610215171007" }
+  ],
+  "sameAs": [
+    "https://indonesianvisas.com",
+    "https://maps.app.goo.gl/p6t9JSd5CGCDf7jZA"
+  ],
+  "founder": {
+    "@type": "Person",
+    "name": "Bayu Damopolii-Manoppo",
+    "jobTitle": "Founder & Strategic Director",
+    "url": "https://www.linkedin.com/in/balihelp/",
+    "sameAs": ["https://www.linkedin.com/in/bayu-damopolii-887ab883/"]
+  }
+}
+```
+
+### 5C. Template: Country Division Sites (europeindonesiavisa.online, americaindonesiavisa.online, etc.)
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "@id": "https://[DOMAIN]/#organization",
+  "name": "Indonesian Visa [COUNTRY/REGION] - Official Division",
+  "url": "https://[DOMAIN]",
+  "description": "Official [COUNTRY/REGION] division of PT Indonesian Visas Agency. Apply for Indonesian visas from [COUNTRY/REGION] with direct sponsor support.",
+  "areaServed": "[COUNTRY/REGION]",
+  "parentOrganization": {
+    "@type": "Corporation",
+    "@id": "https://indonesianvisas.com/#organization",
+    "name": "PT Indonesian Visas Agency",
+    "legalName": "PT Indonesian Visas Agency",
+    "taxID": "0100000008117681",
+    "url": "https://indonesianvisas.com"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Jl. Tibungsari No.11C, Padangsambian Kaja",
+    "addressLocality": "Denpasar Barat, Denpasar",
+    "addressRegion": "Bali",
+    "postalCode": "80117",
+    "addressCountry": "ID"
+  },
+  "sameAs": ["https://indonesianvisas.com"],
+  "founder": {
+    "@type": "Person",
+    "name": "Bayu Damopolii-Manoppo",
+    "url": "https://www.linkedin.com/in/balihelp/"
+  }
+}
+```
+
+### 5D. Template: Lifestyle/Support Sites (balihelp.id)
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": "https://balihelp.id/#organization",
+  "name": "BaliHelp - Lifestyle & Emergency Concierge",
+  "url": "https://balihelp.id",
+  "description": "Bali's premier lifestyle support and emergency concierge for expats. Official partner of PT Indonesian Visas Agency.",
+  "telephone": "+62-857-2704-1992",
+  "email": "info@balihelp.id",
+  "areaServed": "Bali, Indonesia",
+  "parentOrganization": {
+    "@type": "Corporation",
+    "@id": "https://indonesianvisas.com/#organization",
+    "name": "PT Indonesian Visas Agency",
+    "taxID": "0100000008117681",
+    "url": "https://indonesianvisas.com"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Jl. Tibungsari No.11C, Padangsambian Kaja",
+    "addressLocality": "Denpasar Barat, Denpasar",
+    "addressRegion": "Bali",
+    "postalCode": "80117",
+    "addressCountry": "ID"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Bali Concierge Services",
+    "itemListElement": [
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Emergency Legal & Police Assistance" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Airport Transfer & Private Driver" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Digital Nomad Hub (Office, E-SIM)" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Home Service Massage & Wellness" } }
+    ]
+  },
+  "sameAs": [
+    "https://indonesianvisas.com",
+    "https://www.instagram.com/balihelp.id",
+    "https://maps.app.goo.gl/p6t9JSd5CGCDf7jZA"
+  ]
+}
+```
+
+### 5E. Template: Technology/Creative Sites (bali.technology, indodesign.website)
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://[DOMAIN]/#organization",
+  "name": "[ENTITY NAME]",
+  "url": "https://[DOMAIN]",
+  "description": "[CUSTOM DESCRIPTION]",
+  "parentOrganization": {
+    "@type": "Organization",
+    "name": "PT Bali Enterprises Group",
+    "url": "https://bali.enterprises"
+  },
+  "memberOf": {
+    "@type": "Corporation",
+    "@id": "https://indonesianvisas.com/#organization",
+    "name": "PT Indonesian Visas Agency"
+  },
+  "sameAs": ["https://indonesianvisas.com", "https://bali.enterprises"]
+}
+```
+
+### 5F. Template: Holding Site (bali.enterprises)
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Corporation",
+  "@id": "https://bali.enterprises/#organization",
+  "name": "PT Bali Enterprises Group",
+  "url": "https://bali.enterprises",
+  "email": "info@bali.enterprises",
+  "description": "A diversified holding company governing a multi-sectoral ecosystem of technology, media, immigration law, hospitality, and wellness in Indonesia.",
+  "subOrganization": [
+    { "@type": "Organization", "name": "PT Indonesian Visas Agency", "url": "https://indonesianvisas.com", "@id": "https://indonesianvisas.com/#organization" },
+    { "@type": "Organization", "name": "BaliHelp", "url": "https://balihelp.id" },
+    { "@type": "Organization", "name": "Bali Technology", "url": "https://bali.technology" },
+    { "@type": "Organization", "name": "IndoDesignWeb", "url": "https://indodesign.website" }
+  ],
+  "founder": {
+    "@type": "Person",
+    "name": "Bayu Damopolii-Manoppo",
+    "jobTitle": "Founder & Strategic Director",
+    "url": "https://www.linkedin.com/in/balihelp/",
+    "sameAs": [
+      "https://www.linkedin.com/in/bayu-damopolii-887ab883/",
+      "https://www.linkedin.com/in/balihelp/"
+    ]
   }
 }
 ```
@@ -131,6 +320,24 @@ All developers must include this `parentOrganization` block to synchronize the K
 - **Title**: Founder & Strategic Director
 - **Verified Link 1**: https://www.linkedin.com/in/balihelp/ (New/Brand)
 - **Verified Link 2**: https://www.linkedin.com/in/bayu-damopolii-887ab883/ (Legacy)
+
+---
+
+## 7. IMPLEMENTATION CHECKLIST
+
+### Per-Site Sync Checklist
+When implementing JSON-LD on any ecosystem site, verify ALL of the following:
+
+- [ ] `parentOrganization.@id` points to `https://indonesianvisas.com/#organization`
+- [ ] `taxID` uses raw 16-digit format: `0100000008117681`
+- [ ] `NIB` is exactly: `0402260034806`
+- [ ] `AHU` is exactly: `AHU-00065.AH.02.01.TAHUN 2020`
+- [ ] `SKT` is exactly: `S-04449/SKT-WP-CT/KPP.1701/2026`
+- [ ] `founder.name` is: `Bayu Damopolii-Manoppo`
+- [ ] `founder.url` points to LinkedIn
+- [ ] `address` uses: `Jl. Tibungsari No.11C, Padangsambian Kaja, Denpasar Barat, Bali 80117`
+- [ ] `sameAs` includes `https://indonesianvisas.com` (for divisions)
+- [ ] No duplicate `@id` values across the same page
 
 ---
 **END OF MASTER INTELLIGENCE NODE**

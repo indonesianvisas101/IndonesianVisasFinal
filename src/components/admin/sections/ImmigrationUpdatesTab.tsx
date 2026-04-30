@@ -180,6 +180,9 @@ export default function ImmigrationUpdatesTab() {
                                             size="small" 
                                         />
                                     )}
+                                    {update.category?.includes('KNOWLEDGE') && (
+                                        <Chip label="AI REF" color="info" size="small" sx={{ ml: 1, fontSize: '9px', height: 20 }} />
+                                    )}
                                 </TableCell>
                                 <TableCell color="text.secondary">
                                     {new Date(update.createdAt).toLocaleDateString()}
@@ -251,11 +254,94 @@ export default function ImmigrationUpdatesTab() {
                             value={formData.content}
                             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                         />
-                         <TextField
-                            fullWidth
-                            label="Image URL"
-                            value={formData.image}
-                            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                        <Box>
+                            <Typography variant="caption" color="text.secondary" gutterBottom display="block">
+                                Featured Image (Auto-converted to WebP)
+                            </Typography>
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                {formData.image && (
+                                    <Box 
+                                        component="img" 
+                                        src={formData.image} 
+                                        sx={{ width: 100, height: 60, objectFit: 'cover', borderRadius: 1, border: '1px solid divider' }} 
+                                    />
+                                )}
+                                <Button
+                                    variant="outlined"
+                                    component="label"
+                                    startIcon={isLoading ? <CircularProgress size={20} /> : <AddIcon />}
+                                    disabled={isLoading}
+                                >
+                                    {formData.image ? 'Change Image' : 'Upload Image'}
+                                    <input
+                                        type="file"
+                                        hidden
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+
+                                            setIsLoading(true);
+                                            try {
+                                                // 1. Convert to WebP via Canvas
+                                                const bitmap = await createImageBitmap(file);
+                                                const canvas = document.createElement('canvas');
+                                                // Max width 1200px for blog images
+                                                const scale = Math.min(1, 1200 / bitmap.width);
+                                                canvas.width = bitmap.width * scale;
+                                                canvas.height = bitmap.height * scale;
+                                                
+                                                const ctx = canvas.getContext('2d');
+                                                ctx?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+                                                
+                                                const webpBlob = await new Promise<Blob | null>(resolve => 
+                                                    canvas.toBlob(resolve, 'image/webp', 0.8)
+                                                );
+
+                                                if (!webpBlob) throw new Error("Conversion failed");
+
+                                                // 2. Upload to API
+                                                const uploadFormData = new FormData();
+                                                uploadFormData.append('file', webpBlob, `update-${Date.now()}.webp`);
+
+                                                const res = await fetch('/api/admin/upload', {
+                                                    method: 'POST',
+                                                    body: uploadFormData
+                                                });
+
+                                                const data = await res.json();
+                                                if (data.url) {
+                                                    setFormData({ ...formData, image: data.url });
+                                                }
+                                            } catch (err) {
+                                                console.error("Upload error:", err);
+                                                alert("Failed to process image.");
+                                            } finally {
+                                                setIsLoading(false);
+                                            }
+                                        }}
+                                    />
+                                </Button>
+                                {formData.image && (
+                                    <Button size="small" color="error" onClick={() => setFormData({ ...formData, image: '' })}>
+                                        Remove
+                                    </Button>
+                                )}
+                            </Stack>
+                        </Box>
+                        <FormControlLabel
+                            control={
+                                <Switch 
+                                    checked={formData.category?.includes('KNOWLEDGE')} 
+                                    onChange={(e) => {
+                                        const isKnowledge = e.target.checked;
+                                        const baseCat = formData.category.replace('KNOWLEDGE:', '').replace(':KNOWLEDGE', '');
+                                        setFormData({ ...formData, category: isKnowledge ? `KNOWLEDGE:${baseCat}` : baseCat });
+                                    }} 
+                                    color="info"
+                                />
+                            }
+                            label={<Typography variant="body2" fontWeight="bold">Promote to AI Knowledge Reference</Typography>}
                         />
                         <FormControlLabel
                             control={

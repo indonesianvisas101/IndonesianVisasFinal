@@ -122,11 +122,11 @@ export async function GET(request: Request) {
         const applications: any[] = await prisma.$queryRawUnsafe(query, ...params);
 
         const allUsers = await prisma.user.findMany({ select: { id: true, name: true, email: true } });
-        const userMap = new Map(allUsers.map(u => [u.id, u]));
+        const userMap = new Map<string, any>(allUsers.map((u: any) => [u.id, u]));
 
-        const appIds = applications.map(a => a.id);
+        const appIds = applications.map((a: any) => a.id);
         const invoices = await prisma.invoice.findMany({ where: { applicationId: { in: appIds } } });
-        const invoiceMap = new Map(invoices.map(i => [i.applicationId, i]));
+        const invoiceMap = new Map<string, any>(invoices.map((i: any) => [i.applicationId, i]));
 
         const mappedApps = applications.map(app => {
             const uId = app.userId || app.user_id;
@@ -143,23 +143,23 @@ export async function GET(request: Request) {
                 appliedAt: app.appliedAt || app.applied_at,
                 customAmount: app.customAmount,
                 status: app.status,
-                paymentReference: linkedInvoice?.paymentReference || "",
-                adminNotes: linkedInvoice?.adminNotes || "",
-                paymentStatus: linkedInvoice?.status || "",
+                paymentReference: (linkedInvoice as any)?.paymentReference || "",
+                adminNotes: (linkedInvoice as any)?.adminNotes || "",
+                paymentStatus: (linkedInvoice as any)?.status || "",
                 
                 // Flatten common attribution fields for Dashboard convenience
-                country: app.country || app.attribution?.country || "",
-                arrivalDate: app.arrivalDate || app.attribution?.arrivalDate || "",
+                country: app.country || (app.attribution as any)?.country || "",
+                arrivalDate: app.arrivalDate || (app.attribution as any)?.arrivalDate || "",
 
                 invoice: linkedInvoice ? {
-                    status: linkedInvoice.status,
-                    amount: Number(linkedInvoice.amount || 0),
-                    serviceFee: Number(linkedInvoice.serviceFee || 0),
-                    gatewayFee: Number(linkedInvoice.gatewayFee || 0),
-                    pph23Amount: Number(linkedInvoice.pph23Amount || 0),
-                    paymentReference: linkedInvoice.paymentReference,
-                    adminNotes: linkedInvoice.adminNotes,
-                    quantity: linkedInvoice.quantity || app.quantity || 1
+                    status: (linkedInvoice as any).status,
+                    amount: Number((linkedInvoice as any).amount || 0),
+                    serviceFee: Number((linkedInvoice as any).serviceFee || 0),
+                    gatewayFee: Number((linkedInvoice as any).gatewayFee || 0),
+                    pph23Amount: Number((linkedInvoice as any).pph23Amount || 0),
+                    paymentReference: (linkedInvoice as any).paymentReference,
+                    adminNotes: (linkedInvoice as any).adminNotes,
+                    quantity: (linkedInvoice as any).quantity || app.quantity || 1
                 } : null,
 
                 user: linkedUser || {
@@ -193,7 +193,7 @@ export async function POST(request: Request) {
             ? MultiApplicationSchema.parse(rawBody).applications 
             : [ApplicationSchema.parse(rawBody)];
 
-        const results = await prisma.$transaction(async (tx) => {
+        const results = await prisma.$transaction(async (tx: any) => {
             const createdData = [];
 
             for (const body of appsToProcess) {

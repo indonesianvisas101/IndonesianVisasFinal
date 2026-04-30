@@ -145,12 +145,49 @@ export const AI_IMMIGRATION_ANALYST = {
 
   /**
    * Checks for topic opportunities with clusters
+   * PRIORITIZES: Manual Admin Topics
+   * DISTRIBUTION: 40% Product, 40% Knowledge, 20% News
    */
   async identifyTopics(): Promise<{topic: string, cluster: TopicCluster}[]> {
-    return [
-      { topic: "What is B211A Visa Indonesia", cluster: "visa-types" },
-      { topic: "How to Move to Bali legally as a Digital Nomad", cluster: "expat-guides" },
-      { topic: "Indonesia Visa rules for Australian Citizens", cluster: "visa-country-guides" }
+    console.log("[ANALYST] Identifying topics with 40-40-20 orchestration...");
+
+    // 1. CHECK FOR MANUAL ADMIN TOPICS (Priority 1)
+    // We look into KnowledgePage metadata where 'topic' was manually set by admin
+    const manualPages = await prisma.knowledgePage.findMany({
+      where: {
+        published: false,
+        metadata: { path: ['topic'], not: '' }
+      },
+      take: 5
+    });
+
+    const manualTopics = manualPages
+      .map(p => ({ 
+        topic: (p.metadata as any)?.topic || "", 
+        cluster: "admin-priority" as TopicCluster,
+        isManual: true 
+      }))
+      .filter(t => t.topic.length > 0);
+
+    if (manualTopics.length > 0) {
+      console.log(`[ANALYST] Found ${manualTopics.length} manual admin topics. Prioritizing.`);
+      return manualTopics;
+    }
+
+    // 2. AUTOMATIC ORCHESTRATION (40-40-20)
+    const { TOPIC_SOURCES } = await import('../../topic-discovery/topicSources');
+    
+    const productSignals = await (TOPIC_SOURCES as any).getInternalSignals(); // 40%
+    const knowledgeSignals = TOPIC_SOURCES.getRegulatorySignals(); // 40%
+    const newsSignals = TOPIC_SOURCES.getNewsSignals(); // 20%
+
+    // Aggregate with weighted probability
+    const finalTopics = [
+      ...productSignals.slice(0, 2).map((s: any) => ({ topic: s.query, cluster: 'visa-types' as TopicCluster })),
+      ...knowledgeSignals.slice(0, 2).map(s => ({ topic: s.query, cluster: 'regulatory' as TopicCluster })),
+      ...newsSignals.slice(0, 1).map(s => ({ topic: s.query, cluster: 'immigration-news' as TopicCluster }))
     ];
+
+    return finalTopics;
   }
 };

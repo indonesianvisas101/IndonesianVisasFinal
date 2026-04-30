@@ -15,25 +15,22 @@ To provide the most secure, transparent, and aesthetically premium visa processi
 
 ## 🛡️ Key Features
 # Indonesian Visas Intelligence Suite
-**Version:** 59.0.0 (Visual Supremacy & Sustainable Hardening)
+**Version:** 60.0.0 (SEO Autonomy & Authority Hardening)
 **Status:** PRODUCTION READY - HARDENED 🛡️
 **Engine:** Next.js 16.1.1 (Turbopack) | Prisma v5 | AI Multi-Agent v2.3
 
 ---
 
-### 🛡️ LATEST INTELLIGENCE (April 30, 2026)
-- **Visual Framework**: Successfully deployed cinematic **Edge-to-Edge** layout (1600px width) across News and Knowledge hubs.
-- **Lead Capture**: Hardened `subscribe` API with **Database-First Resilience**, isolating SMTP failures.
-- **Data Sovereignty**: Unified legal data (NPWP 16-digit) for maximum AI/LLM trust and E-E-A-T compliance.
-- **Dynamic Pricing**: Negotiated tier, Standard, Express — synced with Admin Dashboard.
-- **Universal Search**: Advanced semantic search for all visa and company services.
+- **Bali & Jakarta SEO**: Deployed dedicated landing pages with upgraded JSON-LD (`ProfessionalService` + `FAQPage`) and city-specific AI instruction manuals (`BALI_INSTRUCTION.md`, `JAKARTA_INSTRUCTION.md`).
+- **Brand Compliance**: Comprehensive audit and removal of non-compliant "Official" claims. Transitioned to "Verified" and "Direct Sponsor" identity to ensure government compliance.
+- **Auth Hardening**: Fixed Google OAuth 404 issue by isolating root-level auth callbacks from localized middleware redirection.
 - **ISR Landing Page**: `revalidate=3600` — 1-hour CDN cache, zero DB hits per visitor.
 - **LazySection**: All below-fold components loaded on scroll via Intersection Observer.
 
 ## 📦 Build Status
 ```
-Version:  v58.0.0 (Global Compliance + Security Hardened)
-Date:     April 29, 2026
+Version:  v60.0.0 (Authority Hardened + OAuth Fix)
+Date:     April 30, 2026
 Build:    ✓ Compiled clean | ✓ TypeScript 0 errors | ✓ GDPR Ready
 Branch:   main
 ```
@@ -65,8 +62,10 @@ git add -A && git commit -m "feat: [description] (vX.X.X)" && git push origin ma
 ## 📜 Documentation
 - `MASTER_REPORT.md` — Comprehensive system intelligence report (v57.0.0)
 - `ONGOING_UPDATE_REPORT.md` — Full AI constitution, agent governance & historical update logs
+- `BALI_INSTRUCTION.md` — SEO dominance blueprint for Bali division
+- `JAKARTA_INSTRUCTION.md` — SEO dominance blueprint for Jakarta division
+- `GLOBAL_DATA_SYNC.md` — Master ecosystem synchronization blueprint (v4.1)
 - `SITE_STRUCTURE.md` — Complete page inventory and routing architecture
-- `SPREADSHEET_UPDATE.md` — Google Sheets sync report
 
 ---
 © 2026 PT Indonesian Visas Agency™. All Rights Reserved.

@@ -1,5 +1,5 @@
 # 🛡️ BALI ENTERPRISES GROUP — CORPORATE MASTER INTELLIGENCE NODE
-**Version**: 4.0 (AI-Executable Master Blueprint)
+**Version**: 4.1 (Brand Compliance Hardened)
 **Last Audit**: 2026-04-30
 **Canonical Source**: https://indonesianvisas.com (This file lives in the indonesianvisas.com repository)
 

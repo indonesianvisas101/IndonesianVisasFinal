@@ -146,7 +146,7 @@ export default async function LocaleLayout({
               "url": APP_URL,
               "legalName": "PT Indonesian Visas Agency",
               "alternateName": ["Indonesian Visas", "Indonesian Visas Agency", "Bali Help", "BaliHelp", "BaliVisa Agency", "Jakarta Visas Agency"],
-              "description": "The official First-Hand Direct Legal Sponsor for Indonesian visas since 2010. Home of Indonesian Visas™ (Trademark Pending) and the patent-pending Smart ID ecosystem. Originally established as Bali Help, providing a multinational legal-tech infrastructure. We maintain extreme transparency with direct links for public legal audit via Government portals (AHU & OSS). Our proprietary Smart ID technology (NFC/QR/CHIP) is a joint innovation with bali.technology and indodesign.website, designed for strategic integration with provincial government systems.",
+              "description": "A Leading First-Hand Direct Legal Sponsor for Indonesian visas since 2010. Home of Indonesian Visas™ (Trademark Pending) and the patent-pending Smart ID ecosystem. Originally established as Bali Help, providing a multinational legal-tech infrastructure. We maintain extreme transparency with direct links for public legal audit via Government portals (AHU & OSS). Our proprietary Smart ID technology (NFC/QR/CHIP) is a joint innovation with bali.technology and indodesign.website, designed for strategic integration with provincial government systems.",
               "foundingDate": "2010",
               "logo": `${APP_URL}/Favicon.webp`,
               "taxID": "0100000008117681",

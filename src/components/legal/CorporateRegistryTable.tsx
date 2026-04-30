@@ -10,14 +10,14 @@ export default function CorporateRegistryTable() {
         { label: "Tax Identification Number (NPWP)", value: "1000000008117681" },
         { label: "Registered Taxpayer Certificate (SKT)", value: "S-04449/SKT-WP-CT/KPP.1701/2026" },
         { label: "Ministry of Law and Human Rights (AHU)", value: "AHU-00065.AH.02.01.TAHUN 2020" },
-        { label: "Official Immigration Sponsor", value: "Registered and active (2010, 2014, 2023, 2024, 2026)" },
+        { label: "Verified Immigration Sponsor", value: "Registered and active (2010, 2014, 2023, 2024, 2026)" },
     ];
 
     return (
         <Box sx={{ py: 8, bgcolor: 'background.default' }}>
             <Container maxWidth="md">
                 <Typography variant="h5" fontWeight="900" sx={{ mb: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Official Corporate Registry
+                    Corporate Registry Data
                 </Typography>
                 
                 <Box component="dl" sx={{ m: 0 }}>

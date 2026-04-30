@@ -16,17 +16,17 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   
   return {
     title: "Jakarta Visas 2026-2027 | Business & Investor Immigration Hub",
-    description: "Official 2026-2027 guide for Jakarta Visas. Specialized in Investor KITAS (E28A), Business Multiple Entry (D2), and PT PMA formation. Direct corporate sponsorship for professionals.",
+    description: "Comprehensive 2026-2027 guide for Jakarta Visas. Specialized in Investor KITAS (E28A), Business Multiple Entry (D2), and PT PMA formation. Direct corporate sponsorship for professionals.",
     keywords: ["jakarta visa 2026", "investor kitas jakarta", "pt pma jakarta 2027", "business visa indonesia", "jakarta immigration guide"],
     alternates: {
       canonical: `${APP_URL}/${locale}/jakarta-visas-in-2026-2027-all-types-and-prices`,
     },
     openGraph: {
       title: "Jakarta Business Visa Guide 2026-2027",
-      description: "Secure your business presence in Indonesia. Official Jakarta visa guide for investors and corporate entities.",
+      description: "Secure your business presence in Indonesia. Trusted Jakarta visa guide for investors and corporate entities.",
       images: ['/images/BaliHelpCompress.webp'],
     },
-    robots: "index, follow"
+    robots: "index, follow, max-image-preview:large"
   };
 }
 
@@ -35,24 +35,107 @@ export default async function JakartaGuide2026({ params }: { params: Promise<{ l
   const dict = await getMessages(locale);
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
 
-  const businessSchema = {
+  const jakartaLocalSchema = {
     "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "Jakarta Visas In 2026-2027: Corporate & Investor Hub",
-    "description": "Professional immigration guide for the Jakarta business district and the transition to the new capital (IKN).",
-    "author": {
-      "@type": "Organization",
-      "name": "PT Indonesian Visas Agency"
-    }
+    "@type": "ProfessionalService",
+    "@id": `${APP_URL}/jakarta-visas-in-2026-2027-all-types-and-prices/#local-business`,
+    "name": "Jakarta Visa Agency — Official Division of PT Indonesian Visas Agency",
+    "url": `${APP_URL}/${locale}/jakarta-visas-in-2026-2027-all-types-and-prices`,
+    "description": "The trusted Jakarta division specializing in Investor KITAS (E28A), Business Multiple Entry Visas (D2/D12), PT PMA formation, and corporate immigration. Direct legal sponsor — zero intermediaries.",
+    "telephone": "+62-857-2704-1992",
+    "email": "contact@indonesianvisas.agency",
+    "areaServed": ["Jakarta", "South Jakarta", "Central Jakarta", "North Jakarta", "West Jakarta", "East Jakarta", "Tangerang", "Bekasi", "Depok", "IKN Nusantara"],
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Jl. Tibungsari No.11C, Padangsambian Kaja",
+      "addressLocality": "Denpasar Barat, Denpasar",
+      "addressRegion": "Bali",
+      "postalCode": "80117",
+      "addressCountry": "ID"
+    },
+    "parentOrganization": {
+      "@type": "Corporation",
+      "@id": `${APP_URL}/#organization`,
+      "name": "PT Indonesian Visas Agency",
+      "taxID": "0100000008117681"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Jakarta Visa & Corporate Services 2026-2027",
+      "itemListElement": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "E28A Investor KITAS Jakarta — 1 and 2 Years" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "D2 Business Multiple Entry Visa — 1, 2, and 5 Years" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "D12 Pre-Investment Multiple Entry Visa Jakarta" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "PT PMA Full Incorporation — 100% Foreign Ownership" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Corporate Smart ID Pro — Executive Security Identity" } }
+      ]
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "200",
+      "bestRating": "5"
+    },
+    "sameAs": [
+      "https://jakartavisas.agency",
+      `${APP_URL}`,
+      "https://maps.app.goo.gl/p6t9JSd5CGCDf7jZA"
+    ]
+  };
+
+  const jakartaFaqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I get a business visa for Jakarta?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Apply through IndonesianVisas.com for a D2 Business Multiple Entry Visa (1-5 years validity) or D12 Pre-Investment Visa. We are a direct legal sponsor with corporate expertise in Jakarta — no intermediary agents."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the best visa for investors in Jakarta?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The E28A Investor KITAS is the best option for foreign investors in Jakarta. It provides 1-2 year residency, legal work and business authorization, and is ideal for PT PMA company directors and shareholders."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I set up a PT PMA company in Jakarta?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PT Indonesian Visas Agency provides full PT PMA incorporation service including company name registration, AHU approval, NIB acquisition, KBLI selection, and domicile address setup. 100% foreign ownership is available under the latest Omnibus Law regulations."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I get a Jakarta visa from outside Indonesia?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! Our Jakarta division processes offshore visa applications. You can apply for D2 Business Visa, E28A Investor KITAS, and C12 Pre-Investment Visa from anywhere in the world through our online platform at IndonesianVisas.com."
+        }
+      }
+    ]
   };
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-black">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jakartaLocalSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jakartaFaqSchema) }}
       />
       
+      {/* SEO H1 — Primary Keyword Target */}
+      <h1 className="sr-only">Jakarta Visa 2026-2027 — Business & Investor Immigration Hub | Direct Sponsor</h1>
+
       {/* 1. Hero Section - Corporate Focus */}
       <Hero dict={dict} />
 

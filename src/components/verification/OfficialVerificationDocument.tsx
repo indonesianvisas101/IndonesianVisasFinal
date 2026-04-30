@@ -84,7 +84,7 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
                                 INDONESIAN VISAS AGENCY
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
-                                Official Immigration & Document Services
+                                Verified Immigration & Document Services
                             </Typography>
                         </Box>
                     </Box>

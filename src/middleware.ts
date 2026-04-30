@@ -48,7 +48,7 @@ export async function proxy(request: NextRequest) {
     // Handle API specifically - usually global/non-localized
     // OPTIMIZATION: Skip session update in middleware for API routes to avoid latency.
     // The API routes themselves (src/app/api/...) handle their own auth/refresh via createClient().
-    if (pathname.startsWith('/api')) {
+    if (pathname.startsWith('/api') || pathname.startsWith('/auth')) {
         return NextResponse.next();
     }
 

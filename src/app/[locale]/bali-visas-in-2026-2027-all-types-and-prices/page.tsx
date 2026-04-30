@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
   
   return {
-    title: "Bali Visas 2026-2027 | Official Guide & Direct Sponsor in Bali",
+    title: "Bali Visas 2026-2027 | Comprehensive Guide & Direct Sponsor in Bali",
     description: "The ultimate guide for Bali Visas in 2026-2027. Special focus on B1 VOA, E33G Nomad Visa, and KITAS for Bali expats. Direct sponsorship by PT Indonesian Visas Agency (Bali HQ).",
     keywords: ["bali visa 2026", "bali nomad visa 2027", "bali visa price", "bali help visas", "indonesia visa bali guide"],
     alternates: {
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     openGraph: {
       title: "Bali Visa Guide 2026-2027 | Official Prices",
-      description: "Plan your Bali journey with the most accurate 2026-2027 visa information. Official prices, requirements, and Smart ID technology.",
+      description: "Plan your Bali journey with the most accurate 2026-2027 visa information. Verified prices, requirements, and Smart ID technology.",
       images: ['/images/BaliHelpCompress.webp'],
     },
     robots: "index, follow, max-image-preview:large"
@@ -36,24 +36,112 @@ export default async function BaliGuide2026({ params }: { params: Promise<{ loca
   const dict = await getMessages(locale);
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
 
-  const travelSchema = {
+  const baliLocalSchema = {
     "@context": "https://schema.org",
-    "@type": "Guide",
-    "name": "Bali Visas In 2026-2027: All Types and Prices",
-    "description": "Specific guide for tourists and expats visiting Bali in 2026 and 2027.",
-    "publisher": {
-      "@type": "Organization",
-      "name": "PT Indonesian Visas Agency (Bali Office)"
-    }
+    "@type": "ProfessionalService",
+    "@id": `${APP_URL}/bali-visas-in-2026-2027-all-types-and-prices/#local-business`,
+    "name": "Bali Visa Agency — Official Division of PT Indonesian Visas Agency",
+    "url": `${APP_URL}/${locale}/bali-visas-in-2026-2027-all-types-and-prices`,
+    "description": "The trusted Bali division for visa services including B1 VOA, C1 Tourist Visa, E33G Digital Nomad KITAS, and Investor KITAS. First-hand direct legal sponsor based in Bali — zero intermediaries.",
+    "telephone": "+62-857-2704-1992",
+    "email": "contact@indonesianvisas.agency",
+    "areaServed": ["Bali", "Uluwatu", "Canggu", "Ubud", "Seminyak", "Denpasar", "Sanur", "Nusa Dua"],
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Jl. Tibungsari No.11C, Padangsambian Kaja",
+      "addressLocality": "Denpasar Barat, Denpasar",
+      "addressRegion": "Bali",
+      "postalCode": "80117",
+      "addressCountry": "ID"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": -8.6441,
+      "longitude": 115.1789
+    },
+    "parentOrganization": {
+      "@type": "Corporation",
+      "@id": `${APP_URL}/#organization`,
+      "name": "PT Indonesian Visas Agency",
+      "taxID": "0100000008117681"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Bali Visa Services 2026-2027",
+      "itemListElement": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "B1 VOA (Visa on Arrival) Extension — 30 to 60 Days in Bali" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "C1 Tourist Visa Bali — 60 to 180 Days" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "E33G Remote Worker / Digital Nomad KITAS Bali — 1 Year" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "E28A Investor KITAS Bali — 1 and 2 Years" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "D1 Multiple Entry Visit Visa — 1, 2, and 5 Years" } }
+      ]
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "200",
+      "bestRating": "5"
+    },
+    "sameAs": [
+      "https://balivisa.agency",
+      `${APP_URL}`,
+      "https://maps.app.goo.gl/p6t9JSd5CGCDf7jZA"
+    ]
+  };
+
+  const baliFaqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I get a visa for Bali in 2026?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can get a Bali visa through IndonesianVisas.com. Options include B1 Visa on Arrival (30-60 days), C1 Tourist Visa (60-180 days), and E33G Digital Nomad KITAS (1 year). We are a first-hand direct legal sponsor based in Bali — no intermediaries."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the best visa for digital nomads in Bali?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The E33G Remote Worker KITAS is the best visa for digital nomads in Bali. It provides 1-year residency, legal work authorization, and access to our Smart ID ecosystem for seamless verification at hotels, coworking spaces, and vehicle rentals across Bali."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does a Bali visa cost in 2026?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Bali visa costs vary by type: B1 VOA extension starts from IDR 500,000, C1 Tourist Visa from IDR 3,500,000, and E33G Nomad KITAS from IDR 15,000,000. Contact our Bali office for the latest official rates with zero agency markup."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I extend my visa in Bali?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! B1 VOA can be extended once for an additional 30 days directly in Bali. C1 Tourist Visa can be extended up to 180 days. Our Bali office handles all extensions with direct immigration liaison — no brokers involved."
+        }
+      }
+    ]
   };
 
   return (
     <main className="min-h-screen bg-white dark:bg-[#030712]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(travelSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(baliLocalSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(baliFaqSchema) }}
       />
       
+      {/* SEO H1 — Primary Keyword Target */}
+      <h1 className="sr-only">Bali Visa 2026-2027 — Trusted Guide, All Types & Prices | Direct Sponsor in Bali</h1>
+
       {/* 1. Hero Section - Bali Paradise Focus */}
       <Hero dict={dict} />
 

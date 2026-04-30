@@ -265,7 +265,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     queryParams: {
                         prompt: 'select_account'
                     },
-                    redirectTo: typeof window !== 'undefined' ? `${window.location.origin}${formatNavLink(window.location.pathname.split('/')[1] || 'en', "/auth/callback")}` : undefined,
+                    redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/${window.location.pathname.split('/')[1] || 'en'}/dashboard` : undefined,
                 }
             });
             if (error) {
@@ -293,7 +293,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         whatsapp: data.whatsapp,
                         role: (data.email && ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(data.email.trim().toLowerCase())) ? 'admin' : 'user', // Strict role check
                     },
-                    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}${formatNavLink(window.location.pathname.split('/')[1] || 'en', "/auth/callback")}` : undefined,
+                    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/${window.location.pathname.split('/')[1] || 'en'}/dashboard` : undefined,
                 }
             });
 
@@ -460,7 +460,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 type: 'signup',
                 email: email,
                 options: {
-                    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}${formatNavLink(window.location.pathname.split('/')[1] || 'en', "/auth/callback")}` : undefined,
+                    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/${window.location.pathname.split('/')[1] || 'en'}/dashboard` : undefined,
                 }
             });
             if (error) throw error;

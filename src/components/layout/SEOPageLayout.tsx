@@ -162,7 +162,7 @@ export default function SEOPageLayout({
                                 </nav>
 
                                 <div className="mt-10 pt-8 border-t border-slate-200 dark:border-white/10">
-                                    <p className="text-xs font-bold uppercase tracking-wider mode-aware-subtext mb-4">Official Registered Sponsor</p>
+                                    <p className="text-xs font-bold uppercase tracking-wider mode-aware-subtext mb-4">Verified Registered Sponsor</p>
                                     <div className="flex items-center gap-3 opacity-80">
                                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
                                             <ShieldCheck size={18} className="text-primary" />

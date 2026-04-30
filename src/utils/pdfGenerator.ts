@@ -34,7 +34,7 @@ export const generateStatementPDF = async (data: VerificationData) => {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
-    doc.text("Official Visa Facilitation & Verification Service", 105, 26, { align: "center" });
+    doc.text("Verified Visa Facilitation & Verification Service", 105, 26, { align: "center" });
 
     doc.setDrawColor(200, 200, 200);
     doc.line(20, 32, 190, 32);

@@ -474,7 +474,7 @@ export const VISA_DETAILS: Record<string, VisaDetail> = {
         },
         pricing: {
             title: "Visa Fees / Biaya Visa",
-            note: "Official visa fees and service charges for B1 VOA. Processing starts upon payment confirmation.",
+            note: "Standard visa fees and service charges for B1 VOA. Processing starts upon payment confirmation.",
             options: [
                 {
                     title: "Standard Processing",
@@ -623,7 +623,7 @@ export const VISA_DETAILS: Record<string, VisaDetail> = {
         },
         pricing: {
             title: "Visa Fees / Biaya Visa",
-            note: "Official service and government fees for C2 Business Visa.",
+            note: "Service and government fees for C2 Business Visa.",
             options: [
                 {
                     title: "Standard Processing",

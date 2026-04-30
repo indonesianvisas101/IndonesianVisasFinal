@@ -170,7 +170,7 @@ export const VISA_DATABASE: VisaType[] = [
         "id": "IDIV",
         "category": "Add-ons & ID Cards",
         "name": "IDiv Card (Digital Sponsor ID)",
-        "description": "Official Indonesian Visas Digital ID. Acts as a verified sponsor ID for travelers and nomad activities.",
+        "description": "Verified Indonesian Visas Digital ID. Acts as a verified sponsor ID for travelers and nomad activities.",
         "price": "IDR 325.000",
         "fee": 0,
         "validity": "Lifetime / Per Visa",

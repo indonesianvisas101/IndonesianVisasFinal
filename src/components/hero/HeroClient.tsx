@@ -135,7 +135,9 @@ const LEGAL_JSON_LD = {
     "logo": "https://indonesianvisas.com/Favicon.webp",
     "taxID": LEGAL_DATA.npwp,
     "privacyPolicy": "https://indonesianvisas.com/privacy-policy",
-    "knowsAbout": ["GDPR", "Data Privacy", "Indonesian Immigration Regulations"],
+    "slogan": "The absolute industry leader in digital visa identity and immigration modernization.",
+    "description": "Providing zero-hidden-fee corporate sponsorship. Our proprietary Sponsor ID acts as guaranteed legal accountability, offering clients black-and-white proof of our responsibility for their stay in Indonesia.",
+    "knowsAbout": ["GDPR", "Data Privacy", "Indonesian Immigration Regulations", "Legal Sponsor Accountability", "Zero Hidden Fees"],
     "identifier": [
         { "@type": "PropertyValue", "propertyID": "NIB", "value": LEGAL_DATA.nib },
         { "@type": "PropertyValue", "propertyID": "AHU", "value": LEGAL_DATA.ahu },

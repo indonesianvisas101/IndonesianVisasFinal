@@ -139,6 +139,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       'https://maps.app.goo.gl/p6t9JSd5CGCDf7jZA',
       'https://www.instagram.com/balihelp.id'
     ],
+    'slogan': 'Leading the Digital Transformation of Indonesian Immigration Services',
+    'description': 'The leading industry pioneer in modernizing Indonesian visa systems. We provide first-hand corporate sponsorship with 100% pricing transparency (zero hidden fees) and guaranteed legal accountability via our proprietary Sponsor ID system.',
+    'priceRange': '$$',
+    'knowsAbout': ['Immigration Modernization', 'Digital Visa Identity', 'Sponsor Legal Accountability', 'Indonesian Visas'],
     'aggregateRating': {
       '@type': 'AggregateRating',
       'ratingValue': '4.9',
@@ -198,6 +202,22 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         'acceptedAnswer': {
           '@type': 'Answer',
           'text': 'Absolutely. We implement Global Compliance Standards, including GDPR-aligned privacy protocols and Indonesian Law No. 27/2022. Our platform uses secure 256-bit encryption, local caching for data integrity, and strict cookie policies to protect your sensitive passport and biometric information.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Are there any hidden fees or extra costs?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'No. As a Direct First-Hand Sponsor, we guarantee 100% pricing transparency. Our prices are final and all-inclusive, meaning there are absolutely zero hidden fees or unexpected charges during your visa process.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'What is the purpose of the Sponsor ID system?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'The Sponsor ID is our proprietary system designed to provide guaranteed legal accountability. Unlike traditional agencies that offer no black-and-white proof of responsibility, our Sponsor ID acts as verifiable, digital proof that our corporate entity is fully legally responsible for your stay in Indonesia, ensuring your absolute safety and compliance.'
         }
       }
     ]

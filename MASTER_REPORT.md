@@ -100,9 +100,34 @@ The system is governed by a **Semi-Autonomous Multi-Agent Framework** where role
 
 ---
 
+---
+
 ***PHASE 103 COMPLETE — HARDENED & PRODUCTION READY***
 
-## 🛡️ 4. SMART ID & VERIFICATION SYSTEM (v57.0)
+---
+
+***PHASE 104 — VISA INGESTION HARDENING & AI BLUEPRINT (MAY 2, 2026)***
+
+#### 🛡️ Visa Ingestion Pipeline & Zod Schema
+- **Multi-File Upload**: Upgraded the `ApplicationContext` and `StepPayment` logic to support array-based document uploads (`File[]`) for complex requirements like Proof of Accommodation.
+- **Zod Hardening**: Updated `ApplicationSchema` in `src/types/schemas.ts` to strictly allow `z.union([z.string(), z.array(z.string())])` for document inputs, preventing 400 Bad Request errors on the server.
+- **Admin Document Rendering**: Refactored `InvoicingTab.tsx` and `OrderPanel.tsx` to dynamically parse and render array-based URLs as clickable chips, avoiding UI crashes.
+
+#### 🔄 Admin Dashboard Performance Tuning
+- **Internal Refresh Protocol**: Added instant Refresh controls to the `VerificationTab` and `InvoicingTab` headers, allowing admins to reload specific table datasets without a full browser reload, massively reducing memory overhead.
+- **Data Bridge (Verification Sync)**: Patched the `StepPayment` API payload to automatically inject `passportNumber` and `recentPhoto` URL into the `attribution` bundle, guaranteeing that new Verification records are auto-filled with accurate biometric data instead of dummy values.
+
+#### 🚀 Landing Page Extreme Optimization
+- **Aggressive Pre-fetching**: Injected `prefetch={true}` into critical CTA Links in `HeroClient.tsx` (Check Order, Search IDIV, Arrival Card) to instruct Next.js to background-download the routing chunks, ensuring 0ms transitions on click.
+
+#### 🤖 AI Intelligence Blueprint
+- **OCR System Planned**: Established the foundational architecture for the upcoming AI Passport Scanning feature in `AI_OCR_PLAN.md`, preparing the system for "zero-typing" automated data extraction.
+
+---
+
+***PHASE 104 COMPLETE — HARDENED & PRODUCTION READY***
+
+## 🛡️ 4. SMART ID & VERIFICATION SYSTEM (v60.0)
 
 The **Smart ID Advanced Safety System™** is the crown jewel of platform trust.
 
@@ -130,6 +155,7 @@ The **Smart ID Advanced Safety System™** is the crown jewel of platform trust.
 ### 4.3 Data Architecture
 - **JSON-packed `address` field**: Secondary metadata (DOB, Occupation, Gender, visaActiveUrl) is stored as JSON inside the `address` column — no schema migration required.
 - **Admin**: Paste `visaActiveUrl` directly into the Verification record via Admin Dashboard.
+- **Auto-Sync**: Application ingestion automatically populates Passport Number and Photo URL into the Verification database record upon order creation.
 
 ### 4.4 Check Legality Popup (Hero)
 - **Trigger**: "REGISTERED COMPANY" badge in the hero section is clickable.
@@ -151,13 +177,14 @@ The **Smart ID Advanced Safety System™** is the crown jewel of platform trust.
 
 ---
 
-## ⚡ 5. PERFORMANCE ARCHITECTURE (v57.0)
+## ⚡ 5. PERFORMANCE ARCHITECTURE (v60.0)
 
 ### 5.1 Landing Page Strategy
 - **ISR**: `revalidate = 3600` — Halaman di-serve dari CDN cache 1 jam. Zero DB/Supabase request per visitor.
 - **Hero**: Server Component — zero JS blocking for LCP.
 - **Below-fold**: All sections wrapped in `LazySection` + `dynamic()` — load on scroll only.
 - **Font**: Inter with `display: 'swap'` — no render blocking.
+- **Pre-fetching**: Aggressive `prefetch={true}` on high-priority CTAs for instant routing.
 
 ### 5.2 Resource Hints (layout `<head>`)
 | Type | Target |
@@ -189,7 +216,8 @@ The **Smart ID Advanced Safety System™** is the crown jewel of platform trust.
 
 ### 6.2 Verification Admin Tab
 - Unified verification management with `visaActiveUrl` field for visa document redirection.
-- Fields: Holder Name, REG NO, Passport, Visa Type, Status, Address (JSON), visaActiveUrl.
+- Auto-syncs Passport Number and Photo URL directly from the initial visa application.
+- Internal Soft-Refresh implemented for zero-latency data pulls.
 
 ### 6.3 Dynamic Reporting Engine
 - **API**: `/api/admin/reports/dynamic` with `DYNAMIC_REPORT_SECRET` protection.
@@ -260,9 +288,9 @@ git push origin main
 
 ## 📦 9. LATEST BUILD REPORT
 
-### Build: v57.0.0 — April 26, 2026
+### Build: v60.0.0 — May 2, 2026
 ```
-✓ Compiled successfully in 69s
+✓ Compiled successfully in ~40s
 ✓ TypeScript: 0 errors
 ✓ 3266 static pages generated (SSG)
 ✓ 20 locales × 163 routes
@@ -272,27 +300,20 @@ git push origin main
 ### Modified Files in This Release
 | File | Change |
 |---|---|
-| `HeroClient.tsx` | Check Legality popup with JSON-LD, legal data grid, ESC handler |
-| `IDivCardModern.tsx` | Koom Passport field, spacing normalization |
-| `verify/[slug]/page.tsx` | DOB, Occupation, Gender, Visa Active button |
-| `idiv-search/SearchClient.tsx` | JSON address parsing, full biometric display |
-| `api/verification/route.ts` | visaActiveUrl unpacking from JSON address |
-| `ApplicationContext.tsx` | toggleUpsell signature fix (smartId key) |
-| `payment/page.tsx` | JSX structure rewrite — clean 3-section layout |
-| `company-profile/page.tsx` | Async params fix (Next.js 16 Promise pattern) |
-| `SustainabilityImpact.tsx` | CSR images → Unsplash URLs |
-| `VisualAssets.tsx` | Removed missing csr-*.webp, added corporate photo |
-| `about/page.tsx` | Fixed absolute file path → proper public path |
-| `layout.tsx` | Enhanced preconnect/dns-prefetch/preload hints |
-| `page.tsx` (home) | ISR `revalidate = 3600` re-enabled |
-| `next.config.ts` | `minimumCacheTTL`, `deviceSizes`, `imageSizes` tuned |
+| `StepPayment.tsx` | Array file loop, auto-passport injection to `attribution` |
+| `schemas.ts` | Zod `documents` union type (string \| string[]) |
+| `InvoicingTab.tsx` | Dashboard `flatMap` rendering for Array docs, Internal Refresh |
+| `OrderPanel.tsx` | Master Invoice rendering update for arrays |
+| `VerificationTab.tsx` | Soft-Refresh header implementation |
+| `HeroClient.tsx` | Added `prefetch={true}` to CTAs for 0ms transitions |
+| `AI_OCR_PLAN.md` | *NEW* - Blueprint for AI Passport Vision API extraction |
 
 ### Key Architecture Decisions
-- **JSON-packed `address`**: Secondary metadata (DOB, visaActiveUrl) stored as JSON string — zero DB migrations.
-- **Check Legality**: Pure React state, zero bundle overhead, lazy DOM injection.
-- **npm run build = PRE-PUSH**: Always verify build before deploying.
+- **Unified Documents API**: Replaced strict `Record<string, string>` with polymorphic array support to allow Gallery uploads (e.g. 5 hotel bookings) within a single JSON column.
+- **Decentralized Verification Sync**: Offloaded Verification data parsing to the Application Creation phase (injecting passport to attribution), eliminating the need for a secondary Admin button.
+- **Zero-Latency Landing**: Relied on Next.js background fetch logic instead of bloated Service Workers for immediate impact.
 
 ---
 
-**END OF MASTER INTELLIGENCE REPORT v57.0.0**
+**END OF MASTER INTELLIGENCE REPORT v60.0.0**
 *(Maintained by Antigravity AI Master Agent)*

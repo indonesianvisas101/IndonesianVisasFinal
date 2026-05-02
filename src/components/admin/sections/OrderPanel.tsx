@@ -229,21 +229,29 @@ export default function OrderPanel() {
                                                 const docs = typeof order.documents === 'string' ? JSON.parse(order.documents) : order.documents;
                                                 if (!Array.isArray(docs)) return null;
                                                 return (
-                                                    <Stack direction="row" spacing={1}>
-                                                        {docs.map((doc: any, i: number) => {
-                                                            const url = typeof doc === 'string' ? doc : doc.url;
-                                                            const name = typeof doc === 'string' ? `Document ${i + 1}` : (doc.name || `Document ${i + 1}`);
-                                                            return (
-                                                                <IconButton 
-                                                                    key={i} 
-                                                                    size="small" 
-                                                                    color="primary" 
-                                                                    onClick={() => setViewingDoc({ url, name })}
-                                                                    title={name}
-                                                                >
-                                                                    <OpenInNewIcon sx={{ fontSize: 16 }} />
-                                                                </IconButton>
-                                                            );
+                                                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                                                        {docs.flatMap((docSet: any, travelerIndex: number) => {
+                                                            if (typeof docSet === 'string') {
+                                                                return [(
+                                                                    <IconButton key={travelerIndex} size="small" color="primary" onClick={() => setViewingDoc({ url: docSet, name: `Document ${travelerIndex + 1}` })} title={`Document ${travelerIndex + 1}`}>
+                                                                        <OpenInNewIcon sx={{ fontSize: 16 }} />
+                                                                    </IconButton>
+                                                                )];
+                                                            }
+                                                            return Object.entries(docSet).flatMap(([key, urlValue]) => {
+                                                                const urls = Array.isArray(urlValue) ? urlValue : [urlValue];
+                                                                return urls.map((url: any, idx: number) => {
+                                                                    if (typeof url !== 'string') return null;
+                                                                    let name = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()).trim();
+                                                                    if (name.includes('Additional')) name = name.replace('Additional', 'Additional Doc');
+                                                                    const finalName = `T${travelerIndex + 1} - ${urls.length > 1 ? `${name} ${idx + 1}` : name}`;
+                                                                    return (
+                                                                        <IconButton key={`${travelerIndex}-${key}-${idx}`} size="small" color="primary" onClick={() => setViewingDoc({ url, name: finalName })} title={finalName}>
+                                                                            <OpenInNewIcon sx={{ fontSize: 16 }} />
+                                                                        </IconButton>
+                                                                    );
+                                                                });
+                                                            });
                                                         })}
                                                     </Stack>
                                                 );

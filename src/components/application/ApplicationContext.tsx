@@ -48,7 +48,7 @@ interface ApplicationState {
     documents: {
         passportPhoto: File | null;
         recentPhoto: File | null;
-        proofOfAccommodation: File | null;
+        proofOfAccommodation: File | File[] | null;
     }[];
 
     paymentMethod: string | null;
@@ -104,7 +104,7 @@ interface ApplicationContextType extends ApplicationState {
     updateData: (key: keyof ApplicationState, value: any) => void;
     updatePersonalInfo: (key: keyof ApplicationState['personalInfo'], value: string) => void;
     updateTraveler: (index: number, key: string, value: string) => void;
-    updateTravelerDocument: (index: number, type: 'passportPhoto' | 'recentPhoto' | 'proofOfAccommodation', file: File | null) => void;
+    updateTravelerDocument: (index: number, type: 'passportPhoto' | 'recentPhoto' | 'proofOfAccommodation', file: File | File[] | null) => void;
     markStepComplete: (step: number) => void;
     resetApplication: () => void;
     // Documents
@@ -136,7 +136,12 @@ interface ApplicationContextType extends ApplicationState {
         priceTier?: string,
         customPrice?: number,
         isLocked?: boolean,
-        arrivalDate?: string
+        arrivalDate?: string,
+        documents?: {
+            passport: string;
+            photo: string;
+            additional: string[];
+        }
     }) => void;
     // Addons
     addons: any[];
@@ -392,7 +397,12 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                     name: `${currentState.personalInfo.firstName} ${currentState.personalInfo.lastName}`.trim(),
                     phone: currentState.personalInfo.phone,
                     visaType: currentState.visaType || 'Unknown',
-                    attributionData: attribution
+                    attributionData: attribution,
+                    documents: {
+                        passport: currentState.personalInfo.passport,
+                        photo: (currentState.documents?.[0] as any)?.photoUrl || null,
+                        additional: (currentState.documents?.[0] as any)?.additional || []
+                    }
                 })
             });
         } catch (e) {
@@ -412,7 +422,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
-    const updateTravelerDocument = (index: number, type: 'passportPhoto' | 'recentPhoto' | 'proofOfAccommodation', file: File | null) => {
+    const updateTravelerDocument = (index: number, type: 'passportPhoto' | 'recentPhoto' | 'proofOfAccommodation', file: File | File[] | null) => {
         setState((prev) => {
             const newDocs = [...(Array.isArray(prev.documents) ? prev.documents : [prev.documents])];
             // Ensure the nested object exists
@@ -507,7 +517,12 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         priceTier?: string,
         customPrice?: number,
         isLocked?: boolean,
-        arrivalDate?: string
+        arrivalDate?: string,
+        documents?: {
+            passport: string;
+            photo: string;
+            additional: string[];
+        }
     }) => {
         const foundVisa = visas.find(v => v.id === data.visaId);
         const visaName = foundVisa ? foundVisa.name : data.visaId;
@@ -532,18 +547,42 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 firstName,
                 lastName,
                 email: data.email,
-                phone: data.phone
+                phone: data.phone,
+                passport: data.documents?.passport || ""
             },
+            // NEW: Store URLs in documents array for StepPayment to pick up
+            documents: data.documents ? [{
+                passportPhoto: null,
+                recentPhoto: null,
+                proofOfAccommodation: null,
+                // Add custom fields for URLs
+                passportUrl: data.documents.passport,
+                photoUrl: data.documents.photo,
+                additional: data.documents.additional,
+                isPreUploaded: true
+            }] : [],
             completedSteps: [1, 2, 3], // Mark previous steps as done
             isLocked: data.isLocked || false,
             arrivalDate: data.arrivalDate || prev.arrivalDate
         }));
 
-        // Side effect: Save lead
+        // Side effect: Save lead with documents
         saveLead({
             ...state,
-            personalInfo: { ...defaultState.personalInfo, firstName, lastName, email: data.email, phone: data.phone },
-            visaType: visaName
+            personalInfo: { 
+                ...defaultState.personalInfo, 
+                firstName, 
+                lastName, 
+                email: data.email, 
+                phone: data.phone,
+                passport: data.documents?.passport || "" 
+            },
+            visaType: visaName,
+            // Pass document URLs for backend to pick up
+            documents: data.documents ? [{
+                recentPhotoUrl: data.documents.photo,
+                additional: data.documents.additional
+            } as any] : []
         } as any);
     };
 

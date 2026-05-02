@@ -149,7 +149,7 @@ export default function VFSEducationalTemplate({ data, locale }: VFSEducationalT
                                 </span>
                                 <h3 className="text-3xl md:text-4xl font-black mb-6 tracking-tight">Registered Immigration Sponsor Status</h3>
                                 <p className="text-lg md:text-xl text-slate-300 leading-relaxed max-w-2xl mb-10">
-                                    All visa companies in Indonesia are private entities. PT Indonesian Visas Agency is a fully <strong>Registered & Licensed Immigration Sponsor</strong>. We provide legal sponsorship needed for KITAS, Business, and specialized visas, acting as the verified bridge between foreign nationals and the Indonesian authorities.
+                                    All visa companies in Indonesia are private entities. PT Indonesian Visas Agency™ (MYVISA) is a fully <strong>Registered & Licensed Immigration Sponsor</strong>. We provide legal sponsorship needed for KITAS, Business, and specialized visas, acting as the verified bridge between foreign nationals and the Indonesian authorities.
                                 </p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-8 border-t border-white/10 text-sm">
                                     <div>

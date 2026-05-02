@@ -133,7 +133,7 @@ export default function SEOPageLayout({
                                 <div>
                                     <p className="font-bold mb-1 text-gray-700 dark:text-gray-300">Legal Notice & Disclaimer</p>
                                     <p className="opacity-80 leading-relaxed text-[13px]">
-                                        The information provided in this guide is for educational and informational purposes only and does not constitute official legal advice. Immigration rules in Indonesia are subject to sudden changes by the government. PT Indonesian Visas Agency provides premium administrative assistance and consulting services. Final immigration approval and entry authority remain solely with the Indonesian Directorate General of Immigration. Always consult with a registered consultant for your specific situation.
+                                        The information provided in this guide is for educational and informational purposes only and does not constitute official legal advice. Immigration rules in Indonesia are subject to sudden changes by the government. PT Indonesian Visas Agency™ (MYVISA) provides premium administrative assistance and consulting services. Final immigration approval and entry authority remain solely with the Indonesian Directorate General of Immigration. Always consult with a registered consultant for your specific situation.
                                     </p>
                                 </div>
                             </div>
@@ -168,7 +168,7 @@ export default function SEOPageLayout({
                                             <ShieldCheck size={18} className="text-primary" />
                                         </div>
                                         <div className="text-[11px] font-mono mode-aware-subtext leading-relaxed">
-                                            <p className="font-bold text-gray-800 dark:text-gray-200">PT Indonesian Visas Agency</p>
+                                            <p className="font-bold text-gray-800 dark:text-gray-200">PT Indonesian Visas Agency™ (MYVISA)</p>
                                             <p>NIB: 0402260034806</p>
                                             <p>Lic: 04022610215171007</p>
                                         </div>

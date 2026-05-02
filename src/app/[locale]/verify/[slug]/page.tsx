@@ -22,20 +22,31 @@ import { useParams } from "next/navigation";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
 import OfficialVerificationDocument from "@/components/verification/OfficialVerificationDocument";
 
-// Parse JSON-packed address field
+// Parse JSON-packed address field (Case-Insensitive)
 function parseAddress(raw: string | null | undefined) {
-    const fallback = { street: "", birthPlaceDate: "", gender: "", occupation: "" };
-    if (!raw) return fallback;
+    const fb = { street: "", birthPlaceDate: "", gender: "", occupation: "" };
+    if (!raw) return fb;
+    if (!raw.trim().startsWith('{')) return { ...fb, street: raw };
     try {
-        const parsed = JSON.parse(raw);
+        const p = JSON.parse(raw);
+        const getVal = (keys: string[]) => {
+            for (const k of keys) {
+                if (p[k] !== undefined) return p[k];
+                const kLower = k.toLowerCase();
+                const kUpper = k.toUpperCase();
+                if (p[kLower] !== undefined) return p[kLower];
+                if (p[kUpper] !== undefined) return p[kUpper];
+            }
+            return "";
+        };
         return {
-            street:         parsed.street         || "",
-            birthPlaceDate: parsed.birthPlaceDate || parsed.dob || "",
-            gender:         parsed.gender         || "",
-            occupation:     parsed.occupation     || "",
+            street:         getVal(['street', 'STREET', 'address', 'Alamat']),
+            birthPlaceDate: getVal(['birthPlaceDate', 'BIRTHPLACEDATE', 'dob', 'DOB']),
+            gender:         getVal(['gender', 'GENDER', 'Jenis Kelamin']),
+            occupation:     getVal(['occupation', 'OCCUPATION', 'Pekerjaan']),
         };
     } catch {
-        return { ...fallback, street: raw };
+        return { ...fb, street: raw };
     }
 }
 
@@ -84,7 +95,8 @@ export default function VerificationPage() {
     const showPremiumCard = (data.isIdivPurchased && isPaid) || previewActive;
 
     const addr          = parseAddress(data.address);
-    const cardAddress   = addr.street || data.address || "";
+    const isJsonAddress = data.address?.trim().startsWith('{');
+    const cardAddress   = isJsonAddress ? (addr.street || "") : (data.address || "");
     const displayDOB    = addr.birthPlaceDate || "—";
     const displayGender = addr.gender || "—";
     const displayOccup  = addr.occupation || "—";
@@ -119,7 +131,7 @@ export default function VerificationPage() {
                 </Box>
 
                 <Paper elevation={0} variant="outlined" sx={{
-                    p: { xs: 3, md: 5 }, borderRadius: 4, textAlign: 'center', position: 'relative',
+                    p: { xs: 1.5, md: 5 }, borderRadius: 4, textAlign: 'center', position: 'relative',
                     overflow: 'hidden',
                     borderTopWidth: 8, borderColor: 'primary.main', boxShadow: '0 4px 24px rgba(0,0,0,0.06)'
                 }}>

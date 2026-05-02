@@ -73,22 +73,50 @@ export default function IDivCardModern({
         return "BALI"; // Default
     };
 
+    const parseAddress = (raw: string | null | undefined) => {
+        const fb = { street: "", birthPlaceDate: "", gender: "", occupation: "" };
+        if (!raw) return fb;
+        if (!raw.trim().startsWith('{')) return { ...fb, street: raw };
+        try {
+            const p = JSON.parse(raw);
+            const getVal = (keys: string[]) => {
+                for (const k of keys) {
+                    if (p[k] !== undefined) return p[k];
+                    const kLower = k.toLowerCase();
+                    const kUpper = k.toUpperCase();
+                    if (p[kLower] !== undefined) return p[kLower];
+                    if (p[kUpper] !== undefined) return p[kUpper];
+                }
+                return "";
+            };
+            return {
+                street:         getVal(['street', 'STREET', 'address', 'Alamat']),
+                birthPlaceDate: getVal(['birthPlaceDate', 'BIRTHPLACEDATE', 'dob', 'DOB']),
+                gender:         getVal(['gender', 'GENDER', 'Jenis Kelamin']),
+                occupation:     getVal(['occupation', 'OCCUPATION', 'Pekerjaan']),
+            };
+        } catch { return { ...fb, street: raw }; }
+    };
+
+    const addrData = parseAddress(data?.address);
+    const isJsonAddress = data?.address?.trim().startsWith('{');
+
     const cardData = {
         id_number: data?.id_number || "99710024889100",
         passport_number: data?.passport_number || "A1234567",
         formatted_id: (data?.id_number || "99710024889100").slice(0, 14).replace(/(\d{4})(\d{4})(\d{6})/, "$1-$2-$3"),
         name: data?.name || "SARAH J. WILLIAMS", 
-        birth_place_date: privacyMode ? "XXXX, XX-XX-XXXX" : (data?.birth_place_date || "LONDON, 01-01-1990"),
-        gender: data?.gender || "PEREMPUAN",
-        occupation: data?.occupation || "INVESTOR",
+        birth_place_date: privacyMode ? "XXXX, XX-XX-XXXX" : (addrData.birthPlaceDate || data?.birth_place_date || "LONDON, 01-01-1990"),
+        gender: addrData.gender || data?.gender || "PEREMPUAN",
+        occupation: addrData.occupation || data?.occupation || "INVESTOR",
         nationality: privacyMode ? "XXXXXXXX" : (data?.nationality || "UNITED KINGDOM").toUpperCase(),
         visa_type: (data?.visa_type || "VERIFIED E-VOA").toUpperCase(),
         expiry_date: privacyMode ? "XX-XX-XXXX" : (data?.expiry_date || "2024-12-01"),
         issue_date: privacyMode ? "XX-XX-XXXX" : (data?.issue_date || "2025-12-01"),
         sponsor: (data?.sponsor || "INDONESIAN VISAS AGENCY").toUpperCase(),
-        province: data?.province || getProvinceFromAddress(data?.address || data?.id_number),
+        province: data?.province || getProvinceFromAddress(addrData.street || data?.address || data?.id_number),
         photoUrl: data?.photoUrl || null,
-        address: data?.address || "Jl. Sunset Road No.7, Kuta, Bali Indonesia.",
+        address: isJsonAddress ? (addrData.street || "") : (data?.address || "Jl. Sunset Road No.7, Kuta, Bali Indonesia."),
         order_id: data?.order_id || 'NOT_LINKED',
         isUnlimited: data?.isUnlimited || (data?.visa_type?.toUpperCase().includes('GCI') || data?.visa_type?.toUpperCase().includes('UNLIMITED') || !data?.expiry_date)
     };
@@ -154,14 +182,14 @@ export default function IDivCardModern({
                 sx={{ 
                     perspective: '1200px', 
                     width: '100%',
-                    maxWidth: { xs: '350px', sm: '420px' },
+                    maxWidth: { xs: '100%', sm: '420px' },
                     aspectRatio: { xs: 'auto', sm: '1.58 / 1' },
                     margin: '0 auto',
                     cursor: 'pointer',
                     position: 'relative',
                     zIndex: 10,
                     // Full card visible on mobile — no clipping
-                    minHeight: { xs: '230px', sm: '265px' }
+                    minHeight: { xs: '250px', sm: '265px' }
                 }}
                 onClick={() => setIsFlipped(!isFlipped)}
             >

@@ -1,6 +1,6 @@
 # 🛡️ BALI ENTERPRISES GROUP — CORPORATE MASTER INTELLIGENCE NODE
-**Version**: 4.1 (Brand Compliance Hardened)
-**Last Audit**: 2026-04-30
+**Version**: 4.2 (Identity & Domain Hardening)
+**Last Audit**: 2026-05-02
 **Canonical Source**: https://indonesianvisas.com (This file lives in the indonesianvisas.com repository)
 
 ---
@@ -44,13 +44,14 @@
 | **Email** | `contact@indonesianvisas.agency` | Business email |
 | **Tech Phone** | `+62-851-1123-7007` | Telegram/Tech support |
 | **Founded** | `2010` | Company founding year |
-| **Brand** | Indonesian Visas™ (Trademark Pending) | |
+| **Brand** | Indonesian Visas™ (MYVISA) | |
+| **Legal Name** | PT Indonesian Visas Agency™ (MYVISA) | |
 | **Technology** | Smart ID / Sponsor ID (Patent-Pending) | NFC/QR/CHIP |
 
 ### Parent Holding Company
 | Field | Value |
 | :--- | :--- |
-| **Name** | PT Bali Enterprises Group |
+| **Name** | PT Bali Enterprises Group (EBALI) |
 | **URL** | https://bali.enterprises |
 | **Email** | info@bali.enterprises |
 | **KBLI** | 70209 (Management / Holding) |
@@ -75,7 +76,7 @@
 | 2 | **balivisa.agency** | Bali City Division | Bali | `city-division` | ✅ SYNCED |
 | 3 | **jakartavisas.agency** | Jakarta City Division | Jakarta / IKN | `city-division` | ✅ SYNCED |
 | 4 | **balihelp.id** | Lifestyle & Emergency Concierge | Bali Local | `lifestyle` | ❌ PENDING |
-| 5 | **bali.enterprises** | Strategic Holding & Education | Global | `holding` | ❌ PENDING |
+| 5 | **bali.enterprises** | Strategic Holding & Education | Global | `holding` | ✅ SYNCED |
 | 6 | **bali.technology** | R&D / Smart ID Innovation | Global | `tech` | ❌ PENDING |
 | 7 | **indodesign.website** | Creative & UI/UX Studio | Global | `tech` | ❌ PENDING |
 | 8 | **immigration-software.com** | SaaS Immigration Platform | Global | `tech` | ❌ PENDING |

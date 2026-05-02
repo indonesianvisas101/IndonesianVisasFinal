@@ -29,6 +29,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import Link from "next/link";
 import { VISA_DATABASE } from "@/constants/visas";
 import { supabase } from "@/lib/supabase";
@@ -300,13 +301,23 @@ export default function InvoicingTab() {
                     <Typography variant="h4" fontWeight="bold">Invoicing Panel</Typography>
                     <Typography variant="body1" color="text.secondary">Create and manage invoices for both registered and guest users.</Typography>
                 </div>
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={() => { resetForm(); setOpenDialog(true); }}
-                >
-                    Create Invoice
-                </Button>
+                <Stack direction="row" spacing={2}>
+                    <Button
+                        variant="outlined"
+                        startIcon={<RefreshIcon />}
+                        onClick={fetchInvoices}
+                        disabled={loading}
+                    >
+                        Refresh
+                    </Button>
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={() => { resetForm(); setOpenDialog(true); }}
+                    >
+                        Create Invoice
+                    </Button>
+                </Stack>
             </Box>
 
             <Card>
@@ -734,19 +745,31 @@ export default function InvoicingTab() {
                                     Step 3: Uploaded Documents
                                 </Typography>
                                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                                    {Object.entries(editingInvoice.documents).map(([key, url]) => {
-                                        const name = key.replace(/([A-Z])/g, ' $1').trim();
-                                        return (
-                                            <Chip
-                                                key={key}
-                                                label={name}
-                                                onClick={() => setViewingDoc({ url: url as string, name })}
-                                                clickable
-                                                color="info"
-                                                variant="outlined"
-                                                size="small"
-                                            />
-                                        );
+                                    {Object.entries(editingInvoice.documents).flatMap(([key, urlValue]) => {
+                                        const urls = Array.isArray(urlValue) ? urlValue : [urlValue];
+                                        return urls.map((url, index) => {
+                                            // Better formatting for labels (e.g. additional_1 -> Additional Doc 1)
+                                            let name = key.replace(/([A-Z])/g, ' $1')
+                                                         .replace(/_/g, ' ')
+                                                         .replace(/\b\w/g, l => l.toUpperCase())
+                                                         .trim();
+                                            if (name.includes('Additional')) name = name.replace('Additional', 'Additional Doc');
+                                            
+                                            // Append index if it's an array with multiple items
+                                            const finalName = urls.length > 1 ? `${name} ${index + 1}` : name;
+                                            
+                                            return (
+                                                <Chip
+                                                    key={`${key}-${index}`}
+                                                    label={finalName}
+                                                    onClick={() => setViewingDoc({ url: url as string, name: finalName })}
+                                                    clickable
+                                                    color="info"
+                                                    variant="outlined"
+                                                    size="small"
+                                                />
+                                            );
+                                        });
                                     })}
                                 </Stack>
                             </Box>

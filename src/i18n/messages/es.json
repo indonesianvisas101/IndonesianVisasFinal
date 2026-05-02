@@ -48,7 +48,7 @@
         "title": "Privacy Policy",
         "last_updated": "Last Updated: February 2026",
         "intro_title": "1. Introduction & Acceptance",
-        "intro_p1": "Indonesian Visas, operating under PT Indonesian Visas Agency™ (referred to as 'we', 'us', or 'our'), is steadfast in its commitment to protecting your privacy and handling your data transparently. This comprehensive Privacy Policy governs your use of our platform (www.indonesianvisas.com), associated satellite domains, and outlines our practices regarding the collection, safeguarding, processing, and disclosure of personal data when you utilize our visa and immigration facilitation services.",
+        "intro_p1": "Indonesian Visas, operating under PT Indonesian Visas Agency™ (MYVISA) (referred to as 'we', 'us', or 'our'), is steadfast in its commitment to protecting your privacy and handling your data transparently. This comprehensive Privacy Policy governs your use of our platform (www.indonesianvisas.com), associated satellite domains, and outlines our practices regarding the collection, safeguarding, processing, and disclosure of personal data when you utilize our visa and immigration facilitation services.",
         "data_collect_title": "2. Data We Collect",
         "data_collect_p1": "To facilitate official immigration procedures in compliance with the Directorate General of Immigration of the Republic of Indonesia, we collect the following categories of personal and sensitive data:",
         "data_collect_list": [
@@ -72,23 +72,23 @@
         "rights_p1": "Subject to applicable Indonesian and international data protection laws (including GDPR parity principles where applicable), you possess the right to: (A) Request access to your personal data; (B) Request rectification of inaccurate data (provided the visa has not yet been submitted); (C) Request erasure of your data post-service completion (subject to mandatory legal retention periods); and (D) Withdraw consent for marketing communications at any time.",
         "contact_title": "6. Data Controller Contact",
         "contact_p1": "For any privacy-related inquiries, data subject requests, or to report a security vulnerability, please contact our Data Protection Officer (DPO) at:",
-        "contact_address": "PT Indonesian Visas Agency™\nJl. Tibung Sari No.11C, Padangsambian Kaja,\nDenpasar Barat, Denpasar, Bali 80117, Republic of Indonesia\nEmail: privacy@indonesianvisas.com\nSecondary Email: compliance@bali.Enterprises",
+        "contact_address": "PT Indonesian Visas Agency™ (MYVISA)\nJl. Tibung Sari No.11C, Padangsambian Kaja,\nDenpasar Barat, Denpasar, Bali 80117, Republic of Indonesia\nEmail: privacy@indonesianvisas.com\nSecondary Email: compliance@bali.Enterprises",
         "ack_text": "Acknowledgment: By utilizing our platform and submitting your application, you explicitly consent to the collection, processing, and cross-border transfer of your personal data as stipulated in this Privacy Policy, our Terms & Conditions, and our Refund Policy."
     },
     "terms_conditions_page": {
         "title": "Terms & Conditions",
         "company_info_title": "1. Corporate Identity & Authority",
-        "company_info_p1": "Indonesian Visas is a premier immigration facilitation agency legally registered and operating under PT Indonesian Visas Agency™, a subsidiary of PT Bali Enterprises Indonesia. We function as a licensed administrative proxy between the applicant and the Directorate General of Immigration of the Republic of Indonesia. By utilizing www.indonesianvisas.com or any affiliated services, you agree to be bound by these comprehensive Terms & Conditions.",
+        "company_info_p1": "Indonesian Visas is a premier immigration facilitation agency legally registered and operating under PT Indonesian Visas Agency™ (MYVISA), a subsidiary of PT Bali Enterprises Indonesia. We function as a licensed administrative proxy between the applicant and the Directorate General of Immigration of the Republic of Indonesia. By utilizing www.indonesianvisas.com or any affiliated services, you agree to be bound by these comprehensive Terms & Conditions.",
         "scope_title": "2. Scope of Services & Agency Role",
         "scope_p1": "Our mandate includes the advisory, preparation, submission, and tracking of Indonesian visas (e.g., e-VOA, B211A, Multiple-Entry, KITAS/KITAP) and related corporate services. We operate strictly as an administrative facilitator. We are not an official government entity, and we do not possess the authority to issue visas, alter immigration laws, or guarantee entry into the Republic of Indonesia.",
         "approval_title": "3. Visa Approval & Immigration Discretion",
-        "approval_p1": "The issuance of any visa or stay permit is at the absolute and sole discretion of the Indonesian Immigration authorities. PT Indonesian Visas Agency™ cannot guarantee application approval, processing timelines, or the final validity period granted. Immigration retains the right to request additional documentation, mandate interviews, or reject applications without providing justification. Our service fees are for the administrative processing and are entirely independent of the government's final decision.",
+        "approval_p1": "The issuance of any visa or stay permit is at the absolute and sole discretion of the Indonesian Immigration authorities. PT Indonesian Visas Agency™ (MYVISA) cannot guarantee application approval, processing timelines, or the final validity period granted. Immigration retains the right to request additional documentation, mandate interviews, or reject applications without providing justification. Our service fees are for the administrative processing and are entirely independent of the government's final decision.",
         "obligations_title": "4. Client Representations & Warranties",
         "obligations_p1": "The Client warrants that all information, declarations, and documents provided are authentic, accurate, and current. The Client acknowledges that submitting forged documents, providing false declarations, or concealing criminal history constitutes a severe violation of Indonesian law, which may result in immediate application rejection, blacklisting, or legal prosecution. The agency bears zero responsibility for consequences arising from Client misrepresentation.",
         "payments_title": "5. Financial Terms",
         "payments_p1": "All service fees, government levies, and associated taxes must be paid in full prior to the commencement of the application process. Prices are subject to change based on government regulatory updates or currency fluctuations. Overstay penalties, deportation costs, or subsequent legal fees incurred by the Client while in Indonesia are exclusively the Client's financial responsibility.",
         "liability_title": "6. Limitation of Liability & Force Majeure",
-        "liability_p1": "In no event shall PT Indonesian Visas Agency™, its directors, or employees be held liable for any direct, indirect, incidental, or consequential damages resulting from visa rejections, delays, flight cancellations, deportation, or entry denial at the border. Furthermore, we are exempt from fulfilling obligations in cases of Force Majeure, including but not limited to global pandemics, natural disasters, sudden government regulatory changes, system outages at the Immigration department, or political unrest.",
+        "liability_p1": "In no event shall PT Indonesian Visas Agency™ (MYVISA), its directors, or employees be held liable for any direct, indirect, incidental, or consequential damages resulting from visa rejections, delays, flight cancellations, deportation, or entry denial at the border. Furthermore, we are exempt from fulfilling obligations in cases of Force Majeure, including but not limited to global pandemics, natural disasters, sudden government regulatory changes, system outages at the Immigration department, or political unrest.",
         "dispute_title": "7. Governing Law & Dispute Resolution",
         "dispute_p1": "These Terms & Conditions shall be governed by and construed in accordance with the laws of the Republic of Indonesia. Any disputes arising out of or in connection with these terms shall first be attempted to be resolved through amicable negotiation. If unresolved, the dispute shall be submitted to the exclusive jurisdiction of the District Court of Denpasar, Bali.",
         "ack_italic": "By engaging our services, remitting payment, or submitting documents, the Client irrevocably accepts these Terms & Conditions in their entirety."
@@ -96,7 +96,7 @@
     "refund_policy_page": {
         "title": "Refund & Cancellation Policy",
         "denial_title": "1. Visa Rejection by Immigration",
-        "denial_p1": "While our agency maintains a 99% success rate, the final decision rests with the Indonesian Government. If an application is officially rejected by Immigration on grounds not related to client misrepresentation (e.g., forged documents, red notices, undisclosed criminal history), PT Indonesian Visas Agency™ may, at its sole discretion, issue a partial refund. This refund will exclude the non-refundable Mandatory Government Visa Fee and a 10% administrative processing fee. Rejections due to client fraud or negligence are strictly non-refundable.",
+        "denial_p1": "While our agency maintains a 99% success rate, the final decision rests with the Indonesian Government. If an application is officially rejected by Immigration on grounds not related to client misrepresentation (e.g., forged documents, red notices, undisclosed criminal history), PT Indonesian Visas Agency™ (MYVISA) may, at its sole discretion, issue a partial refund. This refund will exclude the non-refundable Mandatory Government Visa Fee and a 10% administrative processing fee. Rejections due to client fraud or negligence are strictly non-refundable.",
         "force_majeure_title": "2. Regulatory Changes & Force Majeure",
         "force_majeure_p1": "If the Indonesian Government unexpectedly changes immigration policies, closes borders, or suspends visa issuance protocols after an application has been paid for but before it is approved, we will hold the application in credit for future use. Refunds requested under Force Majeure conditions (e.g., pandemics, system outages) are subject to a 20% administrative deduction to cover incurred operational costs.",
         "approved_title": "3. Approved Visas & Unused Permits",
@@ -274,7 +274,7 @@
     },
     "about_preview": {
         "title": "About Indonesian Visas",
-        "description": "Your trusted partner for seamless Indonesian visa processing since 2010. We are part of PT Indonesian Visas Agency™, dedicated to making your Indonesian journey smooth and stress-free.",
+        "description": "Your trusted partner for seamless Indonesian visa processing since 2010. We are part of PT Indonesian Visas Agency™ (MYVISA), dedicated to making your Indonesian journey smooth and stress-free.",
         "cta": "Learn More About Us"
     },
     "faq_preview": {
@@ -325,7 +325,7 @@
         "brand_title": "Indonesian Visas",
         "brand_tagline": "Your trusted legal gateway to living and working in Indonesia.",
         "operated_by": "Operated by",
-        "company_name": "PT Indonesian Visas Agency™",
+        "company_name": "PT Indonesian Visas Agency™ (MYVISA)",
         "region": "Bali, Indonesia",
         "services_title": "Services",
         "apply_visa": "Apply Visa",

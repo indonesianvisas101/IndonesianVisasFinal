@@ -127,8 +127,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setUser(fallback);
                     return fallback;
                 }
+                if (res.status === 401) {
+                    console.info("Guest session - Profile skip.");
+                    setUser(null);
+                    return null as any;
+                }
                 console.warn("Profile API fetch failed, status:", res.status);
-                throw new Error(`API error: ${res.status}`);
+                return null as any;
             }
 
             const data = await res.json();

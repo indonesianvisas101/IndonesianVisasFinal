@@ -65,10 +65,10 @@ const ServicesHero: React.FC<ServicesHeroProps> = ({ locale, t }) => {
                         </Link>
                         <button 
                             onClick={() => setIsQuickApplyOpen(true)}
-                            className="px-10 py-5 bg-white dark:bg-white/5 mode-aware-text border border-slate-200 dark:border-white/10 font-black rounded-2xl hover:bg-slate-50 dark:hover:bg-white/10 shadow-lg transition-all flex items-center gap-2 group"
+                            className="px-10 py-5 bg-[#4B0082] text-white font-black rounded-2xl shadow-2xl shadow-[#4B0082]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group border border-white/10"
                         >
-                            <Zap size={20} className="text-primary group-hover:animate-bounce" />
-                            Quick Application
+                            <Zap size={20} className="group-hover:animate-bounce" />
+                            <span>Quick Application</span>
                         </button>
                     </motion.div>
                 </div>

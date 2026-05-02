@@ -9,7 +9,7 @@ export default function ComplianceGrid() {
         {
             icon: Building2,
             title: "Legal Entity",
-            value: "PT Indonesian Visas Agency™"
+            value: "PT Indonesian Visas Agency™ (MYVISA)"
         },
         {
             icon: FileText,

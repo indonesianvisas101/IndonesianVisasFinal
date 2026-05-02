@@ -141,13 +141,19 @@ export async function POST(request: Request) {
         const { id, userId, fullName, passportNumber, visaType, status, address, nationality, photoUrl } = body;
 
         // Normalization & Sanitization: Uppercase and strip HTML tags
-        const sanitize = (str: any) => (typeof str === 'string' && str) ? str.replace(/<[^>]*>?/gm, '').toUpperCase() : str;
+        // Hardening: Do NOT toUpperCase if it looks like JSON to preserve key structures
+        const sanitize = (str: any) => {
+            if (typeof str !== 'string' || !str) return str;
+            const clean = str.replace(/<[^>]*>?/gm, '');
+            if (clean.trim().startsWith('{')) return clean; // Preserve JSON
+            return clean.toUpperCase();
+        };
 
         const fullNameFinal = sanitize(fullName);
         const passportNumberFinal = sanitize(passportNumber);
         const visaTypeFinal = sanitize(visaType);
         const nationalityFinal = sanitize(nationality);
-        const addressFinal = sanitize(address); // Also sanitize address as it could contain XSS payloads
+        const addressFinal = sanitize(address);
 
         // Basic validation
         if (!fullNameFinal || !passportNumberFinal) {

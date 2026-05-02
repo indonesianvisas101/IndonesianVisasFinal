@@ -31,7 +31,7 @@ const AboutPreview = ({ dict }: { dict?: any }) => {
                         <div className="p-10 md:p-14 text-center max-w-3xl mx-4 pointer-events-auto">
                             <h2 className={`${styles.heading} text-white mb-6 drop-shadow-xl text-4xl md:text-5xl`}>{t.title || "About Indonesian Visas"}</h2>
                             <p className={`${styles.text} text-white text-lg md:text-xl mb-8 drop-shadow-lg font-medium`}>
-                                {t.description || "Your trusted partner for seamless Indonesian visa processing since 2010. We are part of PT Indonesian Visas Agency™, dedicated to making your Indonesian journey smooth and stress-free."}
+                                {t.description || "Your trusted partner for seamless Indonesian visa processing since 2010. We are part of PT Indonesian Visas Agency™ (MYVISA), dedicated to making your Indonesian journey smooth and stress-free."}
                             </p>
                             <Link href={formatNavLink(locale, "/about")} className={`cta-accent ${styles.btn} shadow-2xl hover:scale-105 transition-transform inline-block`}>
                                 {t.cta || "Learn More About Us"}

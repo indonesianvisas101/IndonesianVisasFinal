@@ -21,7 +21,7 @@ export default function InteractiveTimeline() {
         {
             year: "2020",
             title: "Omnibus Law & PT Transition",
-            description: "Strategically evolved into PT Indonesian Visas Agency to comply with Indonesia's Omnibus Law, specializing exclusively in national immigration services.",
+            description: "Strategically evolved into PT Indonesian Visas Agency™ (MYVISA) to comply with Indonesia's Omnibus Law, specializing exclusively in national immigration services.",
             icon: ShieldCheck
         },
         {

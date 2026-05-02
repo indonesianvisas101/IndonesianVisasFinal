@@ -14,7 +14,7 @@ export const ApplicationSchema = z.object({
     appliedAt: z.string().optional(),
     paymentReference: z.string().optional(),
     adminNotes: z.string().optional(),
-    documents: z.record(z.string(), z.string()).optional(),
+    documents: z.record(z.string(), z.union([z.string(), z.array(z.string())])).optional(),
     attribution: z.record(z.string(), z.any()).optional(),
     quantity: z.number().optional().default(1),
     visaAmount: z.string().optional(),

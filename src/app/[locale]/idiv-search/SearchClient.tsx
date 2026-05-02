@@ -12,13 +12,29 @@ import { Box, Stack } from "@mui/material";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
 import OfficialVerificationDocument from "@/components/verification/OfficialVerificationDocument";
 
-// Parse JSON-packed address
+// Parse JSON-packed address (Case-Insensitive)
 function parseAddress(raw: string | null | undefined) {
     const fb = { street: "", birthPlaceDate: "", gender: "", occupation: "" };
     if (!raw) return fb;
+    if (!raw.trim().startsWith('{')) return { ...fb, street: raw };
     try {
         const p = JSON.parse(raw);
-        return { street: p.street || "", birthPlaceDate: p.birthPlaceDate || p.dob || "", gender: p.gender || "", occupation: p.occupation || "" };
+        const getVal = (keys: string[]) => {
+            for (const k of keys) {
+                if (p[k] !== undefined) return p[k];
+                const kLower = k.toLowerCase();
+                const kUpper = k.toUpperCase();
+                if (p[kLower] !== undefined) return p[kLower];
+                if (p[kUpper] !== undefined) return p[kUpper];
+            }
+            return "";
+        };
+        return {
+            street:         getVal(['street', 'STREET', 'address', 'Alamat']),
+            birthPlaceDate: getVal(['birthPlaceDate', 'BIRTHPLACEDATE', 'dob', 'DOB']),
+            gender:         getVal(['gender', 'GENDER', 'Jenis Kelamin']),
+            occupation:     getVal(['occupation', 'OCCUPATION', 'Pekerjaan']),
+        };
     } catch { return { ...fb, street: raw }; }
 }
 
@@ -180,8 +196,8 @@ export default function SearchClient({ locale }: { locale: string }) {
                             const isIDG = result.visaType?.toUpperCase().includes('IDG') || result.visaType?.toUpperCase().includes('GUIDE');
                             
                             return (
-                                <div className="grid lg:grid-cols-2 gap-16 items-start">
-                                    <div className="space-y-8 lg:sticky lg:top-32">
+                                <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+                                    <div className="space-y-8 lg:sticky lg:top-32 px-1 sm:px-0">
                                         <div className="bg-primary/10 text-primary px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] font-black tracking-widest uppercase italic">
                                             <QrCode size={14} /> System Verified ID
                                         </div>
@@ -205,7 +221,7 @@ export default function SearchClient({ locale }: { locale: string }) {
                                                 visa_type:        result.visaType,
                                                 expiry_date:      result.expiresAt ? new Date(result.expiresAt).toLocaleDateString() : 'N/A',
                                                 issue_date:       result.issuedDate ? new Date(result.issuedDate).toLocaleDateString() : 'N/A',
-                                                address:          addr.street || result.address || "",
+                                                address:          result.address?.trim().startsWith('{') ? (addr.street || "") : (result.address || ""),
                                                 birth_place_date: addr.birthPlaceDate,
                                                 gender:           addr.gender,
                                                 occupation:       addr.occupation,
@@ -218,14 +234,14 @@ export default function SearchClient({ locale }: { locale: string }) {
                                     </div>
 
                                     {/* Detailed Data */}
-                                    <div className="space-y-8">
-                                        <div className="bg-white dark:bg-white/5 rounded-[3rem] border border-slate-200 dark:border-white/10 overflow-hidden">
-                                            <div className="bg-primary/5 p-8 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
-                                                <h3 className="text-2xl font-black mode-aware-text tracking-tighter uppercase italic">Record Integrity</h3>
-                                                <CheckCircle2 className="text-green-500" size={32} />
+                                    <div className="space-y-8 px-1 sm:px-0">
+                                        <div className="bg-white dark:bg-white/5 rounded-[2rem] sm:rounded-[3rem] border border-slate-200 dark:border-white/10 overflow-hidden">
+                                            <div className="bg-primary/5 p-6 sm:p-8 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
+                                                <h3 className="text-xl sm:text-2xl font-black mode-aware-text tracking-tighter uppercase italic">Record Integrity</h3>
+                                                <CheckCircle2 className="text-green-500" size={28} />
                                             </div>
-                                            <div className="p-10 space-y-8">
-                                                <div className="grid grid-cols-2 gap-8">
+                                            <div className="p-6 sm:p-10 space-y-8">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                                                     {[
                                                         { label: "Full Name",     value: result.fullName, icon: Info },
                                                         { label: "Passport",      value: result.passportNumber, icon: Lock },

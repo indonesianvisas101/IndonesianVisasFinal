@@ -46,6 +46,7 @@ import { supabase } from "@/lib/supabase";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import ShareIcon from "@mui/icons-material/Share";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { downloadIDiv, downloadIDivDual } from "@/utils/idivDownloadTools";
 
 
@@ -282,10 +283,18 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         if (unpackedAddress.startsWith("{")) {
             try {
                 const parsed = JSON.parse(unpackedAddress);
-                unpackedAddress = parsed.street || "";
-                parsedBirth = parsed.birthPlaceDate || "";
-                parsedGender = parsed.gender || "";
-                parsedOcc = parsed.occupation || "";
+                const getVal = (keys: string[]) => {
+                    for (const k of keys) {
+                        if (parsed[k] !== undefined) return parsed[k];
+                        if (parsed[k.toLowerCase()] !== undefined) return parsed[k.toLowerCase()];
+                        if (parsed[k.toUpperCase()] !== undefined) return parsed[k.toUpperCase()];
+                    }
+                    return "";
+                };
+                unpackedAddress = getVal(['street', 'address', 'Alamat']);
+                parsedBirth     = getVal(['birthPlaceDate', 'dob', 'BIRTHPLACEDATE']);
+                parsedGender    = getVal(['gender', ' Jenis Kelamin']);
+                parsedOcc       = getVal(['occupation', 'Pekerjaan']);
             } catch (e) {}
         }
 
@@ -353,18 +362,29 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
 
     return (
         <Stack spacing={4}>
+
             <Box display="flex" justifyContent="space-between" alignItems="center">
                 <div>
                     <Typography variant="h4" fontWeight="bold">Verification System</Typography>
                     <Typography variant="body1" color="text.secondary">Manage visa verification records and QR codes.</Typography>
                 </div>
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={() => { resetForm(); setOpenDialog(true); }}
-                >
-                    New Verification
-                </Button>
+                <Stack direction="row" spacing={2}>
+                    <Button
+                        variant="outlined"
+                        startIcon={<RefreshIcon />}
+                        onClick={fetchVerifications}
+                        disabled={loading}
+                    >
+                        Refresh
+                    </Button>
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={() => { resetForm(); setOpenDialog(true); }}
+                    >
+                        New Verification
+                    </Button>
+                </Stack>
             </Box>
 
             <Card>

@@ -128,11 +128,11 @@ const SEOAboutExpansion = ({ dict }: { dict?: any }) => {
                                 <span className="text-sm text-slate-700 dark:text-gray-500 font-medium">{t.platform_central || "Central Authority Platform • Global Information"}</span>
                             </div>
                             <div className="p-4 bg-gray-100/80 dark:bg-zinc-700/10 border border-gray-200 dark:border-zinc-400 rounded-xl">
-                                <span className="font-bold text-slate-900 dark:text-gray-500 block text-lg mb-1">balivisas.agency</span>
+                                <span className="font-bold text-slate-900 dark:text-gray-500 block text-lg mb-1">balivisa.agency</span>
                                 <span className="text-sm text-slate-700 dark:text-gray-500 font-medium">{t.platform_bali || "Bali Region Focus • Tourist & Business Services"}</span>
                             </div>
                             <div className="p-4 bg-gray-100/80 dark:bg-zinc-700/10 border border-gray-200 dark:border-zinc-400 rounded-xl">
-                                <span className="font-bold text-slate-900 dark:text-gray-500 block text-lg mb-1">jakartavisa.agency</span>
+                                <span className="font-bold text-slate-900 dark:text-gray-500 block text-lg mb-1">jakartavisas.agency</span>
                                 <span className="text-sm text-slate-700 dark:text-gray-500 font-medium">{t.platform_jakarta || "Jakarta Region Focus • Corporate & Investor Services"}</span>
                             </div>
                         </div>

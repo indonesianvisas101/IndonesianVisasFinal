@@ -11,6 +11,11 @@ import { formatNavLink } from "@/utils/seo";
 const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
     const t = dict?.footer || {};
 
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
     return (
         <footer className={styles.footer}>
             <div className="container">
@@ -25,7 +30,7 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                         </p>
                         <div className={styles.authorityBox}>
                             <p className={styles.authorityLabel}>{t.operated_by || "Operated by"}</p>
-                            <p className={styles.authorityName}>{t.company_name || "PT Indonesian Visas Agency™"}</p>
+                            <p className={styles.authorityName}>{t.company_name || "PT Indonesian Visas Agency™ (MYVISA)"}</p>
                             <p className={styles.authorityRegion}>{t.region || "Bali, Indonesia"}</p>
                             <div className="mt-4 text-[10px] text-gray-300 dark:text-gray-500 space-y-0.5 leading-tight font-mono">
                                 <p>NIB: 0402260034806</p>
@@ -78,21 +83,21 @@ const Footer = ({ dict, locale }: { dict?: any; locale: string }) => {
                                 className="text-xs font-black tracking-widest text-primary hover:opacity-70 transition-all uppercase italic flex items-center gap-2 group"
                             >
                                 bali.enterprises
-                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                             </a>
                         </div>
                     </div>
                 </div>
 
                 {/* BOTTOM BAR */}
-                <div className={styles.bottomBar}>
+                <div className={styles.bottomBar} suppressHydrationWarning>
                     <div className={styles.copyright}>
-                        &copy; {new Date().getFullYear()} PT Indonesian Visas Agency™. {t.rights_reserved || "All Rights Reserved."}
+                        &copy; {mounted ? new Date().getFullYear() : "2026"} PT Indonesian Visas Agency™ (MYVISA). All Rights Reserved.
                     </div>
 
                     {/* Global Disclaimer */}
                     <p className={styles.disclaimer}>
-                        {t.disclaimer || "Indonesian Visas provides administrative assistance. Final immigration approval remains the authority of the Indonesian government."}
+                        {mounted ? (t.disclaimer || "Indonesian Visas provides administrative assistance. Final immigration approval remains the authority of the Indonesian government.") : "..."}
                     </p>
                 </div>
             </div>

@@ -124,7 +124,7 @@ const StepPayment = () => {
         setIsSubmitting(true);
         try {
             // 0. Upload Documents First - Map them by traveler index
-            const travelerDocs: Record<number, Record<string, string>> = {};
+            const travelerDocs: Record<number, Record<string, string | string[]>> = {};
             const docsArray = Array.isArray(documents) ? documents : [documents];
             const uploadPromises: Promise<void>[] = [];
 
@@ -132,26 +132,52 @@ const StepPayment = () => {
                 if (!docSet) return;
                 travelerDocs[index] = {};
 
-                Object.entries(docSet).forEach(([key, fileObj]) => {
-                    const typedFile = fileObj as File | null;
-                    if (typedFile && typedFile.size > 0) {
-                        const formData = new FormData();
-                        formData.append('file', typedFile);
-                        formData.append('bucket', 'documents');
+                // NEW: Handle Pre-uploaded files (Quick Apply Flow)
+                const preDoc = docSet as any;
+                if (preDoc.isPreUploaded) {
+                    if (preDoc.passportUrl) travelerDocs[index]['passport'] = preDoc.passportUrl;
+                    if (preDoc.photoUrl) travelerDocs[index]['photo'] = preDoc.photoUrl;
+                    if (preDoc.additional && Array.isArray(preDoc.additional)) {
+                        preDoc.additional.forEach((url: string, i: number) => {
+                            travelerDocs[index][`additional_${i + 1}`] = url;
+                        });
+                    }
+                    return; // Skip normal upload loop for this docSet
+                }
 
-                        uploadPromises.push(
-                            fetch('/api/upload/smart', {
-                                method: 'POST',
-                                body: formData
-                            })
-                                .then(res => res.json())
-                                .then(data => {
-                                    if (data.url) {
-                                        travelerDocs[index][key] = data.url;
-                                    }
+                Object.entries(docSet).forEach(([key, fileObj]) => {
+                    const processFile = (typedFile: File, arrayIndex?: number) => {
+                        if (typedFile && typedFile.size > 0) {
+                            const formData = new FormData();
+                            formData.append('file', typedFile);
+                            formData.append('bucket', 'quick_apply');
+
+                            uploadPromises.push(
+                                fetch('/api/upload/smart', {
+                                    method: 'POST',
+                                    body: formData
                                 })
-                                .catch(e => console.error(`Failed to upload file for traveler ${index + 1}:`, key, e))
-                        );
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if (data.url) {
+                                            if (arrayIndex !== undefined) {
+                                                if (!travelerDocs[index][key]) travelerDocs[index][key] = [];
+                                                (travelerDocs[index][key] as string[]).push(data.url);
+                                            } else {
+                                                travelerDocs[index][key] = data.url;
+                                            }
+                                        }
+                                    })
+                                    .catch(e => console.error(`Failed to upload file for traveler ${index + 1}:`, key, e))
+                            );
+                        }
+                    };
+
+                    if (Array.isArray(fileObj)) {
+                        travelerDocs[index][key] = []; // Initialize empty array to preserve order and structure
+                        fileObj.forEach((f, i) => processFile(f as File, i));
+                    } else {
+                        processFile(fileObj as File);
                     }
                 });
             });

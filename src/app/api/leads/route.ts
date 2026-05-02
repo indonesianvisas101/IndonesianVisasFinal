@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { email, name, phone, visaType, attributionData } = body;
+        const { email, name, phone, visaType, attributionData, documents } = body;
 
         if (!email) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 });
@@ -19,6 +19,9 @@ export async function POST(request: Request) {
                 phone: phone || undefined,
                 visaType: visaType || undefined,
                 attributionData: attributionData || undefined,
+                passportUrl: documents?.passport || undefined,
+                photoUrl: documents?.photo || undefined,
+                additionalDocs: documents?.additional || undefined,
                 status: 'LEAD', // Ensure it stays as a lead if they return
                 updatedAt: new Date()
             },
@@ -28,6 +31,9 @@ export async function POST(request: Request) {
                 phone,
                 visaType,
                 attributionData,
+                passportUrl: documents?.passport,
+                photoUrl: documents?.photo,
+                additionalDocs: documents?.additional || [],
                 status: 'LEAD'
             }
         });

@@ -66,7 +66,7 @@ export default function LegalHeader() {
                                     fontSize: '1.05rem'
                                 }}
                             >
-                                PT Indonesian Visas Agency™ is a privately owned and operated administrative service provider. 
+                                PT Indonesian Visas Agency™ (MYVISA) is a privately owned and operated administrative service provider. 
                                 We are <strong>not affiliated with, endorsed by, or representing the Indonesian Government</strong>. 
                                 The sole legal authority for issuing visas and immigration approvals remains strictly with the 
                                 <strong> Directorate General of Immigration of the Republic of Indonesia (evisa.imigrasi.go.id)</strong>. 

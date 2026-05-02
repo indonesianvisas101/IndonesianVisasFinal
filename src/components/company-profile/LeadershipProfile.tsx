@@ -74,7 +74,7 @@ export default function LeadershipProfile() {
 
                         <div className="space-y-6 text-slate-300 text-lg leading-relaxed font-medium">
                             <p>
-                                As the driving force behind <span className="text-white font-bold tracking-tight">PT Indonesian Visas Agency™</span>, Bayu brings a vision to revolutionize immigration and business legalities in Indonesia. 
+                                As the driving force behind <span className="text-white font-bold tracking-tight">PT Indonesian Visas Agency™ (MYVISA)</span>, Bayu brings a vision to revolutionize immigration and business legalities in Indonesia. 
                             </p>
                             <p>
                                 Under his strategic leadership, the company has transformed from a boutique local consultancy into a national authority trusted by global corporations, diplomats, and international investors.

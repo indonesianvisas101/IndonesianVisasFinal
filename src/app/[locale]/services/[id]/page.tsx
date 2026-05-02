@@ -453,7 +453,7 @@ const VisaDetailPage = async (props: PageProps) => {
 
                 {/* Footer Note */}
                 <footer className="mt-20 pt-10 border-t border-gray-200 dark:border-white/10 text-center text-gray-500 dark:text-gray-400 text-sm">
-                    <p>© Indonesian Visas by PT Indonesian Visas Agency™. All Rights Reserved.</p>
+                    <p>© Indonesian Visas by PT Indonesian Visas Agency™ (MYVISA). All Rights Reserved.</p>
                 </footer>
             </div>
         </div>

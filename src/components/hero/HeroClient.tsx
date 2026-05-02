@@ -6,7 +6,7 @@ import { useApplication } from "../application/ApplicationContext";
 import { runWhenIdle } from "@/utils/scheduler";
 import dynamic from "next/dynamic";
 import Link from "next/link"; 
-import { ArrowRight, ShieldCheck, Zap, Info, Copy, Check } from "lucide-react"; 
+import { ArrowRight, ShieldCheck, Zap, Info, Copy, Check, X } from "lucide-react"; 
 import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import { formatNavLink } from "@/utils/seo";
 import { useParams } from "next/navigation";
@@ -17,6 +17,7 @@ const HeroGlobe = dynamic(() => import("./HeroGlobe"), {
 });
 import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
 import { getStepPopups, getStatPopups } from "./HeroPopups";
+import Portal from "../common/Portal";
 
 export const HeroGlobeWrapper = () => {
     const [isMounted, setIsMounted] = React.useState(false);
@@ -96,6 +97,7 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
             <div className={styles.animateSlideUpDelay}>
                 <Link
                     href={formatNavLink(locale, "/arrival-card")}
+                    prefetch={true}
                     className={`cta-secondary ${styles.ctaBtn} !text-white !no-underline flex items-center justify-center hover:scale-105 transition-transform duration-300`}
                     aria-label="Process your Electronic Customs Declaration or Arrival Card"
                     style={{
@@ -115,7 +117,7 @@ export const HeroCTA = ({ label, arrivalCardLabel }: { label?: string; arrivalCa
 
 // ── LEGAL DATA (single source of truth) ────────────────────────────────────
 const LEGAL_DATA = {
-    legalName:   "PT Indonesian Visas Agency",
+    legalName:   "PT Indonesian Visas Agency™ (MYVISA)",
     nib:         "0402260034806",
     npwp:        "0100000008117681",
     skt:         "S-04449/SKT-WP-CT/KPP.1701/2026",
@@ -246,88 +248,101 @@ export const HeroBadge = () => {
                 </button>
             </div>
 
-            {/* ── POPUP (lazy — zero LCP impact, only rendered when open) ── */}
-            {open && (
-                // Overlay — click outside closes
-                <div
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label="Check Legality"
-                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-                    style={{ background: 'rgba(0,0,0,0.55)' }}
-                    onClick={() => setOpen(false)}
-                >
-                    {/* Modal card */}
-                    <div
-                        className="bg-white rounded-2xl w-full overflow-hidden"
-                        style={{ maxWidth: 420, boxShadow: '0 20px 50px rgba(0,0,0,0.2)' }}
-                        onClick={e => e.stopPropagation()}
-                    >
-                        {/* Header */}
-                        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                            <div className="flex items-center gap-2">
-                                <ShieldCheck size={18} className="text-green-600" />
-                                <span className="font-black text-sm text-gray-800 tracking-wide uppercase">Check Legality</span>
-                            </div>
-                            <button
+            {/* ── POPUP (Using Portal to break out of transform containers) ── */}
+            <AnimatePresence>
+                {open && (
+                    <Portal>
+                        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-5 md:p-6">
+                            {/* Backdrop */}
+                            <m.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/70 backdrop-blur-md"
                                 onClick={() => setOpen(false)}
-                                className="text-gray-400 hover:text-gray-700 text-xl leading-none font-bold"
-                                aria-label="Close"
+                            />
+
+                            {/* Modal card */}
+                            <m.div
+                                initial={{ opacity: 0, scale: 0.95, y: 100 }}
+                                animate={{ opacity: 1, scale: 1, y: 60 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 40 }}
+                                className="bg-white rounded-[32px] w-full overflow-hidden relative z-10 shadow-[0_30px_100px_rgba(0,0,0,0.5)] border border-white/20"
+                                style={{ maxWidth: 460 }}
+                                onClick={e => e.stopPropagation()}
                             >
-                                &times;
-                            </button>
-                        </div>
-
-                        {/* Body */}
-                        <div className="p-5">
-                            <p className="text-[11px] text-gray-500 mb-4">
-                                PT Indonesian Visas Agency is a fully registered legal entity in Indonesia. Verify via official government portals below.
-                            </p>
-
-                            {/* Data grid — 2 columns, 3 rows */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: 12 }}>
-                                {gridRows.map(([label, value]) => {
-                                    const canCopy = label.includes("Entity") || label.includes("NIB");
-                                    return (
-                                        <div key={label} className="bg-gray-50 rounded-lg p-3 group relative">
-                                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">{label}</div>
-                                            <div className="text-[11px] font-bold text-gray-800 break-words leading-tight">{value}</div>
-                                            
-                                            {canCopy && (
-                                                <CopyFeedback value={value} />
-                                            )}
+                                {/* Header */}
+                                <div className="flex items-center justify-between px-6 py-6 border-b border-gray-100 bg-gray-50/50">
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-green-500 rounded-full p-1.5 text-white shadow-lg shadow-green-200">
+                                            <ShieldCheck size={18} />
                                         </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Divider */}
-                            <div className="border-t border-gray-100 my-4" />
-
-                            {/* Action buttons */}
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                {buttons.map(btn => (
-                                    <a
-                                        key={btn.href}
-                                        href={btn.href}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[11px] font-bold text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg transition-colors"
+                                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Check Legality</h3>
+                                    </div>
+                                    <button 
+                                        onClick={() => setOpen(false)}
+                                        className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-400 hover:text-gray-600"
                                     >
-                                        {btn.label}
-                                    </a>
-                                ))}
-                            </div>
-                        </div>
+                                        <X size={20} />
+                                    </button>
+                                </div>
 
-                        {/* Footer */}
-                        <div className="px-5 pb-5 pt-2 text-center bg-slate-50">
-                            <p className="text-[10px] text-gray-400 font-bold mb-1">NOTICE: The verification links provided are Official Indonesian Government portals. (AHU & OSS)</p>
-                            <p className="text-[9px] text-gray-300">Pleae Copy the text above and paste it into the search bar of the verification portals.</p>
+                                {/* Body (Scrollable) */}
+                                <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 250px)' }}>
+                                    <p className="text-[12px] text-gray-500 mb-6 leading-relaxed">
+                                        PT Indonesian Visas Agency™ (MYVISA) is a fully registered legal entity in Indonesia. Verify our official credentials via government portals below.
+                                    </p>
+
+                                    {/* Data grid */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {gridRows.map(([label, value]) => {
+                                            const canCopy = label.includes("Entity") || label.includes("NIB");
+                                            return (
+                                                <div key={label} className="bg-gray-50/80 border border-gray-100 rounded-xl p-4 group relative hover:bg-white hover:shadow-md transition-all">
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">{label}</div>
+                                                    <div className="text-[12px] font-black text-gray-800 break-words leading-tight">{value}</div>
+                                                    
+                                                    {canCopy && (
+                                                        <CopyFeedback value={value} />
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {/* Divider */}
+                                    <div className="border-t border-gray-100 my-6" />
+
+                                    {/* Action buttons */}
+                                    <div className="flex flex-wrap gap-3 md:gap-4 mb-2">
+                                        {buttons.map(btn => (
+                                            <a
+                                                key={btn.href}
+                                                href={btn.href}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-[11px] font-black text-white bg-slate-900 hover:bg-primary px-4 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-sm"
+                                            >
+                                                {btn.label}
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Footer */}
+                                <div className="px-6 py-5 bg-slate-50/80 border-t border-gray-100">
+                                    <p className="text-[10px] text-slate-500 font-bold mb-1.5 uppercase tracking-tighter">
+                                        Verified Indonesian Government Portals (AHU & OSS)
+                                    </p>
+                                    <p className="text-[10px] text-slate-400 leading-tight">
+                                        Copy the unique identifiers above and paste them into the respective search bar on official portals for real-time status verification.
+                                    </p>
+                                </div>
+                            </m.div>
                         </div>
-                    </div>
-                </div>
-            )}
+                    </Portal>
+                )}
+            </AnimatePresence>
         </LazyMotion>
     );
 };
@@ -486,6 +501,7 @@ export const HeroSteps = ({ title, labels, dict, onQuickApply }: HeroStepsProps)
             <div className="mt-6 pt-5 border-t border-slate-200 dark:border-white/10 flex flex-row gap-2">
                 <Link 
                     href={formatNavLink(locale, "/check-status")} 
+                    prefetch={true}
                     className="flex-1 flex items-center justify-center px-3 py-2.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/20 rounded-xl transition-all"
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -494,6 +510,7 @@ export const HeroSteps = ({ title, labels, dict, onQuickApply }: HeroStepsProps)
 
                 <Link 
                     href={formatNavLink(locale, "/idiv-search")} 
+                    prefetch={true}
                     className="flex-1 flex items-center justify-center px-3 py-2.5 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-xl transition-all"
                     onClick={(e) => e.stopPropagation()}
                 >

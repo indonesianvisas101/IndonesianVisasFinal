@@ -22,7 +22,7 @@ const COUNTRY_DOMAINS = [
 ];
 
 const CITY_DOMAINS = [
-    "www.balivisas.agency",
+    "www.balivisa.agency",
     "www.jakartavisas.agency",
     "www.lombokvisa.online",
     "www.manadovisa.online",

@@ -418,6 +418,9 @@ model MarketingLead {
   visaType        String?
   status          String   @default("LEAD")
   attributionData Json?
+  passportUrl     String?
+  photoUrl        String?
+  additionalDocs  Json?    @default("[]")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

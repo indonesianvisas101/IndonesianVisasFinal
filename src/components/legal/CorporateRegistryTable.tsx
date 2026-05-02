@@ -5,7 +5,7 @@ import { Box, Container, Typography, Divider } from '@mui/material';
 
 export default function CorporateRegistryTable() {
     const REGISTRY_DATA = [
-        { label: "Entity Name", value: "PT Indonesian Visas Agency™" },
+        { label: "Entity Name", value: "PT Indonesian Visas Agency™ (MYVISA)" },
         { label: "Business Registration Number (NIB)", value: "0402260034806" },
         { label: "Tax Identification Number (NPWP)", value: "1000000008117681" },
         { label: "Registered Taxpayer Certificate (SKT)", value: "S-04449/SKT-WP-CT/KPP.1701/2026" },

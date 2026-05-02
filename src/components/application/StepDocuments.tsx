@@ -3,12 +3,20 @@
 import React, { useState } from "react";
 import { useApplication } from "./ApplicationContext";
 import styles from "./StepDocuments.module.css";
-import { ArrowLeft, UploadCloud, FileText, CheckCircle, AlertCircle, ArrowRight, RefreshCcw } from "lucide-react";
+import { ArrowLeft, UploadCloud, FileText, CheckCircle, AlertCircle, ArrowRight, RefreshCcw, Eye, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Portal from "../common/Portal";
+
+const GUIDE_LINKS = {
+    passport: "https://thvdfcogdxmqipybqzot.supabase.co/storage/v1/object/public/quick_apply/Passport.webp",
+    photo: "https://thvdfcogdxmqipybqzot.supabase.co/storage/v1/object/public/quick_apply/Recent%20Photo.webp"
+};
 
 const StepDocuments = () => {
     const { setStep, markStepComplete, documents, updateData, numPeople, updateTravelerDocument } = useApplication();
     const [processing, setProcessing] = useState<Record<string, boolean>>({});
     const [error, setError] = useState("");
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     const handleFileChange = (index: number, type: 'passportPhoto'|'recentPhoto'|'proofOfAccommodation', e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -80,7 +88,16 @@ const StepDocuments = () => {
                             {/* Passport - REQUIRED */}
                             <div className={`glass-card ${styles.uploadCard} ${passportUploaded ? styles.uploaded : ''}`}>
                                 <div className="flex justify-between items-center mb-2">
-                                    <label className={styles.label}>Passport Photo Page <span className="text-red-500">*Required</span></label>
+                                    <div className="flex items-center justify-between w-full">
+                                        <label className={styles.label}>Passport Photo Page <span className="text-red-500">*Required</span></label>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setPreviewImage(GUIDE_LINKS.passport)}
+                                            className="p-1.5 bg-primary/5 text-primary rounded-full hover:bg-primary/20 transition-all flex items-center gap-1"
+                                        >
+                                            <Eye size={12} /> <span className="text-[10px] font-black uppercase">Guide</span>
+                                        </button>
+                                    </div>
                                     {passportUploaded && <CheckCircle size={18} className="text-green-500" />}
                                 </div>
                                 <div className={styles.dropZone}>
@@ -114,7 +131,18 @@ const StepDocuments = () => {
 
                             {/* Photo - Optional/Skippable */}
                             <div className={`glass-card ${styles.uploadCard}`}>
-                                <label className={styles.label}>Recent Photo (White Background)</label>
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="flex items-center justify-between w-full">
+                                        <label className={styles.label}>Recent Photo (White Background)</label>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setPreviewImage(GUIDE_LINKS.photo)}
+                                            className="p-1.5 bg-primary/5 text-primary rounded-full hover:bg-primary/20 transition-all flex items-center gap-1"
+                                        >
+                                            <Eye size={12} /> <span className="text-[10px] font-black uppercase">Guide</span>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div className={styles.dropZone}>
                                     <UploadCloud size={32} className="text-gray-400 mb-2" />
                                     <span className="text-sm text-gray-500 mb-2">
@@ -129,24 +157,61 @@ const StepDocuments = () => {
                                 </div>
                             </div>
 
-                            {/* Accommodation - Shared across travelers usually, but attach to Primary for now or separate? Let's just put it for Traveler 1 if it makes sense, or everyone. Actually, let's keep it for Traveler 1 only to avoid spam. */}
-                            {i === 0 && (
-                                <div className={`glass-card ${styles.uploadCard}`}>
-                                    <label className={styles.label}>Ticket, Bank Statement & Proof of Accommodation</label>
-                                    <div className={styles.dropZone}>
-                                        <FileText size={32} className="text-gray-400 mb-2" />
-                                        <span className="text-sm text-gray-500 mb-2">
-                                            {doc.proofOfAccommodation ? doc.proofOfAccommodation.name : "Click to upload (Optional)"}
-                                        </span>
-                                        <input
-                                            type="file"
-                                            className={styles.fileInput}
-                                            accept="image/*,application/pdf"
-                                            onChange={(e) => handleFileChange(i, 'proofOfAccommodation', e)}
-                                        />
+                            {/* Accommodation - Multi-file Support */}
+                            {i === 0 && (() => {
+                                const additionalFiles = Array.isArray(doc.proofOfAccommodation) 
+                                    ? doc.proofOfAccommodation 
+                                    : (doc.proofOfAccommodation ? [doc.proofOfAccommodation] : []);
+                                
+                                return (
+                                    <div className={`glass-card ${styles.uploadCard} space-y-3`}>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <FileText size={16} className="text-primary" />
+                                            <label className={styles.label}>Ticket, Bank Statement & Proof of Accommodation</label>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            {additionalFiles.map((file, idx) => (
+                                                <div key={idx} className="relative bg-slate-50 dark:bg-white/5 rounded-2xl p-3 border border-slate-200 dark:border-white/10 flex flex-col items-center gap-2">
+                                                    <button 
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newFiles = additionalFiles.filter((_, fi) => fi !== idx);
+                                                            updateTravelerDocument(i, 'proofOfAccommodation', newFiles.length > 0 ? newFiles as any : null);
+                                                        }}
+                                                        className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-lg hover:scale-110 transition-transform"
+                                                    >
+                                                        <X size={10} />
+                                                    </button>
+                                                    {file.type === "application/pdf" ? <FileText size={20} className="text-red-400" /> : <UploadCloud size={20} className="text-blue-400" />}
+                                                    <div className="text-[10px] font-black truncate w-full text-center">{file.name}</div>
+                                                </div>
+                                            ))}
+                                            
+                                            {additionalFiles.length < 7 && (
+                                                <div className="relative border-2 border-dashed border-slate-200 dark:border-white/10 rounded-2xl p-3 hover:border-primary/50 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer bg-white/50 dark:bg-black/20 min-h-[80px]">
+                                                    <input 
+                                                        type="file"
+                                                        multiple
+                                                        accept="image/*,application/pdf"
+                                                        onChange={(e) => {
+                                                            if (e.target.files) {
+                                                                const newFiles = Array.from(e.target.files);
+                                                                const combined = [...additionalFiles, ...newFiles].slice(0, 7);
+                                                                updateTravelerDocument(i, 'proofOfAccommodation', combined as any);
+                                                            }
+                                                        }}
+                                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                                    />
+                                                    <UploadCloud size={16} className="text-slate-300" />
+                                                    <div className="text-[10px] font-bold text-slate-400">Add File</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 font-medium italic mt-2">* Max 7 files. PDF diutamakan (Bank Statement, Hotel, Flight).</p>
                                     </div>
-                                </div>
-                            )}
+                                );
+                            })()}
                         </div>
                     </div>
                 );
@@ -168,6 +233,47 @@ const StepDocuments = () => {
                     Continue to Payment <ArrowRight size={18} className="ml-2" />
                 </button>
             </div>
+
+            {/* MINI PREVIEW POPUP (LIGHTBOX) */}
+            <AnimatePresence>
+                {previewImage && (
+                    <Portal>
+                        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md">
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0"
+                                onClick={() => setPreviewImage(null)}
+                            />
+                            <motion.div 
+                                initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                                animate={{ scale: 1, y: 0, opacity: 1 }}
+                                exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                                className="relative max-w-2xl w-full bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl p-2 border border-white/10"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <img 
+                                    src={previewImage} 
+                                    alt="Guide Preview" 
+                                    className="w-full h-auto max-h-[70vh] rounded-2xl object-contain"
+                                />
+                                <button 
+                                    type="button"
+                                    onClick={() => setPreviewImage(null)}
+                                    className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                                <div className="p-6 text-center">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em]">Official Indonesian Visas Document Guide</p>
+                                    <p className="text-sm font-bold mode-aware-text mt-2">Pastikan foto terlihat jelas, tidak terpotong, dan pencahayaan baik.</p>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </Portal>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

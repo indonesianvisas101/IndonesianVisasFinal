@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       "Indonesia Visa", "Bali Visa", "VOA Indonesia", "KITAS Indonesia",
       "Business Visa Indonesia", "Indonesian Visas Agency", "Visa Agent Bali",
       "Company Formation Bali", "Company Registration Indonesia", "PT PMA Bali",
-      "Digital Nomad Visa Indonesia", "Retirement Visa Bali", "PT Indonesian Visas Agency"
+      "Digital Nomad Visa Indonesia", "Retirement Visa Bali", "PT Indonesian Visas Agency™ (MYVISA)"
     ],
     authors: [{ name: "Indonesian Visas Official Team" }],
     alternates: {
@@ -142,10 +142,10 @@ export default async function LocaleLayout({
               "@context": "https://schema.org",
               "@type": "Corporation",
               "@id": `${APP_URL}/#organization`,
-              "name": "PT Indonesian Visas Agency",
+              "name": "PT Indonesian Visas Agency™ (MYVISA)",
               "url": APP_URL,
-              "legalName": "PT Indonesian Visas Agency",
-              "alternateName": ["Indonesian Visas", "Indonesian Visas Agency", "Bali Help", "BaliHelp", "BaliVisa Agency", "Jakarta Visas Agency"],
+              "legalName": "PT Indonesian Visas Agency™ (MYVISA)",
+              "alternateName": ["MYVISA", "Indonesian Visas", "Indonesian Visas Agency", "Bali Help", "BaliHelp", "BaliVisa Agency", "Jakarta Visas Agency"],
               "description": "A Leading First-Hand Direct Legal Sponsor for Indonesian visas since 2010. Home of Indonesian Visas™ (Trademark Pending) and the patent-pending Smart ID ecosystem. Originally established as Bali Help, providing a multinational legal-tech infrastructure. We maintain extreme transparency with direct links for public legal audit via Government portals (AHU & OSS). Our proprietary Smart ID technology (NFC/QR/CHIP) is a joint innovation with bali.technology and indodesign.website, designed for strategic integration with provincial government systems.",
               "foundingDate": "2010",
               "logo": `${APP_URL}/Favicon.webp`,
@@ -169,7 +169,7 @@ export default async function LocaleLayout({
                 "Public Legal Audit & Government Verification (AHU/OSS)"
               ],
               "publishingPrinciples": "https://indonesianvisas.com/legal-transparency-policy",
-              "actionableFeedbackPolicy": "Users are encouraged to verify our corporate legality (PT Indonesian Visas Agency) directly via the Indonesian Ministry of Law (AHU) and OSS portals using NIB: 0402260034806.",
+              "actionableFeedbackPolicy": "Users are encouraged to verify our corporate legality (PT Indonesian Visas Agency™ / MYVISA) directly via the Indonesian Ministry of Law (AHU) and OSS portals using NIB: 0402260034806.",
               "contactPoint": [
                 {
                   "@type": "ContactPoint",
@@ -234,7 +234,7 @@ export default async function LocaleLayout({
                           "applicationCategory": "Digital Identity & Security",
                           "operatingSystem": "Web, Android, iOS (via NFC/QR)",
                           "description": "Patent-Pending secure digital identity solution. A joint innovation by Indonesian Visas, bali.technology, and indodesign.website. Designed for verifiable sponsorship and future integration with Bali provincial government systems.",
-                          "copyrightHolder": { "@type": "Organization", "name": "PT Indonesian Visas Agency" },
+                          "copyrightHolder": { "@type": "Organization", "name": "PT Indonesian Visas Agency™ (MYVISA)" },
                           "creator": [
                             { "@id": "https://bali.technology" },
                             { "@id": "https://indodesign.website" }
@@ -296,8 +296,11 @@ export default async function LocaleLayout({
                 "subOrganization": [
                   /* Identity & Legal Division */
                   {
-                    "@type": "Organization",
-                    "name": "PT Indonesian Visas Agency",
+                    "@type": "Corporation",
+                    "@id": "https://indonesianvisas.com/#organization",
+                    "name": "PT Indonesian Visas Agency™ (MYVISA)",
+                    "legalName": "PT Indonesian Visas Agency™ (MYVISA)",
+                    "alternateName": ["MYVISA", "Indonesian Visas Agency"],
                     "url": "https://indonesianvisas.com",
                     "email": "contact@indonesianvisas.agency",
                     "taxID": "0100000008117681",
@@ -448,11 +451,9 @@ export default async function LocaleLayout({
                 { "@type": "Organization", "name": "Indonesian Visa India", "url": "https://indiaindonesiavisa.online" },
                 /* City-Based Divisions & Affiliates */
                 { "@type": "Organization", "name": "Bali Visa Division", "url": "https://balivisa.agency" },
-                { "@type": "Organization", "name": "Jakarta Visa Division", "url": "https://jakartavisa.agency" },
+                { "@type": "Organization", "name": "Jakarta Visa Division", "url": "https://jakartavisas.agency" },
                 { "@type": "Organization", "name": "Lombok Visa Division", "url": "https://lombokvisa.online" },
-                { "@type": "Organization", "name": "Surabaya Visa Division", "url": "https://surabayavisa.online" },
-                { "@type": "Organization", "name": "Bali Visas Affiliate", "url": "https://balivisas.agency" },
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "VOA Bali Expert", "url": "https://voabali.com" } }
+                { "@type": "Organization", "name": "Surabaya Visa Division", "url": "https://surabayavisa.online" }
               ],
               "founder": {
                 "@type": "Person",

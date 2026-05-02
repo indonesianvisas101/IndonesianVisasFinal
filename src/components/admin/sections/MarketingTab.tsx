@@ -28,13 +28,17 @@ import {
     ShoppingCart as ShoppingCartIcon,
     Public as PublicIcon,
     Refresh as RefreshIcon,
-    ArrowForward as ArrowForwardIcon
+    ArrowForward as ArrowForwardIcon,
+    CameraAlt as CameraIcon,
+    Badge as BadgeIcon
 } from "@mui/icons-material";
 import { formatCurrency } from "@/lib/utils";
+import DocumentViewer from "../DocumentViewer";
 
 export default function MarketingTab() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [viewingDoc, setViewingDoc] = useState<{ url: string, name: string } | null>(null);
 
     const fetchMarketingData = async () => {
         setLoading(true);
@@ -143,6 +147,7 @@ export default function MarketingTab() {
                                         <TableCell>Name</TableCell>
                                         <TableCell>Contact</TableCell>
                                         <TableCell>Visa Interest</TableCell>
+                                        <TableCell>Documents</TableCell>
                                         <TableCell>Source</TableCell>
                                         <TableCell>Status</TableCell>
                                         <TableCell align="right">Captured At</TableCell>
@@ -158,6 +163,33 @@ export default function MarketingTab() {
                                             </TableCell>
                                             <TableCell>
                                                 <Chip label={lead.visaType} size="small" variant="outlined" />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Stack direction="row" spacing={1}>
+                                                    {lead.photoUrl && (
+                                                        <IconButton 
+                                                            size="small" 
+                                                            color="primary" 
+                                                            title="View Photo" 
+                                                            onClick={() => setViewingDoc({ url: lead.photoUrl, name: `${lead.name}'s Photo` })}
+                                                        >
+                                                            <CameraIcon fontSize="small" />
+                                                        </IconButton>
+                                                    )}
+                                                    {lead.passportUrl && (
+                                                        <IconButton 
+                                                            size="small" 
+                                                            color="info" 
+                                                            title="View Passport" 
+                                                            onClick={() => setViewingDoc({ url: lead.passportUrl, name: `${lead.name}'s Passport` })}
+                                                        >
+                                                            <BadgeIcon fontSize="small" />
+                                                        </IconButton>
+                                                    )}
+                                                    {!lead.photoUrl && !lead.passportUrl && (
+                                                        <Typography variant="caption" color="text.disabled">No Docs</Typography>
+                                                    )}
+                                                </Stack>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption">{(lead.attributionData as any)?.utm_source || 'Direct'}</Typography>
@@ -187,6 +219,16 @@ export default function MarketingTab() {
                     </Paper>
                 </Grid>
             </Grid>
+
+            {/* Document Viewer Integration */}
+            {viewingDoc && (
+                <DocumentViewer 
+                    open={!!viewingDoc}
+                    onClose={() => setViewingDoc(null)}
+                    documentUrl={viewingDoc.url}
+                    documentName={viewingDoc.name}
+                />
+            )}
         </Box>
     );
 }

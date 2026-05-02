@@ -222,6 +222,8 @@ const StepPayment = () => {
                         arrivalDate: arrivalDate || "Not specified",
                         phone: isPrimary ? personalInfo.phone : "See Primary",
                         dob: isPrimary ? personalInfo.dob : travelerData?.dob,
+                        passport: isPrimary ? personalInfo.passport : travelerData?.passport,
+                        passportNumber: isPrimary ? personalInfo.passport : travelerData?.passport,
                         isSplitOrder: numPeople > 1,
                         orderIndex: i + 1,
                         totalTravelers: numPeople

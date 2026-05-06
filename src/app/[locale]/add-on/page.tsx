@@ -111,6 +111,7 @@ export default function AddOnPage() {
         setIsBuying(true);
         setBuyError("");
         try {
+            // 1. Generate the Invoice
             const res = await fetch('/api/addons/direct-buy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -122,14 +123,36 @@ export default function AddOnPage() {
             });
 
             const data = await res.json();
-            if (res.ok) {
-                // Redirect to the generated invoice
-                window.location.href = `/invoice/${data.slug}`;
+            if (!res.ok) {
+                setBuyError(data.error || "Invoice generation failed");
+                setIsBuying(false);
+                return;
+            }
+
+            // 2. Immediately Trigger Checkout (Direct Pay)
+            const checkoutRes = await fetch('/api/payments/doku/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    invoiceId: `${data.invoiceId}-${Date.now()}`,
+                    amount: selectedAddon.price,
+                    customerDetails: {
+                        name: buyFormData.name,
+                        email: buyFormData.email
+                    }
+                })
+            });
+
+            const checkoutData = await checkoutRes.json();
+            if (checkoutData.paymentUrl) {
+                // SUCCESS: Redirect to direct payment
+                window.location.href = checkoutData.paymentUrl;
             } else {
-                setBuyError(data.error || "Purchase failed");
+                // FALLBACK: Redirect to invoice page if direct checkout fails
+                window.location.href = `/invoice/${data.slug}`;
             }
         } catch (e) {
-            setBuyError("Network error. Please try again.");
+            setBuyError("Transaction error. Please check your connection.");
         } finally {
             setIsBuying(false);
         }
@@ -337,7 +360,7 @@ export default function AddOnPage() {
                             '&:hover': { bgcolor: '#075985' }
                         }}
                     >
-                        {isBuying ? <CircularProgress size={24} color="inherit" /> : "Generate Invoice"}
+                        {isBuying ? <CircularProgress size={24} color="inherit" /> : "Proceed to Payment"}
                     </Button>
                 </DialogActions>
             </Dialog>

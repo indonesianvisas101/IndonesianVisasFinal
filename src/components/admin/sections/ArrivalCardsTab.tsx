@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Chip, IconButton, Button, Dialog, DialogTitle,
-    DialogContent, DialogActions, Grid, CircularProgress, Alert
+    DialogContent, DialogActions, Grid, CircularProgress, Alert, Stack
 } from "@mui/material";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -105,9 +105,23 @@ export default function ArrivalCardsTab() {
                                     <TableCell>{card.flightNumber || 'N/A'}</TableCell>
                                     <TableCell><StatusChip status={card.status} /></TableCell>
                                     <TableCell align="right">
-                                        <IconButton color="primary" onClick={() => setSelectedCard(card)}>
-                                            <VisibilityIcon />
-                                        </IconButton>
+                                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                            <IconButton 
+                                                color="primary" 
+                                                onClick={() => setSelectedCard(card)}
+                                                title="View Details"
+                                            >
+                                                <VisibilityIcon />
+                                            </IconButton>
+                                            <Button
+                                                size="small"
+                                                variant="outlined"
+                                                href={`/admin?tab=invoicing&email=${card.formData?.email || card.user?.email}`}
+                                                sx={{ borderRadius: 2, textTransform: 'none', fontSize: '11px' }}
+                                            >
+                                                Attach to Invoice
+                                            </Button>
+                                        </Stack>
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -121,8 +135,8 @@ export default function ArrivalCardsTab() {
                 {selectedCard && (
                     <>
                         <DialogTitle>
-                            <Typography variant="h6" fontWeight="bold">Arrival Card Details</Typography>
-                            <Typography variant="body2" color="text.secondary">ID: {selectedCard.id}</Typography>
+                            <Typography variant="h6" component="div" fontWeight="bold">Arrival Card Details</Typography>
+                            <Typography variant="body2" component="div" color="text.secondary">ID: {selectedCard.id}</Typography>
                         </DialogTitle>
                         <DialogContent dividers>
                             <Grid container spacing={4}>

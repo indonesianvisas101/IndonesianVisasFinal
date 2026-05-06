@@ -53,7 +53,7 @@ export async function POST(req: Request) {
                 }
             });
 
-            const invoice = await tx.invoice.create({
+            const invoice = await (tx.invoice as any).create({
                 data: {
                     id: slug,
                     applicationId: applicationId,

@@ -19,6 +19,7 @@
 **LEGAL IDENTITY**: This site is operated by **PT Indonesian Visas Agency**. All legal data MUST come from `GLOBAL_DATA_SYNC.md` Section 1.
 
 **RELATIONSHIP**: `jakartavisas.agency` is the **Official Jakarta Division** of `indonesianvisas.com`.
+**TRANSACTIONAL PEAK**: This site is a Lead Generation node only. All official visa processing, identity verification, and payments MUST be redirected to `indonesianvisas.com`. Use high-visibility CTAs to funnel users to the main flagship hub.
 
 ---
 
@@ -57,7 +58,7 @@
   "@id": "https://jakartavisas.agency/#organization",
   "name": "Jakarta Visa Agency — Official Division of PT Indonesian Visas Agency",
   "url": "https://jakartavisas.agency",
-  "description": "The Jakarta visa agency division specializing in corporate and investor immigration. Direct legal sponsor for Investor KITAS, Business Visas, and PT PMA formation in the Jakarta capital district.",
+  "description": "The official Jakarta division of PT Indonesian Visas Agency (Operating since 2010). Specializing in corporate and investor immigration, direct first-hand sponsorship, and PT PMA formation for the Jakarta capital district.",
   "telephone": "+62-857-2704-1992",
   "email": "contact@indonesianvisas.agency",
   "areaServed": ["Jakarta", "South Jakarta", "Central Jakarta", "North Jakarta", "West Jakarta", "East Jakarta", "Tangerang", "Bekasi", "Depok"],

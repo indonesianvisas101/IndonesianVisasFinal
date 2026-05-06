@@ -119,6 +119,26 @@ export default function InvoicePage() {
     };
 
 
+    const handleAddAddon = async (sku: string) => {
+        try {
+            const res = await fetch('/api/applications/add-addon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ invoiceId: invoiceData.invoice?.id || invoiceData.id, addonSku: sku })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert(`✅ ${data.message}`);
+                window.location.reload(); // Reload to show new total
+            } else {
+                alert(`❌ ${data.error}`);
+            }
+        } catch (e) {
+            console.error("Failed to add addon", e);
+            alert("An error occurred. Please try again.");
+        }
+    };
+
     const handleShare = async () => {
         const url = window.location.href;
         if (navigator.share) {
@@ -636,6 +656,188 @@ export default function InvoicePage() {
                         </Grid>
                     </Grid>
                 </Paper>
+
+                {/* v7.0 - DYNAMIC ARRIVAL CARD CTA (UPSALE) */}
+                {(!invoiceData.attribution?.arrivalCardLink && !invoiceData.attribution?.arrivalCardQr && invoiceData.visaName !== 'ARRIVAL CARD') && (
+                    <Box 
+                        sx={{ 
+                            mt: 4, 
+                            p: 3, 
+                            borderRadius: 3, 
+                            bgcolor: 'white',
+                            border: '2px solid #9155FD',
+                            boxShadow: '0 8px 24px rgba(145, 85, 253, 0.15)',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        {/* Decorative Background Icon */}
+                        <Box sx={{ position: 'absolute', right: -20, bottom: -20, opacity: 0.05, transform: 'rotate(-15deg)' }}>
+                            <Image src="/Favicon.webp" alt="" width={150} height={150} />
+                        </Box>
+
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems="center" justifyContent="space-between">
+                            <Box sx={{ flex: 1 }}>
+                                <Typography variant="h6" fontWeight="800" sx={{ color: '#1F2937', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Zap size={20} color="#9155FD" fill="#9155FD" />
+                                    Mandatory Arrival Card (e-CD) Required!
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#4B5563', maxWidth: 500 }}>
+                                    Don't forget to secure your official Indonesian Customs Declaration (e-CD). 
+                                    It is mandatory for all international travelers entering Indonesia. Order yours now for a frictionless arrival.
+                                </Typography>
+                            </Box>
+                            <Button 
+                                variant="contained"
+                                href={`/${params.locale}/arrival-card`}
+                                sx={{ 
+                                    bgcolor: '#9155FD', 
+                                    px: 4, 
+                                    py: 1.5, 
+                                    borderRadius: 2,
+                                    fontWeight: 'bold',
+                                    textTransform: 'none',
+                                    whiteSpace: 'nowrap',
+                                    boxShadow: '0 4px 12px rgba(145, 85, 253, 0.4)',
+                                    '&:hover': { bgcolor: '#804BDF' }
+                                }}
+                            >
+                                Secure Arrival Card Now →
+                            </Button>
+                        </Stack>
+                    </Box>
+                )}
+
+                {/* v7.0 - DYNAMIC ARRIVAL CARD CTA (UPSALE) */}
+                {(!invoiceData.attribution?.arrivalCardLink && !invoiceData.attribution?.arrivalCardQr && invoiceData.visaName !== 'ARRIVAL CARD' && !upsells.arrival_card) && (
+                    <Box 
+                        sx={{ 
+                            mt: 4, 
+                            p: 3, 
+                            borderRadius: 3, 
+                            bgcolor: 'white',
+                            border: '2px solid #9155FD',
+                            boxShadow: '0 8px 24px rgba(145, 85, 253, 0.15)',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        {/* Decorative Background Icon */}
+                        <Box sx={{ position: 'absolute', right: -20, bottom: -20, opacity: 0.05, transform: 'rotate(-15deg)' }}>
+                            <Image src="/Favicon.webp" alt="" width={150} height={150} />
+                        </Box>
+
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems="center" justifyContent="space-between">
+                            <Box sx={{ flex: 1 }}>
+                                <Typography variant="h6" fontWeight="800" sx={{ color: '#1F2937', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Zap size={20} color="#9155FD" fill="#9155FD" />
+                                    Mandatory Arrival Card (e-CD) Required!
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#4B5563', maxWidth: 500 }}>
+                                    All international travelers entering Indonesia must submit a Customs Declaration. 
+                                    Order yours now for a frictionless arrival and total document readiness.
+                                </Typography>
+                            </Box>
+                            {isPaid ? (
+                                <Button 
+                                    variant="contained"
+                                    href={`/${params.locale}/arrival-card`}
+                                    sx={{ 
+                                        bgcolor: '#9155FD', 
+                                        px: 4, 
+                                        py: 1.5, 
+                                        borderRadius: 2,
+                                        fontWeight: 'bold',
+                                        textTransform: 'none',
+                                        whiteSpace: 'nowrap',
+                                        boxShadow: '0 4px 12px rgba(145, 85, 253, 0.4)',
+                                        '&:hover': { bgcolor: '#804BDF' }
+                                    }}
+                                >
+                                    Secure Arrival Card Now →
+                                </Button>
+                            ) : (
+                                <Button 
+                                    variant="outlined"
+                                    onClick={() => handleAddAddon('ARRIVAL_CARD')}
+                                    sx={{ 
+                                        borderColor: '#9155FD',
+                                        color: '#9155FD',
+                                        px: 4, 
+                                        py: 1.5, 
+                                        borderRadius: 2,
+                                        fontWeight: 'bold',
+                                        textTransform: 'none',
+                                        whiteSpace: 'nowrap',
+                                        '&:hover': { bgcolor: 'rgba(145, 85, 253, 0.05)', borderColor: '#804BDF' }
+                                    }}
+                                >
+                                    + Add to This Order
+                                </Button>
+                            )}
+                        </Stack>
+                    </Box>
+                )}
+
+                {/* v7.1 - IDIV CARD RECOMMENDATION (UPSALE) - Refined v7.5 */}
+                {(!upsells.idiv && invoiceData.visaId !== 'IDIV' && (invoiceData.attribution?.arrivalCardLink || invoiceData.attribution?.arrivalCardQr || upsells.arrival_card)) && (
+                    <Box 
+                        sx={{ 
+                            mt: 2, 
+                            p: 3, 
+                            borderRadius: 3, 
+                            bgcolor: '#F9FAFC',
+                            border: '1px solid #9155FD',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems="center" justifyContent="space-between">
+                            <Box sx={{ flex: 1 }}>
+                                <Typography variant="subtitle1" fontWeight="800" sx={{ color: '#1E1B4B', mb: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    Elevate Your Mobility in Indonesia
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#64748B', maxWidth: 550 }}>
+                                    We highly recommend the <strong>IDiv Verified Smart ID</strong> for your stay. 
+                                    It digitalizes your local sponsorship and provides official, verified identification 
+                                    to simplify your nomad lifestyle and daily activities throughout the country.
+                                </Typography>
+                            </Box>
+                            {isPaid ? (
+                                <Button 
+                                    variant="text"
+                                    href={`/${params.locale}/smart-id`}
+                                    sx={{ 
+                                        color: '#9155FD', 
+                                        fontWeight: 'bold',
+                                        textTransform: 'none',
+                                        '&:hover': { textDecoration: 'underline' }
+                                    }}
+                                >
+                                    Learn More →
+                                </Button>
+                            ) : (
+                                <Button 
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => handleAddAddon('IDIV')}
+                                    sx={{ 
+                                        borderColor: '#9155FD',
+                                        color: '#9155FD',
+                                        px: 3, 
+                                        py: 1, 
+                                        borderRadius: 2,
+                                        fontWeight: 'bold',
+                                        textTransform: 'none',
+                                        '&:hover': { bgcolor: 'rgba(145, 85, 253, 0.05)' }
+                                    }}
+                                >
+                                    + Add IDiv Upgrade
+                                </Button>
+                            )}
+                        </Stack>
+                    </Box>
+                )}
 
                 {/* ACTION BUTTONS */}
                 <Box sx={{ mt: 5, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2, '@media print': { display: 'none' } }}>

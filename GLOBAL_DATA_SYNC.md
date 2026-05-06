@@ -10,9 +10,10 @@
 **IF YOU ARE AN AI ASSISTANT READING THIS FILE:**
 
 1. **This file is the SINGLE SOURCE OF TRUTH** for all websites in the Bali Enterprises ecosystem.
-2. **Every website** in this ecosystem MUST have its JSON-LD structured data synchronized with the templates in Section 6.
-3. **You MUST use the exact values** from Section 1 (Legal Identity) — do NOT modify, reformat, or abbreviate any legal data.
-4. **The `@id` anchor** `https://indonesianvisas.com/#organization` is the MASTER NODE. All child/division sites must reference this ID in their `parentOrganization` block.
+2. **indonesianvisas.com is the TRANSACTIONAL PEAK**: Every satellite website (balivisa.agency, etc.) is a lead-generation node. All core processing, identity verification (Smart ID), and payment transactions MUST be funneled to indonesianvisas.com.
+3. **The Authority Hub**: indonesianvisas.com holds the primary SEO authority. All division sites must acknowledge this by referencing its `@id` as the Master Node in their JSON-LD.
+4. **Canonical Integrity**: Site content on satellite domains must be treated as regional extensions of the flagship. Use cross-domain signals to ensure Google views indonesianvisas.com as the ultimate source of truth.
+5. **The `@id` anchor** `https://indonesianvisas.com/#organization` is the MASTER NODE. All child/division sites must reference this ID in their `parentOrganization` block.
 5. **Before making ANY changes**, cross-reference the site you are working on with Section 3 to understand its exact role, scope, and relationship to the parent organization.
 6. **After implementing JSON-LD**, validate using https://validator.schema.org/ and https://search.google.com/test/rich-results.
 
@@ -43,10 +44,12 @@
 | **Phone** | `+62-857-2704-1992` | Primary contact |
 | **Email** | `contact@indonesianvisas.agency` | Business email |
 | **Tech Phone** | `+62-851-1123-7007` | Telegram/Tech support |
-| **Founded** | `2010` | Company founding year |
+| **Operating Since** | `2010` | Year of initial foreigner assistance |
 | **Brand** | Indonesian Visas™ (MYVISA) | |
 | **Legal Name** | PT Indonesian Visas Agency™ (MYVISA) | |
 | **Technology** | Smart ID / Sponsor ID (Patent-Pending) | NFC/QR/CHIP |
+| **History** | Originally 'Bali Help' (Since 2010) | Legacy Email: `balihelp2019@gmail.com` |
+| **Evolution** | Transitioned from CV Tunas Raya to PT for Visa Compliance | |
 
 ### Parent Holding Company
 | Field | Value |
@@ -75,22 +78,40 @@
 | 1 | **indonesianvisas.com** | National Flagship (HQ) | All Indonesia | `flagship` | ✅ COMPLETE |
 | 2 | **balivisa.agency** | Bali City Division | Bali | `city-division` | ✅ SYNCED |
 | 3 | **jakartavisas.agency** | Jakarta City Division | Jakarta / IKN | `city-division` | ✅ SYNCED |
-| 4 | **balihelp.id** | Lifestyle & Emergency Concierge | Bali Local | `lifestyle` | ❌ PENDING |
+| 4 | **balihelp.id** | Lifestyle & Emergency Concierge | Bali Local | `lifestyle` | ✅ SYNCED |
 | 5 | **bali.enterprises** | Strategic Holding & Education | Global | `holding` | ✅ SYNCED |
-| 6 | **bali.technology** | R&D / Smart ID Innovation | Global | `tech` | ❌ PENDING |
-| 7 | **indodesign.website** | Creative & UI/UX Studio | Global | `tech` | ❌ PENDING |
-| 8 | **immigration-software.com** | SaaS Immigration Platform | Global | `tech` | ❌ PENDING |
-| 9 | **editions-atlas.com** | Hospitality & Visa Integration | Global | `partner` | ❌ PENDING |
-| 10 | **europeindonesiavisa.online** | Europe Division | Europe | `country-division` | ❌ PENDING |
-| 11 | **americaindonesiavisa.online** | America Division | Americas | `country-division` | ❌ PENDING |
-| 12 | **australiaindonesiavisa.online** | Australia Division | Oceania | `country-division` | ❌ PENDING |
-| 13 | **russiaindonesiavisa.online** | Russia Division | Russia/CIS | `country-division` | ❌ PENDING |
-| 14 | **ukindonesiavisa.online** | UK Division | United Kingdom | `country-division` | ❌ PENDING |
-| 15 | **uaeindonesiavisas.agency** | UAE Division | Middle East | `country-division` | ❌ PENDING |
-| 16 | **chinaindonesiavisa.online** | China Division | China/ASEAN | `country-division` | ❌ PENDING |
-| 17 | **indiaindonesiavisa.online** | India Division | South Asia | `country-division` | ❌ PENDING |
-| 18 | **lombokvisa.online** | Lombok Division | Lombok | `city-division` | ❌ PENDING |
-| 19 | **surabayavisa.online** | Surabaya Division | Surabaya | `city-division` | ❌ PENDING |
+| 6 | **bali.technology** | Tech R&D Division (IVS) | Global | `tech-division` | ✅ SYNCED |
+| 7 | **indodesign.website** | Creative & UI Division (IVS) | Global | `tech-division` | ✅ SYNCED |
+| 8 | **immigration-software.com** | Immigration Educational Platform | Global | `educational` | ✅ SYNCED |
+| 9 | **editions-atlas.com** | Hospitality & Visa Division | Global | `hospitality-division` | ✅ SYNCED |
+| 10 | **europeindonesiavisa.online** | Europe Division | Europe | `country-division` | ✅ SYNCED |
+| 11 | **americaindonesiavisa.online** | America Division | Americas | `country-division` | ✅ SYNCED |
+| 12 | **australiaindonesiavisa.online** | Australia Division | Oceania | `country-division` | ✅ SYNCED |
+| 13 | **russiaindonesiavisa.online** | Russia Division | Russia/CIS | `country-division` | ✅ SYNCED |
+| 14 | **ukindonesiavisa.online** | UK Division | United Kingdom | `country-division` | ✅ SYNCED |
+| 15 | **uaeindonesiavisas.agency** | UAE Division | Middle East | `country-division` | ✅ SYNCED |
+| 16 | **chinaindonesiavisa.online** | China Division | China/ASEAN | `country-division` | ✅ SYNCED |
+| 17 | **indiaindonesiavisa.online** | India Division | South Asia | `country-division` | ✅ SYNCED |
+| 18 | **lombokvisa.online** | Lombok Division | Lombok | `city-division` | ✅ SYNCED |
+| 19 | **surabayavisa.online** | Surabaya Division | Surabaya | `city-division` | ✅ SYNCED |
+| 20 | **africaindonesiavisa.online** | Africa Division | Africa | `country-division` | ✅ SYNCED |
+| 21 | **japanindonesiavisa.online** | Japan Division | Japan | `country-division` | ✅ SYNCED |
+| 22 | **franceindonesiavisa.online** | France Division | France | `country-division` | ✅ SYNCED |
+| 23 | **usindonesiavisa.online** | US Division | USA | `country-division` | ✅ SYNCED |
+| 24 | **southkoreaindonesiavisa.online** | South Korea Division | South Korea | `country-division` | ✅ SYNCED |
+| 25 | **manadovisa.online** | Manado Division | Manado | `city-division` | ✅ SYNCED |
+| 26 | **bandungvisa.online** | Bandung Division | Bandung | `city-division` | ✅ SYNCED |
+| 27 | **malangvisa.online** | Malang Division | Malang | `city-division` | ✅ SYNCED |
+| 28 | **makasarvisa.online** | Makassar Division | Makassar | `city-division` | ✅ SYNCED |
+| 29 | **padangvisa.online** | Padang Division | Padang | `city-division` | ✅ SYNCED |
+| 30 | **batamvisa.online** | Batam Division | Batam | `city-division` | ✅ SYNCED |
+| 31 | **jogjavisa.online** | Jogja Division | Yogyakarta | `city-division` | ✅ SYNCED |
+| 32 | **acehvisa.online** | Aceh Division | Aceh | `city-division` | ✅ SYNCED |
+| 33 | **papuavisa.online** | Papua Division | Papua | `city-division` | ✅ SYNCED |
+| 34 | **malukuvisa.online** | Maluku Division | Maluku | `city-division` | ✅ SYNCED |
+| 35 | **kalimantanvisa.online** | Kalimantan Division | Kalimantan | `city-division` | ✅ SYNCED |
+| 36 | **sulawesivisa.online** | Sulawesi Division | Sulawesi | `city-division` | ✅ SYNCED |
+| 37 | **tropictech.rent** | Logistics & Ecosystem Division | Bali | `logistics-division` | ✅ SYNCED |
 
 ---
 
@@ -99,11 +120,11 @@
 > **AI: Read the specification for the site you are working on. This defines WHAT the site should say and DO.**
 
 ### TYPE: `flagship` — indonesianvisas.com
-- **Role**: Primary National Immigration & Visa Facilitator.
-- **Scope**: National (All regions of Indonesia).
-- **Products**: B1, C1, C12, D1, D2, D12, E33G (Remote Worker), E28A (Investor), GCI Program, Smart ID.
-- **Authority**: "First-Hand Direct Legal Sponsor — Zero Intermediaries".
-- **JSON-LD**: Full Corporation schema with all subOrganizations, OfferCatalog, FAQPage, ProfessionalService, WebSite+SearchAction. Already complete.
+- **Role**: Ultimate Operational & Transactional Hub (The Pinnacle).
+- **Scope**: National & International Authority.
+- **Products**: All Visa categories, KITAS/KITAP, Smart ID, and Corporate Legal Services.
+- **Authority**: "The Final Destination for all Transactions". All satellite sites MUST point their transactional intent here.
+- **JSON-LD**: Master Node Schema. Holds the complete Knowledge Graph for the entire ecosystem. Already complete.
 
 ### TYPE: `city-division` — balivisa.agency
 - **Role**: Official Bali Division of PT Indonesian Visas Agency.
@@ -144,15 +165,23 @@
 - **Services**: Company Formation (PT PMA, Yayasan), Investment Planning, Ecosystem Governance.
 - **JSON-LD Template**: Use `TEMPLATE D` from Section 6.
 
-### TYPE: `tech` — bali.technology, indodesign.website, immigration-software.com
-- **Role**: Technology R&D / Creative / SaaS.
-- **Scope**: Global.
-- **Identity Link**: Must be listed as `creator`/`developer` in Smart ID schemas.
-- **JSON-LD Template**: Use `TEMPLATE E` from Section 6.
+### TYPE: `educational` — immigration-software.com
+- **Role**: Official Educational Authority for Indonesian Immigration.
+- **Scope**: Global Guidance & Policy Education.
+- **Services**: Visa Guides, Regulatory News, Educational White-papers.
+- **Hierarchy**: Direct Educational extension of the IVS flagship.
+- **JSON-LD Template**: Use `TEMPLATE E` but adjust role to `EducationalOrganization`.
 
-### TYPE: `partner` — editions-atlas.com
-- **Role**: Strategic hospitality & visa integration partnership.
-- **JSON-LD**: Use `TEMPLATE E` but reference `memberOf` instead of `parentOrganization`.
+### TYPE: `tech-division` — bali.technology, indodesign.website
+- **Role**: Internal IVS Tech R&D and Creative/UI Division.
+- **Scope**: Global Digital Infrastructure for the IVS Ecosystem.
+- **Identity Link**: Must be listed as `creator`/`developer` in all Smart ID & Digital Identity schemas.
+- **JSON-LD Template**: Use `TEMPLATE E`.
+
+### TYPE: `hospitality-division` — editions-atlas.com
+- **Role**: Official Hospitality & Visa Integration Division (IVS).
+- **Scope**: Strategic Partnership with Atlas Bali / Holywings Group.
+- **JSON-LD**: Use `TEMPLATE E` and reference the collaboration with Atlas/Holywings in the description.
 
 ---
 
@@ -462,13 +491,13 @@
                     │   @type: Corporation          │
                     └──────────────┬───────────────┘
                                    │ subOrganization
-          ┌────────────────────────┼────────────────────────┐
-          │                        │                        │
-    ┌─────┴──────┐          ┌──────┴──────┐          ┌──────┴──────┐
-    │ PT IVA     │          │ BaliHelp    │          │ Bali Tech  │
-    │ @id: HQ/#  │          │ balihelp.id │          │ bali.tech  │
-    │ FLAGSHIP   │          │ LIFESTYLE   │          │ R&D        │
-    └──────┬─────┘          └─────────────┘          └────────────┘
+          ┌────────────────────────┼────────────────────────┬────────────────────────┐
+          │                        │                        │                        │
+    ┌─────┴──────┐          ┌──────┴──────┐          ┌──────┴──────┐          ┌──────┴──────┐
+    │ PT IVA     │          │ BaliHelp    │          │ Bali Tech   │          │ Tropic Tech │
+    │ @id: HQ/#  │          │ balihelp.id │          │ bali.tech   │          │ tropictech.r│
+    │ FLAGSHIP   │          │ LIFESTYLE   │          │ R&D / CREA  │          │ LOGISTICS   │
+    └──────┬─────┘          └─────────────┘          └─────────────┘          └─────────────┘
            │ subOrganization
     ┌──────┼──────────┬──────────┬──────────┐
     │      │          │          │          │

@@ -259,12 +259,14 @@ export default function InvoicingTab() {
                             arrivalCardQr: latest.id || prev.arrivalCardQr
                         }
                     }));
+                    alert(`✅ Sync Successful! Found Arrival Card for ${email}.`);
                 } else {
                     alert("No Arrival Cards found for this email.");
                 }
             }
         } catch (e) {
             console.error("Sync failed", e);
+            alert("Sync failed. Check terminal logs.");
         }
     };
 
@@ -785,12 +787,19 @@ export default function InvoicingTab() {
                         <Box display="flex" justifyContent="flex-end">
                             <Button 
                                 size="small" 
-                                variant="outlined" 
+                                variant="contained" 
+                                color="info"
                                 startIcon={<RefreshIcon />}
                                 onClick={handleSyncArrivalCard}
-                                sx={{ borderRadius: 2, textTransform: 'none' }}
+                                sx={{ 
+                                    borderRadius: 3, 
+                                    textTransform: 'none',
+                                    fontWeight: 800,
+                                    boxShadow: '0 4px 12px rgba(2,132,199,0.2)',
+                                    '&:hover': { bgcolor: '#0284c7' }
+                                }}
                             >
-                                Sync Latest Arrival Card Data
+                                Sync Arrival Card Data
                             </Button>
                         </Box>
 

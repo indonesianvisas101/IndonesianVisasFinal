@@ -54,7 +54,7 @@ export const HeroGlobeWrapper = () => {
                             id="globe-render-container"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ duration: 4, ease: "easeInOut" }}
+                            transition={{ duration: 1.5, ease: "easeInOut" }}
                             style={{ 
                                 position: 'absolute',
                                 inset: 0,

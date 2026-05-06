@@ -43,6 +43,7 @@ export const sendConfirmationEmail = async (to: string, data: {
     orderId: string;
     isPayPal?: boolean;
     hasIdiv?: boolean;
+    hasArrivalCard?: boolean;
     verificationSlug?: string;
 }) => {
     try {
@@ -86,21 +87,28 @@ export const sendConfirmationEmail = async (to: string, data: {
                     <a href="${invoiceUrl}" style="background-color: #7c3aed; color: white; padding: 14px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);">Manage Order & Invoice</a>
                 </div>
 
-                <!-- IDIV PROMOTION SECTION -->
-                ${!hasIdiv && verificationSlug ? `
-                <div style="margin-top: 40px; padding: 25px; border: 2px dashed #7c3aed; border-radius: 16px; background-color: #fdfaff; text-align: center;">
-                    <div style="display: inline-block; background-color: #7c3aed; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px;">Smart Travel Perk</div>
-                    <h3 style="margin: 0 0 10px 0; color: #1e1b4b; font-size: 20px;">Upgrade Your Travel Identity</h3>
-                    <p style="font-size: 14px; color: #475569; line-height: 1.5; margin-bottom: 20px;">
-                        Every traveler in Indonesia is legally required to have a local sponsor. Our <strong>IDiv (Verified Smart ID)</strong> digitalizes this requirement into a secure, verifiable mobile profile.
-                    </p>
+                <!-- TRAVEL ESSENTIALS RECOMMENDATIONS -->
+                <div style="margin-top: 40px; padding: 25px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #f8fafc;">
+                    <h3 style="margin: 0 0 15px 0; color: #1e1b4b; font-size: 18px; font-weight: 800;">Complete Your Travel Readiness</h3>
                     
-                    <div style="margin: 15px 0;">
-                        <a href="${appUrl}/verify/${verificationSlug}" style="background-color: #1e1b4b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; display: block; margin-bottom: 10px;">Preview Your Verified ID</a>
-                        <a href="${appUrl}/why-travelers-need-a-sponsor-id" style="background-color: #ffffff; color: #7c3aed; padding: 10px 20px; text-decoration: none; border: 1px solid #7c3aed; border-radius: 8px; font-size: 14px; font-weight: 600; display: block;">Why You Need This?</a>
+                    ${!data.hasArrivalCard ? `
+                    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;">
+                        <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 1.5;">
+                            <strong>Mandatory Arrival Card (e-CD):</strong> All travelers entering Indonesia must submit a Customs Declaration. To ensure a frictionless arrival at the airport, we highly recommend securing your official e-CD in advance.
+                        </p>
+                        <a href="${invoiceUrl}" style="color: #7c3aed; font-size: 14px; font-weight: 700; text-decoration: none;">Add to my order →</a>
                     </div>
+                    ` : ''}
+
+                    ${!hasIdiv ? `
+                    <div>
+                        <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 1.5;">
+                            <strong>Verified Mobility (IDiv Card):</strong> We highly recommend our <strong>IDiv Card</strong> to elevate your stay. It provides a verified digital identity and sponsorship profile, ensuring total peace of mind and seamless mobility throughout the country.
+                        </p>
+                        <a href="${invoiceUrl}" style="color: #7c3aed; font-size: 14px; font-weight: 700; text-decoration: none;">Elevate my mobility →</a>
+                    </div>
+                    ` : ''}
                 </div>
-                ` : ''}
 
                 <p style="color: #64748b; font-size: 14px; margin-top: 30px; border-top: 1px solid #f1f5f9; pt: 20px;">
                     Questions? Simply reply to this email or visit our <a href="${appUrl}/faq" style="color: #7c3aed; text-decoration: none;">Help Center</a>.
@@ -147,6 +155,8 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
     applicantName: string;
     orderId: string;
     invoiceUrl: string;
+    hasIdiv?: boolean;
+    hasArrivalCard?: boolean;
 }) => {
     try {
         const { applicantName, orderId, invoiceUrl } = data;
@@ -184,6 +194,17 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
                         <li>Notification of approval and visa issuance via this email.</li>
                     </ul>
                 </div>
+
+                <!-- POST-PAYMENT ESSENTIALS -->
+                ${(!data.hasIdiv || !data.hasArrivalCard) ? `
+                <div style="margin: 30px 0; padding: 20px; border-radius: 12px; background-color: #fdfaff; border: 1px solid #e2e8f0;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #7c3aed;">Final Travel Preparation Tip:</p>
+                    <p style="margin: 0 0 15px 0; font-size: 13px; color: #475569; line-height: 1.5;">
+                        To ensure your journey is completely stress-free, we recommend verifying that all secondary documents are ready. You can still secure your <strong>Mandatory Arrival Card</strong> or upgrade your experience with the <strong>Verified IDiv Card</strong> directly through your secure invoice portal.
+                    </p>
+                    <a href="${invoiceUrl}" style="color: #7c3aed; font-size: 13px; font-weight: 700; text-decoration: none;">View my travel portal →</a>
+                </div>
+                ` : ''}
 
                 <p style="color: #64748b; font-size: 14px;">If you have any urgent questions, our support team is available via WhatsApp or by replying directly to this email.</p>
                 ${getEmailFooter()}

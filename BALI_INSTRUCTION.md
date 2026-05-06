@@ -19,7 +19,8 @@
 
 **LEGAL IDENTITY**: This site is operated by **PT Indonesian Visas Agency** (NOT a separate company). All legal data MUST come from `GLOBAL_DATA_SYNC.md` Section 1. Do NOT invent any legal data.
 
-**RELATIONSHIP**: `balivisa.agency` is the **Official Bali Division** of `indonesianvisas.com`. It is NOT an independent entity. All JSON-LD must reflect this via `parentOrganization`.
+**RELATIONSHIP**: `balivisa.agency` is the **Official Bali Division** of `indonesianvisas.com`.
+**TRANSACTIONAL PEAK**: This site is a Lead Generation node only. All official visa processing, identity verification (Smart ID), and payments MUST be redirected to `indonesianvisas.com`. Use high-visibility CTAs to funnel users to the main flagship hub.
 
 ---
 
@@ -62,7 +63,7 @@ Every page MUST have exactly ONE `<h1>` tag containing the primary keyword.
   "@id": "https://balivisa.agency/#organization",
   "name": "Bali Visa Agency — Official Division of PT Indonesian Visas Agency",
   "url": "https://balivisa.agency",
-  "description": "The trusted Bali visa agency of PT Indonesian Visas Agency. First-hand direct legal sponsor for all types of Bali visas: B1 VOA, C1 tourist visa, E33G digital nomad KITAS, E28A investor KITAS. Based in Denpasar, Bali — zero intermediaries.",
+  "description": "The trusted Bali visa agency division of PT Indonesian Visas Agency (Operating since 2010). First-hand direct legal sponsor for all Bali visas: B1 VOA, C1 tourist visa, E33G digital nomad KITAS, and E28A investor KITAS. Based in Denpasar, Bali — zero intermediaries.",
   "telephone": "+62-857-2704-1992",
   "email": "contact@indonesianvisas.agency",
   "areaServed": ["Bali", "Denpasar", "Kuta", "Seminyak", "Canggu", "Ubud", "Uluwatu", "Sanur", "Nusa Dua"],

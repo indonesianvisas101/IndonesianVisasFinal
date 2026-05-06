@@ -101,24 +101,32 @@ export default function HeroGlobe() {
             .attr("stroke-opacity", 0.2)
             .attr("stroke-width", 1)
 
-        // 5. Bali Marker
-        const baliCoords: [number, number] = [115.1889, -8.4095]
+        // 5. Regional Markers
+        const markers = [
+            { name: "Bali", coords: [115.1889, -8.4095] as [number, number] },
+            { name: "Jakarta", coords: [106.8456, -6.2088] as [number, number] },
+            { name: "Europe", coords: [-0.1278, 51.5074] as [number, number] }, // London
+            { name: "USA", coords: [-74.0060, 40.7128] as [number, number] }    // NYC
+        ]
         
-        // Marker container
-        const markerGroup = globeGroup.append("g")
-            .attr("class", "bali-marker")
+        // Marker containers
+        const markerGroups = globeGroup.selectAll(".marker")
+            .data(markers)
+            .enter()
+            .append("g")
+            .attr("class", "marker")
 
-        // Outer pulse circle
-        markerGroup.append("circle")
-            .attr("r", 8)
-            .attr("fill", "#ff0000")
+        // Outer pulse circles
+        markerGroups.append("circle")
+            .attr("r", (d) => d.name === "Bali" || d.name === "Jakarta" ? 8 : 4)
+            .attr("fill", "var(--primary)")
             .attr("fill-opacity", 0.4)
             .attr("class", "pulse-animation")
 
-        // Inner solid dot
-        markerGroup.append("circle")
-            .attr("r", 3)
-            .attr("fill", "#ff0000")
+        // Inner solid dots
+        markerGroups.append("circle")
+            .attr("r", (d) => d.name === "Bali" || d.name === "Jakarta" ? 3 : 1.5)
+            .attr("fill", "var(--primary)")
 
         // Cache the selection to avoid re-querying DOM every frame
         const allPaths = globeGroup.selectAll("path");
@@ -135,21 +143,25 @@ export default function HeroGlobe() {
             // Single update call for all paths
             allPaths.attr("d", path as any);
 
-            // Update Bali Marker Position
-            const projectedBali = projection(baliCoords);
-            if (projectedBali) {
-                const center = projection.invert!([dimensions.width / 2, dimensions.height / 2]);
-                const distance = geoDistance(baliCoords, center!);
+            // Update All Markers
+            markerGroups.each(function(d) {
+                const projected = projection(d.coords);
+                const selection = select(this);
                 
-                if (distance < Math.PI / 2) {
-                    markerGroup.style("opacity", 1);
-                    markerGroup.attr("transform", `translate(${projectedBali[0]}, ${projectedBali[1]})`);
+                if (projected) {
+                    const center = projection.invert!([dimensions.width / 2, dimensions.height / 2]);
+                    const distance = geoDistance(d.coords, center!);
+                    
+                    if (distance < Math.PI / 2) {
+                        selection.style("opacity", 1);
+                        selection.attr("transform", `translate(${projected[0]}, ${projected[1]})`);
+                    } else {
+                        selection.style("opacity", 0);
+                    }
                 } else {
-                    markerGroup.style("opacity", 0);
+                    selection.style("opacity", 0);
                 }
-            } else {
-                markerGroup.style("opacity", 0);
-            }
+            });
         });
 
         return () => {

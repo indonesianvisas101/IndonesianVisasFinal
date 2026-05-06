@@ -10,19 +10,22 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const email = searchParams.get('email');
 
-        if (!email) {
-            return NextResponse.json({ error: "Email required" }, { status: 400 });
+        console.log("Admin Fetch Arrival Cards - Email:", email);
+
+        const where: any = {};
+        if (email && email !== 'undefined' && email !== 'null') {
+            where.OR = [
+                { formData: { path: ['email'], equals: email } },
+                { user: { email: email } }
+            ];
         }
 
         const arrivalCards = await prisma.arrivalCard.findMany({
-            where: {
-                OR: [
-                    { formData: { path: ['email'], equals: email } },
-                    { user: { email: email } }
-                ]
-            },
+            where,
             orderBy: { createdAt: 'desc' }
         });
+
+        return NextResponse.json(arrivalCards);
 
         return NextResponse.json(arrivalCards);
 

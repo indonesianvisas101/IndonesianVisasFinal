@@ -6,7 +6,7 @@ import { calculateOrderFees } from '@/utils/feeCalculator';
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { addonId, guestName, guestEmail, quantity = 1 } = body;
+        const { addonId, guestName, guestEmail, guestPhone, quantity = 1 } = body;
 
         if (!addonId || !guestEmail) {
             return NextResponse.json({ error: "Addon ID and Email are required" }, { status: 400 });
@@ -43,12 +43,14 @@ export async function POST(req: Request) {
                     status: 'Apply to Agent',
                     guestName: guestName || "Guest",
                     guestEmail: guestEmail,
+                    guestPhone: guestPhone,
                     slug: slug,
                     quantity: quantity,
                     attribution: {
                         internalNotes: `Individual Purchase of ${addon.name} (Direct Buy Flow)`,
                         isIndividualAddon: true,
-                        addonId: addon.id
+                        addonId: addon.id,
+                        phone: guestPhone // Redundancy for attribution
                     }
                 }
             });

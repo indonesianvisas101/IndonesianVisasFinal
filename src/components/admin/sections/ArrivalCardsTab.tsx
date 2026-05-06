@@ -89,6 +89,7 @@ export default function ArrivalCardsTab() {
                             <TableCell>Arrival Date</TableCell>
                             <TableCell>Flight</TableCell>
                             <TableCell>Status</TableCell>
+                            <TableCell>Payment</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -104,6 +105,15 @@ export default function ArrivalCardsTab() {
                                     <TableCell>{new Date(card.arrivalDate).toLocaleDateString()}</TableCell>
                                     <TableCell>{card.flightNumber || 'N/A'}</TableCell>
                                     <TableCell><StatusChip status={card.status} /></TableCell>
+                                    <TableCell>
+                                        <Chip 
+                                            label={card.paymentStatus || 'UNPAID'} 
+                                            size="small"
+                                            color={card.paymentStatus === 'PAID' ? 'success' : 'error'}
+                                            variant={card.paymentStatus === 'PAID' ? 'filled' : 'outlined'}
+                                            sx={{ fontWeight: 'bold' }}
+                                        />
+                                    </TableCell>
                                     <TableCell align="right">
                                         <Stack direction="row" spacing={1} justifyContent="flex-end">
                                             <IconButton 
@@ -181,19 +191,25 @@ export default function ArrivalCardsTab() {
                                     ) : (
                                         <Typography variant="body2" color="text.secondary">No documents attached.</Typography>
                                     )}
+
+                                    {selectedCard.paymentStatus !== 'PAID' && (
+                                        <Alert severity="error" sx={{ mt: 3, borderRadius: 2 }}>
+                                            <strong>PAYMENT REQUIRED:</strong> This Arrival Card is associated with an UNPAID invoice. Do not process or approve until payment is confirmed.
+                                        </Alert>
+                                    )}
                                 </Grid>
                             </Grid>
                         </DialogContent>
                         <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
                             <Box display="flex" gap={1}>
                                 <Button
-                                    variant="outlined"
+                                    variant="contained"
                                     color="success"
                                     startIcon={<CheckCircleIcon />}
-                                    disabled={updating || selectedCard.status === 'APPROVED'}
+                                    disabled={updating || selectedCard.status === 'APPROVED' || selectedCard.paymentStatus !== 'PAID'}
                                     onClick={() => handleStatusUpdate(selectedCard.id, 'APPROVED')}
                                 >
-                                    Approve
+                                    {selectedCard.paymentStatus !== 'PAID' ? "Wait Payment" : "Approve"}
                                 </Button>
                                 <Button
                                     variant="outlined"

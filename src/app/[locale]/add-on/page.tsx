@@ -73,7 +73,7 @@ export default function AddOnPage() {
     // Direct Buy State
     const [selectedAddon, setSelectedAddon] = React.useState<any>(null);
     const [isBuyModalOpen, setIsBuyModalOpen] = React.useState(false);
-    const [buyFormData, setBuyFormData] = React.useState({ name: '', email: '' });
+    const [buyFormData, setBuyFormData] = React.useState({ name: '', email: '', phone: '' });
     const [isBuying, setIsBuying] = React.useState(false);
     const [buyError, setBuyError] = React.useState("");
 
@@ -103,8 +103,8 @@ export default function AddOnPage() {
     };
 
     const handleDirectBuySubmit = async () => {
-        if (!buyFormData.email || !buyFormData.name) {
-            setBuyError("Name and Email are required");
+        if (!buyFormData.email || !buyFormData.name || !buyFormData.phone) {
+            setBuyError("Name, Email, and WhatsApp are required");
             return;
         }
 
@@ -118,7 +118,8 @@ export default function AddOnPage() {
                 body: JSON.stringify({
                     addonId: selectedAddon.id,
                     guestName: buyFormData.name,
-                    guestEmail: buyFormData.email
+                    guestEmail: buyFormData.email,
+                    guestPhone: (buyFormData as any).phone // Added phone
                 })
             });
 
@@ -335,6 +336,16 @@ export default function AddOnPage() {
                             disabled={isBuying}
                             value={buyFormData.email}
                             onChange={(e) => setBuyFormData({ ...buyFormData, email: e.target.value })}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+                        />
+                        <TextField
+                            label="WhatsApp Number (with Country Code)"
+                            fullWidth
+                            variant="outlined"
+                            disabled={isBuying}
+                            placeholder="+62..."
+                            value={buyFormData.phone}
+                            onChange={(e) => setBuyFormData({ ...buyFormData, phone: e.target.value })}
                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
                         />
                     </Stack>

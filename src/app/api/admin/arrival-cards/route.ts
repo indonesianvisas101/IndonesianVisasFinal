@@ -22,10 +22,42 @@ export async function GET(request: Request) {
 
         const arrivalCards = await prisma.arrivalCard.findMany({
             where,
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            include: {
+                user: {
+                    include: {
+                        invoices: {
+                            orderBy: { createdAt: 'desc' },
+                            take: 1
+                        }
+                    }
+                }
+            }
         });
 
-        return NextResponse.json(arrivalCards);
+        // Manual cross-reference by email if user link is missing
+        const enrichedCards = await Promise.all(arrivalCards.map(async (card: any) => {
+            const email = card.formData?.email || card.user?.email;
+            
+            // If user link doesn't have invoice, search by email in VisaApplication -> Invoice
+            let paymentStatus = card.user?.invoices?.[0]?.status || 'UNKNOWN';
+            
+            if (paymentStatus === 'UNKNOWN' && email) {
+                const latestApp = await prisma.visaApplication.findFirst({
+                    where: { guestEmail: email },
+                    include: { invoices: { orderBy: { createdAt: 'desc' }, take: 1 } },
+                    orderBy: { appliedAt: 'desc' }
+                });
+                paymentStatus = latestApp?.invoices?.[0]?.status || 'UNPAID';
+            }
+
+            return {
+                ...card,
+                paymentStatus
+            };
+        }));
+
+        return NextResponse.json(enrichedCards);
 
         return NextResponse.json(arrivalCards);
 

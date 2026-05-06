@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getSignedUrl } from '@/lib/storage';
 
 export async function POST(req: Request) {
     try {
@@ -11,25 +12,44 @@ export async function POST(req: Request) {
 
         const orderId = `GCI-ORD-${Date.now().toString().slice(-6)}`;
 
-        // 1. Save to Database (Tracking prospects)
+        // 1. Save Lead (Harden GCI Ingestion)
+        // Upsert to ensure we don't duplicate but keep history
+        const lead = await prisma.marketingLead.upsert({
+            where: { email },
+            update: {
+                name: name || undefined,
+                visaType: 'GCI',
+                status: 'LEAD',
+                updatedAt: new Date()
+            },
+            create: {
+                email,
+                name: name || 'GCI Applicant',
+                visaType: 'GCI',
+                status: 'LEAD',
+                attributionData: { source: 'GCI_HUB', locale: locale || 'en' }
+            }
+        });
+
+        // 2. Create Notification for Admin
         const prospect = await prisma.notification.create({
             data: {
                 userId: null,
                 title: `New GCI Order: ${name || email}`,
                 message: `New official application from ${name} (${email}) for the GCI program. Ref: ${orderId}`,
                 type: "info",
-                actionLink: "/admin?tab=analytics",
-                actionText: "View Analytics"
+                actionLink: "/admin?tab=marketing", // Link to Marketing Tab where leads are
+                actionText: "View Marketing Lead"
             }
         });
 
-        // 2. Dispatch Email via Resend
+        // 3. Dispatch Email via Resend
         const resendApiKey = process.env.RESEND_API_KEY;
         const senderEmail = "contact@indonesianvisas.agency";
         const adminEmail = "contact@indonesianvisas.agency";
 
         if (resendApiKey) {
-            // Email to Admin (Order Notification)
+            // Email to Admin
             await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
@@ -71,7 +91,7 @@ export async function POST(req: Request) {
                             </div>
 
                             <div style="text-align: center; margin-top: 30px;">
-                                <a href="https://indonesianvisas.com/admin" style="background: #0f172a; color: #ffffff; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: 900; font-size: 14px; display: inline-block;">ACTIVATE ELIGIBILITY REVIEW</a>
+                                <a href="https://indonesianvisas.com/admin?tab=marketing" style="background: #0f172a; color: #ffffff; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: 900; font-size: 14px; display: inline-block;">ACTIVATE ELIGIBILITY REVIEW</a>
                             </div>
 
                             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 40px 0;" />
@@ -84,7 +104,7 @@ export async function POST(req: Request) {
                 })
             });
 
-            // Email to Client (Order Confirmation)
+            // Email to Client
             await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
@@ -132,7 +152,7 @@ export async function POST(req: Request) {
             });
         }
 
-        return NextResponse.json({ success: true, prospectId: prospect.id, orderId });
+        return NextResponse.json({ success: true, leadId: lead.id, orderId });
 
     } catch (error: any) {
         console.error("GCI Submission Error:", error);

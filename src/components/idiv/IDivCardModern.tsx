@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Flag, Globe, Info, QrCode as QrIcon, Download, Share2, X, ExternalLink, User, Nfc, Barcode } from 'lucide-react';
@@ -44,12 +44,12 @@ interface IDivCardProps {
     shareUrl?: string;
 }
 
-export default function IDivCardModern({ 
-    data, 
+export default function IDivCardModern({
+    data,
     mode = 'IDIV',
     variant = 'purple',
-    autoRotate = true, 
-    privacyMode = false, 
+    autoRotate = true,
+    privacyMode = false,
     showActions = true,
     showDownload = true,
     shareUrl
@@ -90,10 +90,10 @@ export default function IDivCardModern({
                 return "";
             };
             return {
-                street:         getVal(['street', 'STREET', 'address', 'Alamat']),
+                street: getVal(['street', 'STREET', 'address', 'Alamat']),
                 birthPlaceDate: getVal(['birthPlaceDate', 'BIRTHPLACEDATE', 'dob', 'DOB']),
-                gender:         getVal(['gender', 'GENDER', 'Jenis Kelamin']),
-                occupation:     getVal(['occupation', 'OCCUPATION', 'Pekerjaan']),
+                gender: getVal(['gender', 'GENDER', 'Jenis Kelamin']),
+                occupation: getVal(['occupation', 'OCCUPATION', 'Pekerjaan']),
             };
         } catch { return { ...fb, street: raw }; }
     };
@@ -105,7 +105,7 @@ export default function IDivCardModern({
         id_number: data?.id_number || "99710024889100",
         passport_number: data?.passport_number || "A1234567",
         formatted_id: (data?.id_number || "99710024889100").slice(0, 14).replace(/(\d{4})(\d{4})(\d{6})/, "$1-$2-$3"),
-        name: data?.name || "SARAH J. WILLIAMS", 
+        name: data?.name || "SARAH J. WILLIAMS",
         birth_place_date: privacyMode ? "XXXX, XX-XX-XXXX" : (addrData.birthPlaceDate || data?.birth_place_date || "LONDON, 01-01-1990"),
         gender: addrData.gender || data?.gender || "PEREMPUAN",
         occupation: addrData.occupation || data?.occupation || "INVESTOR",
@@ -122,13 +122,13 @@ export default function IDivCardModern({
     };
 
     // Standardize IDs for display
-    const displayId = privacyMode 
+    const displayId = privacyMode
         ? cardData.formatted_id.slice(0, 5) + "xx-xxxx-xxxx"
         : cardData.formatted_id;
-    
+
     // Truncate Order ID for Header Display to match "perfect" Sample
-    const displayOrderId = cardData.order_id && cardData.order_id.length > 12 
-        ? cardData.order_id.substring(0, 8) 
+    const displayOrderId = cardData.order_id && cardData.order_id.length > 12
+        ? cardData.order_id.substring(0, 8)
         : cardData.order_id;
 
     const isIDG = mode === 'IDG';
@@ -175,38 +175,78 @@ export default function IDivCardModern({
         alert("Verification link copied to clipboard!");
     };
 
+    // Native card dimensions (Reduced by 20% for a more elegant look)
+    const CARD_W = isSmart ? 400 : 384;
+    const CARD_H = Math.round(CARD_W / 1.50);
+
+    // ResizeObserver: compute scale so card always fits its container
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    // Start with window-based estimate to avoid flash at full size on mobile
+    const [cardScale, setCardScale] = useState(() => {
+        if (typeof window === 'undefined') return 1;
+        return Math.min(1, window.innerWidth / CARD_W);
+    });
+
+    useEffect(() => {
+        const el = wrapperRef.current;
+        if (!el) return;
+        const obs = new ResizeObserver(([entry]) => {
+            const w = entry.contentRect.width;
+            setCardScale(Math.min(1, w / CARD_W));
+        });
+        obs.observe(el);
+        return () => obs.disconnect();
+    }, [CARD_W]);
+
+    if (!isMounted) return (
+        <Box sx={{ width: '100%', maxWidth: `${CARD_W}px`, margin: '0 auto', height: `${CARD_H}px`, bgcolor: 'transparent' }} />
+    );
+
     return (
-        <Box sx={{ width: '100%' }}>
-            {/* Card Animation Wrapper */}
-            <Box 
-                sx={{ 
-                    perspective: '1200px', 
+        <Box sx={{ width: '100%' }} suppressHydrationWarning>
+            {/* Outer container — measures available width */}
+            <Box
+                ref={wrapperRef}
+                sx={{
                     width: '100%',
-                    maxWidth: { xs: '100%', sm: '420px' },
-                    aspectRatio: { xs: 'auto', sm: '1.58 / 1' },
+                    maxWidth: `${CARD_W}px`,
                     margin: '0 auto',
-                    cursor: 'pointer',
+                    height: `${Math.round(CARD_H * cardScale)}px`,
                     position: 'relative',
+                    perspective: '1200px',
+                    cursor: 'pointer',
                     zIndex: 10,
-                    // Full card visible on mobile — no clipping
-                    minHeight: { xs: '250px', sm: '265px' }
                 }}
                 onClick={() => setIsFlipped(!isFlipped)}
+                suppressHydrationWarning
             >
+                {/* Inner box at native size, scaled via JS-computed transform */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: `${CARD_W}px`,
+                        height: `${CARD_H}px`,
+                        transformOrigin: 'top left',
+                    }}
+                    style={{ transform: `scale(${cardScale})` }}
+                    suppressHydrationWarning
+                >
                 <motion.div
-                    id="idiv-card-container" 
+                    id="idiv-card-container"
                     initial={false}
-                    animate={{ 
+                    animate={{
                         rotateY: isFlipped ? 180 : 0,
-                        ...(autoRotate && !isFlipped ? { 
+                        ...(autoRotate && !isFlipped ? {
                             rotateY: [0, 8, 0, -8, 0],
                             rotateX: [0, 3, 0, -3, 0]
                         } : {})
                     }}
                     transition={isFlipped ? { duration: 0.6 } : floatTransition}
                     style={{
-                        width: '100%',
-                        height: '100%',
+                        width: `${CARD_W}px`,
+                        height: `${CARD_H}px`,
                         position: 'relative',
                         transformStyle: 'preserve-3d',
                     }}
@@ -215,58 +255,58 @@ export default function IDivCardModern({
                     <Box
                         id="idiv-front"
                         sx={{
-                            position: { xs: 'relative', sm: 'absolute' },
-                            width: '100%',
-                            height: { xs: 'auto', sm: '100%' },
+                            position: 'absolute',
+                            width: `${CARD_W}px`,
+                            height: `${CARD_H}px`,
                             backfaceVisibility: 'hidden',
-                            borderRadius: '16px', 
+                            borderRadius: '16px',
                             overflow: 'hidden',
                             background: currentColors.body,
                             boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
                             border: '1px solid rgba(255,255,255,0.6)',
                             display: 'flex',
                             flexDirection: 'column',
-                            p: { xs: 1.8, sm: 3 },
+                            p: 3,
                             color: '#1e293b',
-                            transform: 'translateZ(1px)' 
+                            transform: 'translateZ(1px)'
                         }}
                     >
                         {/* Gloss Overlay */}
-                        <Box sx={{ 
-                            position: 'absolute', 
-                            top: '-50%', 
-                            left: '-50%', 
-                            width: '200%', 
-                            height: '200%', 
+                        <Box sx={{
+                            position: 'absolute',
+                            top: '-50%',
+                            left: '-50%',
+                            width: '200%',
+                            height: '200%',
                             background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)',
                             pointerEvents: 'none',
                             zIndex: 1
                         }} />
 
                         {/* Watermark Logo */}
-                        <Box sx={{ 
-                            position: 'absolute', 
-                            top: '50%', 
-                            left: '50%', 
-                            transform: 'translate(-50%, -50%)', 
-                            opacity: 0.05, 
-                            width: '120px', 
+                        <Box sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            opacity: 0.05,
+                            width: '120px',
                             height: '120px',
                             zIndex: 1,
                             pointerEvents: 'none'
                         }}>
-                             <Box component="img" src="/Favicon.webp" sx={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            <Box component="img" src="/Favicon.webp" sx={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </Box>
 
                         {/* Header */}
-                        <Box 
-                            display="flex" 
-                            justifyContent="space-between" 
-                            alignItems="start" 
-                            mb={1} 
-                            borderBottom="1px solid rgba(0,0,0,0.1)" 
-                            pb={0.5} 
-                            sx={{ 
+                        <Box
+                            display="flex"
+                            justifyContent="space-between"
+                            alignItems="start"
+                            mb={1}
+                            borderBottom="1px solid rgba(0,0,0,0.1)"
+                            pb={0.5}
+                            sx={{
                                 zIndex: 2,
                                 ...(isIDG ? {
                                     background: currentColors.header,
@@ -282,24 +322,24 @@ export default function IDivCardModern({
                         >
                             {/* Left Side: Flag & Province */}
                             <Box display="flex" alignItems="flex-start" gap={1}>
-                                <Box sx={{ 
-                                    width: 28, 
-                                    height: 18, 
-                                    bgcolor: '#ef4444', 
-                                    position: 'relative', 
-                                    border: '1px solid rgba(0,0,0,0.1)', 
-                                    overflow: 'hidden', 
+                                <Box sx={{
+                                    width: 28,
+                                    height: 18,
+                                    bgcolor: '#ef4444',
+                                    position: 'relative',
+                                    border: '1px solid rgba(0,0,0,0.1)',
+                                    overflow: 'hidden',
                                     borderRadius: '2px',
                                     mt: 0.2 // Align with top of text
                                 }}>
                                     <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', bgcolor: 'white' }} />
                                 </Box>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.2, flex: 1, minWidth: 0, textAlign: 'left' }}>
-                                    <Typography variant="caption" fontWeight="900" sx={{ 
-                                        fontSize: '0.65rem', 
-                                        letterSpacing: 1.2, 
-                                        lineHeight: 1, 
-                                        color: isIDG ? '#fff' : '#0369a1', 
+                                    <Typography variant="caption" fontWeight="900" sx={{
+                                        fontSize: '0.65rem',
+                                        letterSpacing: 1.2,
+                                        lineHeight: 1,
+                                        color: isIDG ? '#fff' : '#0369a1',
                                         display: 'block',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
@@ -308,26 +348,26 @@ export default function IDivCardModern({
                                     }}>
                                         {isIDG ? 'INDONESIAN GUIDE' : `PROVINSI ${cardData.province.toUpperCase()}`}
                                     </Typography>
-                                    <Typography variant="caption" sx={{ 
-                                        fontSize: '0.55rem', 
-                                        fontWeight: 600, 
-                                        letterSpacing: 0.5, 
-                                        color: isIDG ? 'rgba(255,255,255,0.8)' : '#64748b', 
-                                        lineHeight: 1, 
-                                        whiteSpace: 'nowrap', 
-                                        textAlign: 'left' 
+                                    <Typography variant="caption" sx={{
+                                        fontSize: '0.55rem',
+                                        fontWeight: 600,
+                                        letterSpacing: 0.5,
+                                        color: isIDG ? 'rgba(255,255,255,0.8)' : '#64748b',
+                                        lineHeight: 1,
+                                        whiteSpace: 'nowrap',
+                                        textAlign: 'left'
                                     }}>
                                         {isIDG ? 'OFFICIAL DIGITAL GUIDE ID' : isSmart ? 'SMART SYSTEM IDENTITY' : 'INDONESIAN VISAS DIGITAL ID'}
                                     </Typography>
                                 </Box>
                             </Box>
- 
+
                             {/* Right Side: SMART ID Only */}
                             <Box sx={{ textAlign: 'right', pt: 0.2, flexShrink: 0, pl: 1 }}>
-                                <Typography sx={{ 
-                                    fontSize: '0.55rem', 
-                                    color: isIDG ? '#fff' : '#64748b', 
-                                    fontWeight: 800, 
+                                <Typography sx={{
+                                    fontSize: '0.55rem',
+                                    color: isIDG ? '#fff' : '#64748b',
+                                    fontWeight: 800,
                                     lineHeight: 1,
                                     opacity: 0.8,
                                     letterSpacing: 0.5,
@@ -339,22 +379,22 @@ export default function IDivCardModern({
                         </Box>
 
                         {/* Content Wrapper to hide on Flip */}
-                        <Box sx={{ 
-                            flex: 1, 
-                            display: 'flex', 
-                            flexDirection: 'column', 
+                        <Box sx={{
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
                             alignItems: 'flex-start',
                             textAlign: 'left',
-                            opacity: isFlipped ? 0 : 1, 
+                            opacity: isFlipped ? 0 : 1,
                             transition: 'opacity 0.3s ease',
                             pointerEvents: isFlipped ? 'none' : 'auto',
                             pt: 0.5
                         }}>
                             {isSmart ? (
                                 <Box sx={{ width: '100%', mt: 0, px: 0.5 }}>
-                                    <Box sx={{ mb: 0.5 }}>
-                                        <Typography variant="h6" fontWeight="900" sx={{ fontSize: { xs: '0.9rem', sm: '1.05rem' }, letterSpacing: 1.5, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1 }}>
-                                            ID No &nbsp;&nbsp;&nbsp;&nbsp;: {displayId}
+                                    <Box sx={{ mb: 0.8 }} suppressHydrationWarning>
+                                        <Typography variant="h6" fontWeight="900" sx={{ fontSize: '0.95rem', letterSpacing: 1.2, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1 }} suppressHydrationWarning>
+                                            ID No <Box component="span" sx={{ ml: 3 }}>: {displayId}</Box>
                                         </Typography>
                                     </Box>
                                     <Box display="flex" gap={1}>
@@ -370,14 +410,14 @@ export default function IDivCardModern({
                                                 { label: 'Jenis Visa', value: cardData.visa_type },
                                             ].map((item, idx) => (
                                                 <Box key={idx} sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                                                    <Typography sx={{ width: '85px', fontSize: '0.5rem', fontWeight: 700, color: '#334155' }}>
+                                                    <Typography sx={{ width: '80px', fontSize: '0.5rem', fontWeight: 700, color: '#334155' }}>
                                                         {item.label}
                                                     </Typography>
                                                     <Typography sx={{ width: '10px', fontSize: '0.5rem', fontWeight: 700, color: '#334155' }}>:</Typography>
-                                                    <Typography sx={{ 
-                                                        flex: 1, 
-                                                        fontSize: '0.55rem', 
-                                                        fontWeight: 800, 
+                                                    <Typography sx={{
+                                                        flex: 1,
+                                                        fontSize: '0.55rem',
+                                                        fontWeight: 800,
                                                         color: '#0f172a',
                                                         lineHeight: 1.1,
                                                         ...(item.isAddress ? {
@@ -416,19 +456,19 @@ export default function IDivCardModern({
                                                 </Box>
                                             </Box>
                                         </Box>
-                                        
-                                        <Box sx={{ 
-                                            display: 'flex', 
-                                            flexDirection: 'column', 
+
+                                        <Box sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
                                             alignItems: 'center',
-                                            width: { xs: '75px', sm: '85px' },
-                                            mt: 2.5
+                                            width: '88px',
+                                            mt: 1.5
                                         }}>
-                                            <Box sx={{ 
-                                                width: '100%', 
-                                                height: { xs: '95px', sm: '105px' }, 
-                                                bgcolor: 'rgba(255,255,255,0.7)', 
-                                                borderRadius: 1, 
+                                            <Box sx={{
+                                                width: '100%',
+                                                height: '110px',
+                                                bgcolor: 'rgba(255,255,255,0.7)',
+                                                borderRadius: 1,
                                                 border: '1px solid rgba(0,0,0,0.1)',
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -438,10 +478,15 @@ export default function IDivCardModern({
                                                 boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
                                             }}>
                                                 {cardData.photoUrl ? (
-                                                    <Box 
-                                                        component="img" 
-                                                        src={cardData.photoUrl} 
-                                                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                    <Box
+                                                        component="img"
+                                                        src={cardData.photoUrl}
+                                                        sx={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover',
+                                                            objectPosition: 'center top'
+                                                        }}
                                                         onError={(e) => {
                                                             (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
                                                         }}
@@ -453,7 +498,7 @@ export default function IDivCardModern({
                                             </Box>
                                             <Box sx={{ textAlign: 'center', mt: 1.5, width: '100%' }}>
                                                 <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, lineHeight: 1.1, color: '#0f172a', opacity: 0.9 }}>
-                                                    Smart ID by<br/>indonesianvisas.com
+                                                    Smart ID by<br />indonesianvisas.com
                                                 </Typography>
                                             </Box>
                                         </Box>
@@ -462,49 +507,51 @@ export default function IDivCardModern({
                             ) : (
                                 <>
                                     {/* ID No Restored to Body */}
-                                    <Typography variant="h6" fontWeight="900" sx={{ 
-                                        fontSize: { xs: '0.75rem', sm: '0.95rem' }, // Shrink header ID
-                                        mb: 0.2, 
+                                    <Typography variant="h6" fontWeight="900" sx={{
+                                        fontSize: '0.8rem',
+                                        mb: 0.4,
                                         mt: 0.1,
                                         pl: 0.8,
                                         textAlign: 'left',
-                                        letterSpacing: { xs: 0.2, sm: 1.5 }, 
-                                        color: currentColors.accent, 
+                                        letterSpacing: 1.0,
+                                        color: currentColors.accent,
                                         zIndex: 2,
-                                        whiteSpace: 'nowrap'
-                                    }}>
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }} suppressHydrationWarning>
                                         {isIDG ? 'GUIDE NO' : 'ID No'} : {displayId}
                                     </Typography>
 
                                     {/* Details Container */}
-                                    <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0, width: '100%' }}>
+                                    <Box display="flex" flex={1} gap={1} sx={{ zIndex: 2, minHeight: 0, width: '100%', px: 0.5 }}>
                                         {/* Data Fields */}
-                                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: { xs: 0.45, sm: 0.7 }, justifyContent: 'center', pl: 0.8, textAlign: 'left', alignItems: 'flex-start', mt: -1 }}>
+                                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.8, justifyContent: 'center', pl: 0.5, textAlign: 'left', alignItems: 'flex-start' }}>
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
-                                                <Typography sx={{ fontSize: { xs: '0.62rem', sm: '0.8rem' }, fontWeight: 800, color: '#0f172a', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
+                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NAMA</Typography>
+                                                <Typography sx={{ fontSize: '0.75rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.name}</Typography>
                                             </Box>
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NO PASSPORT</Typography>
-                                                <Typography sx={{ fontSize: '0.62rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.passport_number}</Typography>
+                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>NO PASSPORT</Typography>
+                                                <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.passport_number}</Typography>
                                             </Box>
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
-                                                <Typography sx={{ fontSize: '0.62rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
+                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>KEWARGANEGARAAN</Typography>
+                                                <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cardData.nationality}</Typography>
                                             </Box>
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>{isIDG ? 'GUIDE TYPE' : 'JENIS VISA'}</Typography>
-                                                <Typography sx={{ fontSize: { xs: '0.62rem', sm: '0.7rem' }, fontWeight: 800, color: currentColors.secondary, lineHeight: 1.1 }}>{isIDG ? 'VISITOR GUIDE 24/7' : cardData.visa_type}</Typography>
+                                                <Typography sx={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>{isIDG ? 'GUIDE TYPE' : 'JENIS VISA'}</Typography>
+                                                <Typography sx={{ fontSize: '0.68rem', fontWeight: 800, color: currentColors.secondary, lineHeight: 1.1 }}>{isIDG ? 'VISITOR GUIDE 24/7' : cardData.visa_type}</Typography>
                                             </Box>
-                                            
+
                                             {/* INDONESIAN ADDRESS */}
                                             <Box>
                                                 <Typography sx={{ fontSize: '0.5rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ALAMAT</Typography>
-                                                <Typography sx={{ 
-                                                    fontSize: '0.5rem', 
-                                                    fontWeight: 800, 
-                                                    color: '#1e293b', 
-                                                    lineHeight: 1.1, 
+                                                <Typography sx={{
+                                                    fontSize: '0.5rem',
+                                                    fontWeight: 800,
+                                                    color: '#1e293b',
+                                                    lineHeight: 1.1,
                                                     display: '-webkit-box',
                                                     WebkitLineClamp: 2,
                                                     WebkitBoxOrient: 'vertical',
@@ -518,38 +565,38 @@ export default function IDivCardModern({
                                             <Box display="flex" gap={2} sx={{ minHeight: '1rem', mt: 0.6 }}>
                                                 <Box>
                                                     <Typography sx={{ fontSize: '0.45rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>ISSUED</Typography>
-                                                    <Typography sx={{ fontSize: { xs: '0.58rem', sm: '0.7rem' }, fontWeight: 700, lineHeight: 1 }}>{cardData.issue_date}</Typography>
+                                                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1 }}>{cardData.issue_date}</Typography>
                                                 </Box>
                                                 <Box>
                                                     <Typography sx={{ fontSize: '0.45rem', color: '#64748b', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1 }}>EXPIRES</Typography>
                                                     {cardData.isUnlimited ? (
                                                         <Box display="flex" alignItems="center" gap={0.3}>
-                                                            <Typography sx={{ fontSize: { xs: '0.58rem', sm: '0.7rem' }, fontWeight: 900, color: '#d97706', lineHeight: 1 }}>LIFETIME ACCESS</Typography>
+                                                            <Typography sx={{ fontSize: '0.7rem', fontWeight: 900, color: '#d97706', lineHeight: 1 }}>LIFETIME ACCESS</Typography>
                                                             <Globe size={8} className="text-amber-600 animate-pulse" />
                                                         </Box>
                                                     ) : (
-                                                        <Typography sx={{ fontSize: { xs: '0.58rem', sm: '0.7rem' }, fontWeight: 700, color: '#ef4444', lineHeight: 1 }}>{cardData.expiry_date}</Typography>
+                                                        <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#ef4444', lineHeight: 1 }}>{cardData.expiry_date}</Typography>
                                                     )}
                                                 </Box>
                                             </Box>
                                         </Box>
 
                                         {/* Photo & Beneath Text Column */}
-                                        <Box sx={{ 
-                                            display: 'flex', 
-                                            flexDirection: 'column', 
+                                        <Box sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
                                             alignItems: 'center',
-                                            width: { xs: '70px', sm: '90px' },
-                                            gap: 0.5,
-                                            mt: 0.5,
+                                            width: '72px',
+                                            gap: 0.4,
+                                            mt: 0.4,
                                             position: 'relative'
                                         }}>
                                             {/* Photo/Avatar Placeholder */}
-                                            <Box sx={{ 
-                                                width: '100%', 
-                                                height: { xs: '90px', sm: '110px' }, 
-                                                bgcolor: 'rgba(255,255,255,0.7)', 
-                                                borderRadius: 1.5, 
+                                            <Box sx={{
+                                                width: '100%',
+                                                height: '88px',
+                                                bgcolor: 'rgba(255,255,255,0.7)',
+                                                borderRadius: 1.5,
                                                 border: '1px solid rgba(0,0,0,0.08)',
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -559,10 +606,15 @@ export default function IDivCardModern({
                                                 boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
                                             }}>
                                                 {cardData.photoUrl ? (
-                                                    <Box 
-                                                        component="img" 
-                                                        src={cardData.photoUrl} 
-                                                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                    <Box
+                                                        component="img"
+                                                        src={cardData.photoUrl}
+                                                        sx={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover',
+                                                            objectPosition: 'center top'
+                                                        }}
                                                         onError={(e) => {
                                                             (e.target as HTMLImageElement).src = "https://indonesianvisas.com/default-avatar.png";
                                                         }}
@@ -576,7 +628,7 @@ export default function IDivCardModern({
                                             {/* DESCRIPTIVE TEXT BENEATH IMAGE */}
                                             <Box sx={{ textAlign: 'center', width: '100%', mt: 0.5 }}>
                                                 <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, lineHeight: 1.1, color: currentColors.accent, opacity: 0.9 }}>
-                                                    {isIDG ? 'Smart Guide ID by:' : 'Smart IDiv by:'}<br/>indonesianvisas.com
+                                                    {isIDG ? 'Smart IDg by:' : 'Smart IDiv by:'}<br />indonesianvisas.com
                                                 </Typography>
                                             </Box>
                                         </Box>
@@ -593,25 +645,25 @@ export default function IDivCardModern({
                             position: 'absolute',
                             top: 0,
                             left: 0,
-                            width: '100%',
-                            height: '100%',
+                            width: `${CARD_W}px`,
+                            height: `${CARD_H}px`,
                             backfaceVisibility: 'hidden',
-                            borderRadius: '16px', 
+                            borderRadius: '16px',
                             overflow: 'hidden',
                             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                             boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
                             border: '1px solid rgba(0,0,0,0.08)',
                             display: 'flex',
                             flexDirection: 'column',
-                            p: { xs: 2.5, sm: 3 },
+                            p: 3,
                             transform: 'rotateY(180deg) translateZ(1px)',
                             color: '#1e293b'
                         }}
                     >
-                        <Box sx={{ 
-                            width: '100%', 
-                            height: '100%', 
-                            display: 'flex', 
+                        <Box sx={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
                             flexDirection: 'column'
                         }}>
                             <Box display="flex" justifyContent="center" alignItems="center" gap={1} mb={1.5} borderBottom="1px solid #e2e8f0" pb={1}>
@@ -621,7 +673,7 @@ export default function IDivCardModern({
                                 </Typography>
                             </Box>
 
-                            <Box sx={{ flex: 1, display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
+                            <Box sx={{ flex: 1, display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
                                 {isSmart && (
                                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                                         {/* NFC Icon with ping animation */}
@@ -637,7 +689,7 @@ export default function IDivCardModern({
                                             </style>
                                         </Box>
                                         <Typography sx={{ fontSize: '0.45rem', fontWeight: 800, color: '#64748b', mt: -0.5 }}>CONTACTLESS</Typography>
-                                        
+
                                         {/* Barcode Mock */}
                                         <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                             <Barcode size={40} strokeWidth={1} color="#1e293b" />
@@ -647,23 +699,23 @@ export default function IDivCardModern({
                                         </Box>
                                     </Box>
                                 )}
-                                
+
                                 {/* QR Code Section */}
-                                <Box sx={{ 
-                                    p: { xs: 1, sm: 1.5 }, 
-                                    bgcolor: 'white', 
-                                    borderRadius: 3, 
+                                <Box sx={{
+                                    p: 1.5,
+                                    bgcolor: 'white',
+                                    borderRadius: 3,
                                     boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
                                     border: '1px solid #e2e8f0',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    gap: { xs: 0.2, sm: 1 }
+                                    gap: 1
                                 }}>
                                     {isMounted ? (
-                                        <QRCodeSVG 
-                                            value={`${window.location.origin}/verify/${cardData.order_id}`} 
-                                            size={typeof window !== 'undefined' && window.innerWidth < 640 ? (isSmart ? 65 : 75) : (isSmart ? 85 : 100)}
+                                        <QRCodeSVG
+                                            value={`${window.location.origin}/verify/${cardData.order_id}`}
+                                            size={isSmart ? 85 : 100}
                                             level="H"
                                             includeMargin={false}
                                         />
@@ -685,13 +737,13 @@ export default function IDivCardModern({
                     </Box>
                 </motion.div>
             </Box>
-            
+
             {/* Action Buttons for Preview */}
             {showActions && (
-                <Box sx={{ 
-                    mt: { xs: 8, sm: 6 }, 
-                    display: 'flex', 
-                    gap: 1.5, 
+                <Box sx={{
+                    mt: 3,
+                    display: 'flex',
+                    gap: 1.5,
                     justifyContent: 'center',
                     flexDirection: { xs: 'column', sm: 'row' },
                     position: 'relative',
@@ -702,9 +754,9 @@ export default function IDivCardModern({
                             variant="contained"
                             startIcon={<Download size={18} />}
                             onClick={handleDownload}
-                            sx={{ 
-                                borderRadius: 4, 
-                                bgcolor: isIDG ? currentColors.secondary : '#0369a1', 
+                            sx={{
+                                borderRadius: 4,
+                                bgcolor: isIDG ? currentColors.secondary : '#0369a1',
                                 '&:hover': { bgcolor: isIDG ? currentColors.accent : '#075985' },
                                 px: 4,
                                 py: 1.2,
@@ -720,9 +772,9 @@ export default function IDivCardModern({
                         variant="outlined"
                         startIcon={<Share2 size={18} />}
                         onClick={handleShare}
-                        sx={{ 
-                            borderRadius: 4, 
-                            borderColor: isIDG ? currentColors.secondary : '#0369a1', 
+                        sx={{
+                            borderRadius: 4,
+                            borderColor: isIDG ? currentColors.secondary : '#0369a1',
                             color: isIDG ? currentColors.secondary : '#0369a1',
                             '&:hover': { borderColor: isIDG ? currentColors.accent : '#075985', bgcolor: isIDG ? 'rgba(124,58,237,0.05)' : 'rgba(3,105,161,0.05)' },
                             px: 4, py: 1.2, fontWeight: 'bold', textTransform: 'none', fontSize: '0.9rem'
@@ -732,6 +784,7 @@ export default function IDivCardModern({
                     </Button>
                 </Box>
             )}
+            </Box> {/* close outer padding-box */}
         </Box>
     );
 }

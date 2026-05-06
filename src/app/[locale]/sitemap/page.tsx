@@ -54,6 +54,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ locale
                 { name: "Indonesia Visa Guide 2026-2027", href: formatNavLink(locale, "/indonesian-visas-in-2026-2027-all-types-and-prices") },
                 { name: "Bali Visa Guide 2026-2027", href: formatNavLink(locale, "/bali-visas-in-2026-2027-all-types-and-prices") },
                 { name: "Jakarta Business Guide 2026-2027", href: formatNavLink(locale, "/jakarta-visas-in-2026-2027-all-types-and-prices") },
+                { name: "C1/B211A Most Popular Visa", href: formatNavLink(locale, "/why-b211a-or-c1-visa-is-the-most-popular-visa") },
                 { name: "National Policy Updates", href: formatNavLink(locale, "/indonesian-visas-lates-updated") },
                 { name: "Bali Local News Updates", href: formatNavLink(locale, "/bali-visas-lates-updated") }
             ]

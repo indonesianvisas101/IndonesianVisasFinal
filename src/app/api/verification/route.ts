@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { getAdminAuth } from '@/lib/auth-helpers';
+import { getSignedUrl } from '@/lib/storage';
 
 // GET /api/verification?id=... OR ?slug=...
 export async function GET(request: Request) {
@@ -47,9 +48,16 @@ export async function GET(request: Request) {
         }
         else {
             // ALL VERIFICATIONS (Admin)
-            const verifications = await (prisma.verification as any).findMany({
+            const verificationsRaw = await (prisma.verification as any).findMany({
                 orderBy: { createdAt: 'desc' }
             });
+            
+            // Harden Photo URLs
+            const verifications = await Promise.all(verificationsRaw.map(async (v: any) => {
+                if (v.photoUrl) v.photoUrl = await getSignedUrl(v.photoUrl);
+                return v;
+            }));
+
             return NextResponse.json(verifications);
         }
 
@@ -72,6 +80,11 @@ export async function GET(request: Request) {
                     data.visaActiveUrl = addrParsed.visaActiveUrl;
                 }
             } catch { /* address is plain text, no visaActiveUrl */ }
+        }
+        
+        // Harden Photo URL
+        if (data && data.photoUrl) {
+            data.photoUrl = await getSignedUrl(data.photoUrl);
         }
         
         return NextResponse.json(data);

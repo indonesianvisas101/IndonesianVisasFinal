@@ -32,19 +32,26 @@ export const AI_IMMIGRATION_ANALYST = {
 
     const sanitizedSlug = slugify(articleData.slug || articleData.title);
 
+    const isPriority = cluster === 'master_priority' || cluster === 'admin-priority';
+
     const changeRequest = await prisma.aIChangeRequest.create({
       data: {
         requestId,
-        initiatedBy: 'analyst',
-        changeType: 'knowledge_article',
-        pageCategory: 'normal',
-        targetPage: `/visa-knowledge/${sanitizedSlug}`,
+        initiatedBy: isPriority ? 'admin' : 'analyst',
+        changeType: articleData.type === 'news' || articleData.type === 'viral' ? 'immigration_update' : 'knowledge_article',
+        pageCategory: isPriority ? 'priority' : 'normal',
+        targetPage: articleData.type === 'news' || articleData.type === 'viral' 
+            ? `/en/indonesia-visa-updates/${sanitizedSlug}`
+            : `/visa-knowledge/${sanitizedSlug}`,
         proposedChanges: {
           slug: sanitizedSlug,
           title: articleData.title,
-          content: articleData.sections,
+          content: articleData.type === 'news' || articleData.type === 'viral' ? articleData.content : articleData.sections,
           metadata: articleData.metadata,
-          pageType: 'knowledge_article',
+          category: articleData.category || (articleData.type === 'viral' ? 'Viral News' : 'Immigration'),
+          summary: articleData.summary || '',
+          image: articleData.image || '',
+          pageType: articleData.type === 'news' || articleData.type === 'viral' ? 'news' : 'knowledge_article',
           // Intelligence Extension
           cluster,
           authorName: author.name,
@@ -53,12 +60,12 @@ export const AI_IMMIGRATION_ANALYST = {
         },
         riskScore: quality.overallScore > 80 ? 'low' : 'medium',
         impactForecast: { 
-          summary: `Scales SEO cluster "${cluster}" for "${articleData.title}". Quality: ${quality.overallScore}/100.`,
-          type: 'SEO_EXPANSION',
+          summary: `Scales cluster "${cluster}" for "${articleData.title}". Type: ${articleData.type}.`,
+          type: isPriority ? 'PRIORITY_UPDATE' : 'SEO_EXPANSION',
           qualityMetrics: quality
         },
         modeStatus: 'normal',
-        currentState: 'draft',
+        currentState: isPriority ? 'approved' : 'draft',
       }
     });
 
@@ -66,8 +73,8 @@ export const AI_IMMIGRATION_ANALYST = {
     await TOPIC_MEMORY.recordTopic({
       title: articleData.title,
       cluster,
-      sourceAgent: 'analyst',
-      status: 'draft',
+      sourceAgent: isPriority ? 'master_admin' : 'analyst',
+      status: isPriority ? 'published' : 'draft',
       confidenceScore: quality.overallScore
     });
 
@@ -75,9 +82,9 @@ export const AI_IMMIGRATION_ANALYST = {
       data: {
         requestId,
         agentName: this.name,
-        actionType: 'PROPOSE_INTELLIGENT_KNOWLEDGE',
+        actionType: isPriority ? 'PROPOSE_PRIORITY_CONTENT' : 'PROPOSE_INTELLIGENT_KNOWLEDGE',
         status: 'SUCCESS',
-        notes: `Proposed intelligent article: ${articleData.title} in cluster ${cluster}`
+        notes: `Proposed ${articleData.type} article: ${articleData.title} in cluster ${cluster}`
       }
     });
 
@@ -88,104 +95,42 @@ export const AI_IMMIGRATION_ANALYST = {
    * Proposes a new immigration update (News).
    */
   async proposeImmigrationUpdate(newsData: any) {
-    const requestId = `NEWS-INTEL-${Date.now()}-${randomUUID().slice(0, 4).toUpperCase()}`;
-    
-    const quality = QUALITY_ENGINE.evaluateContent(newsData.content, newsData.title);
-
-    const sanitizedSlug = slugify(newsData.slug || newsData.title);
-
-    const changeRequest = await prisma.aIChangeRequest.create({
-      data: {
-        requestId,
-        initiatedBy: 'analyst',
-        changeType: 'immigration_update',
-        pageCategory: 'normal',
-        targetPage: `/en/indonesia-visa-updates/${sanitizedSlug}`,
-        proposedChanges: {
-          title: newsData.title,
-          content: newsData.content,
-          category: newsData.category || 'Immigration',
-          summary: newsData.summary,
-          image: newsData.image,
-          slug: sanitizedSlug,
-          published: false,
-          cluster: 'immigration-news',
-          qualityScore: quality.overallScore
-        },
-        riskScore: 'low',
-        impactForecast: { 
-          summary: `Intelligence-graded news: "${newsData.title}". Quality: ${quality.overallScore}.`,
-          type: 'REGULATORY_UPDATE'
-        },
-        modeStatus: 'normal',
-        currentState: 'draft',
-      }
-    });
-
-    // Record in Topic History
-    await TOPIC_MEMORY.recordTopic({
-      title: newsData.title,
-      cluster: 'immigration-news',
-      sourceAgent: 'news_agent',
-      status: 'draft'
-    });
-
-    await prisma.aIExecutionLog.create({
-      data: {
-        requestId,
-        agentName: this.name,
-        actionType: 'PROPOSE_INTELLIGENT_NEWS',
-        status: 'SUCCESS',
-        notes: `Proposed intelligent news: ${newsData.title}`
-      }
-    });
-
-    return requestId;
+    // This is now partially merged into proposeKnowledgePage for unified handling, 
+    // but kept for legacy/specific news hooks.
+    return this.proposeKnowledgePage({ ...newsData, type: 'news' }, 'immigration-news');
   },
 
   /**
    * Checks for topic opportunities with clusters
    * PRIORITIZES: Manual Admin Topics
-   * DISTRIBUTION: 40% Product, 40% Knowledge, 20% News
    */
   async identifyTopics(): Promise<{topic: string, cluster: TopicCluster}[]> {
     console.log("[ANALYST] Identifying topics with 40-40-20 orchestration...");
 
     // 1. CHECK FOR MANUAL ADMIN TOPICS (Priority 1)
-    // We look into KnowledgePage metadata where 'topic' was manually set by admin
-    const manualPages = await prisma.knowledgePage.findMany({
-      where: {
-        published: false,
-        metadata: { path: ['topic'], not: '' }
-      },
+    const manualTopics = await prisma.aITopicHistory.findMany({
+      where: { status: 'vvip_queued' },
       take: 5
     });
 
-    const manualTopics = manualPages
-      .map(p => ({ 
-        topic: (p.metadata as any)?.topic || "", 
-        cluster: "admin-priority" as TopicCluster,
-        isManual: true 
-      }))
-      .filter(t => t.topic.length > 0);
-
     if (manualTopics.length > 0) {
-      console.log(`[ANALYST] Found ${manualTopics.length} manual admin topics. Prioritizing.`);
-      return manualTopics;
+      return manualTopics.map(t => ({ 
+        topic: t.topicTitle, 
+        cluster: 'admin-priority' as TopicCluster 
+      }));
     }
 
-    // 2. AUTOMATIC ORCHESTRATION (40-40-20)
+    // 2. AUTOMATIC ORCHESTRATION
     const { TOPIC_SOURCES } = await import('../../topic-discovery/topicSources');
     
-    const productSignals = await (TOPIC_SOURCES as any).getInternalSignals(); // 40%
-    const knowledgeSignals = TOPIC_SOURCES.getRegulatorySignals(); // 40%
-    const newsSignals = TOPIC_SOURCES.getNewsSignals(); // 20%
+    const productSignals = await (TOPIC_SOURCES as any).getInternalSignals(); 
+    const knowledgeSignals = TOPIC_SOURCES.getRegulatorySignals(); 
+    const newsSignals = TOPIC_SOURCES.getNewsSignals(); 
 
-    // Aggregate with weighted probability
     const finalTopics = [
       ...productSignals.slice(0, 2).map((s: any) => ({ topic: s.query, cluster: 'visa-types' as TopicCluster })),
       ...knowledgeSignals.slice(0, 2).map(s => ({ topic: s.query, cluster: 'regulatory' as TopicCluster })),
-      ...newsSignals.slice(0, 1).map(s => ({ topic: s.query, cluster: 'immigration-news' as TopicCluster }))
+      ...newsSignals.slice(0, 1).map(s => ({ topic: s.query, cluster: 'viral-news' as TopicCluster }))
     ];
 
     return finalTopics;

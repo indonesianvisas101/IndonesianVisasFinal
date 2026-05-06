@@ -7,6 +7,7 @@ import { createClient } from '@/utils/supabase/server'; // Use server client
 import { sendConfirmationEmail, sendAdminOrderNotification } from '@/lib/email';
 import { calculateOrderFees } from '@/utils/feeCalculator';
 import { getAdminAuth } from '@/lib/auth-helpers';
+import { signDocumentUrls } from '@/lib/storage';
 
 // GET /api/applications?userId=... OR ?id=... OR ?slug=... OR (no params for all)
 export async function GET(request: Request) {
@@ -24,17 +25,21 @@ export async function GET(request: Request) {
                 // Use safe parameterized queryRaw
                 rawApps = await prisma.$queryRaw`
                     SELECT a.*, i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
-                           i."serviceFee", i."gatewayFee", i."pph23Amount"
+                           i."serviceFee", i."gatewayFee", i."pph23Amount",
+                           v.price as "dbVisaPrice", v.fee as "dbVisaFee"
                     FROM "visa_applications" a
                     LEFT JOIN "invoices" i ON a.id = i."applicationId"
+                    LEFT JOIN "Visa" v ON a."visaId" = v."id"
                     WHERE a."id" = ${id}
                 `;
             } else {
                 rawApps = await prisma.$queryRaw`
                     SELECT a.*, i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
-                           i."serviceFee", i."gatewayFee", i."pph23Amount"
+                           i."serviceFee", i."gatewayFee", i."pph23Amount",
+                           v.price as "dbVisaPrice", v.fee as "dbVisaFee"
                     FROM "visa_applications" a
                     LEFT JOIN "invoices" i ON a.id = i."applicationId"
+                    LEFT JOIN "Visa" v ON a."visaId" = v."id"
                     WHERE a."slug" = ${slug}
                 `;
             }
@@ -64,7 +69,7 @@ export async function GET(request: Request) {
                 }
             }
 
-            const response = JSON.parse(JSON.stringify({
+            const finalResponse = JSON.parse(JSON.stringify({
                 ...app,
                 // Normalized keys
                 id: app.id,
@@ -89,7 +94,9 @@ export async function GET(request: Request) {
                     quantity: app.invoiceQuantity || app.quantity || 1,
                     serviceFee: app.serviceFee,
                     gatewayFee: app.gatewayFee,
-                    pph23Amount: app.pph23Amount
+                    pph23Amount: app.pph23Amount,
+                    dbVisaPrice: app.dbVisaPrice,
+                    dbVisaFee: app.dbVisaFee
                 },
 
                 user: userData || {
@@ -99,7 +106,13 @@ export async function GET(request: Request) {
                 },
                 verification: verificationData
             }));
-            return NextResponse.json(response);
+
+            // Harden Document URLs
+            if (finalResponse.documents) {
+                finalResponse.documents = await signDocumentUrls(finalResponse.documents);
+            }
+
+            return NextResponse.json(finalResponse);
         }
 
         // 2. GET LIST (User History or Admin All)
@@ -169,7 +182,15 @@ export async function GET(request: Request) {
             };
         });
 
-        return NextResponse.json(mappedApps);
+        // Harden Document URLs for the entire list
+        const hardenedApps = await Promise.all(mappedApps.map(async (app) => {
+            if (app.documents) {
+                app.documents = await signDocumentUrls(app.documents);
+            }
+            return app;
+        }));
+
+        return NextResponse.json(hardenedApps);
 
     } catch (error) {
         console.error('Error fetching applications:', error);
@@ -201,7 +222,7 @@ export async function POST(request: Request) {
                     userId, visaId, visaName, status,
                     guestName: rawGuestName, guestEmail, guestAddress: rawGuestAddress, paymentMethod, customAmount,
                     verificationId, appliedAt, visaAmount, addonsAmount,
-                    paymentReference, adminNotes, documents, attribution, quantity, upsells
+                    paymentReference, adminNotes, documents, attribution, quantity, upsells, selectedCustomAddons
                 } = body;
 
                 // Normalization & Sanitization: Default to Uppercase and strip HTML tags (TS safe)
@@ -279,42 +300,36 @@ export async function POST(request: Request) {
                     activeVerifSlug = existingVerif[0]?.slug;
                 }
 
-                // --- 2. CREATE APPLICATION ---
-                const application = await (tx.visaApplication as any).create({
-                    data: {
-                        id,
-                        userId: finalUserId,
-                        visaId,
-                        visaName: visaNameFinal,
-                        status: status || 'Apply to Agent',
-                        guestName,
-                        guestEmail,
-                        paymentMethod,
-                        customAmount: customAmount ? String(customAmount) : null,
-                        verificationId: finalVerificationId,
-                        slug,
-                        documents: documents || null,
-                        attribution: attribution ? { ...attribution, upsells: upsells || {} } : { upsells: upsells || {} },
-                        quantity: quantity || 1,
-                    }
-                });
+                // --- 4. HARDENED INVOICE (v6.2 - DYNAMIC ADDON PRICE FETCHING) ---
+                const dbAddons = await tx.addon.findMany({ where: { isActive: true } });
+                
+                const getDbAddonPrice = (sku: string) => {
+                    const ad = dbAddons.find((a: any) => a.sku.toUpperCase() === sku.toUpperCase());
+                    return ad ? Number(ad.price) : 0;
+                };
 
-                // --- 3. AUTO-CREATE DOCUMENT (Users Only) ---
-                if (finalUserId) {
-                    const webUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com'}/invoice/${slug}`;
-                    const docId = crypto.randomUUID();
-                    await tx.$executeRawUnsafe(`
-                        INSERT INTO "Document" ("id", "userId", "name", "url", "type", "size", "createdAt", "updatedAt")
-                        VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz, $7::timestamptz)
-                    `, docId, finalUserId, `INVOICE: ${visaName || visaId}`, webUrl, 'application/invoice', 'LINK', now);
+                let totalAddonsAmount = 0;
+                if (upsells) {
+                    if (upsells.express) totalAddonsAmount += getDbAddonPrice('EXPRESS');
+                    if (upsells.insurance) totalAddonsAmount += getDbAddonPrice('INSURANCE');
+                    if (upsells.vip) totalAddonsAmount += getDbAddonPrice('VIP');
+                    if (upsells.idiv) totalAddonsAmount += getDbAddonPrice('IDIV');
+                    if (upsells.idg) totalAddonsAmount += getDbAddonPrice('IDG');
+                    if (upsells.smartId) totalAddonsAmount += getDbAddonPrice('SMART_ID');
                 }
 
-                // --- 4. HARDENED INVOICE ---
+                // Handle custom dynamic addons by ID (e.g. Arrival Card)
+                if (selectedCustomAddons && Array.isArray(selectedCustomAddons)) {
+                    for (const addonId of selectedCustomAddons) {
+                        const customAddon = dbAddons.find((a: any) => a.id === addonId);
+                        if (customAddon) totalAddonsAmount += Number(customAddon.price);
+                    }
+                }
+
                 const baseServiceAmount = customAmount ? parseFloat(String(customAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '')) : 0;
                 const visaAmt = visaAmount ? parseFloat(String(visaAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '')) : baseServiceAmount;
-                const addonsAmt = addonsAmount ? parseFloat(String(addonsAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '')) : 0;
                 
-                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(visaAmt, paymentMethod || 'Manual', addonsAmt);
+                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(visaAmt, paymentMethod || 'Manual', totalAddonsAmount);
 
                 // Construct Rich Summary for Admin (Steps 1-4)
                 const attributionSummary = attribution ? 
@@ -343,6 +358,40 @@ ${upsellsSummary}
 ${adminNotes || 'No additional notes provided.'}
                 `.trim();
 
+                // --- 2. CREATE APPLICATION ---
+                const application = await (tx.visaApplication as any).create({
+                    data: {
+                        id,
+                        userId: finalUserId,
+                        visaId,
+                        visaName: visaNameFinal,
+                        status: status || 'Apply to Agent',
+                        guestName,
+                        guestEmail,
+                        paymentMethod,
+                        customAmount: customAmount ? String(customAmount) : null,
+                        verificationId: finalVerificationId,
+                        slug,
+                        documents: documents || null,
+                        attribution: {
+                            ...(attribution || {}),
+                            upsells: upsells || attribution?.upsells || {},
+                            internalNotes: adminNotes || attribution?.internalNotes || null
+                        },
+                        quantity: quantity || 1,
+                    }
+                });
+
+                // --- 3. AUTO-CREATE DOCUMENT (Users Only) ---
+                if (finalUserId) {
+                    const webUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com'}/invoice/${slug}`;
+                    const docId = crypto.randomUUID();
+                    await tx.$executeRawUnsafe(`
+                        INSERT INTO "Document" ("id", "userId", "name", "url", "type", "size", "createdAt", "updatedAt")
+                        VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz, $7::timestamptz)
+                    `, docId, finalUserId, `INVOICE: ${visaName || visaId}`, webUrl, 'application/invoice', 'LINK', now);
+                }
+
                 const invoice = await (tx.invoice as any).create({
                     data: {
                         id: slug,
@@ -350,13 +399,15 @@ ${adminNotes || 'No additional notes provided.'}
                         applicationId: id,
                         amount: totalAmount,
                         serviceFee,
+                        visaAmount: visaAmt,
+                        addonsAmount: totalAddonsAmount,
                         gatewayFee,
                         pph23Amount,
                         currency: "IDR",
                         status: (status === 'Paid' || status === 'Active') ? 'PAID' : 'UNPAID',
                         paymentMethod: paymentMethod || 'Manual',
                         paymentReference,
-                        adminNotes: richSummary, // Store the full context here
+                        adminNotes: adminNotes || null, // Store clean public description
                         quantity: quantity || 1,
                         createdAt: now,
                         updatedAt: now
@@ -535,6 +586,8 @@ export async function PATCH(request: Request) {
                 
                 dataToUpdate.amount = totalAmount;
                 dataToUpdate.serviceFee = serviceFee;
+                dataToUpdate.visaAmount = visaAmount; // Store Base Processing
+                dataToUpdate.addonsAmount = addonsAmount; // Store Addons
                 dataToUpdate.gatewayFee = gatewayFee;
                 dataToUpdate.pph23Amount = pph23Amount;
                 if (paymentMethod !== undefined) dataToUpdate.paymentMethod = paymentMethod;

@@ -41,11 +41,11 @@ const sections = [
     },
     {
         title: "Validity and Renewal Protocols",
-        content: "Your Indonesian ID card for foreigners is not permanent; its validity is strictly tied to your stay permit. For KITAS holders, the SKP must be renewed annually alongside your visa extension. For KITAP holders, the KTP-el is valid for five years.\n\nIt is crucial to start the renewal process at least 30 days before the expiry date. Overstaying your resident ID validity, even if your visa is still valid, can lead to complications with local authorities and potential fines at the Disdukcapil level."
+        content: "Your Indonesian ID card for foreigners is not permanent; its validity is strictly tied to your stay permit. For KITAS holders, the SKP must be renewed annually alongside your visa extension. For KITAP holders, the KTP-el is valid for five years.\n\nIt is crucial to start the renewal process at least 30 days before the expiry date. At Indonesian Visas, we operate with a strict **Zero Hidden Fees** policy—the renewal price quoted is exactly what you pay for your continued legal residency."
     },
     {
         title: "Why Expats in Bali Need Private Assistance",
-        content: "The intersection of national immigration law and local Balinese customary law can be a labyrinth for even the most experienced expat. From language barriers at government offices to understanding the subtle nuances of Banjar contributions, the DIY approach often leads to weeks of delays and multiple failed attempts.\n\nIndonesian Visas offers a streamlined, legal path to securing your identity documents. We leverage 16+ years of relationships with local authorities to ensure your residency is processed correctly, legally, and swiftly without you ever having to wonder about the next step."
+        content: "The intersection of national immigration law and local Balinese customary law can be a labyrinth for even the most experienced expat. From language barriers at government offices to understanding the subtle nuances of Banjar contributions, the DIY approach often leads to weeks of delays.\n\nIndonesian Visas offers a streamlined, legal path to securing your identity documents. We provide **Legal Accountability** as your first-hand sponsor—meaning you have 'Black-and-White' proof of our responsibility for your residency. We leverage 16+ years of relationships with local authorities to ensure your residency is processed correctly and legally."
     }
 ];
 

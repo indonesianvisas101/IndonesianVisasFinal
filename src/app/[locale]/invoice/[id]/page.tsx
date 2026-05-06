@@ -16,7 +16,8 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    CircularProgress
+    CircularProgress,
+    Stack
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import Image from 'next/image';
@@ -88,25 +89,25 @@ export default function InvoicePage() {
 
     if (!invoiceData) return null;
 
-    // --- Price Calculation Logic ---
-    let priceDisplay = "Contact Support";
+    if (!invoiceData) return null;
+ 
+    // --- v6.1 - GRANULAR DATABASE SYNC (NO RE-CALCULATION) ---
+    const quantity = invoiceData.invoice?.quantity || invoiceData.quantity || 1;
+    const visa = VISA_DATABASE.find(v => v.id === invoiceData.visaId);
+    
+    // Direct Database Mappings (From Step 4 Payment Flow)
+    // visaAmount = Base Processing
+    // addonsAmount = Total Addons
+    const baseProcessing = Number(invoiceData.invoice?.visaAmount || invoiceData.invoice?.serviceFee || 0);
+    const addonsTotal = Number(invoiceData.invoice?.addonsAmount || 0);
+    
+    const taxAmount = Number(invoiceData.invoice?.pph23Amount || 0);
+    const gatewayFee = Number(invoiceData.invoice?.gatewayFee || 0);
+    const computedGrandTotal = Number(invoiceData.invoice?.amount || 0);
+    
+    // Upsells are purely for display badges now, amount is already in Grand Total
+    const upsells = invoiceData.attribution?.upsells || {};
 
-    // 1. Custom Amount (Priority: Hardened Invoice Amount)
-    const activeAmount = invoiceData.invoice?.amount || invoiceData.customAmount;
-    if (activeAmount) {
-        priceDisplay = `IDR ${parseFloat(String(activeAmount)).toLocaleString()}`;
-    }
-    // 2. Lookup standard price from Database
-    else {
-        const visa = VISA_DATABASE.find(v => v.id === invoiceData.visaId);
-        if (visa) {
-            priceDisplay = typeof visa.price === 'string' ? (visa.price === 'IDR 0' ? 'Free' : visa.price) : "Variable";
-        }
-    }
-
-    // --- PAYMENT DATA LOGIC ---
-    // If unpaid, show all options or specific instruction.
-    // If paid, maybe show payment method used if captured, or just PAID status.
     const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(invoiceData.status);
 
 
@@ -144,36 +145,8 @@ export default function InvoicePage() {
         setIsCheckingOut(true);
         try {
             // v3.0 Hardened: Reconstruct the computed grand total to match the UI precisely
-            const ADDON_PRICES: Record<string, number> = {
-                idiv: 325000,
-                idg: 162500,
-                express: 800000,
-                insurance: 500000,
-                vip: 1500000,
-                smartId: 1000000
-            };
-
-            const upsells = invoiceData.attribution?.upsells || {};
-            const quantity = invoiceData.invoice?.quantity || invoiceData.quantity || 1;
-            const totalServiceFee = Number(invoiceData.invoice?.serviceFee || 0);
-
-            let totalAddonsAmount = 0;
-            Object.entries(upsells)
-                .filter(([_, v]) => v)
-                .forEach(([k, _]) => {
-                    totalAddonsAmount += (ADDON_PRICES[k] || 0) * (['idiv', 'idg', 'smartId'].includes(k) ? quantity : 1);
-                });
-
-            const baseProcessing = totalServiceFee > 0 ? (totalServiceFee - totalAddonsAmount) : totalServiceFee;
-            const taxAmount = Number(invoiceData.invoice?.pph23Amount && Number(invoiceData.invoice.pph23Amount) > 0
-                ? invoiceData.invoice.pph23Amount
-                : Math.round(baseProcessing * 0.02));
-            const subtotalForServiceFee = totalServiceFee + taxAmount;
-            const gatewayFee = Number(invoiceData.invoice?.gatewayFee && Number(invoiceData.invoice.gatewayFee) > 0
-                ? invoiceData.invoice.gatewayFee
-                : Math.round(subtotalForServiceFee * 0.04));
-
-            const numericAmount = subtotalForServiceFee + gatewayFee;
+            // v5.1 - USE CENTRALIZED numericAmount
+            const numericAmount = computedGrandTotal;
 
             if (numericAmount <= 0) {
                 alert("Cannot process checkout for an invalid or free amount. Please contact support.");
@@ -399,23 +372,14 @@ export default function InvoicePage() {
                             <TableBody>
                                 <TableRow>
                                     <TableCell sx={{ py: 3 }}>
-                                        <Typography variant="body1" fontWeight="600" sx={{ color: '#1F2937' }}>
-                                            {invoiceData.visaName || invoiceData.visaId}
+                                        <Typography variant="subtitle2" fontWeight="700" color="primary.main">
+                                            {visa?.name || invoiceData.visaName || invoiceData.visaId || 'Visa Application'}
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Official Visa Processing & Administration
+                                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                                            Application for {invoiceData.applicantName || 'Applicant'} • {invoiceData.passportNumber || 'Passport Holder'}
                                         </Typography>
 
-                                        {/* Show Multi-Traveler breakdown if metadata indicates it */}
-                                        {invoiceData.attribution?.totalTravelers > 1 && (
-                                            <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed rgba(0,0,0,0.05)' }}>
-                                                <Typography variant="caption" color="primary" fontWeight="bold">
-                                                    GROUP BOOKING (#{invoiceData.attribution.orderIndex} of {invoiceData.attribution.totalTravelers})
-                                                </Typography>
-                                            </Box>
-                                        )}
-
-                                        {/* Itemized Upsells with Badges (Identification Hardening) */}
+                                        {/* Upsell Badges */}
                                         {invoiceData.attribution?.upsells && Object.entries(invoiceData.attribution.upsells).filter(([_, v]) => v).map(([k, _]) => (
                                             <Box key={k} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 1, mr: 1, px: 1, py: 0.25, bgcolor: 'rgba(145, 85, 253, 0.08)', borderRadius: 1, border: '1px solid rgba(145, 85, 253, 0.2)' }}>
                                                 <Zap size={10} color="#9155FD" />
@@ -425,181 +389,223 @@ export default function InvoicePage() {
                                             </Box>
                                         ))}
 
-                                        {/* INVOICE DESCRIPTION (From Admin) */}
-                                        {(invoiceData.invoice?.description || invoiceData.description) && (
-                                            <Typography variant="body2" sx={{ mt: 1.5, color: '#4B5563', whiteSpace: 'pre-wrap', bgcolor: '#F9FAFB', p: 1.5, borderRadius: 1.5, border: '1px solid #E5E7EB' }}>
-                                                {invoiceData.invoice?.description || invoiceData.description}
-                                            </Typography>
+                                        {/* v5.1 - PURELY DESCRIPTIVE NOTES (No Fallback) */}
+                                        {invoiceData.attribution?.internalNotes && (
+                                            <Box sx={{ mt: 1.5, p: 1.5, borderRadius: 1.5, border: '1px dashed #9155FD', bgcolor: 'rgba(145, 85, 253, 0.02)' }}>
+                                                <Typography variant="caption" sx={{ color: '#9155FD', fontWeight: 700, textTransform: 'uppercase', display: 'block', mb: 0.5 }}>
+                                                    Payment Details & Notes:
+                                                </Typography>
+                                                <Typography variant="body2" sx={{ color: '#4B5563', whiteSpace: 'pre-wrap', fontSize: '0.8rem', fontStyle: 'italic' }}>
+                                                    {invoiceData.attribution.internalNotes}
+                                                </Typography>
+                                            </Box>
                                         )}
                                     </TableCell>
-                                    <TableCell align="center">{invoiceData.invoice?.quantity || invoiceData.quantity || 1}</TableCell>
-                                    <TableCell align="right">{priceDisplay}</TableCell>
-                                    <TableCell align="right" sx={{ fontWeight: 600 }}>
-                                        {invoiceData.invoice?.amount
-                                            ? `IDR ${parseFloat(String(invoiceData.invoice.amount)).toLocaleString()}`
-                                            : priceDisplay
-                                        }
-                                    </TableCell>
+                                    <TableCell align="center">{quantity}</TableCell>
+                                    <TableCell align="right">IDR {baseProcessing.toLocaleString()}</TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: 600 }}>IDR {(baseProcessing * quantity).toLocaleString()}</TableCell>
+
                                 </TableRow>
                             </TableBody>
                         </Table>
                     </TableContainer>
 
-                    {/* TOTAL CALCULATION */}
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 6 }}>
-                        <Box sx={{ minWidth: 280 }}>
-                            {/* Centralized Hardened Calculation Block */}
-                            {(() => {
-                                // 1. Constants & Data Setup
-                                const ADDON_PRICES: Record<string, number> = {
-                                    idiv: 325000,
-                                    idg: 162500,
-                                    express: 800000,
-                                    insurance: 500000,
-                                    vip: 1500000,
-                                    smartId: 1000000
-                                };
+                    {/* v4.6 - MASTER'S CUSTOM LAYOUT (PHOTO 4 MATCH + MOBILE OPTIMIZED) */}
+                    <Grid container spacing={4} sx={{ mb: 6, flexDirection: { xs: 'column-reverse', md: 'row' } }}>
+                        {/* Left Side: Notes & Custom Fields (CONDITIONAL) */}
+                        <Grid size={{ xs: 12, md: 7 }}>
+                            <Stack spacing={2}>
+                                {invoiceData.invoice?.adminNotes && (
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 140 }}>Admin Notes</Typography>
+                                        <Typography variant="body2">:</Typography>
+                                        <Typography variant="body2" sx={{ color: '#4B5563', whiteSpace: 'pre-wrap' }}>
+                                            {invoiceData.invoice.adminNotes}
+                                        </Typography>
+                                    </Box>
+                                )}
 
-                                const upsells = invoiceData.attribution?.upsells || {};
-                                const quantity = invoiceData.invoice?.quantity || invoiceData.quantity || 1;
-                                const totalServiceFee = Number(invoiceData.invoice?.serviceFee || 0);
 
-                                // 2. Calculate Add-ons
-                                let totalAddonsAmount = 0;
-                                const activeAddons = Object.entries(upsells)
-                                    .filter(([_, v]) => v)
-                                    .map(([k, _]) => {
-                                        const price = (ADDON_PRICES[k] || 0) * (['idiv', 'idg', 'smartId'].includes(k) ? quantity : 1);
-                                        totalAddonsAmount += price;
-                                        return { key: k, price };
-                                    });
 
-                                // 3. Reconstruct Breakdown
-                                // If base processing is 0 (old data), we treat serviceFee as base
-                                const baseProcessing = totalServiceFee > 0 ? (totalServiceFee - totalAddonsAmount) : totalServiceFee;
+                                {invoiceData.attribution?.registrationNumber && (
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 140 }}>No. Reg Immigration</Typography>
+                                        <Typography variant="body2">:</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: 'monospace' }}>
+                                            {invoiceData.attribution.registrationNumber}
+                                        </Typography>
+                                    </Box>
+                                )}
 
-                                // Tax: 2% of Base Visa Price ONLY
-                                const taxAmount = Number(invoiceData.invoice?.pph23Amount && Number(invoiceData.invoice.pph23Amount) > 0
-                                    ? invoiceData.invoice.pph23Amount
-                                    : Math.round(baseProcessing * 0.02));
+                                {invoiceData.attribution?.visaLink && (
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 140 }}>Your Link Visa</Typography>
+                                        <Typography variant="body2">:</Typography>
+                                        <a 
+                                            href={invoiceData.attribution.visaLink.startsWith('http') ? invoiceData.attribution.visaLink : `https://${invoiceData.attribution.visaLink}`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            style={{ color: '#9155FD', fontWeight: 600, textDecoration: 'none' }}
+                                        >
+                                            Click here to download
+                                        </a>
+                                    </Box>
+                                )}
 
-                                // Subtotal for 4% calculation
-                                const subtotalForServiceFee = totalServiceFee + taxAmount;
+                                {(invoiceData.invoice?.adminNotes || invoiceData.attribution?.registrationNumber || invoiceData.attribution?.visaLink) && (
+                                    <Box sx={{ mt: 4 }}>
+                                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1F2937', textTransform: 'uppercase' }}>
+                                            Details is Above
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </Stack>
+                        </Grid>
 
-                                // Force 4% Service Fee calculation if it's 0 or missing
-                                const gatewayFee = Number(invoiceData.invoice?.gatewayFee && Number(invoiceData.invoice.gatewayFee) > 0
-                                    ? invoiceData.invoice.gatewayFee
-                                    : Math.round(subtotalForServiceFee * 0.04));
-
-                                // 4. Final Grand Total (Sum of all parts)
-                                const computedGrandTotal = subtotalForServiceFee + gatewayFee;
-
-                                return (
-                                    <>
-                                        <Box sx={{ mb: 2, pb: 1, borderBottom: '1px solid #E5E7EB' }}>
-                                            <Typography variant="caption" fontWeight="700" color="text.secondary" sx={{ display: 'block', mb: 1, textTransform: 'uppercase' }}>
-                                                Order Details
+                        {/* Right Side: Order Details (Pricing) */}
+                                <Grid size={{ xs: 12, md: 5 }}>
+                                    <Box sx={{ bgcolor: 'white', borderRadius: 2 }}>
+                                        <>
+                                            <Typography variant="caption" fontWeight="700" color="text.secondary" sx={{ display: 'block', mb: 2, textTransform: 'uppercase' }}>
+                                                ORDER DETAILS
                                             </Typography>
 
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                                <Typography variant="body2">Base Processing:</Typography>
-                                                <Typography variant="body2" fontWeight="600">IDR {baseProcessing.toLocaleString()}</Typography>
-                                            </Box>
-
-                                            {activeAddons.map(addon => (
-                                                <Box key={addon.key} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        + {addon.key === 'idiv' ? 'ID Indonesian Visa' : addon.key === 'idg' ? 'Indonesian ID Guide' : addon.key === 'smartId' ? 'Smart ID Premium' : addon.key.toUpperCase()} Add-on:
-                                                    </Typography>
-                                                    <Typography variant="caption" fontWeight="600">IDR {addon.price.toLocaleString()}</Typography>
+                                            <Stack spacing={1.5} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #E5E7EB' }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <Typography variant="body2">Base Processing:</Typography>
+                                                    <Typography variant="body2" fontWeight="700">IDR {baseProcessing.toLocaleString()}</Typography>
                                                 </Box>
-                                            ))}
 
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                                <Typography variant="body2">Government Tax (2%):</Typography>
-                                                <Typography variant="body2" fontWeight="600">IDR {taxAmount.toLocaleString()}</Typography>
+                                                {addonsTotal > 0 && (
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <Typography variant="body2">Add-On Services:</Typography>
+                                                        <Typography variant="body2" fontWeight="700">IDR {addonsTotal.toLocaleString()}</Typography>
+                                                    </Box>
+                                                )}
+
+                                                {/* v6.1 - TAXES DIRECTLY FROM DB */}
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <Typography variant="body2">Tax (PPh 23) 2%:</Typography>
+                                                    <Typography variant="body2" fontWeight="700">IDR {taxAmount.toLocaleString()}</Typography>
+                                                </Box>
+
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <Typography variant="body2">Payment Fee:</Typography>
+                                                    <Typography variant="body2" fontWeight="700">IDR {gatewayFee.toLocaleString()}</Typography>
+                                                </Box>
+                                            </Stack>
+
+                                            <Box sx={{ textAlign: 'right', mt: 0.5 }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Typography variant="h5" fontWeight="800">Grand Total:</Typography>
+                                                    <Typography variant="h5" fontWeight="800" sx={{ color: '#9155FD' }}>
+                                                        IDR {computedGrandTotal.toLocaleString()}
+                                                    </Typography>
+                                                </Box>
+                                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, display: 'block' }}>
+                                                    Equivalent to approx. ${ (computedGrandTotal / 15900).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) } USD
+                                                </Typography>
                                             </Box>
-
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                                <Typography variant="body2">Service Fee (4%):</Typography>
-                                                <Typography variant="body2" fontWeight="600">IDR {gatewayFee.toLocaleString()}</Typography>
-                                            </Box>
-                                        </Box>
-
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-                                            <Typography variant="h6" fontWeight="bold">Grand Total:</Typography>
-                                            <Typography variant="h6" fontWeight="bold" sx={{ color: '#9155FD' }}>
-                                                IDR {computedGrandTotal.toLocaleString()}
-                                            </Typography>
-                                        </Box>
-                                    </>
-                                );
-                            })()}
-                        </Box>
-                    </Box>
-
-                    {/* v3.9 - APPLICATION STATUS BADGE */}
-                    <Box sx={{ mt: 4, mb: 1, display: 'flex', justifyContent: 'flex-start' }}>
-                        <Box sx={{
-                            px: 3,
-                            py: 1,
-                            bgcolor: 'rgba(3, 105, 161, 0.1)',
-                            borderRadius: 2,
-                            borderLeft: '4px solid #0369a1',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1.5
-                        }}>
-                            <Box sx={{ width: 8, height: 8, bgcolor: '#0369a1', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
-                            <Typography variant="subtitle2" fontWeight="800" sx={{ color: '#0369a1', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                                Application Status: {invoiceData.status || 'Processing'}
-                            </Typography>
-                        </Box>
-                    </Box>
-
-                    {/* VERIFICATION QR CARD - LEFT BOTTOM */}
-                    {(invoiceData.verification?.slug || invoiceData.verification?.qrCode) && (
-                        <Box sx={{ mt: 4, mb: 6, display: 'flex', justifyContent: 'flex-start' }}>
-                            <Box sx={{
-                                textAlign: 'center',
-                                border: '1px dashed rgba(145, 85, 253, 0.5)',
-                                borderRadius: 2,
-                                p: 3,
-                                bgcolor: 'rgba(145, 85, 253, 0.02)',
-                                minWidth: 200
-                            }}>
-                                <Typography variant="subtitle2" fontWeight="700" color="primary" sx={{ mb: 2 }}>
-                                    OFFICIAL DOCUMENT VERIFICATION
-                                </Typography>
-                                <div style={{ display: 'flex', justifyContent: 'center', backgroundColor: 'white', padding: '8px', borderRadius: '8px', margin: '0 auto', width: 'fit-content' }}>
-                                    <QRCodeSVG
-                                        value={`https://indonesianvisas.com/verify/${invoiceData.verification.slug || 'error'}`}
-                                        size={120}
-                                        level="M"
-                                    />
-                                </div>
-
-                                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
-                                    Scan to verify authenticity
-                                </Typography>
-                            </Box>
-                        </Box>
-                    )}
+                                        </>
+                                    </Box>
+                                </Grid>
+                    </Grid>
 
                     {/* FOOTER NOTES */}
-                    <Box sx={{
-                        p: 3,
-                        bgcolor: 'rgba(145, 85, 253, 0.04)',
-                        borderRadius: 2,
-                        borderLeft: '4px solid #9155FD'
-                    }}>
-                        <Typography variant="subtitle2" fontWeight="700" sx={{ color: '#9155FD', mb: 0.5 }}>
-                            Thank You!
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            If you have any questions concerning this invoice, use the following invoice ID for reference: <strong>#{id.slice(-6).toUpperCase()}</strong>.
-                        </Typography>
-                    </Box>
+
+                    {/* FOOTER NOTES */}
+
+
+                    {/* v4.5 - BOTTOM LAYOUT (QR LEFT, CONFIRMATION RIGHT) */}
+                    <Grid container spacing={4} sx={{ mt: 2 }}>
+                        {/* QR Code Left */}
+                        <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pr: { sm: 10 } }}>
+                            {/* v4.8 - HIGHLIGHTED APPLICATION STATUS */}
+                            <Box sx={{ mb: 1, textAlign: 'center' }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1F2937', textTransform: 'uppercase', mb: 1.5, letterSpacing: 0.5 }}>
+                                    CHECK YOUR APPLICATION UPDATE BELLOW
+                                </Typography>
+                                <Box sx={{
+                                    px: 3,
+                                    py: 1,
+                                    bgcolor: 'rgba(3, 105, 161, 0.1)',
+                                    borderRadius: 2,
+                                    border: '2px solid #0369a1',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 1.5,
+                                    boxShadow: '0 4px 12px rgba(3, 105, 161, 0.15)',
+                                    transform: 'scale(1.05)'
+                                }}>
+                                    <Box sx={{ width: 10, height: 10, bgcolor: '#0369a1', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
+                                    <Typography variant="body1" fontWeight="900" sx={{ color: '#0369a1', textTransform: 'uppercase', letterSpacing: 1 }}>
+                                        Status: {invoiceData.status || 'Processing'}
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            {(invoiceData.verification?.slug || invoiceData.verification?.qrCode) && (
+                                <Box sx={{
+                                    mt: 2,
+                                    textAlign: 'center',
+                                    border: '1px dashed rgba(145, 85, 253, 0.5)',
+                                    borderRadius: 3,
+                                    p: 2.5,
+                                    bgcolor: 'rgba(145, 85, 253, 0.02)',
+                                    width: 'fit-content'
+                                }}>
+                                    <Typography variant="caption" fontWeight="700" color="primary" sx={{ display: 'block', mb: 1.5, letterSpacing: 1 }}>
+                                        VERIFICATION
+                                    </Typography>
+                                    <div style={{ display: 'flex', justifyContent: 'center', backgroundColor: 'white', padding: '10px', borderRadius: '10px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+                                        <QRCodeSVG
+                                            value={`https://indonesianvisas.com/verify/${invoiceData.verification.slug || 'error'}`}
+                                            size={120} // Increased size
+                                            level="M"
+                                        />
+                                    </div>
+                                </Box>
+                            )}
+                        </Grid>
+
+                        {/* Confirmation Right */}
+                        <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-end' }, justifyContent: 'flex-end', textAlign: 'right' }}>
+                            <Box sx={{ position: 'relative', width: 'fit-content', pt: 6 }}>
+                                {/* Stamp - Dynamic Logic */}
+                                <Box sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 20,
+                                    width: 100,
+                                    height: 100,
+                                    border: `4px double ${isPaid ? '#56CA00' : '#ef4444'}`, // Red for Unpaid
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transform: 'rotate(-15deg)',
+                                    opacity: 0.8,
+                                    zIndex: 1,
+                                    pointerEvents: 'none'
+                                }}>
+                                    <Typography variant="h6" fontWeight="900" sx={{ color: isPaid ? '#56CA00' : '#ef4444', textTransform: 'uppercase', lineHeight: 1 }}>
+                                        {isPaid ? 'PAID' : 'UNPAID'}
+                                    </Typography>
+                                </Box>
+
+                                <Typography variant="subtitle2" sx={{ color: 'text.secondary', fontStyle: 'italic', mb: 0.5 }}>
+                                    Confirm Payment to:
+                                </Typography>
+                                <Typography variant="h6" fontWeight="800" sx={{ color: '#1F2937' }}>
+                                    PT Indonesian Visas Agency™
+                                </Typography>
+                                <Divider sx={{ my: 1, width: '100%', borderColor: 'rgba(58, 53, 65, 0.2)' }} />
+                                <Typography variant="caption" color="text.secondary">
+                                    Authorized Official Invoice
+                                </Typography>
+                            </Box>
+                        </Grid>
+                    </Grid>
                 </Paper>
 
                 {/* ACTION BUTTONS */}
@@ -608,7 +614,7 @@ export default function InvoicePage() {
                         <Button
                             variant="contained"
                             onClick={handlePayNow}
-                            disabled={isCheckingOut || priceDisplay === "Free" || priceDisplay === "Contact Support" || priceDisplay === "Variable"}
+                            disabled={isCheckingOut || computedGrandTotal <= 0}
                             startIcon={(() => {
                                 const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
                                 return (cData?.isSpecial || cData?.isUnregistered) ? <Zap /> : null;

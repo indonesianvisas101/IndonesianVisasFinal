@@ -105,11 +105,20 @@ export default async function LocaleLayout({
         {/* PERFORMANCE: Resource Hints — parallel DNS + TLS handshake */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://thvdfcogdxmqipybqzot.supabase.co" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <link rel="dns-prefetch" href="https://checkout.doku.com" />
         <link rel="dns-prefetch" href="https://www.paypal.com" />
+        
+        {/* Critical Flags Prefetch — Top Citizenships */}
+        <link rel="prefetch" href="https://flagcdn.com/w20/id.png" />
+        <link rel="prefetch" href="https://flagcdn.com/w20/us.png" />
+        <link rel="prefetch" href="https://flagcdn.com/w20/gb.png" />
+        <link rel="prefetch" href="https://flagcdn.com/w20/ru.png" />
+        <link rel="prefetch" href="https://flagcdn.com/w20/au.png" />
+        <link rel="prefetch" href="https://flagcdn.com/w20/cn.png" />
         <GoogleTagManagerWrapper gtmId="GTM-N6M9K96X" />
         {/* PERFORMANCE: WebSite schema for Sitelinks Searchbox */}
         <script
@@ -470,7 +479,7 @@ export default async function LocaleLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         <GlobalUIProvider>
           <Suspense fallback={null}>
             <GlobalUIOverlay />

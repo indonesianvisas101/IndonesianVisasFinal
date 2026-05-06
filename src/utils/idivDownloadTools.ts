@@ -26,29 +26,32 @@ export const downloadIDiv = async (
             cacheBust: true,
         };
 
+        const stdWidth = element.offsetWidth;
+        const stdHeight = stdWidth / 1.58; // ALWAYS use standard ratio for export
+
         if (format === 'png') {
-            const dataUrl = await toPng(element, options);
+            const dataUrl = await toPng(element, { ...options, width: stdWidth, height: stdHeight });
             const link = document.createElement('a');
             link.download = `${fileName}.png`;
             link.href = dataUrl;
             link.click();
         } 
         else if (format === 'jpeg') {
-            const dataUrl = await toJpeg(element, { ...options, quality: 0.95 });
+            const dataUrl = await toJpeg(element, { ...options, width: stdWidth, height: stdHeight, quality: 0.95 });
             const link = document.createElement('a');
             link.download = `${fileName}.jpg`;
             link.href = dataUrl;
             link.click();
         }
         else if (format === 'pdf') {
-            const dataUrl = await toPng(element, options);
+            const dataUrl = await toPng(element, { ...options, width: stdWidth, height: stdHeight });
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'px',
-                format: [element.offsetWidth * 3, element.offsetHeight * 3]
+                format: [stdWidth * 3, stdHeight * 3]
             });
             
-            pdf.addImage(dataUrl, 'PNG', 0, 0, element.offsetWidth * 3, element.offsetHeight * 3);
+            pdf.addImage(dataUrl, 'PNG', 0, 0, stdWidth * 3, stdHeight * 3);
             pdf.save(`${fileName}.pdf`);
         }
     } catch (error) {
@@ -83,8 +86,11 @@ export const downloadIDivDual = async (
         backEl.style.transform = 'none'; 
         backEl.style.backfaceVisibility = 'visible';
         
-        const frontDataUrl = await toPng(frontEl, options);
-        const backDataUrl = await toPng(backEl, options);
+        const stdWidth = frontEl.offsetWidth;
+        const stdHeight = stdWidth / 1.58; // Standard ratio for all exports
+
+        const frontDataUrl = await toPng(frontEl, { ...options, width: stdWidth, height: stdHeight });
+        const backDataUrl = await toPng(backEl, { ...options, width: stdWidth, height: stdHeight });
 
         // Restore original flip transform
         backEl.style.transform = originalTransform;
@@ -94,15 +100,15 @@ export const downloadIDivDual = async (
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'px',
-                format: [frontEl.offsetWidth * 3, frontEl.offsetHeight * 3]
+                format: [stdWidth * 3, stdHeight * 3]
             });
             
             // Page 1: Front
-            pdf.addImage(frontDataUrl, 'PNG', 0, 0, frontEl.offsetWidth * 3, frontEl.offsetHeight * 3);
+            pdf.addImage(frontDataUrl, 'PNG', 0, 0, stdWidth * 3, stdHeight * 3);
             
             // Page 2: Back
-            pdf.addPage([frontEl.offsetWidth * 3, frontEl.offsetHeight * 3], 'landscape');
-            pdf.addImage(backDataUrl, 'PNG', 0, 0, frontEl.offsetWidth * 3, frontEl.offsetHeight * 3);
+            pdf.addPage([stdWidth * 3, stdHeight * 3], 'landscape');
+            pdf.addImage(backDataUrl, 'PNG', 0, 0, stdWidth * 3, stdHeight * 3);
             
             pdf.save(`${fileName}.pdf`);
         } else {

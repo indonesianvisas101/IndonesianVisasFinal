@@ -64,7 +64,10 @@ export default function InvoicingTab() {
         appliedAt: "", // For backdating
         // New
         paymentReference: "",
-        adminNotes: ""
+        adminNotes: "", // In Create mode, this is "Invoice Description (Public)"
+        internalNotes: "", // Internal
+        registrationNumber: "",
+        visaLink: ""
     });
 
     // Edit State
@@ -73,17 +76,17 @@ export default function InvoicingTab() {
         status: "",
         paymentStatus: "",
         paymentReference: "",
-        adminNotes: "",
+        adminNotes: "", // This maps to "Invoice Description (Public)" in UI but saved as adminNotes in DB
+        internalNotes: "", // New: Saved in attribution.internalNotes
         guestName: "",
         guestEmail: "",
         visaName: "",
         customAmount: "",
         userId: "",
-        description: "",
-        attribution: {
-            phone: "",
-            country: ""
-        },
+        description: "", // We'll keep this for the "Public Description" field mapping
+        registrationNumber: "", // New
+        visaLink: "", // New
+        attribution: {} as any,
         verificationAddress: ""
     });
 
@@ -142,7 +145,13 @@ export default function InvoicingTab() {
                 guestName: invoiceMode === 'guest' ? formData.guestName : null,
                 guestEmail: invoiceMode === 'guest' ? formData.guestEmail : null,
                 guestAddress: invoiceMode === 'guest' ? formData.guestAddress : null,
-                appliedAt: formData.appliedAt || null
+                appliedAt: formData.appliedAt || null,
+                attribution: {
+                    registrationNumber: formData.registrationNumber,
+                    visaLink: formData.visaLink,
+                    internalNotes: formData.internalNotes
+                },
+                adminNotes: formData.adminNotes // Maps to DB adminNotes (Public Description)
             };
 
             const res = await fetch('/api/applications', {
@@ -223,23 +232,23 @@ export default function InvoicingTab() {
     };
 
     const handleEditClick = (inv: any) => {
-        const linkedInvoice = inv.invoice || inv; // Handle raw invoice or nested invoice
-        setEditingInvoice(inv); // FIX: Must set editing invoice state for handleUpdate to proceed
+        const linkedInvoice = inv.invoice || inv;
+        setEditingInvoice(inv);
         setEditFormData({
             status: inv.status || "Apply to Agent",
-            paymentStatus: ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved", "PAID"].includes(inv.status) || linkedInvoice.status === 'PAID' ? 'PAID' : 'UNPAID', // Heuristic
+            paymentStatus: ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved", "PAID"].includes(inv.status) || linkedInvoice.status === 'PAID' ? 'PAID' : 'UNPAID',
             paymentReference: linkedInvoice.paymentReference || '',
-            adminNotes: linkedInvoice.adminNotes || '',
+            adminNotes: linkedInvoice.adminNotes || '', // Public Description
+            internalNotes: inv.attribution?.internalNotes || '',
             guestName: inv.guestName || inv.user?.name || '',
             guestEmail: inv.guestEmail || inv.user?.email || '',
             visaName: inv.visaName || inv.visaId || '',
             customAmount: inv.customAmount || linkedInvoice.amount || '',
             userId: inv.userId || inv.user_id || '',
-            description: linkedInvoice.description || inv.description || '',
-            attribution: {
-                phone: inv.attribution?.phone || '',
-                country: inv.attribution?.country || ''
-            },
+            description: linkedInvoice.adminNotes || inv.adminNotes || '', // Sync with adminNotes
+            registrationNumber: inv.attribution?.registrationNumber || '',
+            visaLink: inv.attribution?.visaLink || '',
+            attribution: inv.attribution || {}, // PRESERVE ALL (including upsells)
             verificationAddress: inv.verification?.address || ''
         });
         setOpenEditDialog(true);
@@ -280,7 +289,10 @@ export default function InvoicingTab() {
             status: "Apply to Agent",
             appliedAt: "",
             paymentReference: "",
-            adminNotes: ""
+            adminNotes: "",
+            internalNotes: "",
+            registrationNumber: "",
+            visaLink: ""
         });
         setInvoiceMode('guest');
     };
@@ -497,13 +509,29 @@ export default function InvoicingTab() {
                         )}
 
                         <TextField
-                            label="Description (Optional)"
+                            label="Invoice Description (Public)"
                             fullWidth
                             multiline
                             rows={3}
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            value={formData.adminNotes}
+                            onChange={(e) => setFormData({ ...formData, adminNotes: e.target.value })}
+                            helperText="This appears as 'Admin Notes' in the public invoice and PDF."
                         />
+
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                            <TextField
+                                label="Immigration Reg No."
+                                fullWidth
+                                value={formData.registrationNumber}
+                                onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
+                            />
+                            <TextField
+                                label="Visa Download Link"
+                                fullWidth
+                                value={formData.visaLink}
+                                onChange={(e) => setFormData({ ...formData, visaLink: e.target.value })}
+                            />
+                        </Stack>
 
                         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                             <TextField
@@ -542,12 +570,13 @@ export default function InvoicingTab() {
                         />
 
                         <TextField
-                            label="Admin Notes (Internal)"
+                            label="Admin Internal Notes (Private)"
                             fullWidth
                             multiline
                             rows={2}
-                            value={formData.adminNotes}
-                            onChange={(e) => setFormData({ ...formData, adminNotes: e.target.value })}
+                            value={formData.internalNotes}
+                            onChange={(e) => setFormData({ ...formData, internalNotes: e.target.value })}
+                            helperText="Internal use only. Not shown to customer."
                         />
 
                         <TextField
@@ -642,10 +671,33 @@ export default function InvoicingTab() {
                             fullWidth
                             multiline
                             rows={3}
-                            value={editFormData.description}
-                            onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
-                            helperText="This appears in the ITEM DESCRIPTION section on the public invoice and PDF."
+                            value={editFormData.adminNotes}
+                            onChange={(e) => setEditFormData({ ...editFormData, adminNotes: e.target.value })}
+                            helperText="This appears as 'Admin Notes' in the public invoice and PDF."
                         />
+
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                            <TextField
+                                label="Immigration Reg No."
+                                fullWidth
+                                value={editFormData.registrationNumber}
+                                onChange={(e) => setEditFormData({ 
+                                    ...editFormData, 
+                                    registrationNumber: e.target.value,
+                                    attribution: { ...editFormData.attribution, registrationNumber: e.target.value }
+                                })}
+                            />
+                            <TextField
+                                label="Visa Download Link"
+                                fullWidth
+                                value={editFormData.visaLink}
+                                onChange={(e) => setEditFormData({ 
+                                    ...editFormData, 
+                                    visaLink: e.target.value,
+                                    attribution: { ...editFormData.attribution, visaLink: e.target.value }
+                                })}
+                            />
+                        </Stack>
 
                         <TextField
                             select
@@ -708,12 +760,17 @@ export default function InvoicingTab() {
                         </Box>
 
                         <TextField
-                            label="Admin Internal Notes"
+                            label="Admin Internal Notes (Private)"
                             fullWidth
                             multiline
                             rows={2}
-                            value={editFormData.adminNotes}
-                            onChange={(e) => setEditFormData({ ...editFormData, adminNotes: e.target.value })}
+                            value={editFormData.internalNotes}
+                            onChange={(e) => setEditFormData({ 
+                                ...editFormData, 
+                                internalNotes: e.target.value,
+                                attribution: { ...editFormData.attribution, internalNotes: e.target.value }
+                            })}
+                            helperText="This is for internal use only and will NOT be shown to the customer."
                         />
 
                         <Box sx={{ p: 2, bgcolor: 'primary.50', borderRadius: 2, border: '1px dashed primary.main' }}>

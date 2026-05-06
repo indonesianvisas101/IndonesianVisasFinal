@@ -209,6 +209,7 @@ export const HeroBadge = () => {
             {/* ── JSON-LD: Organization schema (SEO / machine-readable) ── */}
             <script
                 type="application/ld+json"
+                suppressHydrationWarning
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(LEGAL_JSON_LD) }}
             />
 

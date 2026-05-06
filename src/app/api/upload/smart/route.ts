@@ -31,11 +31,15 @@ export async function POST(request: Request) {
 
         // SMART PROCESSING MACHINE
         if (file.type.startsWith('image/')) {
-            console.log(`SmartUpload: Converting ${file.name} (${file.type}) to WebP...`);
+            console.log(`SmartUpload: Converting ${file.name} (${file.type}) to WebP with High Compression...`);
             
-            // Convert to WebP using Sharp
+            // Convert to WebP using Sharp - Aggressive 70% quality as requested
             const webpBuffer = await sharp(buffer)
-                .webp({ quality: 80 }) // 80 is the sweet spot for web
+                .webp({ 
+                    quality: 70, // Targeted 30-50% reduction
+                    effort: 6,   // Higher effort for better compression
+                    lossless: false 
+                })
                 .toBuffer();
             
             buffer = webpBuffer;
@@ -45,11 +49,13 @@ export async function POST(request: Request) {
             fileName = `${baseName}.webp`;
             contentType = 'image/webp';
             
-            console.log(`SmartUpload: Conversion complete. New size: ${(buffer.length / 1024).toFixed(2)} KB`);
+            console.log(`SmartUpload: Conversion complete. New size: ${(buffer.length / 1024).toFixed(2)} KB (Reduced by ${((1 - (buffer.length / file.size)) * 100).toFixed(0)}%)`);
         } 
         else if (file.type === 'application/pdf') {
-            console.log(`SmartUpload: Processing PDF ${file.name}...`);
-            // PDF compression can be added here in the future if needed
+            console.log(`SmartUpload: Hardening PDF ${file.name}...`);
+            // Note: Native PDF compression in Node without Ghostscript is limited.
+            // We ensure correct binary preservation and content-typing to avoid "HTML Mode" corruption.
+            contentType = 'application/pdf'; 
         }
 
         // Finalize File Name with Timestamp for uniqueness

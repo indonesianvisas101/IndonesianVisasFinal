@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ShieldCheck, Lock, CheckCircle2, Globe, Zap, ShieldAlert, ArrowRight, Search } from "lucide-react";
+import { ShieldCheck, Lock, CheckCircle2, Globe, Zap, ShieldAlert, ArrowRight, Search, Info, Copy, Send, MessageSquare, Share as ShareIcon, Share2, MessageCircle } from "lucide-react";
 import { Box, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import IDivCardModern from "../idiv/IDivCardModern";
@@ -9,12 +9,61 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { QRCodeSVG } from 'qrcode.react';
 import CentralInfoPopup, { StaticPopupInfo } from "../common/CentralInfoPopup";
-import { Info } from "lucide-react";
 import { formatNavLink } from "@/utils/seo";
+import { Menu, MenuItem, ListItemIcon, ListItemText, Button, Stack } from '@mui/material';
 
 const SafetyGuard = ({ dict }: { dict?: any }) => {
     const [isFlipped, setIsFlipped] = React.useState(false);
     const [activePopup, setActivePopup] = React.useState<StaticPopupInfo | null>(null);
+
+    // Share Menu State
+    const [shareAnchor, setShareAnchor] = React.useState<null | HTMLElement>(null);
+    const [activeShare, setActiveShare] = React.useState<{ title: string, url: string } | null>(null);
+
+    const handleShareOpen = (event: React.MouseEvent<HTMLButtonElement>, title: string, path: string) => {
+        setShareAnchor(event.currentTarget);
+        setActiveShare({
+            title,
+            url: window.location.origin + path
+        });
+    };
+
+    const handleShareClose = () => {
+        setShareAnchor(null);
+        setActiveShare(null);
+    };
+
+    const onShareAction = (platform: 'copy' | 'whatsapp' | 'telegram' | 'reddit' | 'discord' | 'x') => {
+        if (!activeShare) return;
+        const { title, url } = activeShare;
+        const encodedUrl = encodeURIComponent(url);
+        const encodedTitle = encodeURIComponent(title);
+
+        switch (platform) {
+            case 'copy':
+                navigator.clipboard.writeText(url);
+                alert("Link copied to clipboard!");
+                break;
+            case 'whatsapp':
+                window.open(`https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`, '_blank');
+                break;
+            case 'telegram':
+                window.open(`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`, '_blank');
+                break;
+            case 'reddit':
+                window.open(`https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`, '_blank');
+                break;
+            case 'discord':
+                navigator.clipboard.writeText(url);
+                alert("Link copied for Discord sharing!");
+                window.open(`https://discord.com/channels/@me`, '_blank');
+                break;
+            case 'x':
+                window.open(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`, '_blank');
+                break;
+        }
+        handleShareClose();
+    };
 
     const t_explained = dict?.verification_explained_page || {};
     const pt = t_explained.popups || {};
@@ -191,15 +240,37 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                                 </Link>
                             </div>
                         </div>
-                        <div className="md:w-1/2 flex justify-center">
-                                <IDivCardModern mode="SMART" showDownload={false} shareUrl="https://indonesianvisas.com/ktp-id-card-smart-id" />
+                        <div className="md:w-1/2 flex flex-col items-center">
+                                <IDivCardModern mode="SMART" showDownload={false} showActions={false} shareUrl="https://indonesianvisas.com/ktp-id-card-smart-id" />
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<Share2 size={18} />}
+                                    sx={{
+                                        mt: 3, borderRadius: 100, px: 4, py: 1, textTransform: 'none', fontWeight: 'bold',
+                                        borderColor: '#0369a1', color: '#0369a1', '&:hover': { borderColor: '#0284c7', bgcolor: 'rgba(3, 105, 161, 0.04)' }
+                                    }}
+                                    onClick={(e) => handleShareOpen(e, 'Smart ID - Indonesian Visas', formatNavLink(locale, '/ktp-id-card-smart-id'))}
+                                >
+                                    Share
+                                </Button>
                         </div>
                    </div>
 
                    {/* IDiv Explained Section */}
                    <div className="mt-1 bg-blue-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-none flex flex-col md:flex-row items-center gap-12">
-                        <div className="md:w-1/2 flex justify-center">
-                                <IDivCardModern showDownload={false} shareUrl="https://indonesianvisas.com/id-indonesian-visas" />
+                        <div className="md:w-1/2 flex flex-col items-center">
+                                <IDivCardModern showDownload={false} showActions={false} shareUrl="https://indonesianvisas.com/id-indonesian-visas" />
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<Share2 size={18} />}
+                                    sx={{
+                                        mt: 3, borderRadius: 100, px: 4, py: 1, textTransform: 'none', fontWeight: 'bold',
+                                        borderColor: '#D32F2F', color: '#D32F2F', '&:hover': { borderColor: '#B71C1C', bgcolor: 'rgba(211, 47, 47, 0.04)' }
+                                    }}
+                                    onClick={(e) => handleShareOpen(e, 'IDiv Card - Indonesian Visas', formatNavLink(locale, '/id-indonesian-visas'))}
+                                >
+                                    Share
+                                </Button>
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <h3 className="text-3xl font-black mode-aware-text">ID Indonesian Visas (IDIV)</h3>
@@ -233,8 +304,19 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
 
                    {/* IDg Explained Section (New) */}
                    <div className="mt-1 bg-purple-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-b-[2.9rem] flex flex-col md:flex-row-reverse items-center gap-12">
-                        <div className="md:w-1/2 flex justify-center">
-                                <IDivCardModern mode="IDG" variant="purple" showDownload={false} shareUrl="https://indonesianvisas.com/id-guide" />
+                        <div className="md:w-1/2 flex flex-col items-center">
+                                <IDivCardModern mode="IDG" variant="purple" showDownload={false} showActions={false} shareUrl="https://indonesianvisas.com/id-guide" />
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<Share2 size={18} />}
+                                    sx={{
+                                        mt: 3, borderRadius: 100, px: 4, py: 1, textTransform: 'none', fontWeight: 'bold',
+                                        borderColor: '#7c3aed', color: '#7c3aed', '&:hover': { borderColor: '#6d28d9', bgcolor: 'rgba(124, 58, 237, 0.04)' }
+                                    }}
+                                    onClick={(e) => handleShareOpen(e, 'Smart IDg - Indonesian Visas', formatNavLink(locale, '/id-guide'))}
+                                >
+                                    Share
+                                </Button>
                         </div>
                         <div className="md:w-1/2 space-y-6">
                             <div className="inline-block px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs font-bold border border-purple-200 dark:border-purple-800">
@@ -270,6 +352,44 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                    </div>
                 </motion.div>
             </div>
+
+            {/* Share Menu Portal */}
+            <Menu
+                anchorEl={shareAnchor}
+                open={Boolean(shareAnchor)}
+                onClose={handleShareClose}
+                PaperProps={{
+                    sx: {
+                        borderRadius: 4, mt: 1, minWidth: 200,
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.1)', border: '1px solid #f1f5f9'
+                    }
+                }}
+            >
+                <MenuItem onClick={() => onShareAction('copy')}>
+                    <ListItemIcon><Copy size={18} /></ListItemIcon>
+                    <ListItemText primary="Copy Link" primaryTypographyProps={{ fontWeight: 600 }} />
+                </MenuItem>
+                <MenuItem onClick={() => onShareAction('whatsapp')}>
+                    <ListItemIcon><Send size={18} className="text-green-500" /></ListItemIcon>
+                    <ListItemText primary="WhatsApp" primaryTypographyProps={{ fontWeight: 600 }} />
+                </MenuItem>
+                <MenuItem onClick={() => onShareAction('telegram')}>
+                    <ListItemIcon><MessageSquare size={18} className="text-blue-500" /></ListItemIcon>
+                    <ListItemText primary="Telegram" primaryTypographyProps={{ fontWeight: 600 }} />
+                </MenuItem>
+                <MenuItem onClick={() => onShareAction('reddit')}>
+                    <ListItemIcon><ShareIcon size={18} className="text-orange-500" /></ListItemIcon>
+                    <ListItemText primary="Reddit" primaryTypographyProps={{ fontWeight: 600 }} />
+                </MenuItem>
+                <MenuItem onClick={() => onShareAction('discord')}>
+                    <ListItemIcon><MessageCircle size={18} className="text-indigo-500" /></ListItemIcon>
+                    <ListItemText primary="Discord" primaryTypographyProps={{ fontWeight: 600 }} />
+                </MenuItem>
+                <MenuItem onClick={() => onShareAction('x')}>
+                    <ListItemIcon><Zap size={18} className="text-black" /></ListItemIcon>
+                    <ListItemText primary="X (Twitter)" primaryTypographyProps={{ fontWeight: 600 }} />
+                </MenuItem>
+            </Menu>
         </section>
     );
 };

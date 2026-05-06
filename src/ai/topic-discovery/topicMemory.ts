@@ -71,8 +71,8 @@ export const TOPIC_MEMORY = {
   async recordTopic(data: {
     title: string;
     cluster: string;
-    sourceAgent: 'analyst' | 'news_agent' | 'manual';
-    status?: 'draft' | 'published' | 'rejected';
+    sourceAgent: 'analyst' | 'news_agent' | 'manual' | 'master_admin';
+    status?: 'draft' | 'published' | 'rejected' | 'vvip_queued' | 'processing';
     confidenceScore?: number;
     notes?: string;
   }) {
@@ -104,7 +104,11 @@ export const TOPIC_CLUSTERS = [
   'immigration-news',
   'visa-comparisons',
   'visa-glossary',
-  'travel-regulations'
+  'travel-regulations',
+  'master_priority',
+  'admin-priority',
+  'manual_vvip',
+  'viral-news'
 ] as const;
 
 export type TopicCluster = typeof TOPIC_CLUSTERS[number];

@@ -24,7 +24,7 @@ import OfficialVerificationDocument from "@/components/verification/OfficialVeri
 
 // Parse JSON-packed address field (Case-Insensitive)
 function parseAddress(raw: string | null | undefined) {
-    const fb = { street: "", birthPlaceDate: "", gender: "", occupation: "" };
+    const fb = { street: "", birthPlaceDate: "", gender: "", occupation: "", preferredMode: null as string | null };
     if (!raw) return fb;
     if (!raw.trim().startsWith('{')) return { ...fb, street: raw };
     try {
@@ -44,9 +44,10 @@ function parseAddress(raw: string | null | undefined) {
             birthPlaceDate: getVal(['birthPlaceDate', 'BIRTHPLACEDATE', 'dob', 'DOB']),
             gender:         getVal(['gender', 'GENDER', 'Jenis Kelamin']),
             occupation:     getVal(['occupation', 'OCCUPATION', 'Pekerjaan']),
+            preferredMode:  p.preferredMode || null
         };
     } catch {
-        return { ...fb, street: raw };
+        return { ...fb, street: raw, preferredMode: null };
     }
 }
 
@@ -104,7 +105,12 @@ export default function VerificationPage() {
 
     const isSmart   = data.visaType?.toUpperCase().includes('SMART') || data.visaType?.toUpperCase().includes('KITAS') || data.visaType?.toUpperCase().includes('ITAP');
     const isIDG     = data.visaType?.toUpperCase().includes('IDG') || data.visaType?.toUpperCase().includes('GUIDE');
-    const cardMode  = isSmart ? 'SMART' : (isIDG ? 'IDG' : 'IDIV');
+    
+    // Logic: Respect preferredMode from JSON address if exists, otherwise fallback to auto-detection
+    let cardMode: 'IDIV' | 'IDG' | 'SMART' = isSmart ? 'SMART' : (isIDG ? 'IDG' : 'IDIV');
+    if (isJsonAddress && addr.preferredMode) {
+        cardMode = addr.preferredMode as any;
+    }
 
     // 1. RENDER STANDARD DOCUMENT VIEW (If not premium or trial expired)
     if (!showPremiumCard) {
@@ -131,8 +137,8 @@ export default function VerificationPage() {
                 </Box>
 
                 <Paper elevation={0} variant="outlined" sx={{
-                    p: { xs: 1.5, md: 5 }, borderRadius: 4, textAlign: 'center', position: 'relative',
-                    overflow: 'hidden',
+                    p: { xs: 2.5, md: 5 }, borderRadius: 4, textAlign: 'center', position: 'relative',
+                    overflow: 'hidden', maxWidth: 500, mx: 'auto',
                     borderTopWidth: 8, borderColor: 'primary.main', boxShadow: '0 4px 24px rgba(0,0,0,0.06)'
                 }}>
                     <VerifiedUserIcon sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 300, opacity: 0.03, color: 'black' }} />

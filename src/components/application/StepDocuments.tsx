@@ -13,12 +13,12 @@ const GUIDE_LINKS = {
 };
 
 const StepDocuments = () => {
-    const { setStep, markStepComplete, documents, updateData, numPeople, updateTravelerDocument } = useApplication();
+    const { setStep, markStepComplete, documents, updateData, numPeople, updateTravelerDocument, personalInfo } = useApplication();
     const [processing, setProcessing] = useState<Record<string, boolean>>({});
     const [error, setError] = useState("");
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-    const handleFileChange = (index: number, type: 'passportPhoto'|'recentPhoto'|'proofOfAccommodation', e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (index: number, type: 'passportPhoto'|'recentPhoto'|'proofOfAccommodation', e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             const key = `${index}-${type}`;
@@ -26,11 +26,45 @@ const StepDocuments = () => {
             setProcessing(prev => ({ ...prev, [key]: true }));
             setError("");
 
-            // Simulate the smart processing delay for UI feedback
-            setTimeout(() => {
+            try {
+                // 1. Upload immediately for Lead Intelligence
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('bucket', 'quick_apply');
+
+                const res = await fetch('/api/upload/smart', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!res.ok) throw new Error("Upload failed");
+                const data = await res.json();
+
+                if (data.url) {
+                    // 2. Update context with File (for local state) AND URL (for leads)
+                    updateTravelerDocument(index, type, file);
+                    
+                    // Special: Update the context state with the URL so saveLead can pick it up
+                    if (index === 0) {
+                        if (type === 'passportPhoto') {
+                            updateData('personalInfo', { ...personalInfo, passport: data.url });
+                        } else if (type === 'recentPhoto') {
+                            // Update the first document entry with the URL
+                            const newDocs = [...documents];
+                            if (!newDocs[0]) newDocs[0] = { passportPhoto: null, recentPhoto: null, proofOfAccommodation: null };
+                            (newDocs[0] as any).photoUrl = data.url;
+                            updateData('documents', newDocs);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+                setError("Failed to process document. Please try again.");
+                // Fallback to local file only if upload fails
                 updateTravelerDocument(index, type, file);
+            } finally {
                 setProcessing(prev => ({ ...prev, [key]: false }));
-            }, 1200);
+            }
         }
     };
 
@@ -167,7 +201,7 @@ const StepDocuments = () => {
                                     <div className={`glass-card ${styles.uploadCard} space-y-3`}>
                                         <div className="flex items-center gap-2 mb-2">
                                             <FileText size={16} className="text-primary" />
-                                            <label className={styles.label}>Ticket, Bank Statement & Proof of Accommodation</label>
+                                            <label className={styles.label}>Flight Ticket, Bank Statement & Proof of Accommodation</label>
                                         </div>
                                         
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

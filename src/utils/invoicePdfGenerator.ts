@@ -1,7 +1,7 @@
-
 // @ts-ignore
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
+import { VISA_DATABASE } from "@/constants/visas";
 
 export const generateInvoicePDF = async (invoice: any) => {
     const doc = new jsPDF();
@@ -193,22 +193,36 @@ export const generateInvoicePDF = async (invoice: any) => {
     }
 
     // Invoice Description (From Admin)
-    const adminDescription = invoice.invoice?.description || invoice.description;
-    if (adminDescription) {
+    // - This area now handles INTERNAL NOTES (Tax/Fee Breakdown) only for transparency
+    const internalBreakdown = invoice.attribution?.internalNotes;
+    // v6.1 - GRANULAR DATABASE SYNC (NO RE-CALCULATION)
+    const baseProcessing = Number(invoice.invoice?.visaAmount || invoice.invoice?.serviceFee || 0);
+    const addonsTotal = Number(invoice.invoice?.addonsAmount || 0);
+    const qty = invoice.invoice?.quantity || invoice.quantity || 1;
+    const baseTotal = baseProcessing * qty; // Total for the line item
+
+    if (internalBreakdown) {
         y += 10;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(8);
-        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-        const splitDesc = doc.splitTextToSize(adminDescription, 100);
-        doc.text(splitDesc, margin + 5, y);
-        y += (splitDesc.length * 4);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7);
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.text("PAYMENT DETAILS & NOTES:", margin + 5, y);
+        y += 4;
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(7);
+        doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+        const splitInternal = doc.splitTextToSize(internalBreakdown, 100);
+        doc.text(splitInternal, margin + 5, y);
+        y += (splitInternal.length * 4);
+    } else {
+        y += 5;
     }
 
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-    doc.text("1", 130, 121, { align: "center" }); // Pivot back to standard Y for totals
-    doc.text(priceDisplay, 160, 121, { align: "right" });
-    doc.text(priceDisplay, rightX - 5, 121, { align: "right" });
+    doc.text(String(qty), 130, 121, { align: "center" });
+    doc.text(`IDR ${baseProcessing.toLocaleString()}`, 160, 121, { align: "right" });
+    doc.text(`IDR ${baseTotal.toLocaleString()}`, rightX - 5, 121, { align: "right" });
+
+
 
     // Adjust Y if description was long
     if (y < 135) y = 135;
@@ -222,63 +236,130 @@ export const generateInvoicePDF = async (invoice: any) => {
     const totalX = 140; // Label col X
     const valX = rightX - 5; // Value col X
 
-    if (invoice.invoice?.serviceFee > 0) {
-        doc.setFontSize(7);
-        doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-        doc.text("Base Processing:", totalX, y);
-        doc.text(`IDR ${parseFloat(invoice.invoice.serviceFee).toLocaleString()}`, valX, y, { align: "right" });
+    // v6.1 - GRANULAR DATABASE SYNC (NO RE-CALCULATION)
+    const taxAmount = Number(invoice.invoice?.pph23Amount || 0);
+    const gatewayFee = Number(invoice.invoice?.gatewayFee || 0);
+    const grandTotal = Number(invoice.invoice?.amount || 0);
+
+    doc.setFontSize(7);
+    doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+    doc.text("Base Processing:", totalX, y);
+    doc.text(`IDR ${baseTotal.toLocaleString()}`, valX, y, { align: "right" });
+    y += 4;
+
+    if (addonsTotal > 0) {
+        doc.text("Add-On Services:", totalX, y);
+        doc.text(`IDR ${addonsTotal.toLocaleString()}`, valX, y, { align: "right" });
         y += 4;
-        doc.text("Gov. Tax (2%):", totalX, y);
-        doc.text(`IDR ${parseFloat(invoice.invoice.pph23Amount).toLocaleString()}`, valX, y, { align: "right" });
-        y += 4;
-        doc.text("Service Fee (4%):", totalX, y);
-        doc.text(`IDR ${parseFloat(invoice.invoice.gatewayFee).toLocaleString()}`, valX, y, { align: "right" });
-        y += 6;
-    } else {
-        doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-        doc.text("Subtotal:", totalX, y);
-        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-        doc.text(priceDisplay, valX, y, { align: "right" });
-        y += 10;
     }
+
+    doc.text("Government Tax (PPh 23):", totalX, y);
+    doc.text(`IDR ${taxAmount.toLocaleString()}`, valX, y, { align: "right" });
+    y += 4;
+    doc.text("Payment Gateway Fee:", totalX, y);
+    doc.text(`IDR ${gatewayFee.toLocaleString()}`, valX, y, { align: "right" });
+    y += 8;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.text("Total:", totalX, y);
-    doc.text(priceDisplay, valX, y, { align: "right" });
+    doc.text("Grand Total:", totalX, y);
+    doc.text(`IDR ${grandTotal.toLocaleString()}`, valX, y, { align: "right" });
+    
+    y += 5;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+    const usdEquiv = (grandTotal / 15900).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    doc.text(`(Approx. $${usdEquiv} USD)`, valX, y, { align: "right" });
 
-    // --- 5. QR CODE (Bottom Centered) ---
-    // Should appear if Verification data exists
+    // --- 4.5 PUBLIC NOTES GRID (Below Totals) ---
+    const adminNotes = invoice.invoice?.adminNotes;
+    if (adminNotes) {
+        y += 15;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+        doc.text("Admin Notes:", margin, y);
+        y += 5;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+        const splitNotes = doc.splitTextToSize(adminNotes, 100);
+        doc.text(splitNotes, margin, y);
+    }
+
+    // --- 5. BOTTOM LAYOUT (QR LEFT, CONFIRMATION RIGHT) ---
+    const bottomY = 240;
+    const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(invoice.status);
+
+    // Left: QR Code
     if (invoice.verification) {
         try {
             const verificationUrl = `${window.location.origin}/verify/${invoice.verification.slug}`;
             const qrDataUrl = await QRCode.toDataURL(verificationUrl, { errorCorrectionLevel: 'M' });
 
-            const qrY = 240;
-            const centerX = pageWidth / 2;
-
             // Background box
             doc.setFillColor(245, 245, 255);
-            doc.roundedRect(centerX - 30, qrY - 10, 60, 50, 2, 2, 'F');
+            doc.roundedRect(margin, bottomY - 10, 50, 45, 2, 2, 'F');
 
             // Image
-            doc.addImage(qrDataUrl, 'PNG', centerX - 15, qrY - 5, 30, 30);
+            doc.addImage(qrDataUrl, 'PNG', margin + 10, bottomY - 5, 30, 30);
+
+            // v4.8 - ENHANCED STATUS ABOVE QR (PDF)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(7);
+            doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+            doc.text("CHECK YOUR APPLICATION UPDATE BELLOW", margin + 25, bottomY - 20, { align: "center" });
 
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(9);
-            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-            doc.text("VERIFIED DOCUMENT", centerX, qrY + 30, { align: "center" });
+            doc.setFontSize(10);
+            doc.setTextColor(3, 105, 161); // Blue
+            doc.text(`Status: ${invoice.status || 'Processing'}`, margin + 25, bottomY - 12, { align: "center" });
 
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(7);
-            doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-            doc.text("Scan to verify authenticity", centerX, qrY + 35, { align: "center" });
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8);
+            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.text("VERIFIED DOCUMENT", margin + 25, bottomY + 30, { align: "center" });
 
         } catch (e) {
             console.error("QR Generation Error", e);
         }
     }
+
+    // Right: Confirmation & Stamp
+    const stampX = rightX - 40;
+    const stampY = bottomY - 15;
+
+    // Drawing the Stamp
+    const stampColor = isPaid ? [86, 202, 0] : [239, 68, 68]; // Red for Unpaid
+    doc.setDrawColor(stampColor[0], stampColor[1], stampColor[2]);
+    doc.setLineWidth(1);
+    doc.circle(stampX + 15, stampY + 15, 12, 'S'); // Circular Stamp with 'S' for stroke
+    
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(stampColor[0], stampColor[1], stampColor[2]);
+    doc.text(isPaid ? "PAID" : "UNPAID", stampX + 15, stampY + 16, { align: "center", angle: -15 });
+
+    // Confirmation Text
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+    doc.text("Confirm Payment to:", rightX, bottomY + 10, { align: "right" });
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+    doc.text("PT Indonesian Visas Agency™", rightX, bottomY + 15, { align: "right" });
+
+    doc.setDrawColor(200, 200, 200);
+    doc.line(rightX - 50, bottomY + 18, rightX, bottomY + 18);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(grayText[0], grayText[1], grayText[2]);
+    doc.text("Authorized Official Invoice", rightX, bottomY + 22, { align: "right" });
 
     // --- 6. FOOTER ---
     doc.setFontSize(8);

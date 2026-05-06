@@ -30,7 +30,8 @@ const StepPayment = () => {
     const {
         visaType, country, personalInfo, setStep, documents, markStepComplete, resetApplication, closePanel,
         visas, numPeople, travelers, upsells, toggleUpsell, addons,
-        priceTier, arrivalDate, updateData, customPrice
+        selectedCustomAddons, toggleCustomAddon,
+        priceTier, arrivalDate, updateData, customPrice, refreshAddons
     } = useApplication();
     const params = useParams();
     const locale = params?.locale || 'en';
@@ -67,10 +68,10 @@ const StepPayment = () => {
     let visaTotal = 0;
     let addonsTotal = 0;
 
-    if (currentVisa) {
-        let baseAmount = 0;
-        let feeAmount = 0;
+    let baseAmount = 0;
+    let feeAmount = 0;
 
+    if (currentVisa) {
         try {
             if (typeof currentVisa.price === 'object' && currentVisa.price !== null) {
                 // Prioritize priceTier from context, fallback to first key
@@ -109,16 +110,30 @@ const StepPayment = () => {
         if (upsells.vip) addonsTotal += getAddonPrice('VIP');
         if (upsells.idiv) addonsTotal += getAddonPrice('IDIV') * numPeople;
         if (upsells.idg) addonsTotal += getAddonPrice('IDG') * numPeople;
-        if (upsells.smartId) addonsTotal += getAddonPrice('SMART_ID') || 1000000 * numPeople;
+        if (upsells.smartId) addonsTotal += getAddonPrice('SMART_ID') * numPeople;
+
+        // NEW: Add dynamic custom addons total (safe addition — does not affect existing logic)
+        const RESERVED_SKUS = ['EXPRESS', 'INSURANCE', 'VIP', 'IDIV', 'IDG', 'SMART_ID'];
+        if (selectedCustomAddons?.length > 0) {
+            selectedCustomAddons.forEach(addonId => {
+                const addon = addons?.find((a: any) => a.id === addonId);
+                if (addon) addonsTotal += Number(addon.price);
+            });
+        }
     }
 
-    const totalAmount = visaTotal + addonsTotal; // Backward-compatible aggregate for processCheckout array division
-
-    // Tax (PPh 23) calculated ONLY on Visa total
-    const pph23Amount = Math.round(visaTotal * 0.02);
-    // Platform Fee = 4% on everything including tax?
-    const platformFeeAmount = Math.round((visaTotal + addonsTotal + pph23Amount) * 0.04);
-    const grandTotal = visaTotal + addonsTotal + pph23Amount + platformFeeAmount;
+    // v6.2 - PRECISION FINANCIAL CALCULATION
+    const baseServiceTotal = baseAmount * numPeople;
+    const governmentFeeTotal = feeAmount * numPeople;
+    
+    // 1. Tax (PPh 23) 2% calculated ONLY on Base Service
+    const pph23Amount = Math.round(baseServiceTotal * 0.02);
+    
+    // 2. Platform Fee 4% calculated on (Service + Addons + Tax) — excluding Gov Fees
+    const platformFeeAmount = Math.round((baseServiceTotal + addonsTotal + pph23Amount) * 0.04);
+    
+    // 3. GRAND TOTAL — Must include EVERYTHING
+    const grandTotal = baseServiceTotal + governmentFeeTotal + addonsTotal + pph23Amount + platformFeeAmount;
 
     const processCheckout = async () => {
         setIsSubmitting(true);
@@ -184,10 +199,10 @@ const StepPayment = () => {
 
             await Promise.all(uploadPromises);
 
-            // 1. Calculate Split Amounts
-            const perPersonVisaAmount = visaTotal / numPeople;
+            // 1. Calculate Split Amounts (v6.2 Precision Sync)
+            const perPersonVisaAmount = (baseServiceTotal + governmentFeeTotal) / numPeople;
             const perPersonAddonsAmount = addonsTotal / numPeople;
-            const perPersonBaseAmount = totalAmount / numPeople; // Backward-compatible aggregate
+            const perPersonBaseAmount = (baseServiceTotal + governmentFeeTotal + addonsTotal) / numPeople; 
             const applications = [];
 
             // 2. Aggregate Applications for each traveler
@@ -228,6 +243,7 @@ const StepPayment = () => {
                         orderIndex: i + 1,
                         totalTravelers: numPeople
                     },
+                    selectedCustomAddons: selectedCustomAddons || [], // v6.2 - Send dynamic addons
                     adminNotes: (priceTier === 'Custom' ? `[NEGOTIATED RATE: ${perPersonVisaAmount}] ` : "") +
                                (isPrimary && numPeople > 1 
                                  ? `Primary Payer of Split Order (${numPeople} Travelers total)`
@@ -326,10 +342,11 @@ const StepPayment = () => {
 
     // Environment checks for DOKU removed as they are handled server-side in /api/payments/doku/checkout
 
-    // Scroll to top on mount
+    // Scroll to top and REFRESH ADDONS on mount to ensure Dashboard sync
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
+        refreshAddons?.();
+    }, [refreshAddons]);
 
     if (isSuccess) {
         return (
@@ -382,7 +399,7 @@ const StepPayment = () => {
                     >
                         <div className="flex-grow">
                             <p className="text-sm font-bold">🚀 Express Processing</p>
-                            <p className="text-[10px] text-gray-500">Legal review in 4 hours & priority queue.</p>
+                            <p className="text-[10px] text-gray-500">1 Hour Submission (Fast Processing) Max 5 Work Days Approval.</p>
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="text-sm font-bold text-primary">
@@ -394,31 +411,14 @@ const StepPayment = () => {
                         </div>
                     </div>
 
-                    <div
-                        className={`${styles.upsellItem} ${upsells.insurance ? styles.upsellActive : ''}`}
-                        onClick={() => toggleUpsell('insurance')}
-                    >
-                        <div className="flex-grow">
-                            <p className="text-sm font-bold">🛡️ Medical Insurance</p>
-                            <p className="text-[10px] text-gray-500">Full Bali nomad health coverage (30 days).</p>
-                        </div>
-                        <div className="flex flex-col items-end">
-                            <span className="text-sm font-bold text-primary">
-                                +IDR {Number(addons?.find(a => a.sku === 'INSURANCE')?.price || 500000).toLocaleString()}
-                            </span>
-                            <span className="text-[10px] font-bold text-[#22c55e]">
-                                (~${Math.ceil(Number(addons?.find(a => a.sku === 'INSURANCE')?.price || 500000) / 16250)})
-                            </span>
-                        </div>
-                    </div>
 
                     <div
                         className={`${styles.upsellItem} ${upsells.vip ? styles.upsellActive : ''}`}
                         onClick={() => toggleUpsell('vip')}
                     >
                         <div className="flex-grow">
-                            <p className="text-sm font-bold">💎 VIP Airport Transfer</p>
-                            <p className="text-[10px] text-gray-500">Private luxury pickup from DPS Airport.</p>
+                            <p className="text-sm font-bold">💎 VIP Airport Transfer & Travel</p>
+                            <p className="text-[10px] text-gray-500">Private luxury pickup from DPS Airport and travel 1 Day.</p>
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="text-sm font-bold text-primary">
@@ -435,7 +435,7 @@ const StepPayment = () => {
                         onClick={() => toggleUpsell('idiv')}
                     >
                         <div className="flex-grow">
-                            <p className="text-sm font-bold">💳 IDIV Digital Processing</p>
+                            <p className="text-sm font-bold">💳 Sponsor ID (IDiv)</p>
                             <p className="text-[10px] text-gray-500">Official verified sponsor ID & digital card.</p>
                         </div>
                         <div className="flex flex-col items-end">
@@ -453,7 +453,7 @@ const StepPayment = () => {
                         onClick={() => toggleUpsell('idg')}
                     >
                         <div className="flex-grow">
-                            <p className="text-sm font-bold">💜 Indonesian ID Guide (IDg)</p>
+                            <p className="text-sm font-bold">💜 Guide ID (IDg)</p>
                             <p className="text-[10px] text-gray-500">24/7 Digital companion & expert guidance.</p>
                         </div>
                         <div className="flex flex-col items-end">
@@ -471,7 +471,7 @@ const StepPayment = () => {
                         onClick={() => toggleUpsell('smartId')}
                     >
                         <div className="flex-grow">
-                            <p className="text-sm font-bold">✨ Smart ID Premium (KTP-Style)</p>
+                            <p className="text-sm font-bold">✨ Sponsor ID Premium (KTP-Style)</p>
                             <p className="text-[10px] text-gray-500">NFC-ready KTP equivalent for ITAP/GCI holders.</p>
                         </div>
                         <div className="flex flex-col items-end">
@@ -483,6 +483,38 @@ const StepPayment = () => {
                             </span>
                         </div>
                     </div>
+
+                    {/* DYNAMIC ADDONS — Rendered from Admin DB, reserved SKUs excluded */}
+                    {(() => {
+                        const RESERVED_SKUS = ['EXPRESS', 'INSURANCE', 'VIP', 'IDIV', 'IDG', 'SMART_ID'];
+                        const customAddons = addons?.filter((a: any) => 
+                            a.isActive && !RESERVED_SKUS.includes(a.sku.toUpperCase())
+                        );
+                        if (!customAddons || customAddons.length === 0) return null;
+                        return customAddons.map((addon: any) => {
+                            const isSelected = selectedCustomAddons?.includes(addon.id);
+                            return (
+                                <div
+                                    key={addon.id}
+                                    className={`${styles.upsellItem} ${isSelected ? styles.upsellActive : ''} border-dashed border-primary/30 bg-primary/5`}
+                                    onClick={() => toggleCustomAddon(addon.id)}
+                                >
+                                    <div className="flex-grow">
+                                        <p className="text-sm font-bold">{addon.icon || '⭐'} {addon.name}</p>
+                                        <p className="text-[10px] text-gray-500">{addon.description || 'Exclusive dashboard add-on'}</p>
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-sm font-bold text-primary">
+                                            +IDR {Number(addon.price).toLocaleString()}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-[#22c55e]">
+                                            (~${Math.ceil(Number(addon.price) / 16250)})
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        });
+                    })()}
                 </div>
             </div>
 
@@ -548,7 +580,7 @@ const StepPayment = () => {
                 <div className={styles.priceSummary}>
                     <div className={styles.priceRow}>
                         <span>{visaType}</span>
-                        <span className="font-bold">IDR {(totalAmount / numPeople).toLocaleString()}</span>
+                        <span className="font-bold">IDR {((baseServiceTotal + governmentFeeTotal) / numPeople).toLocaleString()}</span>
                     </div>
                     <div className={styles.priceRow}>
                         <span>Number of People</span>
@@ -570,6 +602,20 @@ const StepPayment = () => {
                         </div>
                     ))}
 
+                    {/* v6.2 - Dynamic Custom Addons in Summary */}
+                    {selectedCustomAddons?.map(addonId => {
+                        const addon = addons?.find(a => a.id === addonId);
+                        if (!addon) return null;
+                        return (
+                            <div key={addon.id} className={styles.priceRow}>
+                                <span className="text-xs text-gray-500 uppercase">{addon.name}</span>
+                                <span className="text-xs font-bold text-primary">
+                                    + IDR {Number(addon.price).toLocaleString()}
+                                </span>
+                            </div>
+                        );
+                    })}
+
                     <div className={styles.priceRow}>
                         <span>Tax (PPh 23 - 2%)</span>
                         <span className="font-bold">IDR {pph23Amount.toLocaleString()}</span>
@@ -578,7 +624,7 @@ const StepPayment = () => {
                     <div className={styles.priceRow}>
                         <div className="flex items-center gap-1">
                             <span>Processing Fee</span>
-                            <span className="text-[8px] bg-slate-100 px-1 rounded text-gray-500 uppercase">4%</span>
+                            <span className="text-[8px] bg-slate-100 px- rounded text-gray-500 uppercase">4%</span>
                         </div>
                         <span className="font-bold">IDR {platformFeeAmount.toLocaleString()}</span>
                     </div>

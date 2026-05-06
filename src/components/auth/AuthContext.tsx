@@ -101,93 +101,102 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Removed the 5-minute auto-logout timer per user request (Web App persistence)
 
     const fetchProfile = async (userId: string, email: string, token?: string): Promise<UserProfile> => {
-        try {
-            console.log("Fetching profile from API for UID:", userId);
+        const MAX_RETRIES = 3;
+        let attempt = 0;
 
-            // Using API route instead of direct Supabase client to bypass RLS issues
-            const fetchOptions: any = {};
-            if (token) {
-                fetchOptions.headers = { 'Authorization': `Bearer ${token}` };
-            }
+        const performFetch = async (): Promise<UserProfile> => {
+            try {
+                console.log(`[Auth] Fetching profile (Attempt ${attempt + 1}/${MAX_RETRIES}) for UID:`, userId);
 
-            const res = await fetch('/api/user/profile', fetchOptions);
+                const fetchOptions: any = {
+                    method: 'GET',
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                };
 
-            if (!res.ok) {
-                if (res.status === 404) {
-                    console.warn("Profile API 404 (Expected on some satellite domains). Using fallback.");
-                    const fallback: UserProfile = {
+                const res = await fetch('/api/user/profile', fetchOptions);
+
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        console.warn("Profile API 404 (Expected on some satellite domains). Using fallback.");
+                        const fallback: UserProfile = {
+                            id: userId,
+                            name: '',
+                            email: email,
+                            whatsapp: '',
+                            role: ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(email.toLowerCase()) ? 'admin' : 'user',
+                            joinedAt: new Date().toISOString(),
+                            status: 'active'
+                        };
+                        setUser(fallback);
+                        return fallback;
+                    }
+                    if (res.status === 401) {
+                        console.info("Guest session - Profile skip.");
+                        setUser(null);
+                        return null as any;
+                    }
+                    throw new Error(`Profile API status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                let profile: UserProfile;
+
+                if (data && !data.error) {
+                    const rawRole = ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(email.toLowerCase()) ? 'admin' : data.role;
+                    profile = {
+                        id: data.id,
+                        name: data.name || '',
+                        email: data.email,
+                        whatsapp: data.whatsapp || '',
+                        role: rawRole as 'user' | 'admin',
+                        joinedAt: data.createdAt || data.created_at || new Date().toISOString(),
+                        avatar: data.avatar,
+                        status: data.status as 'active',
+                        address: data.address || '',
+                        bio: data.bio || '',
+                        socials: typeof data.socials === 'string' ? JSON.parse(data.socials) : (data.socials || {})
+                    };
+                } else {
+                    console.warn("No DB record found via API for UID:", userId, ". Using fallback.");
+                    profile = {
                         id: userId,
                         name: '',
                         email: email,
                         whatsapp: '',
-                        role: ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(email.toLowerCase()) ? 'admin' : 'user',
+                        role: 'user',
                         joinedAt: new Date().toISOString(),
                         status: 'active'
                     };
-                    setUser(fallback);
-                    return fallback;
                 }
-                if (res.status === 401) {
-                    console.info("Guest session - Profile skip.");
-                    setUser(null);
-                    return null as any;
+
+                setUser(profile);
+                return profile;
+
+            } catch (e: any) {
+                attempt++;
+                if (attempt < MAX_RETRIES) {
+                    const delay = Math.pow(2, attempt) * 500; // 1s, 2s, 4s...
+                    console.warn(`[Auth] fetchProfile failed: ${e.message}. Retrying in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return performFetch();
                 }
-                console.warn("Profile API fetch failed, status:", res.status);
-                return null as any;
-            }
 
-            const data = await res.json();
-
-            let profile: UserProfile;
-
-            if (data && !data.error) {
-                console.log("Profile found via API for UID:", userId, data.name);
-                
-                const rawRole = ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(email.toLowerCase()) ? 'admin' : data.role;
-
-                profile = {
-                    id: data.id,
-                    name: data.name || '',
-                    email: data.email,
-                    whatsapp: data.whatsapp || '',
-                    role: rawRole as 'user' | 'admin',
-                    joinedAt: data.createdAt || data.created_at || new Date().toISOString(),
-                    avatar: data.avatar,
-                    status: data.status as 'active',
-                    address: data.address || '',
-                    bio: data.bio || '',
-                    socials: typeof data.socials === 'string' ? JSON.parse(data.socials) : (data.socials || {})
-                };
-            } else {
-                console.warn("No DB record found via API for UID:", userId, ". Using fallback.");
-                profile = {
+                console.error("[Auth] fetchProfile critical failure after retries:", e);
+                const fallback: UserProfile = {
                     id: userId,
                     name: '',
                     email: email,
                     whatsapp: '',
-                    role: 'user',
+                    role: ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(email.toLowerCase()) ? 'admin' : 'user',
                     joinedAt: new Date().toISOString(),
                     status: 'active'
                 };
+                setUser(fallback);
+                return fallback;
             }
+        };
 
-            setUser(profile);
-            return profile;
-
-        } catch (e) {
-            console.error("fetchProfile critical failure via API:", e);
-            const fallback: UserProfile = {
-                id: userId,
-                name: '',
-                email: email,
-                whatsapp: '',
-                role: ['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(email.toLowerCase()) ? 'admin' : 'user',
-                joinedAt: new Date().toISOString(),
-                status: 'active'
-            };
-            setUser(fallback);
-            return fallback;
-        }
+        return performFetch();
     };
 
     const requestLocation = () => {

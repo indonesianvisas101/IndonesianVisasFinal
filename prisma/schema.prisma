@@ -223,6 +223,8 @@ model Invoice {
   gatewayFee         Decimal?          @default(0) @db.Decimal(20, 2)
   pph23Amount        Decimal?          @default(0) @db.Decimal(20, 2)
   serviceFee         Decimal?          @default(0) @db.Decimal(20, 2)
+  visaAmount         Decimal?          @default(0) @db.Decimal(20, 2) // Base Processing
+  addonsAmount       Decimal?          @default(0) @db.Decimal(20, 2) // Total Addons
   companyFormationId String?
   visaApplication    VisaApplication?  @relation(fields: [applicationId], references: [id])
   companyFormation   CompanyFormation? @relation(fields: [companyFormationId], references: [id])

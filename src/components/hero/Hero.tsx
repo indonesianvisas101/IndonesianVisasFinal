@@ -4,14 +4,20 @@ import React from "react";
 import { HeroGlobeWrapper, HeroCTA, HeroSteps, HeroBadge, HeroStats } from "./HeroClient";
 
 // Server Component (No 'use client')
-const Hero = ({ dict }: { dict: any }) => {
+const Hero = ({ dict, bgImage, title, subtitle }: { dict: any; bgImage?: string; title?: string; subtitle?: string }) => {
     // Defensive access to dictionary keys
     const hero = dict?.hero || {};
     const stats = hero.stats || {};
     const steps = hero.steps || {};
 
+    const sectionStyle = bgImage ? {
+        backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+    } : {};
+
     return (
-        <section className={styles.hero}>
+        <section className={styles.hero} style={sectionStyle}>
             {/* Globe is Client-Side Only */}
             <HeroGlobeWrapper />
 
@@ -19,8 +25,8 @@ const Hero = ({ dict }: { dict: any }) => {
                 <div className={styles.content}>
                     <div className={styles.left}>
                         <HeroBadge />
-                        <h1 className={styles.title}>{hero.title || "INDONESIAN VISAS"}</h1>
-                        <h2 className={styles.subtitle}>{hero.subtitle || "Legal & Registered Immigration Sponsor"}</h2>
+                        <h1 className={styles.title}>{title || hero.title || "INDONESIAN VISAS"}</h1>
+                        <h2 className={styles.subtitle}>{subtitle || hero.subtitle || "Legal & Registered Immigration Sponsor"}</h2>
                         <p className={styles.description}>
                             {hero.description || "Professional visa services for travelers, businesses, and digital nomads."}
                         </p>

@@ -38,8 +38,8 @@ export default function IdivOverviewPage() {
                 <DocFeatures items={[
                     { 
                         icon: <Shield size={24} />, 
-                        title: "Sponsorship Guarantee", 
-                        desc: "Every IDIV record is linked to a verified PT Indonesian Visas Agency sponsorship record, ensuring legal accountability." 
+                        title: "Legal Accountability", 
+                        desc: "Every IDIV record is linked to a verified PT Indonesian Visas Agency sponsorship record, providing 'Black-and-White' proof of legal responsibility." 
                     },
                     { 
                         icon: <Zap size={24} />, 
@@ -73,8 +73,8 @@ export default function IdivOverviewPage() {
                 <h2>Frequently Asked Questions</h2>
                 <ul>
                     <li><strong>Is IDIV a replacement for my passport?</strong> No. IDIV is a supplementary identity document specific to your sponsorship and local activities.</li>
-                    <li><strong>Who manages my IDIV data?</strong> Your data is managed by PT Indonesian Visas Agency under strict privacy protocols.</li>
-                    <li><strong>Is IDIV mandatory?</strong> While not a government requirement, it is the standard for travelers sponsored by our agency to facilitate smooth local interactions.</li>
+                    <li><strong>Who manages my IDIV data?</strong> Your data is managed by PT Indonesian Visas Agency under strict privacy protocols and **Zero Hidden Fees** policy.</li>
+                    <li><strong>Is IDIV mandatory?</strong> While not a government requirement, it is our gold standard for total transparency and traveler protection.</li>
                 </ul>
             </section>
         </IDivDocLayout>

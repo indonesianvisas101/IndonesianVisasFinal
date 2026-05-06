@@ -13,7 +13,8 @@ import {
     CircularProgress,
     Stack
 } from '@mui/material';
-import { X, Download, ExternalLink, FileText, Image as ImageIcon } from 'lucide-react';
+import { X, Download, ExternalLink, FileText, Image as ImageIcon, CheckCircle, AlertCircle } from 'lucide-react';
+import { Snackbar, Alert } from '@mui/material';
 
 interface DocumentViewerProps {
     open: boolean;
@@ -25,9 +26,95 @@ interface DocumentViewerProps {
 
 export default function DocumentViewer({ open, onClose, documentUrl, documentName, documentType }: DocumentViewerProps) {
     const [loading, setLoading] = useState(true);
-    const urlWithoutParams = documentUrl.split('?')[0].toLowerCase();
-    const isImage = documentType?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|avif)$/i.test(urlWithoutParams);
-    const isPdf = documentType === 'application/pdf' || urlWithoutParams.endsWith('.pdf');
+    const [converting, setConverting] = useState(false);
+    const [notification, setNotification] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+    
+    // Support signed URLs by stripping parameters for extension check
+    const cleanUrl = documentUrl.split('?')[0].split('#')[0].toLowerCase();
+    const isImage = documentType?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|avif)$/i.test(cleanUrl);
+    const isPdf = documentType === 'application/pdf' || cleanUrl.endsWith('.pdf');
+
+    const handleDownload = async () => {
+        if (!documentUrl) return;
+        
+        // Only convert if it's an image (excluding PDF)
+        const isConvertible = isImage && !isPdf;
+        
+        if (isConvertible) {
+            setConverting(true);
+            
+            // 10-Second Timeout Logic
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+                setConverting(false);
+                setNotification({ open: true, message: "Download Timeout (Slow connection)", severity: 'error' });
+            }, 10000); // 10 Seconds limit
+
+            try {
+                // Use POST to avoid URL length issues
+                const response = await fetch('/api/admin/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: documentUrl, name: documentName }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: "Unknown server error" }));
+                    throw new Error(errorData.error || `API Error (${response.status})`);
+                }
+
+                // Get the blob and trigger download
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                
+                // Set the filename correctly
+                const baseName = documentName.replace(/\.[^/.]+$/, "") || "document";
+                link.download = `${baseName}.jpg`;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(downloadUrl);
+
+                setNotification({ open: true, message: "JPG Downloaded successfully", severity: 'success' });
+            } catch (error: any) {
+                if (error.name === 'AbortError') return; // Handled by timeout
+                
+                console.error("Conversion API failed:", error);
+                setNotification({ open: true, message: "Failed to convert. Downloading original...", severity: 'error' });
+                
+                // Fallback to original download
+                const link = document.createElement('a');
+                link.href = documentUrl;
+                link.download = documentName;
+                link.target = "_blank";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } finally {
+                setConverting(false);
+            }
+        } else {
+            // Normal download for PDF
+            const link = document.createElement('a');
+            link.href = documentUrl;
+            link.download = documentName;
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
 
     return (
         <Dialog 
@@ -60,10 +147,12 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                 </Box>
             </DialogTitle>
             <DialogContent dividers sx={{ p: 0, overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: '#000' }}>
-                {loading && (
+                {(loading || converting) && (
                     <Box sx={{ position: 'absolute', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                         <CircularProgress color="primary" thickness={6} />
-                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', fontWeight: 'bold' }}>SECURE LOADING...</Typography>
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', fontWeight: 'bold' }}>
+                            {converting ? "CONVERTING TO JPG..." : "SECURE LOADING..."}
+                        </Typography>
                     </Box>
                 )}
                 
@@ -94,12 +183,12 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                         <Typography variant="h6">Preview not available</Typography>
                         <Button 
                             variant="contained" 
-                            href={documentUrl} 
-                            download 
-                            startIcon={<Download size={18} />}
+                            onClick={handleDownload}
+                            disabled={converting}
+                            startIcon={converting ? <CircularProgress size={18} color="inherit" /> : <Download size={18} />}
                             sx={{ mt: 2, borderRadius: '12px', fontWeight: 'bold' }}
                         >
-                            Download to View
+                            {converting ? "Processing..." : "Download Original"}
                         </Button>
                     </Box>
                 )}
@@ -112,15 +201,30 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                     <Button onClick={onClose} color="inherit" sx={{ mr: 1 }}>Close</Button>
                     <Button 
                         variant="contained" 
-                        href={documentUrl} 
-                        download 
-                        startIcon={<Download size={18} />}
+                        onClick={handleDownload}
+                        disabled={converting}
+                        startIcon={converting ? <CircularProgress size={18} color="inherit" /> : <Download size={18} />}
                         sx={{ borderRadius: '12px', fontWeight: 'bold' }}
                     >
-                        Download Original
+                        {converting ? "Converting..." : "Download JPG"}
                     </Button>
                 </Box>
             </DialogActions>
+
+            <Snackbar 
+                open={notification.open} 
+                autoHideDuration={4000} 
+                onClose={() => setNotification({ ...notification, open: false })}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert 
+                    severity={notification.severity} 
+                    icon={notification.severity === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                    sx={{ borderRadius: '12px', fontWeight: 'bold' }}
+                >
+                    {notification.message}
+                </Alert>
+            </Snackbar>
         </Dialog>
     );
 }

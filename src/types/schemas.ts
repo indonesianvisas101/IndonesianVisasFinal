@@ -20,6 +20,7 @@ export const ApplicationSchema = z.object({
     visaAmount: z.string().optional(),
     addonsAmount: z.string().optional(),
     upsells: z.any().optional(),
+    selectedCustomAddons: z.array(z.string()).optional(),
 });
 
 export const MultiApplicationSchema = z.object({

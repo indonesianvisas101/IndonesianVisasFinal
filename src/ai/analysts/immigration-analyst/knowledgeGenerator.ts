@@ -5,38 +5,67 @@ import { QUALITY_ENGINE } from './qualityEngine';
 
 const internalOpenAI = createOpenAI({ apiKey: process.env.OPENAI_API_KEY_INTERNAL });
 
+export type ContentType = 'knowledge' | 'news' | 'viral';
+
 export async function generateKnowledgeArticle(
   topic: string, 
   author: { name: string, title: string },
   sources: { name: string, url: string }[],
-  templateType: keyof typeof KNOWLEDGE_TEMPLATES = 'visa_knowledge'
+  type: ContentType = 'knowledge'
 ) {
-  const systemPrompt = `You are the AI_IMMIGRATION_ANALYST for IndonesianVisas.com.
-Your goal is to generate a comprehensive, SEO-optimized, 1200-3000 word knowledge article on the topic: "${topic}".
-
-AUTHORITY CONTEXT:
+  const baseRequirements = `
 - Author: ${author.name} (${author.title})
 - Available Sources: ${sources.map(s => `${s.name} (${s.url})`).join(', ')}
-
-CORE REQUIREMENTS:
-- Length: 1200 - 3000 words.
-- Sections: Minimum 8, Maximum 20.
-- Tone: Professional, authoritative, yet approachable (Expat-friendly).
 - Legal: NO guarantees of visa approval. Must include a disclaimer that we are a private administrative agency.
-- Source Referencing: You MUST cite at least one of the available sources naturally in the text.
-- Internal Linking: You MUST include natural internal links to:
-    - /indonesia-visa-guide-2026 (The Ultimate Guide)
-    - /visa-types/b211a-visa-indonesia
-    - /visa-types/kitas-indonesia
-    - /apply
-- Schema.org: Generate SEO metadata including breadcrumb titles and FAQ structured data. Include the author metadata.
+- Tone: Professional, authoritative, and Expat-friendly.
+- Internal Linking: Include natural links to /indonesia-visa-guide-2026, /visa-types/b211a-visa-indonesia, /visa-types/kitas-indonesia, /apply.
+  `;
 
-You must return a JSON object with the following structure:
+  const typeSpecificPrompts: Record<ContentType, string> = {
+    knowledge: `
+TYPE: KNOWLEDGE ARTICLE
+FOCUS: Hard Facts, Official Regulations, and Internal Site Data.
+REQUIREMENTS:
+- Wajib menggunakan data fakta dari internet dengan sumber Official (Imigrasi Indonesia).
+- Wajib menggunakan data dari dalam website IndonesianVisas.com (Cek sitemap context).
+- Length: 1500-3000 words.
+- Structure: Deep analysis, step-by-step guides, and technical requirements.
+    `,
+    news: `
+TYPE: IMMIGRATION NEWS
+FOCUS: New or Existing Regulations, Visa Policy Changes.
+REQUIREMENTS:
+- Berita Regulasi terbaru atau Regulasi Lama tentang ke immigrasian Indonesia.
+- Kebijakan tentang visa, atau Info resmi dari Indonesianvisas.com.
+- Length: 800-1500 words.
+- Structure: Clear headlines, impact analysis for travelers/expats, and validity dates.
+    `,
+    viral: `
+TYPE: VIRAL TREND
+FOCUS: Social Media Trends, Expat Cases, Trending Immigration News.
+REQUIREMENTS:
+- Berita Viral di Internet, News, Social Media tentang keimmigratian indonesia.
+- Fokus pada kasus-kasus bule/expat di Bali, Jakarta, dan Indonesia secara umum.
+- Length: 1000-2000 words.
+- Structure: Engaging hook, narrative style, community reaction summary, and legal perspective/consequence.
+    `
+  };
+
+  const systemPrompt = `You are the AI_MASTER_CONTENT_GENERATOR for IndonesianVisas.com.
+Your goal is to generate a "${type.toUpperCase()}" post for the topic: "${topic}".
+
+${typeSpecificPrompts[type]}
+
+${baseRequirements}
+
+OUTPUT FORMAT (JSON):
 {
   "title": "Full SEO Title",
   "slug": "url-friendly-slug",
+  "summary": "Brief summary/meta description (150-160 chars)",
+  "category": "Matching existing category (e.g., Bali News, Visa Guide, etc.)",
   "metadata": {
-    "description": "Meta description (150-160 chars)",
+    "description": "Meta description",
     "keywords": ["keyword1", "keyword2"],
     "schema": {
       "type": "Article",
@@ -44,30 +73,29 @@ You must return a JSON object with the following structure:
       "faq": [{ "question": "...", "answer": "..." }]
     }
   },
-  "sources_used": ["Name of source 1", "Name of source 2"],
+  "sources_used": ["Name of source 1"],
   "sections": [
-    { "id": "section-id", "type": "section-type", "title": "Section Title", "content": "Markdown content" }
+    { "id": "section-id", "type": "section", "title": "Section Title", "content": "Markdown content" }
   ]
 }`;
 
   const { text } = await generateText({
     model: internalOpenAI('gpt-4o'),
     system: systemPrompt,
-    prompt: `Generate a full article for the topic: ${topic}. Output strictly valid JSON.`,
+    prompt: `Generate the full ${type} article for: ${topic}. Output strictly valid JSON.`,
   });
 
   try {
     const article = JSON.parse(text);
-    
-    // Perform Quality Evaluation
     const qualityMetrics = QUALITY_ENGINE.evaluateContent(text, topic);
     
     return {
       ...article,
+      content: article.sections, 
       qualityMetrics
     };
   } catch (e) {
     console.error("Failed to parse AI article JSON", e);
-    throw new Error("KNOWLEDGE_GENERATION_FAILED");
+    throw new Error("CONTENT_GENERATION_FAILED");
   }
 }

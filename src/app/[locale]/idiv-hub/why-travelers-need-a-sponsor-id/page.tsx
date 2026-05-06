@@ -45,6 +45,11 @@ export default function WhyTravelersNeedIdPage() {
                         icon: <Lock size={24} />, 
                         title: "Privacy Control", 
                         desc: "Share only the data needed for the specific interaction. Partners see your 'Valid' status, not your home address." 
+                    },
+                    { 
+                        icon: <Users size={24} />, 
+                        title: "Legal Accountability", 
+                        desc: "The Sponsor ID is your 'Black-and-White' proof that we are legally responsible for you. Most agencies provide no paper trail; we provide total accountability." 
                     }
                 ]} />
             </section>
@@ -86,7 +91,7 @@ export default function WhyTravelersNeedIdPage() {
             <section>
                 <h2>Frequently Asked Questions</h2>
                 <ul>
-                    <li><strong>Is the IDIV card free?</strong> The basic digital ID is included with your sponsorship; premium physical cards are available for a small production and delivery fee.</li>
+                    <li><strong>Is the IDIV card free?</strong> The basic digital ID is included with your sponsorship. At Indonesian Visas, we operate with **Zero Hidden Fees**—the price you see is the final price for your legal protection.</li>
                     <li><strong>Can I use it for domestic flights?</strong> You should always carry your original Passport or a high-quality copy for airline check-ins and security.</li>
                     <li><strong>Does it work outside of Bali?</strong> Yes. IDIV is a national platform recognized by authorities and partners across the entire Indonesian archipelago.</li>
                 </ul>

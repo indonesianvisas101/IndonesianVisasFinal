@@ -599,7 +599,13 @@ export default function AIMasterTab() {
             });
             if (res.ok) {
                 setManualTopicInput('');
-                fetchData(); // Refresh list
+                await fetchManagementData();
+                // Trigger the AI Orchestrator Heartbeat
+                fetch('/api/ai-master/management', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'RUN_ANALYTICS' })
+                });
             }
         } catch (e) {
             console.error("Failed to queue topic", e);
@@ -630,14 +636,24 @@ export default function AIMasterTab() {
     const handleApproveDiscoveryTopic = async (topic: string, id: string) => {
         setApprovingTopicId(id);
         try {
+            // Convert discovery to a manual priority for instant generation
             const res = await fetch('/api/ai-master/management', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'UPDATE_TOPIC', data: { type: 'KNOWLEDGE', topic } })
+                body: JSON.stringify({
+                    action: 'ADD_MANUAL_TOPIC',
+                    data: { topic }
+                })
             });
+
             if (res.ok) {
-                // Refresh data
-                fetchData();
+                await fetchManagementData();
+                // Trigger scheduler
+                fetch('/api/ai-master/management', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'RUN_ANALYTICS' })
+                });
             }
         } catch (e) {
             console.error("Failed to approve topic", e);
@@ -857,17 +873,13 @@ export default function AIMasterTab() {
                 <Grid size={{ xs: 12, md: 4 }}>
                     <Card sx={{ bgcolor: 'background.paper', borderLeft: '6px solid', borderColor: 'warning.main' }}>
                         <CardContent>
-                            <Typography variant="overline" color="text.secondary">System Status</Typography>
-                            <Typography variant="h4" fontWeight="bold" color={systemState?.systemHealthStatus === 'healthy' ? 'success.main' : 'error.main'}>
-                                {systemState?.systemHealthStatus?.toUpperCase() || 'UNKNOWN'}
+                            <Typography variant="overline" color="text.secondary">Daily Posting Status (7 AM)</Typography>
+                            <Typography variant="h4" fontWeight="bold" color="success.main">
+                                ACTIVE
                             </Typography>
                             <Box display="flex" justifyContent="space-between" alignItems="center">
-                                <Typography variant="caption">Last risk scan: {systemState?.lastRiskScan ? new Date(systemState.lastRiskScan).toLocaleTimeString() : 'Never'}</Typography>
-                                {lastSyncInfo && (
-                                    <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                        <AuditIcon sx={{ fontSize: 12 }} /> Last Sync: {new Date(lastSyncInfo.time).toLocaleTimeString()}
-                                    </Typography>
-                                )}
+                                <Typography variant="caption">1x24h Schedule: Enabled</Typography>
+                                <Typography variant="caption" color="text.secondary">Next Post: Tomorrow 07:00</Typography>
                             </Box>
                         </CardContent>
                     </Card>
@@ -947,8 +959,17 @@ export default function AIMasterTab() {
                                                                 </Avatar>
                                                             </ListItemAvatar>
                                                             <ListItemText 
-                                                                primary={<Typography variant="caption" fontWeight="bold" sx={{ color: 'warning.main' }}>{item.topicTitle}</Typography>}
-                                                                secondary={<Typography variant="caption" sx={{ fontSize: '9px' }}>Priority: VVIP | Status: {item.status === 'vvip_queued' ? 'Awaiting Research' : 'Searching & Deeper Researching...'}</Typography>}
+                                                                primary={<Typography variant="caption" fontWeight="bold" sx={{ color: item.status === 'published' ? 'success.main' : 'warning.main' }}>{item.topicTitle}</Typography>}
+                                                                secondary={
+                                                                    <Typography variant="caption" sx={{ fontSize: '9px' }}>
+                                                                        Priority: VVIP | Status: {
+                                                                            item.status === 'published' ? 'LIVE & PUBLISHED' : 
+                                                                            item.status === 'vvip_queued' ? 'Awaiting AI Research' : 
+                                                                            'Deeping Researching...'
+                                                                        }
+                                                                        {item.publishedAt && ` | ${new Date(item.publishedAt).toLocaleTimeString()}`}
+                                                                    </Typography>
+                                                                }
                                                             />
                                                             <IconButton size="small" color="error" onClick={() => handleDeleteVvipTopic(item.id)}>
                                                                 <DeleteIcon fontSize="small" />

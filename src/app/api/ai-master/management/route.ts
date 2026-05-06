@@ -104,7 +104,8 @@ export async function GET(request: Request) {
             executionLogs,
             knowledgePages,
             immigrationUpdates,
-            clusterSummary
+            clusterSummary,
+            vvipQueue
         });
 
     } catch (error: any) {

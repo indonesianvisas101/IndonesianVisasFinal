@@ -58,7 +58,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
     const [openQRDialog, setOpenQRDialog] = useState(false);
     const [openCardDialog, setOpenCardDialog] = useState(false);
     const [verificationMode, setVerificationMode] = useState<'linked' | 'manual'>('manual');
-    const [previewCardMode, setPreviewCardMode] = useState<'IDIV' | 'IDG'>('IDIV');
+    const [previewCardMode, setPreviewCardMode] = useState<'IDIV' | 'IDG' | 'SMART'>('IDIV');
     const [selectedUserId, setSelectedUserId] = useState("");
 
     // Form State
@@ -77,7 +77,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         slug: "",
         status: "VALID",
         isIdivPurchased: false,
-        idivPreviewExpiresAt: ""
+        idivPreviewExpiresAt: "",
+        preferredMode: "IDIV"
     });
 
     // Selected Item for QR or Edit
@@ -146,6 +147,37 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             setLoading(false);
         }
     };
+    const handleModeChange = async (newMode: string) => {
+        setPreviewCardMode(newMode as any);
+        if (!selectedItem) return;
+
+        let currentAddress = selectedItem.address || "";
+        let jsonObj: any = {};
+        
+        if (currentAddress.startsWith("{")) {
+            try { jsonObj = JSON.parse(currentAddress); } catch (e) { jsonObj = { street: currentAddress }; }
+        } else {
+            jsonObj.street = currentAddress;
+        }
+        
+        jsonObj.preferredMode = newMode;
+        const newAddressStr = JSON.stringify(jsonObj);
+
+        try {
+            const res = await fetch('/api/verification', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: selectedItem.id, address: newAddressStr })
+            });
+            if (res.ok) {
+                setVerifications(prev => prev.map(v => v.id === selectedItem.id ? { ...v, address: newAddressStr } : v));
+                // Update selectedItem locally so it stays in sync
+                setSelectedItem((prev: any) => ({ ...prev, address: newAddressStr }));
+            }
+        } catch (e) {
+            console.error("Failed to update preferred mode", e);
+        }
+    };
 
     const handleCreate = async () => {
         // Validation for Linking
@@ -164,7 +196,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                 street: formData.address,
                 birthPlaceDate: formData.birthPlaceDate,
                 gender: formData.gender,
-                occupation: formData.occupation
+                occupation: formData.occupation,
+                preferredMode: formData.preferredMode || previewCardMode || "IDIV"
             });
 
             const payload = {
@@ -266,7 +299,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             slug: "",
             status: "VALID",
             isIdivPurchased: false,
-            idivPreviewExpiresAt: ""
+            idivPreviewExpiresAt: "",
+            preferredMode: "IDIV"
         });
         setSelectedUserId("");
         setVerificationMode('manual');
@@ -295,6 +329,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                 parsedBirth     = getVal(['birthPlaceDate', 'dob', 'BIRTHPLACEDATE']);
                 parsedGender    = getVal(['gender', ' Jenis Kelamin']);
                 parsedOcc       = getVal(['occupation', 'Pekerjaan']);
+                const prefMode  = parsed.preferredMode || null;
+                if (prefMode) setPreviewCardMode(prefMode as any);
             } catch (e) {}
         }
 
@@ -313,7 +349,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             slug: item.slug || "",
             status: item.status || "VALID",
             isIdivPurchased: item.isIdivPurchased || false,
-            idivPreviewExpiresAt: item.idivPreviewExpiresAt ? new Date(item.idivPreviewExpiresAt).toISOString().split('T')[0] : ""
+            idivPreviewExpiresAt: item.idivPreviewExpiresAt ? new Date(item.idivPreviewExpiresAt).toISOString().split('T')[0] : "",
+            preferredMode: (item.address && item.address.startsWith('{') ? JSON.parse(item.address).preferredMode : null) || "IDIV"
         });
         setEditId(item.id);
         setIsEditing(true);
@@ -461,10 +498,19 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                 size="small"
                                                 title="Preview IDiv Card"
                                                 aria-label="Preview IDiv Card"
-                                                onClick={() => { 
-                                                    setSelectedItem(item); 
-                                                    setPreviewCardMode(item.visaType?.toUpperCase().includes('IDG') || item.visaType?.toUpperCase().includes('GUIDE') ? 'IDG' : 'IDIV');
-                                                    setOpenCardDialog(true); 
+                                                onClick={() => {
+                                                    setSelectedItem(item);
+                                                    // Pre-set preview mode from address JSON if exists
+                                                    if (item.address && item.address.startsWith('{')) {
+                                                        try {
+                                                            const p = JSON.parse(item.address);
+                                                            if (p.preferredMode) setPreviewCardMode(p.preferredMode);
+                                                            else setPreviewCardMode('IDIV');
+                                                        } catch (e) { setPreviewCardMode('IDIV'); }
+                                                    } else {
+                                                        setPreviewCardMode('IDIV');
+                                                    }
+                                                    setOpenCardDialog(true);
                                                 }}
                                             >
                                                 <RemoveRedEyeIcon />
@@ -836,14 +882,14 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             
             {/* IDIV CARD PREVIEW DIALOG */}
             <Dialog open={openCardDialog} onClose={() => setOpenCardDialog(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>IDiv Card Preview</DialogTitle>
+                <DialogTitle>Sponsor ID Preview</DialogTitle>
                 <DialogContent>
                     <Box display="flex" flexDirection="column" alignItems="center" py={4}>
                         {selectedItem && (
                             <>
                                 <Tabs 
                                     value={previewCardMode} 
-                                    onChange={(e, newVal) => setPreviewCardMode(newVal)}
+                                    onChange={(e, newVal) => handleModeChange(newVal)}
                                     sx={{ mb: 3 }}
                                 >
                                     <Tab label="IDiv Card" value="IDIV" />

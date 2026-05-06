@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { createClient } from '@/utils/supabase/server';
+import { getSignedUrl } from '@/lib/storage';
 
 export async function GET(request: Request) {
     try {
@@ -41,10 +42,22 @@ export async function GET(request: Request) {
         });
 
         // 4. Fetch Recent Leads
-        const recentLeads = await p.marketingLead.findMany({
+        const recentLeadsRaw = await p.marketingLead.findMany({
             orderBy: { createdAt: 'desc' },
             take: 10
         });
+
+        // 5. Harden Document Access: Generate Signed URLs
+        const recentLeads = await Promise.all(recentLeadsRaw.map(async (lead: any) => {
+            const signedLead = { ...lead };
+            if (lead.passportUrl) {
+                signedLead.passportUrl = await getSignedUrl(lead.passportUrl);
+            }
+            if (lead.photoUrl) {
+                signedLead.photoUrl = await getSignedUrl(lead.photoUrl);
+            }
+            return signedLead;
+        }));
 
         return NextResponse.json({
             funnel: {

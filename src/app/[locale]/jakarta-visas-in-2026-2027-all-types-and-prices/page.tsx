@@ -6,6 +6,23 @@ import LazySection from "@/components/layout/LazySection";
 import Hero from "@/components/hero/Hero";
 import Link from "next/link";
 
+import { 
+  Shield, 
+  Zap, 
+  Globe, 
+  Users, 
+  BookOpen, 
+  AlertCircle, 
+  HelpCircle, 
+  FileCheck, 
+  Map as MapIcon, 
+  ArrowRight,
+  Plane,
+  Building2,
+  Briefcase
+} from "lucide-react";
+import IDivCardModern from "@/components/idiv/IDivCardModern";
+
 const ServicesPreview = dynamic(() => import("@/components/sections/ServicesPreview"));
 const ContactSection = dynamic(() => import("@/components/sections/ContactSection"));
 const WhyChooseUs = dynamic(() => import("@/components/sections/WhyChooseUs"));
@@ -122,6 +139,15 @@ export default async function JakartaGuide2026({ params }: { params: Promise<{ l
     ]
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": `${APP_URL}/${locale}` },
+      { "@type": "ListItem", "position": 2, "name": "Jakarta Business Guide 2026", "item": `${APP_URL}/${locale}/jakarta-visas-in-2026-2027-all-types-and-prices` }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-black">
       <script
@@ -132,12 +158,25 @@ export default async function JakartaGuide2026({ params }: { params: Promise<{ l
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jakartaFaqSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       
       {/* SEO H1 — Primary Keyword Target */}
       <h1 className="sr-only">Jakarta Visa 2026-2027 — Business & Investor Immigration Hub | Direct Sponsor</h1>
 
       {/* 1. Hero Section - Corporate Focus */}
-      <Hero dict={dict} />
+      <Hero dict={dict} bgImage="/images/BaliHelpCompress.webp" />
+
+      {/* Visual Breadcrumbs - SEO SCRUMB */}
+      <div className="bg-slate-50 dark:bg-zinc-900/50 py-4 border-b border-slate-200 dark:border-white/5">
+        <div className="container mx-auto px-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+           <ArrowRight size={10} />
+           <span className="text-slate-900 dark:text-white">Jakarta Guide 2026</span>
+        </div>
+      </div>
 
       {/* 2. Jakarta Business Outlook - Unique Content */}
       <section className="py-20 bg-white dark:bg-white/5 shadow-inner">
@@ -182,6 +221,82 @@ export default async function JakartaGuide2026({ params }: { params: Promise<{ l
                  <div className="text-4xl mb-4">🛡️</div>
                  <h3 className="font-bold mb-2">Smart ID Pro</h3>
                  <p className="text-sm text-slate-500">Corporate Security</p>
+              </div>
+           </div>
+        </div>
+      </section>
+
+      {/* NEW SECTION: 3D IDiv Corporate Showcase */}
+      <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full -translate-x-1/2" />
+          <div className="container mx-auto px-4 relative z-10">
+              <div className="grid md:grid-cols-2 gap-20 items-center">
+                  <div className="space-y-8">
+                      <div className="inline-flex items-center gap-2 px-4 py-1 bg-primary/20 rounded-full border border-primary/30 text-[10px] font-black tracking-[0.2em] uppercase text-primary">
+                          <Building2 size={12} /> Executive Identity Protocol
+                      </div>
+                      <h2 className="text-5xl md:text-7xl font-black tracking-tighter italic leading-none uppercase">THE <span className="text-primary">CORPORATE</span><br/>SMART-ID</h2>
+                      <p className="text-xl text-slate-400 leading-relaxed font-medium">
+                          The executive's essential for 2027. Verifiable sponsorship status for high-level business meetings, financial transactions, and secure travel across the archipelago.
+                      </p>
+                      <div className="flex flex-col gap-4">
+                         <div className="flex items-center gap-3 font-bold text-slate-200 p-4 bg-white/5 rounded-2xl border border-white/10">
+                            <Shield className="text-primary" size={20} />
+                            <span>Encrypted Security for Company Directors</span>
+                         </div>
+                      </div>
+                      <Link href="/smart-id" className="px-12 py-6 bg-primary text-white font-black rounded-2xl hover:scale-105 transition-all shadow-[0_20px_50px_rgba(124,58,237,0.4)] inline-flex items-center gap-3 uppercase italic">
+                          Activate Smart ID Pro <ArrowRight size={20} />
+                      </Link>
+                  </div>
+                  <div className="flex justify-center">
+                      <div className="relative">
+                          <IDivCardModern mode="SMART" autoRotate={true} />
+                          <div className="mt-12 text-center">
+                              <Link href="/why-travelers-need-a-sponsor-id" className="text-white/40 hover:text-white transition-colors text-sm font-bold underline underline-offset-8 decoration-primary/30 uppercase tracking-widest">
+                                  Jakarta Corporate Verification Guide
+                              </Link>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </section>
+
+      {/* NEW SECTION: CGK Executive Arrival (Soekarno-Hatta) */}
+      <section className="py-24 bg-white dark:bg-black">
+        <div className="container mx-auto px-4 max-w-6xl">
+           <div className="flex flex-col md:flex-row gap-16 items-center">
+              <div className="flex-1 bg-slate-50 dark:bg-white/5 p-12 rounded-[4rem] border-r-8 border-primary relative overflow-hidden">
+                 <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <Plane size={120} />
+                 </div>
+                 <h4 className="font-black text-2xl mb-6 italic uppercase">CGK Arrival Protocol:</h4>
+                 <div className="space-y-6 relative z-10">
+                    <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                       Time is equity. Our **Jakarta Corporate Arrival** service ensures your <Link href="/visa-types/business-visa-indonesia" className="text-primary font-bold underline">D2 Business Visa</Link> is prioritized at Soekarno-Hatta's Executive Terminal.
+                    </p>
+                    <ul className="space-y-4">
+                       <li className="flex gap-3 text-sm font-bold">
+                          <FileCheck className="text-green-500" size={18} /> Zero Queue Processing
+                       </li>
+                       <li className="flex gap-3 text-sm font-bold">
+                          <FileCheck className="text-green-500" size={18} /> Direct Liaison with Soetta Immigration
+                       </li>
+                    </ul>
+                 </div>
+              </div>
+              <div className="flex-1">
+                 <div className="inline-flex items-center gap-2 px-4 py-1 bg-slate-100 dark:bg-white/10 rounded-full text-xs font-bold mb-6">
+                    <Zap size={14} className="text-primary" /> RAPID DEPLOYMENT 2027
+                 </div>
+                 <h2 className="text-5xl font-black mb-8 tracking-tighter italic uppercase">BUSINESS <span className="text-primary">FIRST</span></h2>
+                 <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed font-medium mb-10">
+                    Entering Jakarta on business requires more than just a permit; it requires a **Legal Anchor**. As a first-hand corporate sponsor, we bridge the gap between international commerce and local immigration laws.
+                 </p>
+                 <Link href="/fast-approval" className="inline-flex items-center gap-2 font-black text-primary hover:gap-4 transition-all uppercase italic text-lg">
+                    Check Executive Clearance <ArrowRight size={20} />
+                 </Link>
               </div>
            </div>
         </div>
@@ -251,6 +366,56 @@ export default async function JakartaGuide2026({ params }: { params: Promise<{ l
                  <h3 className="font-bold text-xl mb-2">Bali News</h3>
                  <p className="text-sm text-slate-400">Local Bali Updates</p>
               </Link>
+           </div>
+        </div>
+      </section>
+
+      {/* NEW SECTION: Investment Synergy & PT PMA Hub */}
+      <section className="py-24 bg-slate-50 dark:bg-zinc-900/50">
+        <div className="container mx-auto px-4 max-w-6xl">
+           <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-7xl font-black tracking-tighter italic mb-4 uppercase">INVESTMENT <span className="text-primary">SYNERGY</span></h2>
+              <p className="text-xl text-slate-500 font-medium italic">Synchronizing Your Business License with Your Residency.</p>
+           </div>
+           <div className="grid md:grid-cols-2 gap-8">
+              <div className="p-12 bg-white dark:bg-black rounded-[4rem] shadow-xl border border-slate-100 dark:border-white/10">
+                 <Briefcase className="text-primary mb-6" size={48} />
+                 <h3 className="text-3xl font-black mb-4 italic uppercase">PT PMA INCORPORATION</h3>
+                 <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+                    100% Foreign Ownership under the **Omnibus Law**. We handle the full OSS (Online Single Submission) process, NIB registration, and BKPM compliance.
+                 </p>
+                 <Link href="/company-formation" className="font-black text-primary uppercase text-sm hover:underline">Explore Formation <ArrowRight size={14} className="inline ml-1" /></Link>
+              </div>
+              <div className="p-12 bg-white dark:bg-black rounded-[4rem] shadow-xl border border-slate-100 dark:border-white/10">
+                 <Globe className="text-primary mb-6" size={48} />
+                 <h3 className="text-3xl font-black mb-4 italic uppercase">INVESTOR KITAS (E28A)</h3>
+                 <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+                    The golden standard for Jakarta residents. Secure a 2-year permit with unlimited entry and full director-level legal rights in Indonesia.
+                 </p>
+                 <Link href="/visa-types/investor-visa-indonesia" className="font-black text-primary uppercase text-sm hover:underline">Explore Investor Visa <ArrowRight size={14} className="inline ml-1" /></Link>
+              </div>
+           </div>
+        </div>
+      </section>
+
+      {/* NEW SECTION: Real-time Jakarta Processing Stats */}
+      <section className="py-24 bg-white dark:bg-black">
+        <div className="container mx-auto px-4 max-w-6xl">
+           <div className="p-12 bg-slate-900 rounded-[4rem] text-white relative overflow-hidden">
+              <div className="grid md:grid-cols-4 gap-8 text-center relative z-10">
+                 {[
+                   { label: "Corporate Permits", value: "1,200+", sub: "Monthly Volume" },
+                   { label: "PMA Success", value: "100%", sub: "Regulatory Clean" },
+                   { label: "Processing Speed", value: "48h", sub: "Executive Priority" },
+                   { label: "Active Investors", value: "5,800+", sub: "Direct Sponsored" }
+                 ].map((stat, i) => (
+                   <div key={i} className="space-y-2">
+                      <p className="text-[10px] font-black tracking-widest text-primary uppercase">{stat.label}</p>
+                      <p className="text-4xl font-black tracking-tighter italic">{stat.value}</p>
+                      <p className="text-[8px] opacity-40 uppercase tracking-widest">{stat.sub}</p>
+                   </div>
+                 ))}
+              </div>
            </div>
         </div>
       </section>

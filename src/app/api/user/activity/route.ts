@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { trackUserActivity } from '@/lib/activity';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST() {
     try {
         const supabase = await createClient();

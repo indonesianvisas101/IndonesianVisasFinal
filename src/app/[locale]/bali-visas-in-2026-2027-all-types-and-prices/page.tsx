@@ -6,6 +6,23 @@ import LazySection from "@/components/layout/LazySection";
 import Hero from "@/components/hero/Hero";
 import Link from "next/link";
 
+import { 
+  Shield, 
+  Zap, 
+  Globe, 
+  Users, 
+  BookOpen, 
+  AlertCircle, 
+  HelpCircle, 
+  FileCheck, 
+  Map as MapIcon, 
+  ArrowRight,
+  Plane,
+  Smartphone,
+  Anchor
+} from "lucide-react";
+import IDivCardModern from "@/components/idiv/IDivCardModern";
+
 const ServicesPreview = dynamic(() => import("@/components/sections/ServicesPreview"));
 const FAQPreview = dynamic(() => import("@/components/sections/FAQPreview"));
 const ContactSection = dynamic(() => import("@/components/sections/ContactSection"));
@@ -128,6 +145,15 @@ export default async function BaliGuide2026({ params }: { params: Promise<{ loca
     ]
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": `${APP_URL}/${locale}` },
+      { "@type": "ListItem", "position": 2, "name": "Bali Guide 2026", "item": `${APP_URL}/${locale}/bali-visas-in-2026-2027-all-types-and-prices` }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-white dark:bg-[#030712]">
       <script
@@ -138,12 +164,25 @@ export default async function BaliGuide2026({ params }: { params: Promise<{ loca
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(baliFaqSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       
       {/* SEO H1 — Primary Keyword Target */}
       <h1 className="sr-only">Bali Visa 2026-2027 — Trusted Guide, All Types & Prices | Direct Sponsor in Bali</h1>
 
       {/* 1. Hero Section - Bali Paradise Focus */}
-      <Hero dict={dict} />
+      <Hero dict={dict} bgImage="/images/BaliHelpCompress.webp" />
+
+      {/* Visual Breadcrumbs - SEO SCRUMB */}
+      <div className="bg-slate-50 dark:bg-zinc-900/50 py-4 border-b border-slate-200 dark:border-white/5">
+        <div className="container mx-auto px-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+           <ArrowRight size={10} />
+           <span className="text-slate-900 dark:text-white">Bali Guide 2026</span>
+        </div>
+      </div>
 
       {/* 2. Bali 2027 Outlook - Unique Content */}
       <section className="py-24 bg-gradient-to-b from-primary/5 to-transparent">
@@ -177,6 +216,82 @@ export default async function BaliGuide2026({ params }: { params: Promise<{ loca
                <p className="mode-aware-subtext">Use your Smart ID for instant verification at Bali hotels and motorcycle rentals.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* NEW SECTION: 3D IDiv Premium Showcase */}
+      <section className="py-32 bg-slate-950 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full translate-x-1/2" />
+          <div className="container mx-auto px-4 relative z-10">
+              <div className="grid md:grid-cols-2 gap-20 items-center">
+                  <div className="order-2 md:order-1 flex justify-center">
+                      <div className="relative">
+                          <IDivCardModern mode="SMART" autoRotate={true} />
+                          <div className="mt-12 flex flex-col items-center gap-4">
+                              <Link href="/smart-id" className="px-10 py-5 bg-primary text-white font-black rounded-2xl hover:scale-105 transition-all shadow-[0_20px_50px_rgba(124,58,237,0.4)] flex items-center gap-3">
+                                  UPGRADE TO SMART ID <ArrowRight size={20} />
+                              </Link>
+                              <Link href="/why-travelers-need-a-sponsor-id" className="text-white/40 hover:text-white transition-colors text-sm font-bold underline underline-offset-8 decoration-primary/30">
+                                  Bali Sponsor Verification Guide
+                              </Link>
+                          </div>
+                      </div>
+                  </div>
+                  <div className="order-1 md:order-2 space-y-8">
+                      <div className="inline-flex items-center gap-2 px-4 py-1 bg-white/10 rounded-full border border-white/20 text-[10px] font-black tracking-[0.2em] uppercase">
+                          <Smartphone size={12} className="text-primary" /> Integrated Bali Lifestyle
+                      </div>
+                      <h2 className="text-5xl md:text-7xl font-black tracking-tighter italic leading-none">DIGITAL <br/><span className="text-primary">BALI IDENTITY</span></h2>
+                      <p className="text-xl text-slate-400 leading-relaxed font-medium">
+                          Leave your passport in the villa safe. Our **Smart ID** is recognized by local authorities, hotels, and rentals across the island. 
+                          It's the ultimate tool for the modern Bali expat.
+                      </p>
+                      <ul className="space-y-4">
+                         <li className="flex items-center gap-3 font-bold text-slate-200">
+                            <FileCheck className="text-primary" size={20} />
+                            <span>Instant Hotel & Villa Check-in</span>
+                         </li>
+                         <li className="flex items-center gap-3 font-bold text-slate-200">
+                            <FileCheck className="text-primary" size={20} />
+                            <span>Legal Bike & Car Rental Verification</span>
+                         </li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
+      </section>
+
+      {/* NEW SECTION: Ngurah Rai (DPS) Fast-Track Protocols */}
+      <section className="py-24 bg-white dark:bg-black">
+        <div className="container mx-auto px-4 max-w-6xl">
+           <div className="flex flex-col md:flex-row gap-16 items-center">
+              <div className="flex-1">
+                 <div className="flex items-center gap-4 mb-6">
+                    <Plane className="text-primary" size={40} />
+                    <h2 className="text-4xl font-black tracking-tighter italic">DPS FAST-TRACK 2027</h2>
+                 </div>
+                 <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed font-medium mb-8">
+                    Skip the 2-hour immigration queues at Ngurah Rai. Our **Bali Priority Entry** system integrates your <Link href="/visa-types/visa-on-arrival-bali" className="text-primary font-bold underline">e-VOA</Link> or C1 Visa directly with the biometric gates. 
+                    Arrival is no longer a hurdle, it's a seamless transition to paradise.
+                 </p>
+                 <Link href="/fast-approval" className="inline-flex items-center gap-2 font-black text-primary hover:gap-4 transition-all uppercase italic text-lg">
+                    Check Bali Arrival Clearance <ArrowRight size={20} />
+                 </Link>
+              </div>
+              <div className="flex-1 bg-slate-50 dark:bg-white/5 p-12 rounded-[4rem] border-l-8 border-primary">
+                 <h4 className="font-black text-2xl mb-6 italic uppercase">Bali Entry Advantage:</h4>
+                 <div className="space-y-6">
+                    <div className="flex gap-4">
+                       <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary shrink-0 font-black italic">A</div>
+                       <p className="text-sm font-medium">Pre-cleared status for <Link href="/visa-indonesia-for-australians" className="text-primary font-bold">Australian</Link> & <Link href="/visa-indonesia-for-americans" className="text-primary font-bold">US</Link> nationals.</p>
+                    </div>
+                    <div className="flex gap-4">
+                       <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary shrink-0 font-black italic">B</div>
+                       <p className="text-sm font-medium">Direct liaison with Denpasar Immigration HQ.</p>
+                    </div>
+                 </div>
+              </div>
+           </div>
         </div>
       </section>
 
@@ -237,6 +352,50 @@ export default async function BaliGuide2026({ params }: { params: Promise<{ loca
                 </ul>
              </div>
           </div>
+        </div>
+      </section>
+
+      {/* NEW SECTION: Nomad Lifestyle Compliance */}
+      <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-full h-full opacity-10 bg-[url('/images/IndonesianVisas/BaliHelp.webp')] bg-cover bg-fixed" />
+        <div className="container mx-auto px-4 max-w-5xl relative z-10 text-center">
+           <Anchor className="mx-auto text-primary mb-8" size={64} />
+           <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter italic">NOMAD <span className="text-primary">STABILITY</span></h2>
+           <p className="text-2xl text-slate-300 leading-relaxed font-medium mb-12 max-w-3xl mx-auto">
+              Canggu, Ubud, or Uluwatu? Wherever you base yourself, our <Link href="/visa-types/kitas-indonesia" className="text-white underline font-bold">E33G Remote Worker KITAS</Link> ensures you are legally tax-compliant and 100% authorized to work for your overseas company.
+           </p>
+           <div className="grid sm:grid-cols-2 gap-6">
+              <div className="p-8 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10">
+                 <h4 className="text-xl font-black mb-4 italic">Coworking Access</h4>
+                 <p className="text-sm opacity-60">Verified identity for seamless membership at Bali's top coworking hubs.</p>
+              </div>
+              <div className="p-8 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10">
+                 <h4 className="text-xl font-black mb-4 italic">Local Residency</h4>
+                 <p className="text-sm opacity-60">Open local bank accounts and secure long-term villa leases with ease.</p>
+              </div>
+           </div>
+        </div>
+      </section>
+
+      {/* NEW SECTION: Real-time Bali Processing Tracker */}
+      <section className="py-24 bg-white dark:bg-black">
+        <div className="container mx-auto px-4 max-w-6xl">
+           <div className="p-12 bg-primary/5 rounded-[4rem] border-2 border-primary/10">
+              <div className="grid md:grid-cols-4 gap-8 text-center">
+                 {[
+                   { label: "Bali Arrivals Weekly", value: "2,400+", sub: "Ngurah Rai Priority" },
+                   { label: "Nomad KITAS Issued", value: "450+", sub: "E33G Specialist" },
+                   { label: "Avg. VOA Extension", value: "24h", sub: "Fast-Track Service" },
+                   { label: "Bali Success Rate", value: "99.8%", sub: "Direct Sponsorship" }
+                 ].map((stat, i) => (
+                   <div key={i} className="space-y-2">
+                      <p className="text-[10px] font-black tracking-widest text-primary uppercase">{stat.label}</p>
+                      <p className="text-4xl font-black tracking-tighter italic text-slate-900 dark:text-white">{stat.value}</p>
+                      <p className="text-[8px] opacity-40 uppercase tracking-widest">{stat.sub}</p>
+                   </div>
+                 ))}
+              </div>
+           </div>
         </div>
       </section>
 

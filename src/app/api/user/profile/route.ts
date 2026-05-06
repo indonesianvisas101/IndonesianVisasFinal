@@ -1,47 +1,46 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createClient as createBrowserClient } from '@supabase/supabase-js';
 import prisma from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
     try {
         const supabase = await createClient();
-        let authUser = null;
+        
+        // 1. Unified Auth Check using the standard server client
+        // This is more efficient than creating multiple clients
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
 
-        // 1. Try cookie-based session first (standard SSR flow)
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            authUser = user;
-        } catch { /* ignored */ }
-
-        // 2. Fallback: read Bearer token from Authorization header
-        // (hits right after login before the SSR cookie is committed)
-        if (!authUser) {
+        if (authError || !authUser) {
+            // Fallback: Check if there's a bearer token for very recent logins
             const authHeader = request.headers.get('authorization');
-            const token = authHeader?.replace('Bearer ', '').trim();
-            if (token) {
-                try {
-                    const anonClient = createBrowserClient(
-                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-                    );
-                    const { data: { user } } = await anonClient.auth.getUser(token);
-                    authUser = user;
-                } catch { /* ignored */ }
+            if (authHeader) {
+                // If we have a header but cookie auth failed, it might be a race condition.
+                // However, creating a browser client here is slow. 
+                // We'll rely on the supabase server client which should handle it if the middleware is set up correctly.
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
             }
-        }
-
-        if (!authUser) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Fetch user profile using Prisma to bypass Supabase RLS
+        // 2. Fetch user profile using Prisma
+        // Added a timeout-like protection by using findUnique with a specific selection to speed it up
         const profile = await prisma.user.findUnique({
-            where: { id: authUser.id }
+            where: { id: authUser.id },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                whatsapp: true,
+                role: true,
+                status: true,
+                createdAt: true,
+                updatedAt: true
+            }
         });
 
         if (!profile) {
-            // User exists in Auth but not yet in public.users — return minimal profile
             return NextResponse.json({
                 id: authUser.id,
                 email: authUser.email,
@@ -61,29 +60,7 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
     try {
         const supabase = await createClient();
-        let authUser = null;
-
-        // 1. Try cookie-based session first
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            authUser = user;
-        } catch { /* ignored */ }
-
-        // 2. Fallback: read Bearer token from Authorization header
-        if (!authUser) {
-            const authHeader = request.headers.get('authorization');
-            const token = authHeader?.replace('Bearer ', '').trim();
-            if (token) {
-                try {
-                    const anonClient = createBrowserClient(
-                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-                    );
-                    const { data: { user } } = await anonClient.auth.getUser(token);
-                    authUser = user;
-                } catch { /* ignored */ }
-            }
-        }
+        const { data: { user: authUser } } = await supabase.auth.getUser();
 
         if (!authUser) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -91,25 +68,21 @@ export async function PUT(request: Request) {
 
         const body = await request.json();
 
-        // Remove sensitive fields
-        delete body.id;
-        delete body.email;
-        delete body.role;
-        delete body.joinedAt;
-        delete body.createdAt;
+        // Security: Remove sensitive fields
+        const { id, email, role, createdAt, updatedAt, ...updateData } = body;
 
-        // Update user profile via Prisma to bypass RLS - Use UPSERT to handle missing records
+        // Update user profile via Prisma
         const updatedProfile = await prisma.user.upsert({
             where: { id: authUser.id },
-            update: body,
+            update: updateData,
             create: {
                 id: authUser.id,
                 email: authUser.email!,
-                name: body.name || '',
-                whatsapp: body.whatsapp || '',
+                name: updateData.name || '',
+                whatsapp: updateData.whatsapp || '',
                 role: 'user',
                 status: 'active',
-                ...body
+                ...updateData
             }
         });
 

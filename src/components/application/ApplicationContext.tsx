@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect, useRef } from "react";
 import { VisaType } from "@/constants/visas";
 
 // Mock Users removed - using real data
@@ -78,6 +78,7 @@ interface ApplicationState {
         smartId: boolean; // NEW: Smart ID (KTP-style)
     };
     addons: any[];
+    selectedCustomAddons: string[]; // NEW: Dynamic addons from Admin DB
     popularVisaIds: string[];
     customPrice: number | null;
     optionalNotes: string; // NEW: Quick application notes
@@ -116,6 +117,7 @@ interface ApplicationContextType extends ApplicationState {
     notifications: Record<string, AppNotification[]>;
     allNotifications: AppNotification[];
     toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId') => void;
+    toggleCustomAddon: (addonId: string) => void; // NEW: Toggle dynamic addons
     pushNotification: (userId: string, message: string) => void;
     setNotifications: (userId: string, notifications: AppNotification[]) => void;
     setAllNotifications: (notifications: AppNotification[]) => void;
@@ -189,6 +191,7 @@ const defaultState: ApplicationState = {
         smartId: false
     },
     addons: [],
+    selectedCustomAddons: [], // NEW: Empty by default
     popularVisaIds: [],
     customPrice: null,
     optionalNotes: "",
@@ -366,15 +369,24 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 personalInfo: { ...prev.personalInfo, [key]: value },
             };
 
-            // SIDE EFFECT: Ghost Lead Capture
-            // If we have email and at least one other field (name or phone), save as lead
-            if (newState.personalInfo.email && (newState.personalInfo.firstName || newState.personalInfo.phone)) {
-                saveLead(newState);
-            }
-
             return newState;
         });
     };
+
+    // Side effect: Automatic Ghost Lead Capture (Debounced)
+    useEffect(() => {
+        if (!isHydrated) return;
+
+        // Condition: Must have email and at least name or phone
+        const hasContactInfo = state.personalInfo.email && (state.personalInfo.firstName || state.personalInfo.phone);
+        if (!hasContactInfo) return;
+
+        const timer = setTimeout(() => {
+            saveLead(state);
+        }, 2000); // 2 second debounce to prevent spamming DB
+
+        return () => clearTimeout(timer);
+    }, [state.personalInfo, state.visaType, state.documents, isHydrated]);
 
     const saveLead = async (currentState: ApplicationState) => {
         try {
@@ -580,8 +592,9 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
             visaType: visaName,
             // Pass document URLs for backend to pick up
             documents: data.documents ? [{
-                recentPhotoUrl: data.documents.photo,
-                additional: data.documents.additional
+                photoUrl: data.documents.photo,
+                additional: data.documents.additional,
+                isPreUploaded: true
             } as any] : []
         } as any);
     };
@@ -640,6 +653,19 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
+    // NEW: Toggle dynamic addons from Admin DB
+    const toggleCustomAddon = (addonId: string) => {
+        setState(prev => {
+            const exists = prev.selectedCustomAddons.includes(addonId);
+            return {
+                ...prev,
+                selectedCustomAddons: exists
+                    ? prev.selectedCustomAddons.filter(id => id !== addonId)
+                    : [...prev.selectedCustomAddons, addonId]
+            };
+        });
+    };
+
     return (
         <ApplicationContext.Provider
             value={{
@@ -682,6 +708,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 selectVisa,
                 quickApply,
                 toggleUpsell,
+                toggleCustomAddon,
                 addons,
                 refreshAddons,
                 popularVisaIds,

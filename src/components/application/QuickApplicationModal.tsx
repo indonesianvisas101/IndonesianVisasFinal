@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Zap, ShieldCheck, Globe, User, Mail, MessageSquare, Phone, Calendar, Camera, FileText, Eye, Upload, Trash2, Loader2, Info } from "lucide-react";
+import { X, Send, Zap, ShieldCheck, Globe, User, Mail, MessageSquare, Phone, Calendar, Camera, FileText, Eye, Upload, Trash2, Loader2, Info, Search, ChevronDown } from "lucide-react";
 import { useApplication } from "./ApplicationContext";
 import { calculateVisaTotal } from "@/lib/utils";
 import { addWorkingDays, formatDateForInput, getDaysForTier } from "@/lib/dateUtils";
 import Portal from "../common/Portal";
 import { supabase } from "@/lib/supabase";
+import { PHONE_CODES } from "@/constants/phoneCodes";
 
 interface QuickApplicationModalProps {
     isOpen: boolean;
@@ -67,6 +68,11 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
     const [hasManuallySetDate, setHasManuallySetDate] = useState(false);
     const [minArrivalDate, setMinArrivalDate] = useState("");
 
+    // Phone Code States
+    const [isCodeOpen, setIsCodeOpen] = useState(false);
+    const [searchCode, setSearchCode] = useState("");
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
     // Sync from context on mount/open
     useEffect(() => {
         if (isOpen) {
@@ -84,7 +90,47 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
         }
     }, [isOpen, isLocked, visaType, personalInfo, contextCountry, contextPriceTier]);
 
-    // Auto-detection logic
+    // Auto-detect phone code when country changes
+    useEffect(() => {
+        if (!formData.phone && formData.country) {
+            const detected = PHONE_CODES.find(p => p.name.toLowerCase() === formData.country.toLowerCase());
+            if (detected) {
+                setFormData(prev => ({ ...prev, phone: detected.dialCode + " " }));
+            }
+        }
+    }, [formData.country]);
+
+    // Focus search when dropdown opens
+    useEffect(() => {
+        if (isCodeOpen) {
+            setTimeout(() => searchInputRef.current?.focus(), 100);
+        }
+    }, [isCodeOpen]);
+
+    const filteredCodes = useMemo(() => {
+        return PHONE_CODES.filter(p => 
+            p.name.toLowerCase().includes(searchCode.toLowerCase()) || 
+            p.initial.toLowerCase().includes(searchCode.toLowerCase()) ||
+            p.dialCode.includes(searchCode)
+        );
+    }, [searchCode]);
+
+    // Split phone value
+    const phoneValue = formData.phone || "";
+    const currentDialCode = phoneValue.includes(" ") ? phoneValue.split(" ")[0] : (phoneValue.startsWith("+") ? phoneValue : "+62");
+    const currentNumber = phoneValue.includes(" ") ? phoneValue.split(" ").slice(1).join(" ") : "";
+
+    const handleCodeSelect = (dialCode: string) => {
+        setFormData(prev => ({ ...prev, phone: dialCode + " " + currentNumber }));
+        setIsCodeOpen(false);
+        setSearchCode("");
+    };
+
+    const handleNumberChange = (val: string) => {
+        setFormData(prev => ({ ...prev, phone: currentDialCode + " " + val }));
+    };
+
+    // Auto-detection logic for Visa
     useEffect(() => {
         const input = formData.visaInput.toLowerCase().trim();
         let matchedId = "";
@@ -167,10 +213,10 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
             const optimized = await convertToWebP(file);
             setPassportFile(optimized);
         } catch (e) {
-            console.error("Passport optimization failed", e);
-            setPassportFile(file); // Fallback to original if conversion fails
+            console.error("Passport optimization failed, using original", e);
+            setPassportFile(file); // Always fallback, never leave null
         } finally {
-            setIsOptimizingPassport(false);
+            setIsOptimizingPassport(false); // Always reset
         }
     };
 
@@ -184,10 +230,10 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
             const optimized = await convertToWebP(file);
             setPhotoFile(optimized);
         } catch (e) {
-            console.error("Photo optimization failed", e);
-            setPhotoFile(file);
+            console.error("Photo optimization failed, using original", e);
+            setPhotoFile(file); // Always fallback, never leave null
         } finally {
-            setIsOptimizingPhoto(false);
+            setIsOptimizingPhoto(false); // Always reset
         }
     };
 
@@ -209,8 +255,20 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!passportFile || !photoFile) {
-            alert("Please upload mandatory documents (Passport & Photo)");
+
+        // Guard: still optimizing
+        if (isOptimizingPassport || isOptimizingPhoto) {
+            alert("Please wait, files are still being optimized...");
+            return;
+        }
+
+        // Guard: missing mandatory files
+        if (!passportFile) {
+            alert("Please upload your Passport main page before applying.");
+            return;
+        }
+        if (!photoFile) {
+            alert("Please upload your Recent Photo before applying.");
             return;
         }
 
@@ -230,7 +288,11 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
             const additionalUrls = await Promise.all(additionalFiles.map(async (file) => {
                 let fileToUpload = file;
                 if (file.type.startsWith("image/")) {
-                    fileToUpload = await convertToWebP(file);
+                    try {
+                        fileToUpload = await convertToWebP(file);
+                    } catch {
+                        fileToUpload = file; // fallback on error
+                    }
                 }
                 return await uploadFile(fileToUpload, "additional");
             }));
@@ -255,15 +317,17 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                 }
             };
 
-            await quickApply(submissionData);
+            quickApply(submissionData);
 
             setUploadProgress(100);
             onClose();
         } catch (error) {
-            console.error("Upload error:", error);
-            alert("Upload failed. Please check your connection and try again.");
+            console.error("Quick Apply upload error:", error);
+            alert("Upload failed. Please check your internet connection and try again.");
         } finally {
+            // ALWAYS reset uploading state so button never stays frozen
             setIsUploading(false);
+            setUploadProgress(0);
         }
     };
 
@@ -363,14 +427,86 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                 <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
                                     <Phone size={12} /> WhatsApp Number
                                 </label>
-                                <input 
-                                    required
-                                    type="tel"
-                                    value={formData.phone}
-                                    onChange={e => setFormData({...formData, phone: e.target.value})}
-                                    placeholder="+1 234 567 890"
-                                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 font-bold outline-none focus:border-primary transition-all"
-                                />
+                                <div className="flex gap-2 relative">
+                                    <div className="relative">
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setIsCodeOpen(!isCodeOpen)}
+                                            className="h-full px-3 flex items-center gap-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold hover:border-primary/50 transition-all min-w-[90px]"
+                                        >
+                                            {(() => {
+                                                const c = PHONE_CODES.find(p => p.dialCode === currentDialCode);
+                                                return (
+                                                    <div className="flex items-center gap-1.5 overflow-hidden">
+                                                        {c && (
+                                                            <>
+                                                                <img 
+                                                                    src={`https://flagcdn.com/w20/${c.code.toLowerCase()}.png`} 
+                                                                    width="18" height="12" alt={c.name} 
+                                                                    className="rounded-[2px] shrink-0"
+                                                                />
+                                                                <span className="text-[10px] opacity-60 uppercase">{c.initial}</span>
+                                                            </>
+                                                        )}
+                                                        <span className="text-sm">{currentDialCode}</span>
+                                                    </div>
+                                                );
+                                            })()}
+                                            <ChevronDown size={12} className="opacity-50 shrink-0" />
+                                        </button>
+
+                                        {isCodeOpen && (
+                                            <>
+                                                <div className="fixed inset-0 z-40" onClick={() => setIsCodeOpen(false)}></div>
+                                                <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-[2rem] shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-left">
+                                                    <div className="p-3 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
+                                                        <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl">
+                                                            <Search size={14} className="text-slate-400" />
+                                                            <input 
+                                                                ref={searchInputRef}
+                                                                placeholder="Search..." 
+                                                                value={searchCode}
+                                                                onChange={e => setSearchCode(e.target.value)}
+                                                                className="w-full bg-transparent border-none outline-none text-xs font-bold"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <ul className="max-h-64 overflow-y-auto py-2 custom-scrollbar">
+                                                        {filteredCodes.map((c) => (
+                                                            <li key={c.code}>
+                                                                <button 
+                                                                    type="button" 
+                                                                    className="w-full px-4 py-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-left"
+                                                                    onClick={() => handleCodeSelect(c.dialCode)}
+                                                                >
+                                                                    <img 
+                                                                        src={`https://flagcdn.com/w20/${c.code.toLowerCase()}.png`} 
+                                                                        width="20" height="15" alt={c.name} 
+                                                                        className="rounded-sm shrink-0"
+                                                                    />
+                                                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{c.dialCode}</span>
+                                                                    <span className="text-[10px] font-black uppercase text-slate-300 ml-auto">{c.initial}</span>
+                                                                </button>
+                                                            </li>
+                                                        ))}
+                                                        {filteredCodes.length === 0 && (
+                                                            <div className="p-6 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">No Matches</div>
+                                                        )}
+                                                    </ul>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                    <input 
+                                        required
+                                        type="tel"
+                                        value={currentNumber}
+                                        onChange={e => handleNumberChange(e.target.value)}
+                                        placeholder="812 3456 7890"
+                                        className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 font-bold outline-none focus:border-primary transition-all"
+                                    />
+                                </div>
+                                <p className="text-[9px] text-slate-400 font-medium italic">* Please select your country area code above.</p>
                             </div>
                         </div>
 
@@ -666,11 +802,25 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                             
                             <button 
                                 type="submit"
-                                disabled={isUploading}
-                                className={`w-full bg-[#4B0082] text-white font-black py-5 rounded-2xl shadow-xl shadow-indigo-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 text-lg ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={isUploading || isOptimizingPassport || isOptimizingPhoto}
+                                className={`w-full font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 text-lg
+                                    ${
+                                        isUploading || isOptimizingPassport || isOptimizingPhoto
+                                            ? 'bg-slate-400 text-white opacity-60 cursor-not-allowed'
+                                            : !passportFile || !photoFile
+                                                ? 'bg-amber-500 text-white hover:bg-amber-600 cursor-pointer shadow-amber-500/20'
+                                                : 'bg-[#4B0082] text-white hover:scale-[1.02] active:scale-95 shadow-indigo-500/20 cursor-pointer'
+                                    }`
+                                }
                             >
-                                {isUploading ? (
+                                {isOptimizingPassport || isOptimizingPhoto ? (
+                                    <>Optimizing Files... <Loader2 size={20} className="animate-spin" /></>
+                                ) : isUploading ? (
                                     <>Processing... <Loader2 size={20} className="animate-spin" /></>
+                                ) : !passportFile ? (
+                                    <>Passport Required — Upload Above</>
+                                ) : !photoFile ? (
+                                    <>Photo Required — Upload Above</>
                                 ) : (
                                     <>Apply Now <Send size={20} /></>
                                 )}

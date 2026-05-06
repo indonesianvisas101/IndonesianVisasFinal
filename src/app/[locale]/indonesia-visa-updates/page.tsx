@@ -13,10 +13,25 @@ export const dynamic = 'force-dynamic';
 export default async function NewsFeedPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
     
-    const updates = await prisma.immigrationUpdate.findMany({
-        where: { published: true },
-        orderBy: { createdAt: 'desc' }
-    });
+    const [updates, knowledge] = await Promise.all([
+        prisma.immigrationUpdate.findMany({
+            where: { published: true },
+        }),
+        prisma.knowledgePage.findMany({
+            where: { published: true },
+        })
+    ]);
+
+    const combinedFeed = [
+        ...updates.map(u => ({ ...u, type: 'news' })),
+        ...knowledge.map(k => ({ 
+            ...k, 
+            type: 'knowledge',
+            image: (k.metadata as any)?.image || null,
+            summary: (k.metadata as any)?.summary || '',
+            category: k.category || 'Knowledge'
+        }))
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return (
         <main className="min-h-screen bg-black overflow-x-hidden">
@@ -47,7 +62,7 @@ export default async function NewsFeedPage({ params }: { params: Promise<{ local
 
             <section className="py-24 bg-[#050505]">
                 <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-20">
-                    {updates.length === 0 ? (
+                    {combinedFeed.length === 0 ? (
                         <div className="max-w-2xl mx-auto text-center py-32 border-2 border-dashed border-white/10 rounded-[3rem]">
                             <Newspaper className="w-20 h-20 text-white/10 mx-auto mb-8" />
                             <h3 className="text-3xl font-bold text-white mb-4 tracking-tight">No intelligence reports yet</h3>
@@ -55,19 +70,22 @@ export default async function NewsFeedPage({ params }: { params: Promise<{ local
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-14">
-                            {updates.map((update: any) => (
+                            {combinedFeed.map((item: any) => (
                                 <Link 
-                                    key={update.id} 
-                                    href={`/${locale}/indonesia-visa-updates/${update.slug}`}
+                                    key={item.id} 
+                                    href={item.type === 'news' 
+                                        ? `/${locale}/indonesia-visa-updates/${item.slug}` 
+                                        : `/${locale}/visa-knowledge/${item.slug}`
+                                    }
                                     className="group flex flex-col bg-white/[0.03] border border-white/10 rounded-[2.5rem] overflow-hidden hover:bg-white/[0.08] hover:border-primary/40 transition-all duration-700 hover:-translate-y-2 shadow-2xl"
                                 >
                                     <div className="relative h-80 w-full overflow-hidden">
-                                        {update.image && 
-                                         !update.image.includes('gemini.google.com') && 
-                                         !update.image.includes('drive.google.com') ? (
+                                        {item.image && 
+                                         !item.image.includes('gemini.google.com') && 
+                                         !item.image.includes('drive.google.com') ? (
                                             <Image 
-                                                src={update.image} 
-                                                alt={update.title}
+                                                src={item.image} 
+                                                alt={item.title}
                                                 fill
                                                 className="object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out"
                                             />
@@ -80,8 +98,13 @@ export default async function NewsFeedPage({ params }: { params: Promise<{ local
                                         {/* Overlay Tags */}
                                         <div className="absolute top-6 left-6 flex flex-wrap gap-2">
                                             <div className="px-4 py-1.5 bg-primary/90 backdrop-blur-md text-black text-[10px] font-black rounded-full uppercase tracking-widest shadow-lg">
-                                                {update.category}
+                                                {item.category}
                                             </div>
+                                            {item.type === 'knowledge' && (
+                                                <div className="px-4 py-1.5 bg-blue-600/90 backdrop-blur-md text-white text-[10px] font-black rounded-full uppercase tracking-widest shadow-lg">
+                                                    Intelligence
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60" />
@@ -91,7 +114,7 @@ export default async function NewsFeedPage({ params }: { params: Promise<{ local
                                         <div className="flex items-center gap-6 text-white/30 text-[11px] font-bold uppercase tracking-[0.2em] mb-6">
                                             <div className="flex items-center gap-2">
                                                 <Calendar className="w-3.5 h-3.5 text-primary" />
-                                                <span>{new Date(update.createdAt).toLocaleDateString()}</span>
+                                                <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Tag className="w-3.5 h-3.5 text-primary" />
@@ -100,16 +123,16 @@ export default async function NewsFeedPage({ params }: { params: Promise<{ local
                                         </div>
 
                                         <h2 className="text-2xl md:text-3xl font-black text-white group-hover:text-primary transition-colors duration-500 leading-[1.1] tracking-tight mb-6">
-                                            {update.title}
+                                            {item.title}
                                         </h2>
 
                                         <p className="text-white/40 text-lg leading-relaxed mb-10 line-clamp-3 font-medium">
-                                            {update.summary || update.content.substring(0, 160).replace(/[#*]/g, '') + '...'}
+                                            {item.summary || (typeof item.content === 'string' ? item.content.substring(0, 160).replace(/[#*]/g, '') : 'Deep intelligence report available.') + '...'}
                                         </p>
 
                                         <div className="mt-auto pt-8 border-t border-white/5 flex items-center justify-between">
                                             <span className="inline-flex items-center gap-3 text-primary text-xs font-black uppercase tracking-widest group-hover:gap-5 transition-all duration-500">
-                                                Read Intelligence Report
+                                                {item.type === 'news' ? 'Read Update' : 'Read Intelligence Report'}
                                                 <ArrowRight className="w-4 h-4" />
                                             </span>
                                         </div>

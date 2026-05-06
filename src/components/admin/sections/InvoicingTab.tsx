@@ -67,7 +67,9 @@ export default function InvoicingTab() {
         adminNotes: "", // In Create mode, this is "Invoice Description (Public)"
         internalNotes: "", // Internal
         registrationNumber: "",
-        visaLink: ""
+        visaLink: "",
+        arrivalCardLink: "",
+        arrivalCardQr: ""
     });
 
     // Edit State
@@ -86,6 +88,8 @@ export default function InvoicingTab() {
         description: "", // We'll keep this for the "Public Description" field mapping
         registrationNumber: "", // New
         visaLink: "", // New
+        arrivalCardLink: "", // New
+        arrivalCardQr: "", // New
         attribution: {} as any,
         verificationAddress: ""
     });
@@ -149,6 +153,8 @@ export default function InvoicingTab() {
                 attribution: {
                     registrationNumber: formData.registrationNumber,
                     visaLink: formData.visaLink,
+                    arrivalCardLink: formData.arrivalCardLink,
+                    arrivalCardQr: formData.arrivalCardQr,
                     internalNotes: formData.internalNotes
                 },
                 adminNotes: formData.adminNotes // Maps to DB adminNotes (Public Description)
@@ -205,7 +211,7 @@ export default function InvoicingTab() {
                 // Also Sync Address to Verification if linked
                 if (editingInvoice.verificationId && editFormData.verificationAddress) {
                     await fetch('/api/verification', {
-                        method: 'POST', // API uses POST for update too
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
@@ -217,10 +223,9 @@ export default function InvoicingTab() {
                     });
                 }
 
-                await fetchInvoices(); // Refresh to get populated user/invoice data
+                await fetchInvoices();
                 setOpenEditDialog(false);
                 setEditingInvoice(null);
-                // notify("Invoice updated successfully", "success", 4000); 
             } else {
                 alert("Failed to update invoice");
             }
@@ -228,6 +233,38 @@ export default function InvoicingTab() {
             alert("Error updating invoice");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSyncArrivalCard = async () => {
+        const email = editFormData.guestEmail;
+        if (!email) {
+            alert("Please provide a guest email first to sync.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/admin/arrival-cards?email=${email}`);
+            if (res.ok) {
+                const cards = await res.json();
+                if (cards && cards.length > 0) {
+                    const latest = cards[0];
+                    setEditFormData(prev => ({
+                        ...prev,
+                        arrivalCardLink: latest.documentUrl || prev.arrivalCardLink,
+                        arrivalCardQr: latest.id || prev.arrivalCardQr,
+                        attribution: { 
+                            ...prev.attribution, 
+                            arrivalCardLink: latest.documentUrl || prev.arrivalCardLink,
+                            arrivalCardQr: latest.id || prev.arrivalCardQr
+                        }
+                    }));
+                } else {
+                    alert("No Arrival Cards found for this email.");
+                }
+            }
+        } catch (e) {
+            console.error("Sync failed", e);
         }
     };
 
@@ -248,6 +285,8 @@ export default function InvoicingTab() {
             description: linkedInvoice.adminNotes || inv.adminNotes || '', // Sync with adminNotes
             registrationNumber: inv.attribution?.registrationNumber || '',
             visaLink: inv.attribution?.visaLink || '',
+            arrivalCardLink: inv.attribution?.arrivalCardLink || '',
+            arrivalCardQr: inv.attribution?.arrivalCardQr || '',
             attribution: inv.attribution || {}, // PRESERVE ALL (including upsells)
             verificationAddress: inv.verification?.address || ''
         });
@@ -292,7 +331,9 @@ export default function InvoicingTab() {
             adminNotes: "",
             internalNotes: "",
             registrationNumber: "",
-            visaLink: ""
+            visaLink: "",
+            arrivalCardLink: "",
+            arrivalCardQr: ""
         });
         setInvoiceMode('guest');
     };
@@ -535,6 +576,23 @@ export default function InvoicingTab() {
 
                         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                             <TextField
+                                label="Arrival Card Link"
+                                fullWidth
+                                value={formData.arrivalCardLink}
+                                onChange={(e) => setFormData({ ...formData, arrivalCardLink: e.target.value })}
+                                placeholder="https://..."
+                            />
+                            <TextField
+                                label="Arrival Card QR/Code"
+                                fullWidth
+                                value={formData.arrivalCardQr}
+                                onChange={(e) => setFormData({ ...formData, arrivalCardQr: e.target.value })}
+                                placeholder="QR Code ID or String"
+                            />
+                        </Stack>
+
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                            <TextField
                                 label="Payment Method (Optional)"
                                 fullWidth
                                 value={formData.paymentMethod}
@@ -698,6 +756,43 @@ export default function InvoicingTab() {
                                 })}
                             />
                         </Stack>
+
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                            <TextField
+                                label="Arrival Card Link"
+                                fullWidth
+                                value={editFormData.arrivalCardLink}
+                                onChange={(e) => setEditFormData({ 
+                                    ...editFormData, 
+                                    arrivalCardLink: e.target.value,
+                                    attribution: { ...editFormData.attribution, arrivalCardLink: e.target.value }
+                                })}
+                                placeholder="https://..."
+                            />
+                            <TextField
+                                label="Arrival Card QR/Code"
+                                fullWidth
+                                value={editFormData.arrivalCardQr}
+                                onChange={(e) => setEditFormData({ 
+                                    ...editFormData, 
+                                    arrivalCardQr: e.target.value,
+                                    attribution: { ...editFormData.attribution, arrivalCardQr: e.target.value }
+                                })}
+                                placeholder="QR Code ID or String"
+                            />
+                        </Stack>
+
+                        <Box display="flex" justifyContent="flex-end">
+                            <Button 
+                                size="small" 
+                                variant="outlined" 
+                                startIcon={<RefreshIcon />}
+                                onClick={handleSyncArrivalCard}
+                                sx={{ borderRadius: 2, textTransform: 'none' }}
+                            >
+                                Sync Latest Arrival Card Data
+                            </Button>
+                        </Box>
 
                         <TextField
                             select

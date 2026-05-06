@@ -2,20 +2,32 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getAdminAuth } from '@/lib/auth-helpers';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        const auth = await getAdminAuth();
-        if (!auth.authorized) {
-            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        const { authorized, error, status } = await getAdminAuth();
+        if (!authorized) return NextResponse.json({ error }, { status });
+
+        const { searchParams } = new URL(request.url);
+        const email = searchParams.get('email');
+
+        if (!email) {
+            return NextResponse.json({ error: "Email required" }, { status: 400 });
         }
 
-        const cards = await prisma.arrivalCard.findMany({
+        const arrivalCards = await prisma.arrivalCard.findMany({
+            where: {
+                OR: [
+                    { formData: { path: ['email'], equals: email } },
+                    { user: { email: email } }
+                ]
+            },
             orderBy: { createdAt: 'desc' }
         });
 
-        return NextResponse.json(cards);
+        return NextResponse.json(arrivalCards);
+
     } catch (error: any) {
-        console.error("Failed to fetch arrival cards:", error);
+        console.error("Admin Fetch Arrival Cards Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

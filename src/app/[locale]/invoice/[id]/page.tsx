@@ -452,6 +452,35 @@ export default function InvoicePage() {
                                     </Box>
                                 )}
 
+                                {invoiceData.attribution?.arrivalCardLink && (
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 140 }}>Arrival Card Link</Typography>
+                                        <Typography variant="body2">:</Typography>
+                                        <a 
+                                            href={invoiceData.attribution.arrivalCardLink.startsWith('http') ? invoiceData.attribution.arrivalCardLink : `https://${invoiceData.attribution.arrivalCardLink}`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            style={{ color: '#9155FD', fontWeight: 600, textDecoration: 'none' }}
+                                        >
+                                            Click here to download
+                                        </a>
+                                    </Box>
+                                )}
+
+                                {invoiceData.attribution?.arrivalCardQr && (
+                                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 140 }}>Arrival Card QR</Typography>
+                                        <Typography variant="body2">:</Typography>
+                                        <Box sx={{ p: 1, bgcolor: 'white', borderRadius: 1, border: '1px solid #E5E7EB' }}>
+                                            <QRCodeSVG
+                                                value={invoiceData.attribution.arrivalCardQr}
+                                                size={80}
+                                                level="M"
+                                            />
+                                        </Box>
+                                    </Box>
+                                )}
+
                                 {(invoiceData.invoice?.adminNotes || invoiceData.attribution?.registrationNumber || invoiceData.attribution?.visaLink) && (
                                     <Box sx={{ mt: 4 }}>
                                         <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1F2937', textTransform: 'uppercase' }}>

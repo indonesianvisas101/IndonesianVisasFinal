@@ -82,7 +82,8 @@ const STEPS = [
     { title: "Personal Information", id: 1 },
     { title: "Travel Details", id: 2 },
     { title: "Mode of Transport & Address", id: 3 },
-    { title: "Declaration", id: 4 }
+    { title: "Declaration", id: 4 },
+    { title: "Review & Payment", id: 5 }
 ];
 
 export default function ArrivalCardForm() {
@@ -108,6 +109,25 @@ export default function ArrivalCardForm() {
     const nextStep = () => setStep(prev => Math.min(prev + 1, 4));
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [priceData, setPriceData] = useState<any>(null);
+    const [submissionResult, setSubmissionResult] = useState<any>(null);
+
+    useEffect(() => {
+        // Fetch Arrival Card Price for Step 5
+        const fetchPrice = async () => {
+            try {
+                const res = await fetch('/api/addons');
+                if (res.ok) {
+                    const addons = await res.json();
+                    const ac = addons.find((a: any) => a.sku === 'ARRIVAL_CARD' || a.name.includes('Arrival Card'));
+                    if (ac) setPriceData(ac);
+                }
+            } catch (e) {
+                console.error("Price fetch failed", e);
+            }
+        };
+        fetchPrice();
+    }, []);
 
     const submitForm = async () => {
         setIsSubmitting(true);
@@ -127,8 +147,8 @@ export default function ArrivalCardForm() {
             const result = await response.json();
 
             if (response.ok) {
-                alert("Arrival Card Submitted Successfully! You will receive an email shortly.");
-                window.location.href = '/en/thanks'; // Redirect to a generic a thanks page
+                setSubmissionResult(result);
+                setStep(5); // Move to Payment Step
             } else {
                 alert(`Error: ${result.error}`);
             }
@@ -180,6 +200,13 @@ export default function ArrivalCardForm() {
                         isAccordionOpen={isAccordionOpen}
                         toggleAccordion={() => setIsAccordionOpen(!isAccordionOpen)}
                         isSubmitting={isSubmitting}
+                    />
+                )}
+                {step === 5 && (
+                    <StepPayment 
+                        data={formData} 
+                        price={priceData} 
+                        result={submissionResult} 
                     />
                 )}
             </div>
@@ -638,3 +665,47 @@ const StepDeclaration = ({ data, update, nestedUpdate, back, submit, isAccordion
         </div>
     )
 }
+
+const StepPayment = ({ data, price, result }: any) => {
+    return (
+        <div className="space-y-8 animate-fadeIn text-center">
+            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            
+            <h2 className="text-3xl font-bold text-slate-800 dark:text-white">Registration Complete!</h2>
+            <p className="text-slate-500 max-w-md mx-auto">
+                Your data for <strong>{data.fullName}</strong> has been successfully registered in our system. 
+                Please proceed to payment to finalize your official Indonesian e-CD Arrival Card.
+            </p>
+
+            <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-3xl border border-gray-100 dark:border-slate-700 max-w-sm mx-auto mt-8">
+                <p className="text-sm text-slate-400 uppercase font-bold tracking-widest mb-2">Total Amount</p>
+                <h3 className="text-4xl font-black text-blue-600 mb-2">
+                    IDR {Number(price?.price || 50000).toLocaleString()}
+                </h3>
+                <p className="text-xs text-slate-400">Equivalent to approx. $4 USD</p>
+                
+                <div className="mt-8 space-y-3">
+                    <button 
+                        onClick={() => window.location.href = `/invoice/${result?.slug}`}
+                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-xl shadow-blue-500/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                    >
+                        <span>💳</span> Pay Now Securely
+                    </button>
+                    <p className="text-[10px] text-slate-400 italic">
+                        Secured by Doku / PayPal. You will be redirected to our hardened invoicing system.
+                    </p>
+                </div>
+            </div>
+
+            <div className="pt-8 border-t border-gray-100 dark:border-slate-800 mt-8">
+                <p className="text-sm text-slate-500">
+                    Order ID: <span className="font-mono text-blue-600 font-bold">#{result?.slug?.toUpperCase()}</span>
+                </p>
+            </div>
+        </div>
+    );
+};

@@ -4,7 +4,11 @@ import React from 'react';
 import { Box, Typography, Container, Grid, Card, CardContent, CardMedia, Button, Stack, Chip } from '@mui/material';
 import { CreditCard, ShieldCheck, Zap, ArrowRight, Download, Share2, Star } from 'lucide-react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+    Dialog, DialogTitle, DialogContent, DialogActions, 
+    TextField, CircularProgress, Alert
+} from '@mui/material';
 
 const ADDON_TEMPLATES: Record<string, any> = {
     'IDIV': {
@@ -65,6 +69,13 @@ export default function AddOnPage() {
     const { openPanel } = useApplication();
     const [dynamicAddons, setDynamicAddons] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
+    
+    // Direct Buy State
+    const [selectedAddon, setSelectedAddon] = React.useState<any>(null);
+    const [isBuyModalOpen, setIsBuyModalOpen] = React.useState(false);
+    const [buyFormData, setBuyFormData] = React.useState({ name: '', email: '' });
+    const [isBuying, setIsBuying] = React.useState(false);
+    const [buyError, setBuyError] = React.useState("");
 
     React.useEffect(() => {
         const fetchAddons = async () => {
@@ -84,6 +95,45 @@ export default function AddOnPage() {
         };
         fetchAddons();
     }, []);
+
+    const handleDirectBuyOpen = (addon: any) => {
+        setSelectedAddon(addon);
+        setIsBuyModalOpen(true);
+        setBuyError("");
+    };
+
+    const handleDirectBuySubmit = async () => {
+        if (!buyFormData.email || !buyFormData.name) {
+            setBuyError("Name and Email are required");
+            return;
+        }
+
+        setIsBuying(true);
+        setBuyError("");
+        try {
+            const res = await fetch('/api/addons/direct-buy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    addonId: selectedAddon.id,
+                    guestName: buyFormData.name,
+                    guestEmail: buyFormData.email
+                })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                // Redirect to the generated invoice
+                window.location.href = `/invoice/${data.slug}`;
+            } else {
+                setBuyError(data.error || "Purchase failed");
+            }
+        } catch (e) {
+            setBuyError("Network error. Please try again.");
+        } finally {
+            setIsBuying(false);
+        }
+    };
 
     // Map dynamic items using templates
     const displayedAddons = dynamicAddons.map(dyn => {
@@ -183,21 +233,32 @@ export default function AddOnPage() {
                                                     {item.currency === 'USD' ? '$' : 'IDR '}{item.currency === 'IDR' ? Number(item.price).toLocaleString() : item.price}
                                                 </Typography>
                                             </Box>
-                                            <Button 
-                                                variant="contained" 
-                                                size="large"
-                                                onClick={() => openPanel()}
-                                                endIcon={<ArrowRight size={18} />}
-                                                sx={{ 
-                                                    borderRadius: 4, 
-                                                    px: 3, 
-                                                    py: 1.5,
-                                                    bgcolor: '#0369a1',
-                                                    '&:hover': { bgcolor: '#075985' }
-                                                }}
-                                            >
-                                                Order Now
-                                            </Button>
+                                            <Stack direction="row" spacing={1}>
+                                                <Button 
+                                                    variant="outlined" 
+                                                    onClick={() => openPanel()}
+                                                    sx={{ borderRadius: 4, textTransform: 'none', fontWeight: 700 }}
+                                                >
+                                                    Visa App
+                                                </Button>
+                                                <Button 
+                                                    variant="contained" 
+                                                    size="large"
+                                                    onClick={() => handleDirectBuyOpen(item)}
+                                                    endIcon={<ArrowRight size={18} />}
+                                                    sx={{ 
+                                                        borderRadius: 4, 
+                                                        px: 3, 
+                                                        py: 1.5,
+                                                        bgcolor: '#0369a1',
+                                                        textTransform: 'none',
+                                                        fontWeight: 700,
+                                                        '&:hover': { bgcolor: '#075985' }
+                                                    }}
+                                                >
+                                                    Buy Now
+                                                </Button>
+                                            </Stack>
                                         </Box>
                                     </CardContent>
                                 </Card>
@@ -214,6 +275,72 @@ export default function AddOnPage() {
                     <Button component={Link} href="/contact" variant="outlined" sx={{ borderRadius: 4, px: 4, py: 1.5 }}>Contact Agent Hub</Button>
                 </Box>
             </Container>
+
+            {/* Direct Buy Modal */}
+            <Dialog 
+                open={isBuyModalOpen} 
+                onClose={() => !isBuying && setIsBuyModalOpen(false)}
+                PaperProps={{
+                    sx: { borderRadius: 6, p: 2, maxWidth: '400px' }
+                }}
+            >
+                <DialogTitle sx={{ fontWeight: 900, textAlign: 'center', pb: 0 }}>
+                    Instant Checkout
+                </DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary', mb: 3 }}>
+                        Get your <strong>{selectedAddon?.title}</strong> immediately. Just enter your details to generate your invoice.
+                    </Typography>
+                    
+                    {buyError && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{buyError}</Alert>}
+
+                    <Stack spacing={3} sx={{ mt: 1 }}>
+                        <TextField
+                            label="Full Name"
+                            fullWidth
+                            variant="outlined"
+                            disabled={isBuying}
+                            value={buyFormData.name}
+                            onChange={(e) => setBuyFormData({ ...buyFormData, name: e.target.value })}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+                        />
+                        <TextField
+                            label="Email Address"
+                            type="email"
+                            fullWidth
+                            variant="outlined"
+                            disabled={isBuying}
+                            value={buyFormData.email}
+                            onChange={(e) => setBuyFormData({ ...buyFormData, email: e.target.value })}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 3 }}>
+                    <Button 
+                        onClick={() => setIsBuyModalOpen(false)} 
+                        disabled={isBuying}
+                        sx={{ color: 'text.secondary', fontWeight: 700 }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        variant="contained" 
+                        onClick={handleDirectBuySubmit}
+                        disabled={isBuying}
+                        sx={{ 
+                            borderRadius: 3, 
+                            px: 4, 
+                            bgcolor: '#0369a1',
+                            fontWeight: 800,
+                            boxShadow: '0 8px 20px rgba(3,105,161,0.2)',
+                            '&:hover': { bgcolor: '#075985' }
+                        }}
+                    >
+                        {isBuying ? <CircularProgress size={24} color="inherit" /> : "Generate Invoice"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

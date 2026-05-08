@@ -128,8 +128,14 @@ model Verification {
   address        String?
   nationality    String?
   photoUrl       String?
-  isIdivPurchased Boolean   @default(false)
-  idivPreviewExpiresAt DateTime?
+  isAgreementRequired Boolean  @default(false)
+  agreementStatus     String   @default("NONE") // NONE, PENDING, SIGNED
+  depositAmount       Decimal? @db.Decimal(20, 2)
+  accessPin           String?  @default("123456")
+  signatureData       String?  @db.Text
+  agreementSignedAt   DateTime?
+  ipAddress           String?
+  invoiceId           String?
   user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 

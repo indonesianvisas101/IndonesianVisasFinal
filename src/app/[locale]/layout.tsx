@@ -14,6 +14,8 @@ import { Suspense } from "react";
 import GoogleTagManagerWrapper from "@/components/common/GoogleTagManagerWrapper";
 import GlobalInfoPopup from "@/components/common/GlobalInfoPopup";
 import GlobalSchema from "@/components/seo/GlobalSchema";
+import ThemeRegistry from "@/components/ThemeRegistry/ThemeRegistry";
+import { Box } from "@mui/material";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -103,7 +105,8 @@ export default async function LocaleLayout({
   return (
     <html lang={currentLocale}>
       <body className={inter.className} suppressHydrationWarning>
-        <GoogleTagManagerWrapper gtmId="GTM-N6M9K96X" />
+        <ThemeRegistry>
+          <GoogleTagManagerWrapper gtmId="GTM-N6M9K96X" />
         <GlobalUIProvider>
           <Suspense fallback={null}>
             <GlobalUIOverlay />
@@ -114,7 +117,11 @@ export default async function LocaleLayout({
                 <Header dict={dict} locale={currentLocale} />
                 <GlobalInfoPopup locale={currentLocale} />
 
-                <main id="main-content" className="flex-grow relative flex flex-col min-h-screen">
+                {/* v8.39 - Standardized main wrapper to Box for MUI-SSR alignment */}
+                <main 
+                  id="main-content" 
+                  className="flex-grow relative flex flex-col min-h-screen"
+                >
                   {children}
                 </main>
 
@@ -124,6 +131,7 @@ export default async function LocaleLayout({
             </ApplicationProvider>
           </AuthProvider>
         </GlobalUIProvider>
+        </ThemeRegistry>
         <GlobalSchema />
       </body>
     </html>

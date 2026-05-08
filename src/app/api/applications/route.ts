@@ -50,23 +50,48 @@ export async function GET(request: Request) {
             }
             const app = rawApps[0];
             const uId = app.userId || app.user_id;
+            const email = app.guestEmail;
+
+            // --- MASTER SYNC: Document Readiness Lookup (v8.11) ---
+            const [arrivalCard, verificationResult] = await Promise.all([
+                prisma.arrivalCard.findFirst({
+                    where: { OR: [{ userId: uId || undefined }, { formData: { path: ['email'], equals: email } }] },
+                    orderBy: { createdAt: 'desc' }
+                }),
+                prisma.verification.findFirst({
+                    where: { OR: [{ userId: uId || undefined }, { passportNumber: (app.attribution as any)?.passport }] }
+                })
+            ]);
+
+            const upsells = (app.attribution as any)?.upsells || {};
+            
+            // --- v8.14 - UNIFIED METADATA SYNC (ac_ordered/ac_paid/idiv_ordered/idiv_paid) ---
+            // Manual Override Logic: If explicitly set to false by admin, it remains false regardless of payment status.
+            const hasAC = !!arrivalCard || upsells.ac_ordered === true || upsells.arrivalCard === true;
+            let isACPaid = upsells.ac_paid === true || upsells.arrival_card === true;
+            if (isACPaid === undefined && app.paymentStatus === 'PAID' && (app.visaName === 'ARRIVAL CARD' || hasAC)) {
+                isACPaid = true;
+            }
+            
+            const hasIDiv = !!verificationResult || upsells.idiv_ordered === true;
+            
+            // Extract isIdivPurchased from packed address if available
+            let dbIsIdivPurchased = false;
+            if (verificationResult?.address && verificationResult.address.trim().startsWith('{')) {
+                try {
+                    const p = JSON.parse(verificationResult.address);
+                    dbIsIdivPurchased = p.isIdivPurchased === true;
+                } catch {}
+            }
+
+            let isIDivPaid = dbIsIdivPurchased || upsells.idiv_paid === true || upsells.idiv === true;
+            if (isIDivPaid === undefined && app.paymentStatus === 'PAID' && hasIDiv) {
+                isIDivPaid = true;
+            }
 
             let userData = null;
             if (uId) {
                 userData = await prisma.user.findUnique({ where: { id: uId } }).catch(() => null);
-            }
-
-            let verificationData = null;
-            if (app.verificationId) {
-                const verifResult: any[] = await prisma.$queryRaw`SELECT * FROM "Verification" WHERE id = ${app.verificationId}`;
-                if (verifResult.length > 0) {
-                    verificationData = verifResult[0];
-                }
-            } else if (uId) {
-                const verifResult: any[] = await prisma.$queryRaw`SELECT * FROM "Verification" WHERE "userId" = ${uId}::uuid`;
-                if (verifResult.length > 0) {
-                    verificationData = verifResult[0];
-                }
             }
 
             const finalResponse = JSON.parse(JSON.stringify({
@@ -84,6 +109,22 @@ export async function GET(request: Request) {
                 customAmount: app.customAmount,
                 status: app.status,
                 quantity: app.quantity || 1,
+
+                // Injected Intelligence: Document Readiness
+                documentReadiness: {
+                    arrivalCard: {
+                        ordered: hasAC,
+                        paid: isACPaid,
+                        id: arrivalCard?.id || null,
+                        status: arrivalCard?.status || 'NOT_APPLIED'
+                    },
+                    idiv: {
+                        ordered: hasIDiv,
+                        paid: isIDivPaid,
+                        id: verificationResult?.id || null,
+                        status: verificationResult?.status || 'NOT_APPLIED'
+                    }
+                },
 
                 // Injected Invoice Data (for real-time sync)
                 invoice: {
@@ -104,7 +145,7 @@ export async function GET(request: Request) {
                     email: app.guestEmail,
                     address: app.guestAddress || "Guest Customer"
                 },
-                verification: verificationData
+                verification: verificationResult
             }));
 
             // Harden Document URLs

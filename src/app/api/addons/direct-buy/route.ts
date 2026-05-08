@@ -43,14 +43,13 @@ export async function POST(req: Request) {
                     status: 'Apply to Agent',
                     guestName: guestName || "Guest",
                     guestEmail: guestEmail,
-                    guestPhone: guestPhone,
                     slug: slug,
                     quantity: quantity,
                     attribution: {
                         internalNotes: `Individual Purchase of ${addon.name} (Direct Buy Flow)`,
                         isIndividualAddon: true,
                         addonId: addon.id,
-                        phone: guestPhone // Redundancy for attribution
+                        phone: guestPhone // Phone stored safely in JSON attribution
                     }
                 }
             });

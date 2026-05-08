@@ -130,6 +130,7 @@ import { sendAdminAlert } from "@/app/actions/sendAdminAlert"; // Smart Alert Sy
 
 // Constants & Types
 const DRAWER_WIDTH = 260;
+const COLLAPSED_WIDTH = 80;
 
 // Initial Stats renamed to Default or Initial State
 const INITIAL_STATS = [
@@ -176,6 +177,9 @@ function AdminDashboardContent() {
     const searchParams = useSearchParams();
     const routerActiveTab = (searchParams.get('tab') as TabType) || 'dashboard';
     const [activeTab, setActiveTab] = useState<TabType>(routerActiveTab);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+    const currentDrawerWidth = isSidebarCollapsed ? 80 : 260;
 
     useEffect(() => {
         if (routerActiveTab !== activeTab) {
@@ -438,7 +442,7 @@ function AdminDashboardContent() {
                         if (!order) return;
 
                         setNewOrdersCount(prev => prev + 1);
-                        
+
                         const newNotif = {
                             id: `order-${order.id}`,
                             title: "New Order Received!",
@@ -448,7 +452,7 @@ function AdminDashboardContent() {
                             createdAt: new Date().toISOString(),
                             actionLink: "/admin?tab=orders"
                         };
-                        
+
                         setAllNotifications(prev => [newNotif, ...prev]);
                         setLatestNotification(newNotif);
                     }
@@ -580,7 +584,7 @@ function AdminDashboardContent() {
 
     const handleDismissNotification = async (id: string) => {
         setAllNotifications(prev => prev.filter(n => n.id !== id));
-        
+
         // If it's a DB notification (likely without custom prefixes)
         if (!id.startsWith('order-') && !id.startsWith('msg-')) {
             try {
@@ -1125,46 +1129,83 @@ function AdminDashboardContent() {
 
     // --- DRAWER CONTENT ---
     const drawer = (
-        <div>
-            <Toolbar sx={{ px: 2, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', py: 3, gap: 1 }}>
-                <Typography variant="h6" fontWeight="800" color="text.primary" sx={{ letterSpacing: '-0.5px', mb: 1 }}>
-                    INDONESIAN<Box component="span" color="primary.main">VISAS</Box>
-                </Typography>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Toolbar sx={{
+                px: 2,
+                display: 'flex',
+                flexDirection: isSidebarCollapsed ? 'column' : 'row',
+                alignItems: 'center',
+                justifyContent: isSidebarCollapsed ? 'center' : 'space-between',
+                py: 2,
+                minHeight: '82px !important'
+            }}>
+                {!isSidebarCollapsed && (
+                    <Typography variant="h6" fontWeight="800" color="text.primary" sx={{ letterSpacing: '-0.5px' }}>
+                        INDONESIAN<Box component="span" color="primary.main">VISAS</Box>
+                    </Typography>
+                )}
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 3, width: '100%', mb: 1 }}>
-                    <Avatar src={user?.avatar} sx={{ width: 40, height: 40, border: '1px solid', borderColor: 'divider' }}>{user?.name?.charAt(0)}</Avatar>
-                    <Box sx={{ overflow: 'hidden' }}>
-                        <Typography variant="subtitle2" fontWeight="bold" noWrap>{user?.name || 'Admin'}</Typography>
-                        <Typography variant="caption" color="text.secondary" noWrap display="block">{user?.email}</Typography>
-                    </Box>
-                </Box>
-                <Button
-                    variant="outlined"
-                    fullWidth
-                    startIcon={
-                        theme.palette.mode === "dark"
-                            ? <Brightness7Icon />
-                            : <Brightness4Icon />
-                    }
-                    onClick={colorMode.toggleColorMode}
+                <IconButton
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                     sx={{
-                        mt: 1,
-                        justifyContent: "flex-start",
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        color: "text.secondary",
-                        borderColor: "divider",
-                        "&:hover": {
-                            borderColor: "primary.main",
-                            color: "primary.main",
-                            bgcolor: "primary.lighter"
-                        }
+                        bgcolor: 'action.hover',
+                        borderRadius: 2,
+                        color: 'primary.main',
+                        '&:hover': { bgcolor: 'primary.lighter' }
                     }}
                 >
-                    {theme.palette.mode === "dark" ? "Light Mode" : "Dark Mode"}
-                </Button>
-
+                    {isSidebarCollapsed ? <ArrowForwardIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
+                </IconButton>
             </Toolbar>
+
+            <Box sx={{ px: isSidebarCollapsed ? 1 : 2, mb: 2 }}>
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: isSidebarCollapsed ? 0 : 1.5,
+                    p: isSidebarCollapsed ? 1 : 1.5,
+                    bgcolor: 'action.hover',
+                    borderRadius: 3,
+                    width: '100%',
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start'
+                }}>
+                    <Avatar src={user?.avatar} sx={{ width: 40, height: 40, border: '1px solid', borderColor: 'divider' }}>{user?.name?.charAt(0)}</Avatar>
+                    {!isSidebarCollapsed && (
+                        <Box sx={{ overflow: 'hidden' }}>
+                            <Typography variant="subtitle2" fontWeight="bold" noWrap>{user?.name || 'Admin'}</Typography>
+                            <Typography variant="caption" color="text.secondary" noWrap display="block">{user?.email}</Typography>
+                        </Box>
+                    )}
+                </Box>
+
+                {!isSidebarCollapsed && (
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        startIcon={
+                            theme.palette.mode === "dark"
+                                ? <Brightness7Icon />
+                                : <Brightness4Icon />
+                        }
+                        onClick={colorMode.toggleColorMode}
+                        sx={{
+                            mt: 1,
+                            justifyContent: "flex-start",
+                            textTransform: "none",
+                            fontWeight: "bold",
+                            color: "text.secondary",
+                            borderColor: "divider",
+                            "&:hover": {
+                                borderColor: "primary.main",
+                                color: "primary.main",
+                                bgcolor: "primary.lighter"
+                            }
+                        }}
+                    >
+                        {theme.palette.mode === "dark" ? "Light" : "Dark"}
+                    </Button>
+                )}
+            </Box>
             <Divider />
             <List sx={{ px: 2, pt: 2 }}>
                 {[
@@ -1190,47 +1231,58 @@ function AdminDashboardContent() {
                     <ListItem key={item.key} disablePadding sx={{ mb: 1 }}>
                         <ListItemButton
                             selected={activeTab === item.key}
-                            onClick={() => { 
+                            onClick={() => {
                                 setActiveTab(item.key as TabType);
-                                router.push(`/${locale}/admin?tab=${item.key}`); 
+                                router.push(`/${locale}/admin?tab=${item.key}`);
                                 if (item.key === 'orders') setNewOrdersCount(0);
-                                if (isMobile) setMobileOpen(false); 
+                                if (isMobile) setMobileOpen(false);
                             }}
                             sx={{
                                 borderRadius: 2,
+                                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                                px: isSidebarCollapsed ? 1 : 2,
                                 '&.Mui-selected': { bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' }, '& .MuiListItemIcon-root': { color: 'white' } }
                             }}
                         >
-                            <ListItemIcon sx={{ minWidth: 40, color: activeTab === item.key ? 'white' : 'text.secondary' }}>
-                                {/* Badge Logic */}
-                                {item.badge && item.badge > 0 ? (
-                                    <Box sx={{ position: 'relative' }}>
-                                        {item.icon}
-                                        <Box
-                                            sx={{
-                                                position: 'absolute',
-                                                top: -4,
-                                                right: -4,
-                                                bgcolor: 'error.main',
-                                                color: 'white',
-                                                fontSize: '0.6rem',
-                                                fontWeight: 'bold',
-                                                width: 16,
-                                                height: 16,
-                                                borderRadius: '50%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
-                                        >
-                                            {item.badge > 9 ? '9+' : item.badge}
+                            <Tooltip title={isSidebarCollapsed ? item.label : ""} placement="right">
+                                <ListItemIcon sx={{
+                                    minWidth: isSidebarCollapsed ? 0 : 40,
+                                    mr: isSidebarCollapsed ? 0 : 0,
+                                    justifyContent: 'center',
+                                    color: activeTab === item.key ? 'white' : 'text.secondary'
+                                }}>
+                                    {/* Badge Logic */}
+                                    {item.badge && item.badge > 0 ? (
+                                        <Box sx={{ position: 'relative' }}>
+                                            {item.icon}
+                                            <Box
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: -4,
+                                                    right: -4,
+                                                    bgcolor: 'error.main',
+                                                    color: 'white',
+                                                    fontSize: '0.6rem',
+                                                    fontWeight: 'bold',
+                                                    width: 16,
+                                                    height: 16,
+                                                    borderRadius: '50%',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                            >
+                                                {item.badge > 9 ? '9+' : item.badge}
+                                            </Box>
                                         </Box>
-                                    </Box>
-                                ) : (
-                                    item.icon
-                                )}
-                            </ListItemIcon>
-                            <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 600, fontSize: '0.9rem' }} />
+                                    ) : (
+                                        item.icon
+                                    )}
+                                </ListItemIcon>
+                            </Tooltip>
+                            {!isSidebarCollapsed && (
+                                <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 600, fontSize: '0.85rem', noWrap: true }} />
+                            )}
                         </ListItemButton>
 
                     </ListItem>
@@ -1238,13 +1290,22 @@ function AdminDashboardContent() {
                 {/* Divider */}
                 <Box sx={{ my: 2 }}><Divider /></Box>
                 <ListItem disablePadding>
-                    <ListItemButton sx={{ borderRadius: 2 }} onClick={logout}>
-                        <ListItemIcon sx={{ minWidth: 40 }}><LogoutIcon color="error" /></ListItemIcon>
-                        <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600, color: 'error.main' }} />
+                    <ListItemButton
+                        sx={{
+                            borderRadius: 2,
+                            justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                            px: isSidebarCollapsed ? 1 : 2
+                        }}
+                        onClick={logout}
+                    >
+                        <ListItemIcon sx={{ minWidth: isSidebarCollapsed ? 0 : 40 }}><LogoutIcon color="error" /></ListItemIcon>
+                        {!isSidebarCollapsed && (
+                            <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600, color: 'error.main' }} />
+                        )}
                     </ListItemButton>
                 </ListItem>
             </List>
-        </div>
+        </Box>
     );
 
     return (
@@ -1255,15 +1316,17 @@ function AdminDashboardContent() {
             {/* Mobile Toggle Button - REMOVED: Using Header Admin Panel instead */}
 
             {/* SIDEBAR */}
-            <Box component="nav" sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}>
+            <Box component="nav" sx={{ width: { md: currentDrawerWidth }, flexShrink: { md: 0 }, transition: 'width 0.3s' }}>
                 <Drawer
                     variant="permanent"
                     sx={{
                         display: { xs: 'none', md: 'block' },
                         '& .MuiDrawer-paper': {
                             boxSizing: 'border-box',
-                            width: DRAWER_WIDTH,
+                            width: currentDrawerWidth,
                             borderRight: '1px solid rgba(0,0,0,0.12)',
+                            transition: 'width 0.3s',
+                            overflowX: 'hidden',
 
                             /* ⬇️ INI INTINYA */
                             top: '82px',                  // tinggi header
@@ -1277,11 +1340,19 @@ function AdminDashboardContent() {
             </Box>
 
             {/* MAIN CONTENT */}
-            <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 3 }, pt: { xs: 10, md: 12 }, width: { md: `calc(100% - ${DRAWER_WIDTH}px)` }, minHeight: '100vh', bgcolor: 'background.default' }}>
-                
+            <Box component="main" sx={{
+                flexGrow: 1,
+                p: { xs: 2, md: 3 },
+                pt: { xs: 10, md: 12 },
+                width: { md: `calc(100% - ${currentDrawerWidth}px)` },
+                transition: 'width 0.3s, margin 0.3s',
+                minHeight: '100vh',
+                bgcolor: 'background.default'
+            }}>
+
                 {/* GLOBAL LOADING INDICATOR */}
                 {(globalApiLoading || checkingHealth) && (
-                    <Box sx={{ position: 'fixed', top: '82px', left: { md: DRAWER_WIDTH }, right: 0, zIndex: 1100 }}>
+                    <Box sx={{ position: 'fixed', top: '82px', left: { md: currentDrawerWidth }, right: 0, zIndex: 1100, transition: 'left 0.3s' }}>
                         <LinearProgress />
                     </Box>
                 )}
@@ -1291,9 +1362,9 @@ function AdminDashboardContent() {
                     {Array.isArray(allNotifications) && allNotifications.length > 0 && (
                         <Stack spacing={1} sx={{ mb: 3 }}>
                             {allNotifications.slice(0, 3).map((notif) => (
-                                <Card 
-                                    key={notif.id} 
-                                    sx={{ 
+                                <Card
+                                    key={notif.id}
+                                    sx={{
                                         bgcolor: notif.type === 'success' ? 'success.lighter' : 'info.lighter',
                                         border: '1px solid',
                                         borderColor: notif.type === 'success' ? 'success.light' : 'info.light',
@@ -1828,8 +1899,8 @@ function AdminDashboardContent() {
                                                         </Avatar>
                                                     </TableCell>
                                                     <TableCell align="right">
-                                                        <IconButton 
-                                                            size="small" 
+                                                        <IconButton
+                                                            size="small"
                                                             onClick={() => handleTogglePopular(row.id)}
                                                             color={popularVisaIds.includes(row.id) ? "secondary" : "default"}
                                                             title={popularVisaIds.includes(row.id) ? "Remove from Popular" : "Add to Popular"}

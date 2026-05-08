@@ -1,5 +1,12 @@
 "use client";
 
+/**
+ * INDONESIAN VISAS - HARDENED INVOICE ECOSYSTEM v10.9.5 (2026-2027)
+ * Status: Production Ready | Locked Baseline: Commit d3f090c
+ * Mandate: Line Total + Tax (PPh 23) + Gateway Fee Parity
+ * LOCK POLICY: COORDINATES ARE STABLE. DO NOT MODIFY WITHOUT CROSS-PLATFORM AUDIT.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import {
@@ -17,7 +24,8 @@ import {
     TableHead,
     TableRow,
     CircularProgress,
-    Stack
+    Stack,
+    IconButton
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import Image from 'next/image';
@@ -27,7 +35,23 @@ import ShareIcon from '@mui/icons-material/Share';
 import { QRCodeSVG } from 'qrcode.react';
 import Script from 'next/script';
 import { COUNTRY_DATA } from '@/constants/countries';
-import { Zap } from 'lucide-react';
+// Removed problematic lucide-react import to fix Turbopack HMR bug
+const Zap = ({ size = 24, color = "currentColor", fill = "none", ...props }: any) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill={fill}
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        {...props}
+    >
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+);
 
 
 
@@ -38,6 +62,17 @@ export default function InvoicePage() {
     const [invoiceData, setInvoiceData] = useState<any>(null);
     const [error, setError] = useState("");
     const [isCheckingOut, setIsCheckingOut] = useState(false);
+    const [formattedDate, setFormattedDate] = useState("");
+
+    useEffect(() => {
+        if (invoiceData?.appliedAt) {
+            setFormattedDate(new Date(invoiceData.appliedAt).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            }));
+        }
+    }, [invoiceData]);
 
     useEffect(() => {
         if (!id) return;
@@ -88,8 +123,6 @@ export default function InvoicePage() {
     );
 
     if (!invoiceData) return null;
-
-    if (!invoiceData) return null;
  
     // --- v6.1 - GRANULAR DATABASE SYNC (NO RE-CALCULATION) ---
     const quantity = invoiceData.invoice?.quantity || invoiceData.quantity || 1;
@@ -108,7 +141,37 @@ export default function InvoicePage() {
     // Upsells are purely for display badges now, amount is already in Grand Total
     const upsells = invoiceData.attribution?.upsells || {};
 
-    const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(invoiceData.status);
+    // v10.8 - Hardened isPaid Logic (Case-Insensitive & Comprehensive)
+    const normalizedStatus = (invoiceData.status || '').toLowerCase();
+    const isPaid = [
+        "paid", "active", "review by agent", "on going", 
+        "preparing for submission", "submited", "process by immigration", 
+        "approved", "completed"
+    ].includes(normalizedStatus);
+
+    // v10.1 - Sanitize Passport (Prevent URLs from appearing as numbers)
+    const displayPassport = invoiceData.passportNumber || 
+        (invoiceData.attribution?.passport && !invoiceData.attribution.passport.startsWith('http') ? invoiceData.attribution.passport : null);
+
+    // v10.9 - Smart QR Logic (Prioritize Certificate Data)
+    const getQrValue = () => {
+        // 1. Official Government QR String
+        if (invoiceData.verification?.qrCode) return invoiceData.verification.qrCode;
+        
+        // 2. Direct Visa Certificate Link
+        if (invoiceData.attribution?.visaLink) {
+            const link = invoiceData.attribution.visaLink;
+            return link.startsWith('http') ? link : `https://${link}`;
+        }
+        
+        // 3. Internal Verification Fallback
+        if (invoiceData.verification?.slug) {
+            return `https://indonesianvisas.com/verify/${invoiceData.verification.slug}`;
+        }
+        
+        return null;
+    };
+    const qrValue = getQrValue();
 
 
     const handleDownloadPDF = async () => {
@@ -254,7 +317,7 @@ export default function InvoicePage() {
                             <Box sx={{ mt: 2 }}>
                                 <Typography variant="body2" color="text.secondary">Date Issued:</Typography>
                                 <Typography variant="body1" fontWeight="600">
-                                    {new Date(invoiceData.appliedAt).toLocaleDateString()}
+                                    {formattedDate || '...'}
                                 </Typography>
                             </Box>
                         </Box>
@@ -263,7 +326,7 @@ export default function InvoicePage() {
                     <Divider sx={{ mb: 6, borderColor: 'rgba(58, 53, 65, 0.08)' }} />
 
                     {/* BILL TO & STATUS */}
-                    <Grid container spacing={4} sx={{ mb: 6 }}>
+                    <Grid container spacing={4} sx={{ mb: 3 }}>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography variant="subtitle2" sx={{ color: '#9155FD', fontWeight: 700, mb: 1 }}>BILL TO:</Typography>
                             <Typography variant="h6" fontWeight="bold" sx={{ color: '#1F2937' }}>
@@ -273,9 +336,9 @@ export default function InvoicePage() {
                                 {invoiceData.user?.email || invoiceData.guestEmail || "-"}
                             </Typography>
                             {/* Passport & IDiv Code Visibility */}
-                            {invoiceData.attribution?.passport && (
+                            {displayPassport && (
                                 <Typography variant="body2" sx={{ fontWeight: 600, color: '#1F2937', mt: 1 }}>
-                                    Passport: {invoiceData.attribution.passport}
+                                    Passport: {displayPassport}
                                 </Typography>
                             )}
                             {invoiceData.verification?.id && (
@@ -396,18 +459,43 @@ export default function InvoicePage() {
                                             {visa?.name || invoiceData.visaName || invoiceData.visaId || 'Visa Application'}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                                            Application for {invoiceData.applicantName || 'Applicant'} • {invoiceData.passportNumber || 'Passport Holder'}
+                                            Application for {invoiceData.applicantName || 'Applicant'} • {displayPassport || 'Passport Holder'}
                                         </Typography>
 
-                                        {/* Upsell Badges */}
-                                        {invoiceData.attribution?.upsells && Object.entries(invoiceData.attribution.upsells).filter(([_, v]) => v).map(([k, _]) => (
-                                            <Box key={k} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 1, mr: 1, px: 1, py: 0.25, bgcolor: 'rgba(145, 85, 253, 0.08)', borderRadius: 1, border: '1px solid rgba(145, 85, 253, 0.2)' }}>
-                                                <Zap size={10} color="#9155FD" />
-                                                <Typography variant="caption" sx={{ color: '#9155FD', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.65rem' }}>
-                                                    {k === 'idiv' ? 'IDIV ORDERED' : k === 'smartId' ? 'SMART ID' : k.toUpperCase()}
-                                                </Typography>
-                                            </Box>
-                                        ))}
+                                        {/* Upsell Badges (v10.9.5 Hardened - No Duplicates) */}
+                                        {(() => {
+                                            const visaName = (visa?.name || invoiceData.visaName || "").toUpperCase();
+                                            const upsells = invoiceData.attribution?.upsells || {};
+                                            
+                                            // 1. Get entries that are active (true)
+                                            let entries = Object.entries(upsells).filter(([_, v]) => v);
+                                            
+                                            // 2. Filter out items that are already the main visa product
+                                            entries = entries.filter(([k, _]) => {
+                                                const key = k.toUpperCase();
+                                                if (visaName.includes('ARRIVAL CARD') && (key.includes('ARRIVAL') || key === 'AC' || key === 'ECD')) return false;
+                                                if (visaName.includes('IDIV') && key === 'IDIV') return false;
+                                                return true;
+                                            });
+
+                                            // 3. De-duplicate similar items (e.g. arrival_card and ecd)
+                                            const seen = new Set();
+                                            return entries.filter(([k, _]) => {
+                                                const key = k.toUpperCase();
+                                                let normalized = key;
+                                                if (key.includes('ARRIVAL') || key === 'AC' || key === 'ECD') normalized = 'ARRIVAL_CARD';
+                                                if (seen.has(normalized)) return false;
+                                                seen.add(normalized);
+                                                return true;
+                                            }).map(([k, _]) => (
+                                                <Box key={k} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 1, mr: 1, px: 1, py: 0.25, bgcolor: 'rgba(145, 85, 253, 0.08)', borderRadius: 1, border: '1px solid rgba(145, 85, 253, 0.2)' }}>
+                                                    <Zap size={10} color="#9155FD" />
+                                                    <Typography variant="caption" sx={{ color: '#9155FD', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.65rem' }}>
+                                                        {k === 'idiv' ? 'IDIV ORDERED' : k === 'smartId' ? 'SMART ID' : k.replace(/_/g, ' ').toUpperCase()}
+                                                    </Typography>
+                                                </Box>
+                                            ));
+                                        })()}
 
                                         {/* v5.1 - PURELY DESCRIPTIVE NOTES (No Fallback) */}
                                         {invoiceData.attribution?.internalNotes && (
@@ -442,6 +530,43 @@ export default function InvoicePage() {
                                         <Typography variant="body2" sx={{ color: '#4B5563', whiteSpace: 'pre-wrap' }}>
                                             {invoiceData.invoice.adminNotes}
                                         </Typography>
+                                    </Box>
+                                )}
+
+                                {/* v10.9.8 - INDEPENDENT LEGAL AGREEMENT CTA (Harden Workflow) */}
+                                {invoiceData.verification?.isAgreementRequired && invoiceData.verification?.agreementStatus !== 'SIGNED' && (
+                                    <Box 
+                                        sx={{ 
+                                            mt: 2, 
+                                            p: 3, 
+                                            bgcolor: 'rgba(145, 85, 253, 0.04)', 
+                                            border: '2px dashed #9155FD', 
+                                            borderRadius: 2,
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#9155FD', mb: 1.5, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                            Action Required: Legal Sponsorship Agreement
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#4B5563', mb: 2, maxWidth: 400, mx: 'auto' }}>
+                                            To proceed with your application, you must sign the official sponsorship and responsibility agreement.
+                                        </Typography>
+                                        <a 
+                                            href={`/verify/agreement/${invoiceData.verification.slug}`}
+                                            style={{ 
+                                                color: '#fff', 
+                                                backgroundColor: '#9155FD',
+                                                padding: '12px 24px',
+                                                borderRadius: '8px',
+                                                textDecoration: 'none',
+                                                fontWeight: 'bold',
+                                                fontSize: '0.9rem',
+                                                display: 'inline-block',
+                                                boxShadow: '0 4px 12px rgba(145, 85, 253, 0.3)'
+                                            }}
+                                        >
+                                            SIGN This to get your VISA/KITAS
+                                        </a>
                                     </Box>
                                 )}
 
@@ -534,7 +659,7 @@ export default function InvoicePage() {
 
                                                 {/* v6.1 - TAXES DIRECTLY FROM DB */}
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <Typography variant="body2">Tax (PPh 23) 2%:</Typography>
+                                                    <Typography variant="body2">Government Tax (PPh 23) 2%:</Typography>
                                                     <Typography variant="body2" fontWeight="700">IDR {taxAmount.toLocaleString()}</Typography>
                                                 </Box>
 
@@ -554,6 +679,24 @@ export default function InvoicePage() {
                                                 <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, display: 'block' }}>
                                                     Equivalent to approx. ${ (computedGrandTotal / 15900).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) } USD
                                                 </Typography>
+
+                                                {/* v10.9.6 - PERSISTENT STATUS STAMP (PAID/UNPAID) */}
+                                                <Box sx={{
+                                                    mt: 2,
+                                                    px: 4,
+                                                    py: 0.5,
+                                                    mr: 10,
+                                                    border: `5px solid ${isPaid ? '#56CA00' : '#FF4C51'}`,
+                                                    borderRadius: 1.5,
+                                                    transform: 'rotate(-5deg)',
+                                                    display: 'inline-block',
+                                                    opacity: 0.9,
+                                                    zIndex: 1
+                                                }}>
+                                                    <Typography variant="h5" fontWeight="900" sx={{ color: isPaid ? '#56CA00' : '#FF4C51', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+                                                        {isPaid ? 'PAID' : 'UNPAID'}
+                                                    </Typography>
+                                                </Box>
                                             </Box>
                                         </>
                                     </Box>
@@ -565,84 +708,99 @@ export default function InvoicePage() {
                     {/* FOOTER NOTES */}
 
 
-                    {/* v4.5 - BOTTOM LAYOUT (QR LEFT, CONFIRMATION RIGHT) */}
-                    <Grid container spacing={4} sx={{ mt: 2 }}>
-                        {/* QR Code Left */}
-                        <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pr: { sm: 10 } }}>
-                            {/* v4.8 - HIGHLIGHTED APPLICATION STATUS */}
-                            <Box sx={{ mb: 1, textAlign: 'center' }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1F2937', textTransform: 'uppercase', mb: 1.5, letterSpacing: 0.5 }}>
-                                    CHECK YOUR APPLICATION UPDATE BELLOW
-                                </Typography>
-                                <Box sx={{
-                                    px: 3,
-                                    py: 1,
-                                    bgcolor: 'rgba(3, 105, 161, 0.1)',
-                                    borderRadius: 2,
-                                    border: '2px solid #0369a1',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: 1.5,
-                                    boxShadow: '0 4px 12px rgba(3, 105, 161, 0.15)',
-                                    transform: 'scale(1.05)'
-                                }}>
-                                    <Box sx={{ width: 10, height: 10, bgcolor: '#0369a1', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
-                                    <Typography variant="body1" fontWeight="900" sx={{ color: '#0369a1', textTransform: 'uppercase', letterSpacing: 1 }}>
-                                        Status: {invoiceData.status || 'Processing'}
-                                    </Typography>
-                                </Box>
-                            </Box>
+                        {/* v4.5 - BOTTOM LAYOUT (QR LEFT, CONFIRMATION RIGHT) */}
+                        <Grid container spacing={4} sx={{ mt: 2, alignItems: 'flex-end' }}>
+                            {/* QR Code & Status Left */}
+                            <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pr: { sm: 4 } }}>
+                                
+                                {/* 1. VERIFICATION QR CODE (TOP) - Only if PAID */}
+                                {isPaid && qrValue && (
+                                    <Box sx={{ mt: -4, mb: 7, textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'center', backgroundColor: 'white', padding: '6px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.05)' }}>
+                                            <QRCodeSVG
+                                                value={qrValue}
+                                                size={95} 
+                                                level="M"
+                                            />
+                                        </div>
+                                    </Box>
+                                )}
 
-                            {(invoiceData.verification?.slug || invoiceData.verification?.qrCode) && (
-                                <Box sx={{
-                                    mt: 2,
-                                    textAlign: 'center',
-                                    border: '1px dashed rgba(145, 85, 253, 0.5)',
-                                    borderRadius: 3,
-                                    p: 2.5,
-                                    bgcolor: 'rgba(145, 85, 253, 0.02)',
-                                    width: 'fit-content'
-                                }}>
-                                    <Typography variant="caption" fontWeight="700" color="primary" sx={{ display: 'block', mb: 1.5, letterSpacing: 1 }}>
-                                        VERIFICATION
+                                {/* 2. HIGHLIGHTED APPLICATION STATUS (BOTTOM) */}
+                                <Box sx={{ textAlign: 'center', mt: -0 }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1F2937', textTransform: 'uppercase', mb: 1.5, letterSpacing: 0.5 }}>
+                                        BELLOW IS YOUR APPLICATION UPDATE
                                     </Typography>
-                                    <div style={{ display: 'flex', justifyContent: 'center', backgroundColor: 'white', padding: '10px', borderRadius: '10px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-                                        <QRCodeSVG
-                                            value={`https://indonesianvisas.com/verify/${invoiceData.verification.slug || 'error'}`}
-                                            size={120} // Increased size
-                                            level="M"
-                                        />
-                                    </div>
+                                    <Box sx={{
+                                        px: 3,
+                                        py: 1,
+                                        bgcolor: 'rgba(3, 105, 161, 0.06)',
+                                        borderRadius: 2,
+                                        border: '2.5px solid #0369a1',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 1.5,
+                                        boxShadow: '0 4px 12px rgba(3, 105, 161, 0.1)',
+                                    }}>
+                                        <Box sx={{ width: 10, height: 10, bgcolor: '#0369a1', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
+                                        <Typography variant="body1" fontWeight="900" sx={{ color: '#0369a1', textTransform: 'uppercase', letterSpacing: 1 }}>
+                                            Status: {invoiceData.status || 'Processing'}
+                                        </Typography>
+                                    </Box>
                                 </Box>
-                            )}
-                        </Grid>
+                            </Grid>
 
                         {/* Confirmation Right */}
                         <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-end' }, justifyContent: 'flex-end', textAlign: 'right' }}>
                             <Box sx={{ position: 'relative', width: 'fit-content', pt: 6 }}>
-                                {/* Stamp - Dynamic Logic */}
-                                <Box sx={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    right: 20,
-                                    width: 100,
-                                    height: 100,
-                                    border: `4px double ${isPaid ? '#56CA00' : '#ef4444'}`, // Red for Unpaid
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    transform: 'rotate(-15deg)',
-                                    opacity: 0.8,
-                                    zIndex: 1,
-                                    pointerEvents: 'none'
-                                }}>
-                                    <Typography variant="h6" fontWeight="900" sx={{ color: isPaid ? '#56CA00' : '#ef4444', textTransform: 'uppercase', lineHeight: 1 }}>
-                                        {isPaid ? 'PAID' : 'UNPAID'}
-                                    </Typography>
-                                </Box>
+                                {/* Stamp & Signature - Hardened Images v10.5 */}
+                                {isPaid && (
+                                    <Box sx={{ 
+                                        position: 'absolute', 
+                                        top: 30, 
+                                        left: 40, 
+                                        width: 180, 
+                                        height: 180, 
+                                        zIndex: 2, 
+                                        pointerEvents: 'none',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
+                                        <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+                                            {/* Company Stamp */}
+                                            <Image 
+                                                src="/Stempel.png" 
+                                                alt="Official Stamp" 
+                                                width={140} 
+                                                height={140} 
+                                                style={{ 
+                                                    opacity: 0.8,
+                                                    position: 'absolute',
+                                                    top: 10,
+                                                    left: 0,
+                                                    rotate: '-5deg',
+                                                }} 
+                                            />
+                                            {/* Official Signature Overlay */}
+                                            <Image 
+                                                src="/signature.png" 
+                                                alt="Authorized Signature" 
+                                                width={160} 
+                                                height={120} 
+                                                style={{ 
+                                                    position: 'absolute',
+                                                    top: 30,
+                                                    left: 80,
+                                                    transform: 'rotate(-0deg)',
+                                                    filter: 'contrast(1.2) brightness(0.9)'
+                                                }} 
+                                            />
+                                        </Box>
+                                    </Box>
+                                )}
 
-                                <Typography variant="subtitle2" sx={{ color: 'text.secondary', fontStyle: 'italic', mb: 0.5 }}>
+                                <Typography variant="subtitle2" sx={{ color: 'text.secondary', fontStyle: 'italic', mb: 11 }}>
                                     Confirm Payment to:
                                 </Typography>
                                 <Typography variant="h6" fontWeight="800" sx={{ color: '#1F2937' }}>

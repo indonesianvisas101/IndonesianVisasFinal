@@ -16,11 +16,11 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import ErrorIcon from "@mui/icons-material/Error";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import IDivCardModern from "@/components/idiv/IDivCardModern";
 import OfficialVerificationDocument from "@/components/verification/OfficialVerificationDocument";
+import { supabase } from "@/lib/supabase";
 
 // Parse JSON-packed address field (Case-Insensitive)
 function parseAddress(raw: string | null | undefined) {
@@ -57,6 +57,21 @@ export default function VerificationPage() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user?.email) {
+                // List of admin emails from auth-helpers
+                const ADMIN_EMAILS = ['damnbayu@gmail.com'];
+                if (ADMIN_EMAILS.includes(session.user.email)) {
+                    setIsAdmin(true);
+                }
+            }
+        };
+        checkAdmin();
+    }, []);
 
     useEffect(() => {
         if (slug) {
@@ -112,6 +127,34 @@ export default function VerificationPage() {
         cardMode = addr.preferredMode as any;
     }
 
+    // 0. CHECK FOR MANDATORY AGREEMENT (KITAS / D-TYPE BLOCK) - Bypass for Admins
+    if (data.isAgreementRequired && data.agreementStatus !== 'SIGNED' && !isAdmin) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f8f9fa" p={2}>
+                <Paper elevation={4} sx={{ p: { xs: 4, md: 6 }, textAlign: 'center', borderRadius: 6, maxWidth: 500, borderTop: '8px solid #f59e0b' }}>
+                    <ErrorIcon color="warning" sx={{ fontSize: 80, mb: 3 }} />
+                    <Typography variant="h4" fontWeight="900" gutterBottom sx={{ letterSpacing: '-1px' }}>Action Required</Typography>
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.6 }}>
+                        Hello, <b>{data.fullName}</b>. As part of our secure sponsorship protocol for <b>{data.visaType}</b>, a digital agreement must be signed before you can access your verification documents.
+                    </Typography>
+                    <Button 
+                        variant="contained" 
+                        size="large" 
+                        component={Link} 
+                        href={`/verify/agreement/${slug}`}
+                        fullWidth
+                        sx={{ py: 2, borderRadius: 3, fontWeight: 'bold', fontSize: '1.1rem', boxShadow: '0 10px 15px -3px rgba(245, 158, 11, 0.3)' }}
+                    >
+                        SIGN SPONSORSHIP AGREEMENT
+                    </Button>
+                    <Typography variant="caption" display="block" sx={{ mt: 3, color: 'text.disabled' }}>
+                        This is a mandatory security step for Indonesian immigration compliance.
+                    </Typography>
+                </Paper>
+            </Box>
+        );
+    }
+
     // 1. RENDER STANDARD DOCUMENT VIEW (If not premium or trial expired)
     if (!showPremiumCard) {
         return <OfficialVerificationDocument data={{
@@ -119,7 +162,9 @@ export default function VerificationPage() {
             address: displayStreet,
             issuedDate: data.issuedDate,
             expiresAt: data.expiresAt,
-            nationality: data.nationality || 'INDONESIA'
+            nationality: data.nationality || 'INDONESIA',
+            isAgreementRequired: data.isAgreementRequired,
+            agreementStatus: data.agreementStatus
         }} />;
     }
 
@@ -178,7 +223,9 @@ export default function VerificationPage() {
                     <Stack spacing={2} textAlign="left" sx={{ mt: 4 }}>
                         <Box display="flex" justifyContent="space-between">
                             <Typography color="text.secondary" variant="body2">Status</Typography>
-                            <Typography variant="body2" fontWeight="bold" color="success.main">VERIFIED & ACTIVE</Typography>
+                            <Typography variant="body2" fontWeight="900" color={data.status === 'VALID' ? "success.main" : "error.main"}>
+                                {data.status === 'VALID' ? "VERIFIED & ACTIVE" : "UNVERIFIED / PENDING"}
+                            </Typography>
                         </Box>
                         <Divider />
                         <Box display="flex" justifyContent="space-between">

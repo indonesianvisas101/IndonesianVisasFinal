@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { getAdminAuth } from '@/lib/auth-helpers';
 import { getSignedUrl } from '@/lib/storage';
+import { logAdminAction } from '@/lib/auditLogger';
 
 // GET /api/verification?id=... OR ?slug=...
 export async function GET(request: Request) {
@@ -52,10 +53,29 @@ export async function GET(request: Request) {
                 orderBy: { createdAt: 'desc' }
             });
             
-            // Harden Photo URLs
+            // Harden Photo URLs & Unpack premium fields
             const verifications = await Promise.all(verificationsRaw.map(async (v: any) => {
                 if (v.photoUrl) v.photoUrl = await getSignedUrl(v.photoUrl);
-                return v;
+                if (v.passportNumber && v.passportNumber.startsWith('http')) {
+                    v.passportNumber = await getSignedUrl(v.passportNumber);
+                }
+                
+                // Unpack premium fields from JSON-packed address
+                let isIdivPurchased = false;
+                let idivPreviewExpiresAt = null;
+                if (v.address && v.address.trim().startsWith('{')) {
+                    try {
+                        const p = JSON.parse(v.address);
+                        isIdivPurchased = p.isIdivPurchased === true;
+                        idivPreviewExpiresAt = p.idivPreviewExpiresAt || null;
+                    } catch {}
+                }
+                
+                return {
+                    ...JSON.parse(JSON.stringify(v)),
+                    isIdivPurchased,
+                    idivPreviewExpiresAt
+                };
             }));
 
             return NextResponse.json(verifications);
@@ -63,11 +83,21 @@ export async function GET(request: Request) {
 
         if (!verification) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-        // Hardening: Explicitly ensure the access control fields are part of the object
+        // Unpack premium fields from JSON-packed address
+        let isIdivPurchased = false;
+        let idivPreviewExpiresAt = null;
+        if (verification.address && verification.address.trim().startsWith('{')) {
+            try {
+                const p = JSON.parse(verification.address);
+                isIdivPurchased = p.isIdivPurchased === true;
+                idivPreviewExpiresAt = p.idivPreviewExpiresAt || null;
+            } catch {}
+        }
+
         const verificationData = {
             ...JSON.parse(JSON.stringify(verification)),
-            isIdivPurchased: verification.isIdivPurchased || false,
-            idivPreviewExpiresAt: verification.idivPreviewExpiresAt || null
+            isIdivPurchased,
+            idivPreviewExpiresAt
         };
 
         const data = await appendCombinedData(verificationData);
@@ -77,14 +107,18 @@ export async function GET(request: Request) {
             try {
                 const addrParsed = JSON.parse(data.address);
                 if (addrParsed.visaActiveUrl) {
-                    data.visaActiveUrl = addrParsed.visaActiveUrl;
+                    // Sign visaActiveUrl if it's a Supabase URL
+                    data.visaActiveUrl = await getSignedUrl(addrParsed.visaActiveUrl);
                 }
             } catch { /* address is plain text, no visaActiveUrl */ }
         }
         
-        // Harden Photo URL
-        if (data && data.photoUrl) {
-            data.photoUrl = await getSignedUrl(data.photoUrl);
+        // Harden Photo URL & Passport Document
+        if (data) {
+            if (data.photoUrl) data.photoUrl = await getSignedUrl(data.photoUrl);
+            if (data.passportNumber && data.passportNumber.startsWith('http')) {
+                data.passportNumber = await getSignedUrl(data.passportNumber);
+            }
         }
         
         return NextResponse.json(data);
@@ -151,14 +185,19 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { id, userId, fullName, passportNumber, visaType, status, address, nationality, photoUrl } = body;
+        const { 
+            id, userId, fullName, passportNumber, visaType, status, address, nationality, photoUrl,
+            isAgreementRequired, agreementStatus, depositAmount, accessPin, invoiceId,
+            isIdivPurchased, idivPreviewExpiresAt
+        } = body;
 
         // Normalization & Sanitization: Uppercase and strip HTML tags
         // Hardening: Do NOT toUpperCase if it looks like JSON to preserve key structures
         const sanitize = (str: any) => {
             if (typeof str !== 'string' || !str) return str;
             const clean = str.replace(/<[^>]*>?/gm, '');
-            if (clean.trim().startsWith('{')) return clean; // Preserve JSON
+            // Preserve JSON and URLs (case-sensitive)
+            if (clean.trim().startsWith('{') || clean.trim().toLowerCase().startsWith('http')) return clean; 
             return clean.toUpperCase();
         };
 
@@ -166,7 +205,21 @@ export async function POST(request: Request) {
         const passportNumberFinal = sanitize(passportNumber);
         const visaTypeFinal = sanitize(visaType);
         const nationalityFinal = sanitize(nationality);
-        const addressFinal = sanitize(address);
+        
+        // --- HARDENING: Pack premium fields into address JSON ---
+        let addressFinal = address;
+        if (typeof address === 'string' && address.trim().startsWith('{')) {
+            try {
+                const addrObj = JSON.parse(address);
+                addrObj.isIdivPurchased = isIdivPurchased ?? false;
+                addrObj.idivPreviewExpiresAt = idivPreviewExpiresAt || null;
+                addressFinal = JSON.stringify(addrObj);
+            } catch {
+                addressFinal = sanitize(address);
+            }
+        } else {
+            addressFinal = sanitize(address);
+        }
 
         // Basic validation
         if (!fullNameFinal || !passportNumberFinal) {
@@ -192,9 +245,19 @@ export async function POST(request: Request) {
                     address: addressFinal,
                     nationality: nationalityFinal,
                     photoUrl,
+                    isAgreementRequired: isAgreementRequired ?? false,
+                    agreementStatus: agreementStatus || 'NONE',
+                    depositAmount: depositAmount ? parseFloat(depositAmount) : null,
+                    accessPin: accessPin || '123456',
+                    invoiceId: invoiceId || null,
                     updatedAt: now
                 }
             });
+            
+            // Audit Log
+            if (auth.dbUser) {
+                await logAdminAction(auth.dbUser.id, "UPDATE_VERIFICATION", "Verification", id, { fullName: fullNameFinal, status });
+            }
 
             return NextResponse.json(updated);
         } else {
@@ -216,16 +279,30 @@ export async function POST(request: Request) {
                     expiresAt,
                     address: addressFinal,
                     nationality: nationalityFinal,
-                    photoUrl
+                    photoUrl,
+                    isAgreementRequired: isAgreementRequired ?? false,
+                    agreementStatus: agreementStatus || 'NONE',
+                    depositAmount: depositAmount ? parseFloat(depositAmount) : null,
+                    accessPin: accessPin || '123456',
+                    invoiceId: invoiceId || null
                 }
             });
+            
+            // Audit Log
+            if (auth.dbUser) {
+                await logAdminAction(auth.dbUser.id, "CREATE_VERIFICATION", "Verification", newVerification.id, { fullName: fullNameFinal, slug });
+            }
 
             return NextResponse.json(newVerification);
         }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Create/Update verification error:', error);
-        return NextResponse.json({ error: 'Failed to save verification' }, { status: 500 });
+        return NextResponse.json({ 
+            error: 'Failed to save verification', 
+            details: error.message,
+            code: error.code
+        }, { status: 500 });
     }
 }
 
@@ -245,6 +322,10 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'ID required' }, { status: 400 });
         }
 
+        // --- HARDENING: Remove virtual fields from updateData to prevent Prisma validation errors ---
+        if (updateData.isIdivPurchased !== undefined) delete updateData.isIdivPurchased;
+        if (updateData.idivPreviewExpiresAt !== undefined) delete updateData.idivPreviewExpiresAt;
+
         const updated = await (prisma.verification as any).update({
             where: { id },
             data: {
@@ -252,6 +333,11 @@ export async function PUT(request: Request) {
                 updatedAt: new Date()
             }
         });
+        
+        // Audit Log
+        if (auth.dbUser) {
+            await logAdminAction(auth.dbUser.id, "TOGGLE_VERIFICATION_STATUS", "Verification", id, updateData);
+        }
 
         return NextResponse.json(updated);
     } catch (error) {
@@ -270,6 +356,12 @@ export async function DELETE(request: Request) {
         await prisma.verification.delete({
             where: { id }
         });
+        
+        // Audit Log
+        const auth = await getAdminAuth();
+        if (auth.authorized && auth.dbUser) {
+            await logAdminAction(auth.dbUser.id, "DELETE_VERIFICATION", "Verification", id, {});
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -45,14 +45,16 @@ export async function getSignedUrl(publicUrl: string, expiresIn: number = 3600):
             .createSignedUrl(path, expiresIn);
 
         if (error) {
+            // v8.98 - SPEED PROTECTION: Immediately return original URL on common missing errors
+            if (error.message.includes('Object not found') || error.message.includes('Bad Gateway')) {
+                return publicUrl;
+            }
             console.error(`[Storage] Failed to create signed URL for ${publicUrl}:`, error.message);
-            // If it's a "Bucket not found" error, maybe it's not a Supabase URL we can sign
             return publicUrl;
         }
 
         return data.signedUrl;
     } catch (err) {
-        console.error(`[Storage] Error processing signed URL:`, err);
         return publicUrl;
     }
 }

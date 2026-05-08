@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { calculateOrderFees } from '@/utils/feeCalculator';
 
 export async function POST(req: Request) {
     try {
@@ -10,96 +9,83 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing invoiceId or addonSku" }, { status: 400 });
         }
 
-        // 1. Fetch Invoice & Application
-        const invoice = await prisma.invoice.findUnique({
+        // 1. Fetch the invoice - try direct ID first, then fallback to VisaApplication ID
+        let invoice = await prisma.invoice.findUnique({
             where: { id: invoiceId },
             include: { visaApplication: true }
         });
 
         if (!invoice) {
-            return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+            // Fallback: Check if the ID provided is actually a VisaApplication ID
+            const visaApp = await prisma.visaApplication.findUnique({
+                where: { id: invoiceId },
+                include: { invoices: true }
+            });
+            
+            if (visaApp?.invoices && visaApp.invoices.length > 0) {
+                invoice = { ...visaApp.invoices[0], visaApplication: visaApp } as any;
+            }
         }
 
-        if (invoice.status !== 'UNPAID') {
-            return NextResponse.json({ error: "Cannot add addons to a paid invoice" }, { status: 400 });
+        if (!invoice) {
+            return NextResponse.json({ error: "Invoice/Application record not found" }, { status: 404 });
         }
 
-        const application = invoice.visaApplication;
-        if (!application) {
-            return NextResponse.json({ error: "Application not found" }, { status: 404 });
+        // 2. Define Add-on Prices (Master Transactional Prices v8.24)
+        const PRICES: Record<string, number> = {
+            'ARRIVAL_CARD': 500000, 
+            'IDIV': 325000,         
+        };
+
+        const addonPrice = PRICES[addonSku] || 0;
+
+        if (addonPrice === 0) {
+            return NextResponse.json({ error: "Invalid Addon SKU" }, { status: 400 });
         }
 
-        // 2. Check if already added
-        const attribution = (application.attribution as any) || {};
-        const upsells = attribution.upsells || {};
+        // 3. Update Invoice Amounts
+        const invoiceAny = invoice as any;
+        const currentAddons = Number(invoiceAny.addonsAmount || 0);
+        const newAddonsAmount = currentAddons + addonPrice;
+        const newTotalAmount = Number(invoiceAny.amount) + addonPrice;
+
+        // 4. Update Attribution to mark the upsell
+        const currentAttribution = (invoiceAny.visaApplication?.attribution as any) || {};
+        const currentUpsells = currentAttribution.upsells || {};
         
-        const skuKey = addonSku.toLowerCase() === 'idiv' ? 'idiv' : 
-                       addonSku.toLowerCase() === 'arrival_card' ? 'arrival_card' : addonSku.toLowerCase();
+        const updatedAttribution = {
+            ...currentAttribution,
+            upsells: {
+                ...(currentUpsells || {}),
+                [addonSku === 'ARRIVAL_CARD' ? 'ac_ordered' : 'idiv_ordered']: true
+            }
+        };
 
-        if (upsells[skuKey]) {
-            return NextResponse.json({ error: "Addon already added to this order" }, { status: 400 });
-        }
-
-        // 3. Fetch Addon Price
-        const addon = await prisma.addon.findUnique({
-            where: { sku: addonSku.toUpperCase() }
-        });
-
-        if (!addon) {
-            return NextResponse.json({ error: "Addon service not found" }, { status: 404 });
-        }
-
-        const addonPrice = Number(addon.price);
-
-        // 4. Recalculate Totals
-        // Existing base processing
-        const visaAmount = Number((invoice as any).visaAmount || 0);
-        const currentAddonsAmount = Number((invoice as any).addonsAmount || 0);
-        const newAddonsAmount = currentAddonsAmount + addonPrice;
-
-        // Use the centralized calculator
-        // We calculate for the WHOLE order again to ensure tax/fees are correct
-        const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(
-            visaAmount + newAddonsAmount,
-            invoice.paymentMethod || 'Manual',
-            0 // No discount for now
-        );
-
-        // 5. Update Database
-        const result = await prisma.$transaction(async (tx) => {
-            // Update Application Attribution
-            const updatedUpsells = { ...upsells, [skuKey]: true };
-            const updatedAttribution = { ...attribution, upsells: updatedUpsells };
-
-            await tx.visaApplication.update({
-                where: { id: application.id },
-                data: { attribution: updatedAttribution }
-            });
-
-            // Update Invoice
-            const updatedInvoice = await (tx.invoice as any).update({
-                where: { id: invoice.id },
+        // 5. Execute Transaction
+        await prisma.$transaction([
+            prisma.invoice.update({
+                where: { id: invoiceAny.id },
                 data: {
-                    amount: totalAmount,
-                    addonsAmount: newAddonsAmount,
-                    serviceFee: serviceFee,
-                    gatewayFee: gatewayFee,
-                    pph23Amount: pph23Amount,
-                    adminNotes: (invoice.adminNotes || '') + `\n+ Added ${addon.name} (IDR ${addonPrice.toLocaleString()})`
+                    addonsAmount: newAddonsAmount as any,
+                    amount: newTotalAmount,
+                    status: 'UNPAID' // Reset to unpaid so user pays the difference
                 }
-            });
-
-            return updatedInvoice;
-        });
+            }),
+            prisma.visaApplication.update({
+                where: { id: invoiceAny.applicationId! },
+                data: {
+                    attribution: updatedAttribution
+                }
+            })
+        ]);
 
         return NextResponse.json({ 
-            success: true, 
-            message: `${addon.name} added to your order.`,
-            invoice: result 
+            message: `${addonSku} successfully added to invoice.`,
+            newTotal: newTotalAmount 
         });
 
     } catch (error: any) {
-        console.error("Add Addon Error:", error);
-        return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+        console.error("ADD_ADDON_ERROR:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

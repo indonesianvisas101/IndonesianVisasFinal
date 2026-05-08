@@ -23,7 +23,8 @@ import {
     ToggleButton,
     ToggleButtonGroup,
     CircularProgress,
-    IconButton
+    IconButton,
+    Grid
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -35,6 +36,10 @@ import { VISA_DATABASE } from "@/constants/visas";
 import { supabase } from "@/lib/supabase";
 import { useSearchParams } from "next/navigation";
 import DocumentViewer from "../DocumentViewer";
+import { uploadCompressedFile } from "@/utils/ivce";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { InputAdornment } from "@mui/material";
 
 export default function InvoicingTab() {
     const [invoices, setInvoices] = useState<any[]>([]);
@@ -68,6 +73,8 @@ export default function InvoicingTab() {
         internalNotes: "", // Internal
         registrationNumber: "",
         visaLink: "",
+        paymentLink: "",
+        secondOrderStatus: "UNPAID",
         arrivalCardLink: "",
         arrivalCardQr: ""
     });
@@ -88,6 +95,8 @@ export default function InvoicingTab() {
         description: "", // We'll keep this for the "Public Description" field mapping
         registrationNumber: "", // New
         visaLink: "", // New
+        paymentLink: "", // New
+        secondOrderStatus: "UNPAID", // New (v8.71)
         arrivalCardLink: "", // New
         arrivalCardQr: "", // New
         attribution: {} as any,
@@ -153,6 +162,8 @@ export default function InvoicingTab() {
                 attribution: {
                     registrationNumber: formData.registrationNumber,
                     visaLink: formData.visaLink,
+                    paymentLink: formData.paymentLink,
+                    secondOrderStatus: formData.secondOrderStatus,
                     arrivalCardLink: formData.arrivalCardLink,
                     arrivalCardQr: formData.arrivalCardQr,
                     internalNotes: formData.internalNotes
@@ -210,15 +221,26 @@ export default function InvoicingTab() {
             if (res.ok) {
                 // Also Sync Address to Verification if linked
                 if (editingInvoice.verificationId && editFormData.verificationAddress) {
+                    // v10.9.5 Hardening: Preserve existing JSON structure in address if present
+                    let finalAddress = editFormData.verificationAddress;
+                    const existingAddr = editingInvoice.verification?.address;
+                    if (existingAddr && existingAddr.startsWith('{')) {
+                        try {
+                            const parsed = JSON.parse(existingAddr);
+                            parsed.street = editFormData.verificationAddress; // Only update street
+                            finalAddress = JSON.stringify(parsed);
+                        } catch (e) { /* Fallback to plain string if parse fails */ }
+                    }
+
                     await fetch('/api/verification', {
-                        method: 'POST',
+                        method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify({
                             id: editingInvoice.verificationId,
-                            address: editFormData.verificationAddress
+                            address: finalAddress
                         })
                     });
                 }
@@ -270,29 +292,82 @@ export default function InvoicingTab() {
         }
     };
 
-    const handleEditClick = (inv: any) => {
-        const linkedInvoice = inv.invoice || inv;
-        setEditingInvoice(inv);
-        setEditFormData({
-            status: inv.status || "Apply to Agent",
-            paymentStatus: ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved", "PAID"].includes(inv.status) || linkedInvoice.status === 'PAID' ? 'PAID' : 'UNPAID',
-            paymentReference: linkedInvoice.paymentReference || '',
-            adminNotes: linkedInvoice.adminNotes || '', // Public Description
-            internalNotes: inv.attribution?.internalNotes || '',
-            guestName: inv.guestName || inv.user?.name || '',
-            guestEmail: inv.guestEmail || inv.user?.email || '',
-            visaName: inv.visaName || inv.visaId || '',
-            customAmount: inv.customAmount || linkedInvoice.amount || '',
-            userId: inv.userId || inv.user_id || '',
-            description: linkedInvoice.adminNotes || inv.adminNotes || '', // Sync with adminNotes
-            registrationNumber: inv.attribution?.registrationNumber || '',
-            visaLink: inv.attribution?.visaLink || '',
-            arrivalCardLink: inv.attribution?.arrivalCardLink || '',
-            arrivalCardQr: inv.attribution?.arrivalCardQr || '',
-            attribution: inv.attribution || {}, // PRESERVE ALL (including upsells)
-            verificationAddress: inv.verification?.address || ''
-        });
-        setOpenEditDialog(true);
+    const handleFileUpload = async (field: 'visaLink' | 'arrivalCardLink' | 'arrivalCardQr', file: File) => {
+        setLoading(true);
+        try {
+            const url = await uploadCompressedFile(file);
+            
+            setEditFormData(prev => {
+                const newAttribution = { ...prev.attribution, [field]: url };
+                
+                // v8.86 - AUTO-PAID LOGIC
+                if (field === 'arrivalCardLink') {
+                    newAttribution.upsells = { ...newAttribution.upsells, ac_paid: true, ac_ordered: false };
+                }
+                if (field === 'arrivalCardQr') {
+                    newAttribution.upsells = { ...newAttribution.upsells, idiv_paid: true, idiv_ordered: false };
+                }
+
+                return {
+                    ...prev,
+                    [field]: url,
+                    attribution: newAttribution
+                };
+            });
+            
+            alert(`✅ File uploaded and compressed successfully!`);
+        } catch (e: any) {
+            alert(`❌ Upload failed: ${e.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleEditClick = async (inv: any) => {
+        setLoading(true);
+        try {
+            // v8.13 - Fetch Full Detail for Document Readiness Sync
+            const res = await fetch(`/api/applications?id=${inv.id}`);
+            const fullData = res.ok ? await res.json() : inv;
+            
+            const linkedInvoice = fullData.invoice || fullData;
+            setEditingInvoice(fullData);
+            setEditFormData({
+                status: fullData.status || "Apply to Agent",
+                paymentStatus: ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved", "PAID"].includes(fullData.status) || linkedInvoice.status === 'PAID' ? 'PAID' : 'UNPAID',
+                paymentReference: linkedInvoice.paymentReference || '',
+                adminNotes: linkedInvoice.adminNotes || '', // Public Description
+                internalNotes: fullData.attribution?.internalNotes || '',
+                guestName: fullData.guestName || fullData.user?.name || '',
+                guestEmail: fullData.guestEmail || fullData.user?.email || '',
+                visaName: fullData.visaName || fullData.visaId || '',
+                customAmount: fullData.customAmount || linkedInvoice.amount || '',
+                userId: fullData.userId || fullData.user_id || '',
+                description: linkedInvoice.adminNotes || fullData.adminNotes || '', // Sync with adminNotes
+                registrationNumber: fullData.attribution?.registrationNumber || '',
+                visaLink: fullData.visaLink || fullData.attribution?.visaLink || '',
+                paymentLink: fullData.attribution?.paymentLink || '',
+                secondOrderStatus: fullData.attribution?.secondOrderStatus || 'UNPAID',
+                arrivalCardLink: fullData.arrivalCardLink || fullData.attribution?.arrivalCardLink || '',
+                arrivalCardQr: fullData.arrivalCardQr || fullData.attribution?.arrivalCardQr || '',
+                attribution: fullData.attribution || {}, // PRESERVE ALL (including upsells)
+                verificationAddress: (() => {
+                    const addr = fullData.verification?.address || '';
+                    if (addr.startsWith('{')) {
+                        try {
+                            const parsed = JSON.parse(addr);
+                            return parsed.street || parsed.address || addr;
+                        } catch (e) { return addr; }
+                    }
+                    return addr;
+                })()
+            });
+            setOpenEditDialog(true);
+        } catch (e) {
+            console.error("Edit fetch failed", e);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleDelete = async (id: string) => {
@@ -334,6 +409,8 @@ export default function InvoicingTab() {
             internalNotes: "",
             registrationNumber: "",
             visaLink: "",
+            paymentLink: "",
+            secondOrderStatus: "UNPAID",
             arrivalCardLink: "",
             arrivalCardQr: ""
         });
@@ -408,9 +485,29 @@ export default function InvoicingTab() {
                                         </TableCell>
                                         <TableCell>
                                             <Typography variant="body2">{inv.visaName || inv.visaId}</Typography>
-                                            {inv.customAmount && (
-                                                <Typography variant="caption" color="primary">Custom: {inv.customAmount}</Typography>
-                                            )}
+                                            <Stack direction="row" spacing={0.5} mt={0.5}>
+                                                {inv.customAmount && (
+                                                    <Typography variant="caption" color="primary" sx={{ mr: 1 }}>Custom: {inv.customAmount}</Typography>
+                                                )}
+                                                {inv.documentReadiness?.idiv?.ordered && (
+                                                    <Chip 
+                                                        label="IDiv" 
+                                                        size="small" 
+                                                        variant="outlined"
+                                                        color={inv.documentReadiness.idiv.paid ? "secondary" : "default"}
+                                                        sx={{ height: 16, fontSize: '0.6rem', fontWeight: 'bold' }}
+                                                    />
+                                                )}
+                                                {inv.documentReadiness?.arrivalCard?.ordered && (
+                                                    <Chip 
+                                                        label="AC" 
+                                                        size="small" 
+                                                        variant="outlined"
+                                                        color={inv.documentReadiness.arrivalCard.paid ? "info" : "default"}
+                                                        sx={{ height: 16, fontSize: '0.6rem', fontWeight: 'bold' }}
+                                                    />
+                                                )}
+                                            </Stack>
                                         </TableCell>
                                         <TableCell>
                                             <Chip
@@ -576,6 +673,15 @@ export default function InvoicingTab() {
                             />
                         </Stack>
 
+                        <TextField
+                            label="Manual Payment Link (Optional)"
+                            fullWidth
+                            value={formData.paymentLink}
+                            onChange={(e) => setFormData({ ...formData, paymentLink: e.target.value })}
+                            placeholder="https://buy.stripe.com/..."
+                            helperText="If provided, a 'PAY NOW MANUALLY' button will appear on the invoice."
+                        />
+
                         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                             <TextField
                                 label="Arrival Card Link"
@@ -601,6 +707,7 @@ export default function InvoicingTab() {
                                 onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                             />
 
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                             <TextField
                                 select
                                 label="Initial Status"
@@ -620,6 +727,18 @@ export default function InvoicingTab() {
                                 <MenuItem value="Active">Active</MenuItem>
                                 <MenuItem value="Expired">Expired</MenuItem>
                             </TextField>
+
+                            <TextField
+                                select
+                                label="Additional Order Status"
+                                fullWidth
+                                value={formData.secondOrderStatus}
+                                onChange={(e) => setFormData({ ...formData, secondOrderStatus: e.target.value })}
+                            >
+                                <MenuItem value="UNPAID">Unpaid (Total 2)</MenuItem>
+                                <MenuItem value="PAID">Paid (Total 2)</MenuItem>
+                            </TextField>
+                        </Stack>
                         </Stack>
 
                         <TextField
@@ -756,66 +875,262 @@ export default function InvoicingTab() {
                                     visaLink: e.target.value,
                                     attribution: { ...editFormData.attribution, visaLink: e.target.value }
                                 })}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton component="label" color="primary">
+                                                    <CloudUploadIcon />
+                                                    <input 
+                                                        type="file" 
+                                                        hidden 
+                                                        onChange={(e) => e.target.files?.[0] && handleFileUpload('visaLink', e.target.files[0])} 
+                                                    />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }
+                                }}
                             />
                         </Stack>
+
+                        <TextField
+                            label="Manual Payment Link (v8.60)"
+                            fullWidth
+                            value={editFormData.paymentLink}
+                            onChange={(e) => setEditFormData({ 
+                                ...editFormData, 
+                                paymentLink: e.target.value,
+                                attribution: { ...editFormData.attribution, paymentLink: e.target.value }
+                            })}
+                            placeholder="https://..."
+                            helperText="Paste custom payment link here. Links to invoice CTA."
+                        />
 
                         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                             <TextField
                                 label="Arrival Card Link"
                                 fullWidth
                                 value={editFormData.arrivalCardLink}
-                                onChange={(e) => setEditFormData({ 
-                                    ...editFormData, 
-                                    arrivalCardLink: e.target.value,
-                                    attribution: { ...editFormData.attribution, arrivalCardLink: e.target.value }
-                                })}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setEditFormData(prev => ({ 
+                                        ...prev, 
+                                        arrivalCardLink: val,
+                                        attribution: { 
+                                            ...prev.attribution, 
+                                            arrivalCardLink: val,
+                                            upsells: val ? { ...prev.attribution.upsells, ac_paid: true, ac_ordered: false } : prev.attribution.upsells
+                                        }
+                                    }));
+                                }}
                                 placeholder="https://..."
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton component="label" color="success">
+                                                    <CloudUploadIcon />
+                                                    <input 
+                                                        type="file" 
+                                                        hidden 
+                                                        onChange={(e) => e.target.files?.[0] && handleFileUpload('arrivalCardLink', e.target.files[0])} 
+                                                    />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }
+                                }}
                             />
                             <TextField
-                                label="Arrival Card QR/Code"
+                                label="Sponsor ID / IDiv Link"
                                 fullWidth
                                 value={editFormData.arrivalCardQr}
-                                onChange={(e) => setEditFormData({ 
-                                    ...editFormData, 
-                                    arrivalCardQr: e.target.value,
-                                    attribution: { ...editFormData.attribution, arrivalCardQr: e.target.value }
-                                })}
-                                placeholder="QR Code ID or String"
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setEditFormData(prev => ({ 
+                                        ...prev, 
+                                        arrivalCardQr: val,
+                                        attribution: { 
+                                            ...prev.attribution, 
+                                            arrivalCardQr: val,
+                                            upsells: val ? { ...prev.attribution.upsells, idiv_paid: true, idiv_ordered: false } : prev.attribution.upsells
+                                        }
+                                    }));
+                                }}
+                                placeholder="Paste Link or Upload"
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton component="label" color="info">
+                                                    <CloudUploadIcon />
+                                                    <input 
+                                                        type="file" 
+                                                        hidden 
+                                                        onChange={(e) => e.target.files?.[0] && handleFileUpload('arrivalCardQr', e.target.files[0])} 
+                                                    />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }
+                                }}
                             />
                         </Stack>
 
-                        <Box display="flex" justifyContent="flex-end">
-                            <Button 
-                                size="small" 
-                                variant="contained" 
-                                color="info"
-                                startIcon={<RefreshIcon />}
-                                onClick={handleSyncArrivalCard}
-                                sx={{ 
-                                    borderRadius: 3, 
-                                    textTransform: 'none',
-                                    fontWeight: 800,
-                                    boxShadow: '0 4px 12px rgba(2,132,199,0.2)',
-                                    '&:hover': { bgcolor: '#0284c7' }
-                                }}
-                            >
-                                Sync Arrival Card Data
-                            </Button>
+                        <Box sx={{ bgcolor: 'rgba(2,132,199,0.05)', p: 2, borderRadius: 3, border: '1px solid rgba(2,132,199,0.2)' }}>
+                            <Typography variant="subtitle2" fontWeight="800" color="info.main" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <RefreshIcon sx={{ fontSize: 16 }} />
+                                Document Readiness Sync (v8.14)
+                            </Typography>
+                            <Grid container spacing={1}>
+                                <Grid size={{ xs: 6 }}>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <Chip 
+                                            label="AC Ordered" 
+                                            size="small" 
+                                            clickable
+                                            color={editFormData.attribution?.upsells?.ac_ordered ? 'success' : 'default'} 
+                                            variant={editFormData.attribution?.upsells?.ac_ordered ? 'filled' : 'outlined'}
+                                            onClick={() => {
+                                                const current = editFormData.attribution?.upsells || {};
+                                                const newState = !current.ac_ordered;
+                                                setEditFormData({
+                                                    ...editFormData,
+                                                    attribution: {
+                                                        ...editFormData.attribution,
+                                                        upsells: { 
+                                                            ...current, 
+                                                            ac_ordered: newState,
+                                                            ac_paid: newState ? false : current.ac_paid // Turn off Paid if Ordered is turned on
+                                                        }
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                        <Chip 
+                                            label="AC Paid" 
+                                            size="small" 
+                                            clickable
+                                            color={editFormData.attribution?.upsells?.ac_paid ? 'success' : 'default'} 
+                                            variant={editFormData.attribution?.upsells?.ac_paid ? 'filled' : 'outlined'}
+                                            onClick={() => {
+                                                const current = editFormData.attribution?.upsells || {};
+                                                const newState = !current.ac_paid;
+                                                setEditFormData({
+                                                    ...editFormData,
+                                                    attribution: {
+                                                        ...editFormData.attribution,
+                                                        upsells: { 
+                                                            ...current, 
+                                                            ac_paid: newState,
+                                                            ac_ordered: newState ? false : current.ac_ordered // Turn off Ordered if Paid is turned on
+                                                        }
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                    </Stack>
+                                </Grid>
+                                <Grid size={{ xs: 6 }}>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <Chip 
+                                            label="IDiv Ordered" 
+                                            size="small" 
+                                            clickable
+                                            color={editFormData.attribution?.upsells?.idiv_ordered ? 'success' : 'default'} 
+                                            variant={editFormData.attribution?.upsells?.idiv_ordered ? 'filled' : 'outlined'}
+                                            onClick={() => {
+                                                const current = editFormData.attribution?.upsells || {};
+                                                const newState = !current.idiv_ordered;
+                                                setEditFormData({
+                                                    ...editFormData,
+                                                    attribution: {
+                                                        ...editFormData.attribution,
+                                                        upsells: { 
+                                                            ...current, 
+                                                            idiv_ordered: newState,
+                                                            idiv_paid: newState ? false : current.idiv_paid // Turn off Paid if Ordered is turned on
+                                                        }
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                        <Chip 
+                                            label="IDiv Paid" 
+                                            size="small" 
+                                            clickable
+                                            color={editFormData.attribution?.upsells?.idiv_paid ? 'success' : 'default'} 
+                                            variant={editFormData.attribution?.upsells?.idiv_paid ? 'filled' : 'outlined'}
+                                            onClick={() => {
+                                                const current = editFormData.attribution?.upsells || {};
+                                                const newState = !current.idiv_paid;
+                                                setEditFormData({
+                                                    ...editFormData,
+                                                    attribution: {
+                                                        ...editFormData.attribution,
+                                                        upsells: { 
+                                                            ...current, 
+                                                            idiv_paid: newState,
+                                                            idiv_ordered: newState ? false : current.idiv_ordered // Turn off Ordered if Paid is turned on
+                                                        }
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                    </Stack>
+                                </Grid>
+                            </Grid>
+                            <Box display="flex" justifyContent="flex-end" mt={2}>
+                                <Button 
+                                    size="small" 
+                                    variant="contained" 
+                                    color="info"
+                                    startIcon={<RefreshIcon />}
+                                    onClick={() => handleEditClick(editingInvoice)}
+                                    sx={{ 
+                                        borderRadius: 3, 
+                                        textTransform: 'none',
+                                        fontWeight: 800,
+                                        boxShadow: '0 4px 12px rgba(2,132,199,0.2)',
+                                        '&:hover': { bgcolor: '#0284c7' }
+                                    }}
+                                >
+                                    Auto-Detect & Sync
+                                </Button>
+                            </Box>
                         </Box>
 
-                        <TextField
-                            select
-                            label="Payment Status (Invoice)"
-                            fullWidth
-                            value={editFormData.paymentStatus}
-                            onChange={(e) => setEditFormData({ ...editFormData, paymentStatus: e.target.value })}
-                        >
-                            <MenuItem value="UNPAID">Unpaid</MenuItem>
-                            <MenuItem value="PENDING">Pending</MenuItem>
-                            <MenuItem value="PAID">Paid</MenuItem>
-                            <MenuItem value="FAILED">Failed</MenuItem>
-                            <MenuItem value="REFUNDED">Refunded</MenuItem>
-                        </TextField>
+                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                            <TextField
+                                select
+                                label="Payment Status (Total 1)"
+                                fullWidth
+                                value={editFormData.paymentStatus}
+                                onChange={(e) => setEditFormData({ ...editFormData, paymentStatus: e.target.value })}
+                            >
+                                <MenuItem value="UNPAID">Unpaid</MenuItem>
+                                <MenuItem value="PENDING">Pending</MenuItem>
+                                <MenuItem value="PAID">Paid</MenuItem>
+                                <MenuItem value="FAILED">Failed</MenuItem>
+                                <MenuItem value="REFUNDED">Refunded</MenuItem>
+                            </TextField>
+
+                            <TextField
+                                select
+                                label="Additional Status (Total 2)"
+                                fullWidth
+                                value={editFormData.secondOrderStatus}
+                                onChange={(e) => setEditFormData({ 
+                                    ...editFormData, 
+                                    secondOrderStatus: e.target.value,
+                                    attribution: { ...editFormData.attribution, secondOrderStatus: e.target.value }
+                                })}
+                            >
+                                <MenuItem value="UNPAID">Unpaid (Additional)</MenuItem>
+                                <MenuItem value="PAID">Paid (Additional)</MenuItem>
+                            </TextField>
+                        </Stack>
 
                         <TextField
                             label="Payment Reference"

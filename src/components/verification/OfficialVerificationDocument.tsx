@@ -2,16 +2,16 @@
 "use client";
 
 import React from 'react';
-import { 
-    Box, 
-    Paper, 
-    Typography, 
-    Divider, 
-    Grid, 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableContainer, 
+import {
+    Box,
+    Paper,
+    Typography,
+    Divider,
+    Grid,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
     TableRow,
     Chip
 } from '@mui/material';
@@ -31,6 +31,8 @@ interface OfficialVerificationDocumentProps {
         status: string;
         slug: string;
         address?: string;
+        isAgreementRequired?: boolean;
+        agreementStatus?: string;
     };
 }
 
@@ -40,7 +42,7 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
         month: 'long',
         year: 'numeric'
     });
-    
+
     const formattedExpiryDate = data.expiresAt ? new Date(data.expiresAt).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'long',
@@ -49,12 +51,12 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
 
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: { xs: 2, md: 4 }, bgcolor: '#F3F4F6', minHeight: '100vh' }}>
-            <Paper 
-                elevation={3} 
-                sx={{ 
-                    width: '100%', 
-                    maxWidth: '800px', 
-                    p: { xs: 4, md: 8 }, 
+            <Paper
+                elevation={3}
+                sx={{
+                    width: '100%',
+                    maxWidth: '800px',
+                    p: { xs: 4, md: 8 },
                     borderRadius: 0,
                     position: 'relative',
                     border: '1px solid #E5E7EB',
@@ -62,13 +64,43 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
                     boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
                 }}
             >
+                {/* v8.53 - DYNAMIC WATERMARK (Matches Photo 3 Requirements) */}
+                {data.status !== 'VALID' && (
+                    <Box sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%) rotate(-35deg)',
+                        opacity: 0.15,
+                        pointerEvents: 'none',
+                        zIndex: 20,
+                        whiteSpace: 'nowrap'
+                    }}>
+                        <Typography
+                            variant="h1"
+                            fontWeight="1000"
+                            sx={{
+                                color: '#EF4444',
+                                fontSize: '12rem',
+                                letterSpacing: 20,
+                                border: '20px solid #EF4444',
+                                px: 10,
+                                py: 4,
+                                borderRadius: 10
+                            }}
+                        >
+                            UNVERIFIED
+                        </Typography>
+                    </Box>
+                )}
+
                 {/* WATERMARK LOGO */}
-                <Box sx={{ 
-                    position: 'absolute', 
-                    top: '50%', 
-                    left: '50%', 
-                    transform: 'translate(-50%, -50%)', 
-                    opacity: 0.03, 
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    opacity: 0.03,
                     pointerEvents: 'none',
                     width: '60%'
                 }}>
@@ -84,16 +116,22 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
                                 INDONESIAN VISAS AGENCY
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
-                                Verified Immigration & Document Services
+                                Verified Sponsored Documents
                             </Typography>
                         </Box>
                     </Box>
                     <Box sx={{ textAlign: 'right' }}>
-                        <Chip 
-                            label={data.status === 'VALID' ? 'VERIFIED' : data.status} 
+                        <Chip
+                            label={data.status === 'VALID' ? 'VERIFIED' : 'UNVERIFIED'}
                             color={data.status === 'VALID' ? 'success' : 'error'}
                             icon={<ShieldCheck size={18} />}
-                            sx={{ fontWeight: 800, px: 1 }}
+                            sx={{
+                                fontWeight: 900,
+                                px: 2,
+                                py: 2.5,
+                                fontSize: '0.9rem',
+                                boxShadow: data.status === 'VALID' ? '0 4px 12px rgba(22, 163, 74, 0.2)' : '0 4px 12px rgba(239, 68, 68, 0.2)'
+                            }}
                         />
                     </Box>
                 </Box>
@@ -114,11 +152,11 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
                 <Grid container spacing={6}>
                     {/* LEFT SIDE: PHOTO & QR */}
                     <Grid size={{ xs: 12, md: 4 }} sx={{ textAlign: 'center' }}>
-                        <Box sx={{ 
-                            width: 180, 
-                            height: 230, 
-                            mx: 'auto', 
-                            bgcolor: '#F9FAFB', 
+                        <Box sx={{
+                            width: 180,
+                            height: 230,
+                            mx: 'auto',
+                            bgcolor: '#F9FAFB',
                             border: '4px solid #F3F4F6',
                             overflow: 'hidden',
                             mb: 4,
@@ -134,15 +172,43 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
                         </Box>
 
                         <Box sx={{ p: 2, bgcolor: '#FFFFFF', border: '1px dashed #D1D5DB', borderRadius: 2, display: 'inline-block' }}>
-                            <QRCodeSVG 
-                                value={`https://indonesianvisas.com/verify/${data.slug}`} 
+                            <QRCodeSVG
+                                value={`https://indonesianvisas.com/verify/secure-doc/${data.slug}`}
                                 size={100}
                                 level="H"
                             />
                             <Typography variant="caption" display="block" sx={{ mt: 1, fontWeight: 700, fontSize: '0.6rem' }}>
-                                SCAN TO VALIDATE
+                                SECURE DOCUMENT ACCESS
                             </Typography>
                         </Box>
+
+                        {data.isAgreementRequired && data.agreementStatus === 'SIGNED' && (
+                            <Box sx={{ mt: 3, p: 2, bgcolor: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 2, textAlign: 'left' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                    <ShieldCheck size={16} color="#16A34A" />
+                                    <Typography variant="caption" fontWeight="900" color="#16A34A" sx={{ fontSize: '0.65rem' }}>
+                                        AGREEMENT SIGNED
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                                    <Box sx={{ p: 0.5, bgcolor: '#fff', border: '1px solid #eee' }}>
+                                        <QRCodeSVG
+                                            value={`https://indonesianvisas.com/verify/secure-doc/${data.slug}`}
+                                            size={45}
+                                            level="M"
+                                        />
+                                    </Box>
+                                    <Box>
+                                        <Typography variant="caption" fontWeight="bold" display="block" sx={{ fontSize: '0.6rem', lineHeight: 1 }}>
+                                            SECURE ACCESS
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem', lineHeight: 1.1, display: 'block' }}>
+                                            Scan for Passport & Files (PIN Protected)
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
+                        )}
                     </Grid>
 
                     {/* RIGHT SIDE: DATA TABLE */}
@@ -179,7 +245,7 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
                     <Typography variant="caption" sx={{ color: '#9CA3AF', display: 'block', mb: 2 }}>
                         This is a computer-generated document. No signature is required. The authenticity of this document can be verified by scanning the QR code above or visiting indonesianvisas.com/verify.
                     </Typography>
-                    
+
                     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 6, mt: 4 }}>
                         <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="caption" fontWeight="900" display="block">SYSTEM CAPTURED</Typography>

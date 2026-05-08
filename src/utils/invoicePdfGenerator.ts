@@ -1,3 +1,9 @@
+/**
+ * INDONESIAN VISAS - HARDENED PDF ENGINE v10.9.5 (2026-2027)
+ * Status: Production Ready | Carbon Copy Mandate
+ * LOCK POLICY: COORDINATES ARE STABLE. CHANGES HERE MUST NOT TOUCH WEB LINK INVOICE (page.tsx).
+ */
+
 // @ts-ignore
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
@@ -273,6 +279,26 @@ export const generateInvoicePDF = async (invoice: any) => {
     const usdEquiv = (grandTotal / 15900).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     doc.text(`(Approx. $${usdEquiv} USD)`, valX, y, { align: "right" });
 
+    // v10.9 - REPOSITIONED PAID STAMP IN PDF
+    const normalizedStatus = (invoice.status || '').toLowerCase();
+    const isPaid = [
+        "paid", "active", "review by agent", "on going", 
+        "preparing for submission", "submited", "process by immigration", 
+        "approved", "completed"
+    ].includes(normalizedStatus);
+
+    // v10.9.6 - PERSISTENT STATUS STAMP (PAID/UNPAID) IN PDF
+    y += 5;
+    const stampColor = isPaid ? [86, 202, 0] : [255, 76, 81];
+    doc.setDrawColor(stampColor[0], stampColor[1], stampColor[2]);
+    doc.setLineWidth(0.8);
+    doc.rect(valX - 40, y, 22, 9, 'S'); 
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(stampColor[0], stampColor[1], stampColor[2]);
+    doc.text(isPaid ? "PAID" : "UNPAID", valX - 29, y + 6.5, { align: "center", angle: -4 }); 
+    y += 10;
+
     // --- 4.5 PUBLIC NOTES GRID (Below Totals) ---
     const adminNotes = invoice.invoice?.adminNotes;
     if (adminNotes) {
@@ -289,58 +315,58 @@ export const generateInvoicePDF = async (invoice: any) => {
         doc.text(splitNotes, margin, y);
     }
 
-    // --- 5. BOTTOM LAYOUT (QR LEFT, CONFIRMATION RIGHT) ---
-    const bottomY = 240;
-    const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(invoice.status);
+    // --- 5. BOTTOM LAYOUT (QR & STATUS LEFT, CONFIRMATION RIGHT) ---
+    const bottomY = 230; // Raised from 240 to prevent clipping
+    // Left Column: QR -> Stamp -> Status
+    let currentLX = margin + 15;
+    let currentLY = bottomY - 25; // Shifted up (from -15 to -25)
 
-    // Left: QR Code
-    if (invoice.verification) {
+    // v10.9 - Smart QR Value (Certificate Priority)
+    const qrValue = invoice.verification?.qrCode || 
+                    (invoice.attribution?.visaLink ? (invoice.attribution.visaLink.startsWith('http') ? invoice.attribution.visaLink : `https://${invoice.attribution.visaLink}`) : null) ||
+                    (invoice.verification?.slug ? `${window.location.origin}/verify/${invoice.verification.slug}` : null);
+
+    // 1. QR Code (Only if PAID)
+    if (isPaid && qrValue) {
         try {
-            const verificationUrl = `${window.location.origin}/verify/${invoice.verification.slug}`;
-            const qrDataUrl = await QRCode.toDataURL(verificationUrl, { errorCorrectionLevel: 'M' });
-
-            // Background box
-            doc.setFillColor(245, 245, 255);
-            doc.roundedRect(margin, bottomY - 10, 50, 45, 2, 2, 'F');
-
-            // Image
-            doc.addImage(qrDataUrl, 'PNG', margin + 10, bottomY - 5, 30, 30);
-
-            // v4.8 - ENHANCED STATUS ABOVE QR (PDF)
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(7);
-            doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-            doc.text("CHECK YOUR APPLICATION UPDATE BELLOW", margin + 25, bottomY - 20, { align: "center" });
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(10);
-            doc.setTextColor(3, 105, 161); // Blue
-            doc.text(`Status: ${invoice.status || 'Processing'}`, margin + 25, bottomY - 12, { align: "center" });
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(8);
-            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-            doc.text("VERIFIED DOCUMENT", margin + 25, bottomY + 30, { align: "center" });
-
+            const qrDataUrl = await QRCode.toDataURL(qrValue, { errorCorrectionLevel: 'M' });
+            doc.addImage(qrDataUrl, 'PNG', currentLX - 10, currentLY, 20, 20); // Shrunk to 20x20
+            currentLY += 25;
         } catch (e) {
-            console.error("QR Generation Error", e);
+            console.error("PDF QR Error", e);
         }
     }
 
-    // Right: Confirmation & Stamp
-    const stampX = rightX - 40;
-    const stampY = bottomY - 15;
 
-    // Drawing the Stamp
-    const stampColor = isPaid ? [86, 202, 0] : [239, 68, 68]; // Red for Unpaid
-    doc.setDrawColor(stampColor[0], stampColor[1], stampColor[2]);
-    doc.setLineWidth(1);
-    doc.circle(stampX + 15, stampY + 15, 12, 'S'); // Circular Stamp with 'S' for stroke
+
+    // 3. Status Box Text
+    currentLY -= 5; // Lifted up
+    doc.setFontSize(7);
+    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+    doc.text("BELLOW IS YOUR APPLICATION UPDATE", currentLX, currentLY, { align: "center" });
     
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(stampColor[0], stampColor[1], stampColor[2]);
-    doc.text(isPaid ? "PAID" : "UNPAID", stampX + 15, stampY + 16, { align: "center", angle: -15 });
+    currentLY += 4;
+    doc.setFillColor(3, 105, 161, 0.1);
+    doc.roundedRect(currentLX - 12, currentLY, 24, 7, 1, 1, 'F');
+    doc.setFontSize(7);
+    doc.setTextColor(3, 105, 161);
+    doc.text(`Status: ${invoice.status || 'Processing'}`, currentLX, currentLY + 5, { align: "center" });
+
+    // --- 5.5 STAMP & SIGNATURE (HARDENED IMAGES v10.5) ---
+    const stampX = rightX - 50;
+    const stampY = bottomY - 20;
+
+    if (isPaid) {
+        try {
+            // Add Official Stamp Image with -5deg rotation (Synced with UI)
+            doc.addImage("/Stempel.png", "PNG", stampX, stampY, 35, 35, undefined, 'FAST', -5);
+            
+            // Add Signature Image (Overlapping Stamp)
+            doc.addImage("/signature.png", "PNG", stampX + 12, stampY + 12, 30, 20, undefined, 'FAST');
+        } catch (e) {
+            console.error("PDF Image Error:", e);
+        }
+    }
 
     // Confirmation Text
     doc.setFont("helvetica", "normal");

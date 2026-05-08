@@ -28,7 +28,8 @@ import {
     Tab,
     Divider,
     FormControlLabel,
-    Switch
+    Switch,
+    Tooltip
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import QrCodeIcon from "@mui/icons-material/QrCode";
@@ -78,7 +79,12 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         status: "VALID",
         isIdivPurchased: false,
         idivPreviewExpiresAt: "",
-        preferredMode: "IDIV"
+        preferredMode: "IDIV",
+        isAgreementRequired: false,
+        agreementStatus: "NONE",
+        depositAmount: 0,
+        accessPin: "123456",
+        invoiceId: ""
     });
 
     // Selected Item for QR or Edit
@@ -104,6 +110,49 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             setOpenDialog(true);
         }
     }, [initialUserId]);
+
+    // Auto-calculate agreement requirements
+    useEffect(() => {
+        if (!formData.visaType || isEditing) return;
+
+        const vt = formData.visaType.toUpperCase();
+        
+        // Skip for B1 / VOA
+        if (vt.includes('B1') || vt.includes('VOA')) {
+            setFormData(prev => ({ 
+                ...prev, 
+                isAgreementRequired: false, 
+                agreementStatus: 'NONE',
+                depositAmount: 0 
+            }));
+            return;
+        }
+
+        // Logic for KITAS / D Type / C1
+        let req = false;
+        let deposit = 0;
+
+        if (vt.includes('C1')) {
+            req = true;
+            deposit = 5000;
+        } else if (vt.includes('E33G')) {
+            req = true;
+            deposit = 7500;
+        } else if (vt.includes('KITAS') || vt.startsWith('D')) {
+            req = true;
+            deposit = 10000;
+        }
+
+        if (req) {
+            setFormData(prev => ({ 
+                ...prev, 
+                isAgreementRequired: true, 
+                agreementStatus: 'PENDING',
+                depositAmount: deposit,
+                accessPin: prev.accessPin || Math.floor(100000 + Math.random() * 900000).toString()
+            }));
+        }
+    }, [formData.visaType, isEditing]);
 
     const fetchUsers = async () => {
         try {
@@ -153,13 +202,13 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
 
         let currentAddress = selectedItem.address || "";
         let jsonObj: any = {};
-        
+
         if (currentAddress.startsWith("{")) {
             try { jsonObj = JSON.parse(currentAddress); } catch (e) { jsonObj = { street: currentAddress }; }
         } else {
             jsonObj.street = currentAddress;
         }
-        
+
         jsonObj.preferredMode = newMode;
         const newAddressStr = JSON.stringify(jsonObj);
 
@@ -228,10 +277,10 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                 setOpenDialog(false);
                 resetForm();
             } else {
-                alert(data.error || "Failed to save");
+                alert(`${data.error || "Failed to save"}\n\nDetails: ${data.details || "Unknown error"}`);
             }
-        } catch (error) {
-            alert("Error saving verification");
+        } catch (error: any) {
+            alert("Error saving verification: " + error.message);
         } finally {
             setLoading(false);
         }
@@ -300,7 +349,12 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             status: "VALID",
             isIdivPurchased: false,
             idivPreviewExpiresAt: "",
-            preferredMode: "IDIV"
+            preferredMode: "IDIV",
+            isAgreementRequired: false,
+            agreementStatus: "NONE",
+            depositAmount: 0,
+            accessPin: Math.floor(100000 + Math.random() * 900000).toString(),
+            invoiceId: ""
         });
         setSelectedUserId("");
         setVerificationMode('manual');
@@ -326,12 +380,12 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                     return "";
                 };
                 unpackedAddress = getVal(['street', 'address', 'Alamat']);
-                parsedBirth     = getVal(['birthPlaceDate', 'dob', 'BIRTHPLACEDATE']);
-                parsedGender    = getVal(['gender', ' Jenis Kelamin']);
-                parsedOcc       = getVal(['occupation', 'Pekerjaan']);
-                const prefMode  = parsed.preferredMode || null;
+                parsedBirth = getVal(['birthPlaceDate', 'dob', 'BIRTHPLACEDATE']);
+                parsedGender = getVal(['gender', ' Jenis Kelamin']);
+                parsedOcc = getVal(['occupation', 'Pekerjaan']);
+                const prefMode = parsed.preferredMode || null;
                 if (prefMode) setPreviewCardMode(prefMode as any);
-            } catch (e) {}
+            } catch (e) { }
         }
 
         setFormData({
@@ -350,7 +404,12 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             status: item.status || "VALID",
             isIdivPurchased: item.isIdivPurchased || false,
             idivPreviewExpiresAt: item.idivPreviewExpiresAt ? new Date(item.idivPreviewExpiresAt).toISOString().split('T')[0] : "",
-            preferredMode: (item.address && item.address.startsWith('{') ? JSON.parse(item.address).preferredMode : null) || "IDIV"
+            preferredMode: (item.address && item.address.startsWith('{') ? JSON.parse(item.address).preferredMode : null) || "IDIV",
+            isAgreementRequired: item.isAgreementRequired || false,
+            agreementStatus: item.agreementStatus || "NONE",
+            depositAmount: item.depositAmount || 0,
+            accessPin: item.accessPin || "123456",
+            invoiceId: item.invoiceId || ""
         });
         setEditId(item.id);
         setIsEditing(true);
@@ -434,15 +493,16 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                 <TableCell>VISA TYPE</TableCell>
                                 <TableCell>ISSUED</TableCell>
                                 <TableCell>EXPIRES</TableCell>
-                                <TableCell>IDIV CARD</TableCell>
+                                <TableCell>AGREEMENT</TableCell>
+                                <TableCell>PIN</TableCell>
                                 <TableCell>STATUS</TableCell>
-                                <TableCell align="right">ACTIONS</TableCell>
+                                <TableCell align="right" sx={{ minWidth: 260 }}>ACTIONS</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} align="center"><CircularProgress /></TableCell>
+                                    <TableCell colSpan={8} align="center"><CircularProgress /></TableCell>
                                 </TableRow>
                             ) : verifications.map((item) => (
                                 <TableRow key={item.id} hover>
@@ -450,20 +510,52 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                         <Typography fontWeight="bold">{item.fullName}</Typography>
                                         <Typography variant="caption" color="text.secondary">/{item.slug}</Typography>
                                     </TableCell>
-                                    <TableCell>{item.passportNumber}</TableCell>
+                                    <TableCell sx={{ maxWidth: 180 }}>
+                                        <Tooltip title={item.passportNumber}>
+                                            <Typography 
+                                                variant="body2" 
+                                                sx={{ 
+                                                    overflow: 'hidden', 
+                                                    textOverflow: 'ellipsis', 
+                                                    whiteSpace: 'nowrap',
+                                                    fontFamily: 'monospace',
+                                                    fontWeight: 'bold',
+                                                    color: item.passportNumber?.startsWith('http') ? 'primary.main' : 'inherit',
+                                                    cursor: item.passportNumber?.startsWith('http') ? 'pointer' : 'default'
+                                                }}
+                                                onClick={() => {
+                                                    if (item.passportNumber?.startsWith('http')) {
+                                                        window.open(item.passportNumber, '_blank');
+                                                    }
+                                                }}
+                                            >
+                                                {item.passportNumber?.startsWith('http') 
+                                                    ? "📄 View Document" 
+                                                    : item.passportNumber}
+                                            </Typography>
+                                        </Tooltip>
+                                    </TableCell>
                                     <TableCell>{item.visaType}</TableCell>
                                     <TableCell>{new Date(item.issuedDate).toLocaleDateString()}</TableCell>
                                     <TableCell>
                                         {item.expiresAt ? new Date(item.expiresAt).toLocaleDateString() : "-"}
                                     </TableCell>
                                     <TableCell>
-                                        {(() => {
-                                            const now = new Date();
-                                            const trialActive = item.idivPreviewExpiresAt && new Date(item.idivPreviewExpiresAt) > now;
-                                            if (item.isIdivPurchased) return <Chip label="PURCHASED" size="small" color="primary" variant="filled" />;
-                                            if (trialActive) return <Chip label="TRIAL ACTIVE" size="small" color="warning" variant="outlined" />;
-                                            return <Chip label="OFF" size="small" variant="outlined" />;
-                                        })()}
+                                        {item.isAgreementRequired ? (
+                                            <Chip 
+                                                label={item.agreementStatus || 'PENDING'} 
+                                                size="small" 
+                                                color={item.agreementStatus === 'SIGNED' ? 'success' : 'warning'} 
+                                                variant={item.agreementStatus === 'SIGNED' ? 'filled' : 'outlined'}
+                                            />
+                                        ) : (
+                                            <Typography variant="caption" color="text.secondary">NOT REQ</Typography>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: 'primary.main' }}>
+                                            {item.accessPin || '123456'}
+                                        </Typography>
                                     </TableCell>
                                     <TableCell>
                                         <Chip
@@ -473,16 +565,26 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                             sx={{ fontWeight: 'bold' }}
                                         />
                                     </TableCell>
-                                    <TableCell align="right">
-                                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                    <TableCell align="right" sx={{ minWidth: 260 }}>
+                                        <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                                            {item.invoiceId && (
+                                                <IconButton
+                                                    color="secondary"
+                                                    size="small"
+                                                    title="Open User Invoice/Files"
+                                                    onClick={() => window.open(`/invoice/${item.invoiceId}`, '_blank')}
+                                                >
+                                                    <ShareIcon fontSize="small" />
+                                                </IconButton>
+                                            )}
                                             <IconButton
                                                 color="primary"
                                                 size="small"
-                                                title="Generate Statement Letter"
-                                                aria-label="Generate Statement Letter PDF"
-                                                onClick={() => generateStatementPDF(item)}
+                                                title="Access Secure Page"
+                                                aria-label="Access Secure Page"
+                                                onClick={() => window.open(`/verify/secure-doc/${item.slug}`, '_blank')}
                                             >
-                                                <PictureAsPdfIcon />
+                                                <RemoveRedEyeIcon />
                                             </IconButton>
                                             <IconButton
                                                 color="info"
@@ -675,18 +777,71 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                             value={formData.nationality}
                             onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
                         />
+
+                        <Divider sx={{ my: 1 }}>Legal & Agreement (KITAS Focus)</Divider>
                         
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <FormControlLabel
+                                control={
+                                    <Switch 
+                                        checked={formData.isAgreementRequired} 
+                                        onChange={(e) => setFormData({ ...formData, isAgreementRequired: e.target.checked })} 
+                                    />
+                                }
+                                label="Agreement Required"
+                            />
+                            <TextField
+                                select
+                                label="Agreement Status"
+                                size="small"
+                                sx={{ flex: 1 }}
+                                value={formData.agreementStatus}
+                                onChange={(e) => setFormData({ ...formData, agreementStatus: e.target.value })}
+                            >
+                                <MenuItem value="NONE">None</MenuItem>
+                                <MenuItem value="PENDING">Pending</MenuItem>
+                                <MenuItem value="SIGNED">Signed (Valid)</MenuItem>
+                            </TextField>
+                        </Stack>
+
+                        <Stack direction="row" spacing={2}>
+                            <TextField
+                                label="Deposit Amount (USD)"
+                                type="number"
+                                fullWidth
+                                value={formData.depositAmount}
+                                onChange={(e) => setFormData({ ...formData, depositAmount: Number(e.target.value) })}
+                                helperText="Default based on Visa type"
+                            />
+                            <TextField
+                                label="Access PIN (6 digits)"
+                                fullWidth
+                                value={formData.accessPin}
+                                onChange={(e) => setFormData({ ...formData, accessPin: e.target.value.substring(0, 6) })}
+                                helperText="For secure doc access"
+                            />
+                        </Stack>
+
+                        <TextField
+                            label="Linked Invoice ID (Optional)"
+                            fullWidth
+                            size="small"
+                            value={formData.invoiceId}
+                            onChange={(e) => setFormData({ ...formData, invoiceId: e.target.value })}
+                            placeholder="Connect to user documents"
+                        />
+
                         <Box>
                             <Typography variant="subtitle2" gutterBottom>Holder Photo</Typography>
                             <Stack direction="row" spacing={2} alignItems="center">
-                                <Box 
-                                    sx={{ 
-                                        width: 80, 
-                                        height: 80, 
-                                        bgcolor: 'grey.100', 
-                                        borderRadius: 1, 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
+                                <Box
+                                    sx={{
+                                        width: 80,
+                                        height: 80,
+                                        bgcolor: 'grey.100',
+                                        borderRadius: 1,
+                                        display: 'flex',
+                                        alignItems: 'center',
                                         justifyContent: 'center',
                                         overflow: 'hidden',
                                         border: '1px solid #eee'
@@ -749,15 +904,15 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                             <MenuItem value="REVOKED">NOT VERIFIED (REVOKED)</MenuItem>
                             <MenuItem value="PENDING">PENDING</MenuItem>
                         </TextField>
-                        
+
                         <Box sx={{ p: 2, bgcolor: 'rgba(145, 85, 253, 0.05)', borderRadius: 2, border: '1px solid rgba(145, 85, 253, 0.2)' }}>
                             <Typography variant="subtitle2" color="primary" fontWeight="bold" gutterBottom>
                                 💳 IDiv Card Access Control
                             </Typography>
                             <FormControlLabel
                                 control={
-                                    <Switch 
-                                        checked={formData.isIdivPurchased} 
+                                    <Switch
+                                        checked={formData.isIdivPurchased}
                                         onChange={(e) => setFormData({ ...formData, isIdivPurchased: e.target.checked })}
                                         color="primary"
                                     />
@@ -879,7 +1034,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                     <Button onClick={() => setOpenQRDialog(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
-            
+
             {/* IDIV CARD PREVIEW DIALOG */}
             <Dialog open={openCardDialog} onClose={() => setOpenCardDialog(false)} maxWidth="sm" fullWidth>
                 <DialogTitle>Sponsor ID Preview</DialogTitle>
@@ -887,8 +1042,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                     <Box display="flex" flexDirection="column" alignItems="center" py={4}>
                         {selectedItem && (
                             <>
-                                <Tabs 
-                                    value={previewCardMode} 
+                                <Tabs
+                                    value={previewCardMode}
                                     onChange={(e, newVal) => handleModeChange(newVal)}
                                     sx={{ mb: 3 }}
                                 >
@@ -907,13 +1062,13 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                 data.birthPlaceDate = parsed.birthPlaceDate || "";
                                                 data.gender = parsed.gender || "";
                                                 data.occupation = parsed.occupation || "";
-                                            } catch (e) {}
+                                            } catch (e) { }
                                         }
                                         return data;
                                     })();
 
                                     return (
-                                        <IDivCardModern 
+                                        <IDivCardModern
                                             mode={previewCardMode as any}
                                             variant={previewCardMode === 'IDG' ? 'purple' : 'purple'}
                                             data={{
@@ -931,11 +1086,11 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                 order_id: selectedItem.slug || "N/A",
                                                 photoUrl: selectedItem.photoUrl,
                                                 sponsor: "INDONESIAN VISAS AGENCY"
-                                            }} 
+                                            }}
                                         />
                                     );
                                 })()}
-                                
+
                                 <Typography variant="caption" sx={{ mt: 3, color: 'text.secondary', textAlign: 'center' }}>
                                     Standard IDiv Digital Format (KTP Style)
                                 </Typography>
@@ -944,25 +1099,25 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                     </Box>
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: 'center', pb: 3, gap: 1 }}>
-                    <Button 
-                        variant="outlined" 
-                        color="primary" 
+                    <Button
+                        variant="outlined"
+                        color="primary"
                         startIcon={<DownloadIcon />}
                         onClick={() => downloadIDivDual('idiv-front', 'idiv-back', `IDiv-Dual-${selectedItem?.slug}`, 'png')}
                     >
                         PNG (2-Sides)
                     </Button>
-                    <Button 
-                        variant="outlined" 
-                        color="error" 
+                    <Button
+                        variant="outlined"
+                        color="error"
                         startIcon={<PictureAsPdfIcon />}
                         onClick={() => downloadIDivDual('idiv-front', 'idiv-back', `IDiv-PDF-${selectedItem?.slug}`, 'pdf')}
                     >
                         PDF (Full ID)
                     </Button>
-                    <Button 
-                        variant="outlined" 
-                        color="info" 
+                    <Button
+                        variant="outlined"
+                        color="info"
                         startIcon={<ShareIcon />}
                         onClick={() => {
                             const url = `${window.location.origin}/verify/${selectedItem?.slug}`;

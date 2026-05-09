@@ -306,7 +306,7 @@ export const HeroBadge = () => {
                                                     <div className="text-[12px] font-black text-gray-800 break-words leading-tight">{value}</div>
                                                     
                                                     {canCopy && (
-                                                        <CopyFeedback value={value} />
+                                                        <CopyFeedback value={label === "Legal Entity" ? "Indonesian Visas Agency" : value} />
                                                     )}
                                                 </div>
                                             );

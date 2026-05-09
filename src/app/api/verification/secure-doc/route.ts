@@ -20,6 +20,14 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Verification not found' }, { status: 404 });
         }
 
+        console.log(`[SecureDoc] Record State for ${slug}:`, {
+            id: verification.id,
+            fullName: verification.fullName,
+            isAgreementRequired: verification.isAgreementRequired,
+            agreementStatus: verification.agreementStatus
+        });
+
+
         // Logic Bypass for Admin
         let isAuthorized = false;
         if (isAdminBypass) {
@@ -47,7 +55,22 @@ export async function POST(request: Request) {
             });
         }
 
-        // 2. Search for Application & Its Documents
+        // 2. Sponsorship & Responsibility Agreement (Enhanced)
+        if (verification.isAgreementRequired || verification.agreementStatus === 'SIGNED') {
+            const isSigned = verification.agreementStatus === 'SIGNED';
+            console.log(`[SecureDoc] Adding agreement for ${verification.fullName} (Signed: ${isSigned})`);
+            
+            documents.push({
+                name: isSigned ? 'Sponsorship & Responsibility Agreement' : 'Sponsorship & Responsibility Agreement (Action Required)',
+                url: `/en/verify/agreement/${verification.slug}`,
+                type: 'application/pdf',
+                isInternal: true,
+                status: verification.agreementStatus // Add status for UI logic
+            });
+        }
+
+
+        // 3. Search for Application & Its Documents
         const application = await (prisma.visaApplication as any).findFirst({
             where: { 
                 OR: [
@@ -71,7 +94,7 @@ export async function POST(request: Request) {
             }
         }
 
-        // 3. Search for User General Documents (Back-up)
+        // 4. Search for User General Documents (Back-up)
         if (verification.userId) {
             const userDocs = await (prisma as any).document.findMany({
                 where: { userId: verification.userId }
@@ -90,6 +113,7 @@ export async function POST(request: Request) {
                 }
             }
         }
+
 
         if (documents.length === 0) {
             console.warn(`[SecureDoc] No documents found for ${verification.fullName}`);

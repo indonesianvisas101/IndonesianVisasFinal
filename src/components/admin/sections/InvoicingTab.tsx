@@ -39,6 +39,7 @@ import DocumentViewer from "../DocumentViewer";
 import { uploadCompressedFile } from "@/utils/ivce";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CampaignIcon from "@mui/icons-material/Campaign";
 import { InputAdornment } from "@mui/material";
 
 export default function InvoicingTab() {
@@ -253,6 +254,47 @@ export default function InvoicingTab() {
             }
         } catch (e) {
             alert("Error updating invoice");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleManualEmail = async (type: 'APPLICATION_RECEIVED' | 'PAYMENT_CONFIRMED' | 'INVOICE_SETTLED' | 'VISA_APPROVED') => {
+        if (!editingInvoice) return;
+        
+        const confirmMsg = `Send ${type.replace(/_/g, ' ')} email to ${editFormData.guestEmail}?`;
+        if (!window.confirm(confirmMsg)) return;
+
+        setLoading(true);
+        try {
+            const res = await fetch('/api/admin/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type,
+                    email: editFormData.guestEmail,
+                    data: {
+                        applicantName: editFormData.guestName,
+                        orderId: editingInvoice.slug || editingInvoice.id,
+                        visaType: editFormData.visaName,
+                        invoiceUrl: `${window.location.origin}/invoice/${editingInvoice.slug || editingInvoice.id}`,
+                        downloadUrl: editFormData.visaLink,
+                        isPayPal: editingInvoice.paymentMethod?.toLowerCase().includes('paypal'),
+                        hasIdiv: !!editFormData.attribution?.upsells?.idiv_paid || !!editFormData.attribution?.upsells?.idiv_ordered,
+                        hasArrivalCard: !!editFormData.attribution?.upsells?.ac_paid || !!editFormData.attribution?.upsells?.ac_ordered,
+                        verificationSlug: editingInvoice.verification?.slug
+                    }
+                })
+            });
+
+            if (res.ok) {
+                alert("✅ Email sent successfully!");
+            } else {
+                const err = await res.json();
+                alert(`❌ Failed to send: ${err.error}`);
+            }
+        } catch (e) {
+            alert("❌ Error sending email");
         } finally {
             setLoading(false);
         }
@@ -1191,6 +1233,68 @@ export default function InvoicingTab() {
                             })}
                             helperText="This is for internal use only and will NOT be shown to the customer."
                         />
+
+                        {/* COMMUNICATION & EMAIL CONTROLS (v10.15) */}
+                        <Box sx={{ p: 2.5, bgcolor: 'rgba(124, 58, 237, 0.05)', borderRadius: 3, border: '1px solid rgba(124, 58, 237, 0.2)' }}>
+                            <Typography variant="subtitle2" fontWeight="800" color="secondary.main" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                <CampaignIcon sx={{ fontSize: 18 }} />
+                                Communication & Email Controls
+                            </Typography>
+                            
+                            <Grid container spacing={1.5}>
+                                <Grid size={{ xs: 6 }}>
+                                    <Button 
+                                        fullWidth 
+                                        size="small" 
+                                        variant="outlined" 
+                                        color="secondary" 
+                                        onClick={() => handleManualEmail('APPLICATION_RECEIVED')}
+                                        sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+                                    >
+                                        Resend Application Confirmation
+                                    </Button>
+                                </Grid>
+                                <Grid size={{ xs: 6 }}>
+                                    <Button 
+                                        fullWidth 
+                                        size="small" 
+                                        variant="contained" 
+                                        color="success" 
+                                        onClick={() => handleManualEmail('PAYMENT_CONFIRMED')}
+                                        sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, boxShadow: 'none' }}
+                                    >
+                                        Send Payment Confirmed
+                                    </Button>
+                                </Grid>
+                                <Grid size={{ xs: 6 }}>
+                                    <Button 
+                                        fullWidth 
+                                        size="small" 
+                                        variant="contained" 
+                                        color="info" 
+                                        onClick={() => handleManualEmail('INVOICE_SETTLED')}
+                                        sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, boxShadow: 'none' }}
+                                    >
+                                        Send Invoice Settled
+                                    </Button>
+                                </Grid>
+                                <Grid size={{ xs: 6 }}>
+                                    <Button 
+                                        fullWidth 
+                                        size="small" 
+                                        variant="contained" 
+                                        color="primary" 
+                                        onClick={() => handleManualEmail('VISA_APPROVED')}
+                                        sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, boxShadow: 'none', bgcolor: '#2563eb' }}
+                                    >
+                                        Send Visa Approved!
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5, fontStyle: 'italic' }}>
+                                * Manual triggers will be logged in the Audit Trail and Email Logs.
+                            </Typography>
+                        </Box>
 
                         <Box sx={{ p: 2, bgcolor: 'primary.50', borderRadius: 2, border: '1px dashed primary.main' }}>
                             <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>

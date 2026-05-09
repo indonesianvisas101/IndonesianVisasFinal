@@ -12,7 +12,6 @@ export async function GET(request: Request) {
         const id = searchParams.get('id');
         const slug = searchParams.get('slug');
         const userId = searchParams.get('userId');
-
         const query = searchParams.get('query');
 
         // Only enforce admin check if NO identifying param is provided (i.e. requesting full list)
@@ -34,17 +33,27 @@ export async function GET(request: Request) {
                         { slug: { equals: query, mode: 'insensitive' } },
                         { passportNumber: { equals: query, mode: 'insensitive' } }
                     ]
-                }
+                },
+                include: { user: true }
             });
         }
         else if (id) {
-            verification = await (prisma.verification as any).findUnique({ where: { id } });
+            verification = await (prisma.verification as any).findUnique({ 
+                where: { id },
+                include: { user: true }
+            });
         }
         else if (slug) {
-            verification = await (prisma.verification as any).findUnique({ where: { slug } });
+            verification = await (prisma.verification as any).findUnique({ 
+                where: { slug },
+                include: { user: true }
+            });
         }
         else if (userId) {
-            verification = await (prisma.verification as any).findUnique({ where: { userId } });
+            verification = await (prisma.verification as any).findUnique({ 
+                where: { userId },
+                include: { user: true }
+            });
             if (!verification) return NextResponse.json(null);
         }
         else {
@@ -169,6 +178,18 @@ async function appendCombinedData(verification: any) {
                     url: `/invoice/${inv.id}`
                 };
             }
+
+            // --- HARDENING: Pull contact details from application if not in verification ---
+            if (!verification.email) verification.email = app.guestEmail || app.user?.email;
+            if (!verification.phoneNumber) verification.phoneNumber = app.user?.whatsapp;
+        }
+
+        // Try to pull from user relation if still missing
+        if (!verification.email && verification.user?.email) {
+            verification.email = verification.user.email;
+        }
+        if (!verification.phoneNumber && verification.user?.whatsapp) {
+            verification.phoneNumber = verification.user.whatsapp;
         }
     } catch (e) {
         console.error("Error fetching combined data for verification", e);
@@ -247,7 +268,7 @@ export async function POST(request: Request) {
                     photoUrl,
                     isAgreementRequired: isAgreementRequired ?? false,
                     agreementStatus: agreementStatus || 'NONE',
-                    depositAmount: depositAmount ? parseFloat(depositAmount) : null,
+                    depositAmount: (depositAmount !== undefined && depositAmount !== null) ? parseFloat(depositAmount) : null,
                     accessPin: accessPin || '123456',
                     invoiceId: invoiceId || null,
                     updatedAt: now
@@ -282,7 +303,7 @@ export async function POST(request: Request) {
                     photoUrl,
                     isAgreementRequired: isAgreementRequired ?? false,
                     agreementStatus: agreementStatus || 'NONE',
-                    depositAmount: depositAmount ? parseFloat(depositAmount) : null,
+                    depositAmount: (depositAmount !== undefined && depositAmount !== null) ? parseFloat(depositAmount) : null,
                     accessPin: accessPin || '123456',
                     invoiceId: invoiceId || null
                 }

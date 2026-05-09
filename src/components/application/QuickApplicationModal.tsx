@@ -530,7 +530,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                             type="file" 
                                             accept="image/*"
                                             onChange={e => handlePassportSelection(e.target.files?.[0] || null)}
-                                            className="absolute inset-0 opacity-0 cursor-pointer"
+                                            className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                         />
                                         <div className="flex flex-col items-center justify-center text-center space-y-2">
                                             {isOptimizingPassport ? (
@@ -569,7 +569,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                             type="file" 
                                             accept="image/*"
                                             onChange={e => handlePhotoSelection(e.target.files?.[0] || null)}
-                                            className="absolute inset-0 opacity-0 cursor-pointer"
+                                            className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                         />
                                         <div className="flex flex-col items-center justify-center text-center space-y-2">
                                             {isOptimizingPhoto ? (
@@ -624,7 +624,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                                     const files = Array.from(e.target.files || []);
                                                     setAdditionalFiles(prev => [...prev, ...files].slice(0, 7));
                                                 }}
-                                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                                className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                             />
                                             <Upload size={16} className="text-slate-300" />
                                             <div className="text-[8px] font-bold text-slate-400">Add File</div>

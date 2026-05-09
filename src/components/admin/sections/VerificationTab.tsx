@@ -753,8 +753,23 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                 label="Birth Place & Date"
                                 fullWidth
                                 value={formData.birthPlaceDate}
-                                onChange={(e) => setFormData({ ...formData, birthPlaceDate: e.target.value })}
-                                helperText="e.g. LONDON, 01-01-1990"
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    const nextData = { ...formData, birthPlaceDate: val };
+                                    
+                                    // --- AUTOMATIC PIN GENERATION (DDMMYY) ---
+                                    // Match format like DD-MM-YYYY or DD/MM/YYYY
+                                    const dateMatch = val.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
+                                    if (dateMatch) {
+                                        const dd = dateMatch[1];
+                                        const mm = dateMatch[2];
+                                        const yy = dateMatch[3].substring(2);
+                                        nextData.accessPin = `${dd}${mm}${yy}`;
+                                    }
+                                    
+                                    setFormData(nextData);
+                                }}
+                                helperText="e.g. LONDON, 05-05-1985"
                             />
                             <TextField
                                 label="Gender"
@@ -862,26 +877,104 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                         onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
                                         placeholder="https://... / path/to/image.jpg"
                                     />
-                                    {verificationMode === 'linked' && selectedUserId && (
-                                        <TextField
-                                            select
-                                            label="Select from User Documents"
-                                            fullWidth
+                                    
+                                    <Stack direction="row" spacing={1}>
+                                        <Button
+                                            variant="outlined"
+                                            component="label"
                                             size="small"
-                                            value={formData.photoUrl}
-                                            onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
+                                            startIcon={<AddIcon />}
+                                            sx={{ textTransform: 'none' }}
                                         >
-                                            <MenuItem value=""><em>None</em></MenuItem>
-                                            {(users.find(u => u.id === selectedUserId)?.documents || [])
-                                                .filter((d: any) => d.type?.includes('image'))
-                                                .map((doc: any) => (
-                                                    <MenuItem key={doc.id} value={doc.url}>
-                                                        {doc.name}
-                                                    </MenuItem>
-                                                ))
-                                            }
-                                        </TextField>
-                                    )}
+                                            Upload & Convert WebP
+                                            <input
+                                                type="file"
+                                                hidden
+                                                accept="image/*"
+                                                onChange={async (e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (!file) return;
+                                                    
+                                                    setLoading(true);
+                                                    try {
+                                                        // 1. Convert to WebP via Canvas
+                                                        const reader = new FileReader();
+                                                        reader.onload = async (event) => {
+                                                            const img = new Image();
+                                                            img.onload = async () => {
+                                                                const canvas = document.createElement('canvas');
+                                                                // Standard Portrait Aspect Ratio or Square
+                                                                const size = 800; 
+                                                                canvas.width = size;
+                                                                canvas.height = size;
+                                                                const ctx = canvas.getContext('2d');
+                                                                ctx?.drawImage(img, 0, 0, size, size);
+                                                                
+                                                                const webpData = canvas.toDataURL('image/webp', 0.8);
+                                                                
+                                                                // --- FIX: Replace unstable fetch(dataUrl) with manual Blob conversion ---
+                                                                const base64ToBlob = (base64: string, type: string) => {
+                                                                    const binStr = atob(base64.split(',')[1]);
+                                                                    const len = binStr.length;
+                                                                    const arr = new Uint8Array(len);
+                                                                    for (let i = 0; i < len; i++) {
+                                                                        arr[i] = binStr.charCodeAt(i);
+                                                                    }
+                                                                    return new Blob([arr], { type });
+                                                                };
+                                                                
+                                                                const blob = base64ToBlob(webpData, 'image/webp');
+                                                                const webpFile = new File([blob], `${formData.slug || 'photo'}-${Date.now()}.webp`, { type: 'image/webp' });
+
+                                                                // 2. Upload to Supabase Storage
+                                                                const fileName = `verifications/${webpFile.name}`;
+                                                                const { data, error } = await supabase.storage
+                                                                    .from('documents')
+                                                                    .upload(fileName, webpFile);
+
+                                                                if (error) throw error;
+
+                                                                const { data: { publicUrl } } = supabase.storage
+                                                                    .from('documents')
+                                                                    .getPublicUrl(fileName);
+
+                                                                setFormData(prev => ({ ...prev, photoUrl: publicUrl }));
+                                                                setLoading(false);
+                                                                alert("Photo uploaded and converted to WebP successfully!");
+                                                            };
+                                                            img.src = event.target?.result as string;
+                                                        };
+                                                        reader.readAsDataURL(file);
+                                                    } catch (err: any) {
+                                                        alert("Upload failed: " + err.message);
+                                                        setLoading(false);
+                                                    }
+                                                }}
+                                            />
+                                        </Button>
+
+                                        {verificationMode === 'linked' && selectedUserId && (
+                                            <TextField
+                                                select
+                                                label="Select from User Documents"
+                                                fullWidth
+                                                size="small"
+                                                value={formData.photoUrl}
+                                                onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
+                                                sx={{ flex: 1 }}
+                                            >
+                                                <MenuItem value=""><em>None</em></MenuItem>
+                                                {(users.find(u => u.id === selectedUserId)?.documents || [])
+                                                    .filter((d: any) => d.type?.includes('image'))
+                                                    .map((doc: any) => (
+                                                        <MenuItem key={doc.id} value={doc.url}>
+                                                            {doc.name}
+                                                        </MenuItem>
+                                                    ))
+                                                }
+                                            </TextField>
+                                        )}
+                                    </Stack>
                                 </Stack>
                             </Stack>
                         </Box>
@@ -905,7 +998,53 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                             <MenuItem value="PENDING">PENDING</MenuItem>
                         </TextField>
 
-                        <Box sx={{ p: 2, bgcolor: 'rgba(145, 85, 253, 0.05)', borderRadius: 2, border: '1px solid rgba(145, 85, 253, 0.2)' }}>
+                        <Box sx={{ p: 2, bgcolor: 'rgba(22, 163, 74, 0.05)', borderRadius: 2, border: '1px solid rgba(22, 163, 74, 0.2)', mt: 1 }}>
+                            <Typography variant="subtitle2" color="success.main" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                ⚖️ Legal & Compliance
+                            </Typography>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={formData.isAgreementRequired}
+                                        onChange={(e) => setFormData({ 
+                                            ...formData, 
+                                            isAgreementRequired: e.target.checked,
+                                            agreementStatus: e.target.checked && formData.agreementStatus === 'NONE' ? 'PENDING' : formData.agreementStatus
+                                        })}
+                                        color="success"
+                                    />
+                                }
+                                label={<Typography variant="body2" fontWeight="600">Sponsorship Agreement Required</Typography>}
+                            />
+                            
+                            {formData.isAgreementRequired && (
+                                <Stack spacing={2} sx={{ mt: 1 }}>
+                                    <TextField
+                                        label="Security Deposit (USD)"
+                                        type="number"
+                                        fullWidth
+                                        size="small"
+                                        value={formData.depositAmount}
+                                        onChange={(e) => setFormData({ ...formData, depositAmount: Number(e.target.value) })}
+                                        helperText="Security guarantee deposit for sponsorship liability."
+                                    />
+                                    <TextField
+                                        select
+                                        label="Agreement Status"
+                                        fullWidth
+                                        size="small"
+                                        value={formData.agreementStatus}
+                                        onChange={(e) => setFormData({ ...formData, agreementStatus: e.target.value })}
+                                    >
+                                        <MenuItem value="NONE">NONE</MenuItem>
+                                        <MenuItem value="PENDING">PENDING (Action Required)</MenuItem>
+                                        <MenuItem value="SIGNED">SIGNED & VERIFIED</MenuItem>
+                                    </TextField>
+                                </Stack>
+                            )}
+                        </Box>
+
+                        <Box sx={{ p: 2, bgcolor: 'rgba(145, 85, 253, 0.05)', borderRadius: 2, border: '1px solid rgba(145, 85, 253, 0.2)', mt: 1 }}>
                             <Typography variant="subtitle2" color="primary" fontWeight="bold" gutterBottom>
                                 💳 IDiv Card Access Control
                             </Typography>
@@ -931,6 +1070,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                 helperText="Card view automatically turns OFF after this date if not purchased."
                             />
                         </Box>
+
 
                         {/* CUSTOMER SUBMISSION SUMMARY (Admin Only) */}
                         {isEditing && (

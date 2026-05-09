@@ -35,10 +35,10 @@ export default async function TermsAndConditionsPage({ params }: { params: Promi
                     <div className="space-y-16">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 border-y border-slate-200 dark:border-white/10">
                             <p className="font-black text-slate-500 uppercase tracking-widest text-[10px]">
-                                Version 4.1.2 | Revised April 2026
+                                Version 4.2.0 | Revised May 2026
                             </p>
                             <p className="font-black text-primary uppercase tracking-widest text-[10px]">
-                                Governing Law: Republic of Indonesia
+                                Governing Law: Republic of Indonesia (UU ITE & KUH Perdata)
                             </p>
                         </div>
 
@@ -91,7 +91,11 @@ export default async function TermsAndConditionsPage({ params }: { params: Promi
                                     </li>
                                     <li className="flex items-start gap-4">
                                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2.5 shrink-0" />
-                                        <span className="text-sm"><strong>Payment Gateways:</strong> Transaction fees (DOKU/PayPal/Midtrans) are processed as part of the total invoice and are non-refundable.</span>
+                                        <span className="text-sm"><strong>Payment Gateways:</strong> Transaction fees (DOKU/PayPal/Midtrans) are processed as part of the total invoice and are governed by our Refund Policy.</span>
+                                    </li>
+                                    <li className="flex items-start gap-4">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2.5 shrink-0" />
+                                        <span className="text-sm"><strong>Refunds:</strong> All refunds are subject to a 10% administration fee and government visa fee deductions where applicable.</span>
                                     </li>
                                 </ul>
                             </section>
@@ -127,6 +131,27 @@ export default async function TermsAndConditionsPage({ params }: { params: Promi
                                 <p>
                                     This agreement is governed by the laws of the Republic of Indonesia. Any disputes that cannot be resolved through amicable mediation shall be brought before the <strong>District Court of Denpasar (Pengadilan Negeri Denpasar)</strong>, Bali.
                                 </p>
+                            </section>
+
+                            {/* Section 6 */}
+                            <section className="space-y-6 p-8 md:p-12 bg-primary/5 border border-primary/20 rounded-[3rem]">
+                                <div className="flex items-center gap-4">
+                                    <span className="text-4xl font-black text-primary/20 italic">06</span>
+                                    <h2 className="text-3xl font-black mode-aware-text tracking-tight">Refund & Cancellation Policy</h2>
+                                </div>
+                                <p>
+                                    Our refund policy is strictly enforced to maintain operational stability. By using our services, you agree to the terms outlined in our dedicated <a href={`/${locale}/refund`} className="text-primary font-black underline underline-offset-4">Refund Policy</a>.
+                                </p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                                    <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-white/5">
+                                        <p className="text-[10px] font-black uppercase text-primary mb-1">Standard Deduction</p>
+                                        <p className="text-sm font-bold leading-tight">10% Administration Fee applies to all cancellation requests.</p>
+                                    </div>
+                                    <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-white/5">
+                                        <p className="text-[10px] font-black uppercase text-primary mb-1">Government Fees</p>
+                                        <p className="text-sm font-bold leading-tight">Non-refundable once billing is paid to Immigration.</p>
+                                    </div>
+                                </div>
                             </section>
                         </div>
 

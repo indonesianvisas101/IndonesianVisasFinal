@@ -60,17 +60,23 @@ export async function POST(req: Request) {
         const rawEmail = customerDetails.email?.trim() || "";
         const finalEmail = rawEmail.includes('@') ? rawEmail.substring(0, 50) : "no-reply@indonesianvisas.com";
 
+        // Robust Amount Parsing (Remove dots/commas to prevent 159.000 becoming 159)
+        const cleanAmount = typeof amount === 'string' 
+            ? amount.replace(/[.,]/g, '') 
+            : String(amount);
+        const finalAmount = Math.round(Number(cleanAmount));
+
         // Prepare Request Body
         const requestBody = {
             order: {
-                amount: Math.round(Number(amount)),
+                amount: finalAmount,
                 invoice_number: invoiceId,
                 currency: "IDR",
                 callback_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com'}/thanks`,
                 line_items: [
                     {
                         name: "Visa / Corporate Service",
-                        price: Math.round(Number(amount)),
+                        price: finalAmount,
                         quantity: 1
                     }
                 ]

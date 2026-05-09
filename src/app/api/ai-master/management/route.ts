@@ -32,10 +32,10 @@ export async function GET(request: Request) {
             });
         }
 
-        // Fetch Pending Requests
         const pendingRequests = await prisma.aIChangeRequest.findMany({
+            where: { currentState: 'pending' },
             orderBy: { createdAt: 'desc' },
-            take: 10
+            take: 20 // Increased to 20 for better visibility
         });
 
         // Fetch Recent Risk Logs
@@ -158,8 +158,11 @@ export async function POST(request: Request) {
             const requestId = data.requestId;
 
             const existing = await prisma.aIChangeRequest.findUnique({ where: { requestId } });
-            if (existing?.currentState === 'approved' || existing?.currentState === 'completed') {
-                return NextResponse.json({ error: "Request is already in progress or completed." }, { status: 400 });
+            if (existing?.currentState === 'approved' || existing?.currentState === 'completed' || existing?.currentState === 'executed') {
+                return NextResponse.json({ 
+                    error: `Request is already ${existing.currentState}. It cannot be approved again.`,
+                    currentState: existing.currentState 
+                }, { status: 400 });
             }
 
             await prisma.aIChangeRequest.update({

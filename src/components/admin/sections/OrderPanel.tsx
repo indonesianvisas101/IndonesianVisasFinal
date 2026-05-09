@@ -18,7 +18,17 @@ import {
     TextField,
     InputAdornment,
     Button,
-    Badge
+    Badge,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Grid,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemIcon,
+    Divider
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -29,6 +39,11 @@ import { useParams, useRouter } from "next/navigation";
 import DocumentViewer from "../DocumentViewer";
 import { COUNTRY_DATA } from "@/constants/countries";
 import { formatNavLink } from "@/utils/seo";
+import PersonIcon from "@mui/icons-material/Person";
+import EmailIcon from "@mui/icons-material/Email";
+import PublicIcon from "@mui/icons-material/Public";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 
 export default function OrderPanel() {
     const [orders, setOrders] = useState<any[]>([]);
@@ -36,6 +51,8 @@ export default function OrderPanel() {
     const [searchQuery, setSearchQuery] = useState("");
     const [filter, setFilter] = useState("all");
     const [viewingDoc, setViewingDoc] = useState<{ url: string, name: string } | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    const [verifying, setVerifying] = useState(false);
     const params = useParams();
     const router = useRouter();
     const locale = (params?.locale as string) || 'en';
@@ -60,18 +77,62 @@ export default function OrderPanel() {
     };
 
     const filteredOrders = orders.filter(order => {
+        const query = searchQuery.toLowerCase();
         const matchesSearch = 
-            (order.guestName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (order.guestEmail || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (order.id || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (order.visaName || "").toLowerCase().includes(searchQuery.toLowerCase());
+            (order.guestName || "").toLowerCase().includes(query) ||
+            (order.guestEmail || "").toLowerCase().includes(query) ||
+            (order.id || "").toLowerCase().includes(query) ||
+            (order.slug || "").toLowerCase().includes(query);
+
+        const isPaid = ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(order.status);
         
-        if (filter === "all") return matchesSearch;
-        if (filter === "all") return matchesSearch;
-        if (filter === "pending") return matchesSearch && (order.status === "Pending" || order.status === "Apply to Agent" || order.status === "Draft");
-        if (filter === "paid") return matchesSearch && ["Paid", "Active", "Review by Agent", "On Going", "Preparing for submission", "Submited", "Process by Immigration", "Approved"].includes(order.status);
-        return matchesSearch;
+        let matchesStatus = true;
+        if (filter === 'pending') matchesStatus = !isPaid && !["Reject", "Rejected"].includes(order.status);
+        if (filter === 'paid') matchesStatus = isPaid;
+
+        return matchesSearch && matchesStatus;
     });
+
+    const handleQuickVerify = async (order: any) => {
+        if (!confirm(`Create official verification record for ${order.guestName}?`)) return;
+        
+        setVerifying(true);
+        try {
+            // 1. Prepare data
+            const travelerData = Array.isArray(order.travelers) ? order.travelers[0] : {};
+            const payload = {
+                fullName: order.guestName,
+                passportNumber: travelerData.passportNumber || "",
+                visaType: order.visaName || "Visa",
+                issuedDate: new Date().toISOString().split('T')[0],
+                status: "VALID",
+                invoiceId: order.slug || order.id,
+                nationality: order.country || "VERIFIED HOLDER",
+                isAgreementRequired: ["C1", "KITAS", "E33G"].some(v => (order.visaName || "").includes(v)),
+                agreementStatus: "PENDING"
+            };
+
+            // 2. Submit to Verification API
+            const res = await fetch('/api/verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert("Verification record created successfully!");
+                setSelectedOrder(null);
+            } else {
+                const err = await res.json();
+                alert("Failed to verify: " + (err.error || "Unknown error"));
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error connecting to verification service.");
+        } finally {
+            setVerifying(false);
+        }
+    };
 
     return (
         <Stack spacing={4}>
@@ -179,7 +240,12 @@ export default function OrderPanel() {
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
-                                        <Typography variant="body2" fontWeight="bold">
+                                        <Typography 
+                                            variant="body2" 
+                                            fontWeight="bold" 
+                                            sx={{ cursor: 'pointer', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
+                                            onClick={() => setSelectedOrder(order)}
+                                        >
                                             {order.guestName || "Guest"}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary">
@@ -304,6 +370,135 @@ export default function OrderPanel() {
                     documentName={viewingDoc.name} 
                 />
             )}
+
+            {/* UNIFIED ORDER POPUP */}
+            <Dialog 
+                open={!!selectedOrder} 
+                onClose={() => setSelectedOrder(null)}
+                maxWidth="md"
+                fullWidth
+            >
+                {selectedOrder && (
+                    <>
+                        <DialogTitle sx={{ borderBottom: '1px solid #eee', pb: 2 }}>
+                            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                <Box>
+                                    <Typography variant="h5" fontWeight="bold">Order Detail</Typography>
+                                    <Typography variant="caption" color="text.secondary">ID: #{selectedOrder.id}</Typography>
+                                </Box>
+                                <Chip label={selectedOrder.status} color="success" />
+                            </Stack>
+                        </DialogTitle>
+                        <DialogContent sx={{ py: 3 }}>
+                            <Grid container spacing={4}>
+                                {/* LEFT COL: Summary */}
+                                <Grid size={{ xs: 12, md: 7 }}>
+                                    <Typography variant="subtitle2" fontWeight="bold" gutterBottom color="primary">
+                                        CUSTOMER SUMMARY
+                                    </Typography>
+                                    <List dense>
+                                        <ListItem>
+                                            <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
+                                            <ListItemText primary="Full Name" secondary={selectedOrder.guestName} />
+                                        </ListItem>
+                                        <ListItem>
+                                            <ListItemIcon><EmailIcon fontSize="small" /></ListItemIcon>
+                                            <ListItemText primary="Email Address" secondary={selectedOrder.guestEmail} />
+                                        </ListItem>
+                                        <ListItem>
+                                            <ListItemIcon><PublicIcon fontSize="small" /></ListItemIcon>
+                                            <ListItemText primary="Origin Country" secondary={selectedOrder.country || "N/A"} />
+                                        </ListItem>
+                                        <ListItem>
+                                            <ListItemIcon><AssignmentIcon fontSize="small" /></ListItemIcon>
+                                            <ListItemText primary="Visa Type" secondary={selectedOrder.visaName} />
+                                        </ListItem>
+                                    </List>
+                                    
+                                    <Divider sx={{ my: 2 }} />
+                                    
+                                    <Typography variant="subtitle2" fontWeight="bold" gutterBottom color="primary">
+                                        ORDER DATA
+                                    </Typography>
+                                    <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
+                                        <Grid container spacing={2}>
+                                            <Grid size={6}>
+                                                <Typography variant="caption" color="text.secondary">Applied Date</Typography>
+                                                <Typography variant="body2">{new Date(selectedOrder.appliedAt || selectedOrder.created_at).toLocaleString()}</Typography>
+                                            </Grid>
+                                            <Grid size={6}>
+                                                <Typography variant="caption" color="text.secondary">Amount Paid</Typography>
+                                                <Typography variant="body2" fontWeight="bold">{selectedOrder.customAmount || "Standard Price"}</Typography>
+                                            </Grid>
+                                        </Grid>
+                                    </Box>
+                                </Grid>
+
+                                {/* RIGHT COL: Documents */}
+                                <Grid size={{ xs: 12, md: 5 }}>
+                                    <Typography variant="subtitle2" fontWeight="bold" gutterBottom color="primary">
+                                        UPLOADED DOCUMENTS
+                                    </Typography>
+                                    <Stack spacing={1}>
+                                        {(() => {
+                                            try {
+                                                const docs = typeof selectedOrder.documents === 'string' ? JSON.parse(selectedOrder.documents) : selectedOrder.documents;
+                                                if (!Array.isArray(docs)) return <Typography variant="caption">No documents found.</Typography>;
+                                                
+                                                return docs.flatMap((docSet: any, tIdx: number) => 
+                                                    Object.entries(docSet).map(([key, url]: any) => (
+                                                        <Button
+                                                            key={`${tIdx}-${key}`}
+                                                            variant="outlined"
+                                                            fullWidth
+                                                            size="small"
+                                                            startIcon={<OpenInNewIcon />}
+                                                            onClick={() => setViewingDoc({ url, name: `${key} (T${tIdx+1})` })}
+                                                            sx={{ justifyContent: 'flex-start', textTransform: 'none' }}
+                                                        >
+                                                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                                                        </Button>
+                                                    ))
+                                                );
+                                            } catch (e) {
+                                                return <Typography variant="caption" color="error">Error parsing docs</Typography>;
+                                            }
+                                        })()}
+                                    </Stack>
+
+                                    <Box sx={{ mt: 4, p: 2, border: '1px dashed #ccc', borderRadius: 2 }}>
+                                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                                            ACTIONS
+                                        </Typography>
+                                        <Stack spacing={1}>
+                                            <Button 
+                                                variant="contained" 
+                                                fullWidth 
+                                                startIcon={<VerifiedUserIcon />}
+                                                color="primary"
+                                                disabled={verifying}
+                                                onClick={() => handleQuickVerify(selectedOrder)}
+                                            >
+                                                {verifying ? 'Verifying...' : 'Quick Verify User'}
+                                            </Button>
+                                            <Button 
+                                                variant="outlined" 
+                                                fullWidth
+                                                onClick={() => router.push(`/invoice/${selectedOrder.slug || selectedOrder.id}`)}
+                                            >
+                                                View Live Invoice
+                                            </Button>
+                                        </Stack>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        </DialogContent>
+                        <DialogActions sx={{ borderTop: '1px solid #eee', p: 2 }}>
+                            <Button onClick={() => setSelectedOrder(null)}>Close</Button>
+                        </DialogActions>
+                    </>
+                )}
+            </Dialog>
         </Stack>
     );
 }

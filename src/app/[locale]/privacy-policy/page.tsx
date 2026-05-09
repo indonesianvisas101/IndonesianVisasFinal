@@ -36,7 +36,7 @@ export default async function PrivacyPolicyPage({ params }: { params: Promise<{ 
                     <div className="space-y-16">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 border-y border-slate-200 dark:border-white/10">
                             <p className="font-black text-slate-500 uppercase tracking-widest text-[10px]">
-                                Version 3.0.4 | Effective April 2026
+                                Version 3.1.0 | Effective May 2026
                             </p>
                             <p className="font-black text-primary uppercase tracking-widest text-[10px]">
                                 Fully Compliant with Indonesian Law No. 27/2022 (PDP)

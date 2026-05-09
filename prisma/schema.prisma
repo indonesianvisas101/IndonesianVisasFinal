@@ -135,6 +135,8 @@ model Verification {
   signatureData       String?  @db.Text
   agreementSignedAt   DateTime?
   ipAddress           String?
+  agreementHash       String?
+  agreementVersion    String?
   invoiceId           String?
   user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

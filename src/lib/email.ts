@@ -422,3 +422,198 @@ export const sendAbandonedCartEmail = async (to: string, data: {
         return { success: false, error };
     }
 };
+
+export const sendAgreementConfirmationEmail = async (to: string, data: {
+    applicantName: string;
+    agreementHash: string;
+    signedAt: string;
+    verificationSlug: string;
+}) => {
+    try {
+        const { applicantName, agreementHash, signedAt, verificationSlug } = data;
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+        const verificationUrl = `${appUrl}/verify/${verificationSlug}`;
+        
+        let message = `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; color: #1e293b;">
+                ${getEmailHeader()}
+                
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div style="display: inline-block; background-color: #f0fdf4; color: #166534; padding: 8px 16px; border-radius: 30px; font-weight: 700; font-size: 14px; margin-bottom: 15px;">✓ AGREEMENT SIGNED</div>
+                    <h2 style="color: #1e1b4b; font-size: 24px; font-weight: 800; margin: 0;">Sponsorship Agreement Confirmed</h2>
+                </div>
+
+                <p style="font-size: 16px; line-height: 1.6;">Dear ${applicantName},</p>
+                <p style="font-size: 16px; line-height: 1.6;">This email serves as an official confirmation that your <strong>Sponsorship and Responsibility Agreement</strong> with PT Indonesian Visas Agency has been successfully signed and verified.</p>
+                
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; margin: 25px 0;">
+                    <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Security & Audit Metadata</p>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 6px 0; font-size: 13px; color: #64748b;">DIGITAL HASH</td>
+                            <td style="padding: 6px 0; font-size: 11px; font-family: monospace; text-align: right; color: #7c3aed; word-break: break-all;">${agreementHash}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; font-size: 13px; color: #64748b;">TIMESTAMP</td>
+                            <td style="padding: 6px 0; font-size: 13px; font-weight: 600; text-align: right; color: #1e293b;">${new Date(signedAt).toUTCString()}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; font-size: 13px; color: #64748b;">STATUS</td>
+                            <td style="padding: 6px 0; font-size: 13px; font-weight: 700; text-align: right; color: #166534;">LEGALLY BINDING</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <p style="font-size: 16px; line-height: 1.6;">Your document is now part of our secure immutable legal audit trail. This agreement is required for your official visa/KITAS processing and has been forwarded to our legal department.</p>
+                
+                <div style="margin: 35px 0; text-align: center;">
+                    <a href="${verificationUrl}" style="background-color: #1e1b4b; color: white; padding: 14px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(30, 27, 75, 0.2);">View Signed Document</a>
+                </div>
+
+                <div style="background-color: #fdfaff; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin: 30px 0;">
+                    <p style="margin: 0; font-size: 14px; color: #475569; line-height: 1.6;">
+                        <strong>Note:</strong> You can download the official PDF version of this agreement directly from the verification portal above. Please keep a copy for your records.
+                    </p>
+                </div>
+
+                <p style="color: #64748b; font-size: 14px;">If you did not perform this action or have concerns about document integrity, please contact our legal compliance officer immediately at <a href="mailto:legal@indonesianvisas.agency" style="color: #7c3aed; text-decoration: none;">legal@indonesianvisas.agency</a>.</p>
+                ${getEmailFooter()}
+            </div>
+        `;
+
+        const emailSubject = `Official Document: Signed Sponsorship Agreement - ${applicantName}`;
+        await resend.emails.send({
+            from: 'Indonesian Visas Legal <legal@indonesianvisas.agency>',
+            to: [to],
+            subject: emailSubject,
+            html: message,
+        });
+        
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: emailSubject, content: message, status: 'SENT' }
+        }).catch(e => console.error("Failed to log agreement email", e));
+        
+        return { success: true };
+    } catch (error) {
+        console.error("Agreement Email Error:", error);
+        return { success: false, error };
+    }
+};
+
+export const sendInvoiceSettledEmail = async (to: string, data: {
+    applicantName: string;
+    orderId: string;
+    invoiceUrl: string;
+}) => {
+    try {
+        const { applicantName, orderId, invoiceUrl } = data;
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+        
+        let message = `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; color: #1e293b;">
+                ${getEmailHeader()}
+                
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div style="display: inline-block; background-color: #ecfdf5; color: #059669; padding: 8px 16px; border-radius: 30px; font-weight: 700; font-size: 14px; margin-bottom: 15px;">✓ INVOICE SETTLED</div>
+                    <h2 style="color: #1e1b4b; font-size: 24px; font-weight: 800; margin: 0;">Your Invoice is Fully Paid</h2>
+                </div>
+
+                <p style="font-size: 16px; line-height: 1.6;">Dear ${applicantName},</p>
+                <p style="font-size: 16px; line-height: 1.6;">We are pleased to inform you that your invoice <strong>#${orderId.toUpperCase()}</strong> has been fully settled. All outstanding balances have been cleared.</p>
+                
+                <div style="background-color: #f0fdf4; border: 1px solid #dcfce7; padding: 20px; border-radius: 12px; margin: 25px 0; text-align: center;">
+                    <p style="margin: 0; font-size: 14px; color: #166534; font-weight: 600;">ACCOUNT STATUS</p>
+                    <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: 800; color: #166534; text-transform: uppercase;">Zero Balance / Settled</p>
+                </div>
+
+                <p style="font-size: 16px; line-height: 1.6;">Thank you for your cooperation. You can download your final settled invoice and receipt for your records using the link below.</p>
+                
+                <div style="margin: 35px 0; text-align: center;">
+                    <a href="${invoiceUrl}" style="background-color: #059669; color: white; padding: 14px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);">Download Final Invoice</a>
+                </div>
+
+                <p style="color: #64748b; font-size: 14px;">If you have any questions regarding this settlement, please don't hesitate to contact our finance department.</p>
+                ${getEmailFooter()}
+            </div>
+        `;
+
+        const emailSubject = `Settlement Confirmation: Invoice #${orderId.toUpperCase()} is Fully Paid`;
+        await resend.emails.send({
+            from: 'Indonesian Visas <contact@indonesianvisas.agency>',
+            to: [to],
+            subject: emailSubject,
+            html: message,
+        });
+        
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: emailSubject, content: message, status: 'SENT' }
+        }).catch(e => console.error("Failed to log settlement email", e));
+        
+        return { success: true };
+    } catch (error) {
+        console.error("Invoice Settlement Email Error:", error);
+        return { success: false, error };
+    }
+};
+
+export const sendVisaApprovedEmail = async (to: string, data: {
+    applicantName: string;
+    visaType: string;
+    downloadUrl: string;
+    orderId: string;
+}) => {
+    try {
+        const { applicantName, visaType, downloadUrl, orderId } = data;
+        
+        let message = `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; color: #1e293b;">
+                ${getEmailHeader()}
+                
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div style="display: inline-block; background-color: #eff6ff; color: #2563eb; padding: 8px 16px; border-radius: 30px; font-weight: 700; font-size: 14px; margin-bottom: 15px;">🎉 VISA APPROVED</div>
+                    <h2 style="color: #1e1b4b; font-size: 26px; font-weight: 800; margin: 0;">Welcome to Indonesia!</h2>
+                </div>
+
+                <p style="font-size: 16px; line-height: 1.6;">Dear ${applicantName},</p>
+                <p style="font-size: 16px; line-height: 1.6;">We are thrilled to announce that your <strong>${visaType}</strong> application (Ref: #${orderId.toUpperCase()}) has been <strong>OFFICIALLY APPROVED</strong> by the Indonesian Directorate General of Immigration.</p>
+                
+                <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
+                    <p style="margin: 0; font-size: 14px; color: #0369a1; font-weight: 600;">YOUR VISA IS READY</p>
+                    <p style="margin: 5px 0 20px 0; font-size: 18px; font-weight: 800; color: #0c4a6e;">Electronic Visa (e-Visa)</p>
+                    <a href="${downloadUrl}" style="background-color: #2563eb; color: white; padding: 14px 35px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">Download Official Visa (PDF)</a>
+                </div>
+
+                <div style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin: 30px 0;">
+                    <p style="margin: 0; font-size: 15px; color: #1e293b; font-weight: 700;">Important Next Steps:</p>
+                    <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 14px; color: #475569; line-height: 1.6;">
+                        <li><strong>Print Your Visa:</strong> We recommend carrying a printed color copy of your e-Visa.</li>
+                        <li><strong>Check Passport:</strong> Ensure your passport matches the one used in the application.</li>
+                        <li><strong>Validity:</strong> Check the "Must Enter Before" date on your visa document.</li>
+                    </ul>
+                </div>
+
+                <p style="font-size: 16px; line-height: 1.6;">Safe travels and enjoy your stay in the wonderful archipelago of Indonesia!</p>
+                
+                <p style="color: #64748b; font-size: 14px; margin-top: 30px;">If you have any questions, our support team is always here to help.</p>
+                ${getEmailFooter()}
+            </div>
+        `;
+
+        const emailSubject = `Visa Approved! 🎉 Welcome to Indonesia - #${orderId.toUpperCase()}`;
+        await resend.emails.send({
+            from: 'Indonesian Visas <contact@indonesianvisas.agency>',
+            to: [to],
+            subject: emailSubject,
+            html: message,
+        });
+        
+        await prisma.emailLog.create({
+            data: { recipient: to, subject: emailSubject, content: message, status: 'SENT' }
+        }).catch(e => console.error("Failed to log approval email", e));
+        
+        return { success: true };
+    } catch (error) {
+        console.error("Visa Approval Email Error:", error);
+        return { success: false, error };
+    }
+};

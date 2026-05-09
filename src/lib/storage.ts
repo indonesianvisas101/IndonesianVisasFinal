@@ -13,17 +13,21 @@ export async function getSignedUrl(publicUrl: string, expiresIn: number = 3600):
     const isSupabase = publicUrl.includes('.supabase.co/storage/v1/object/');
     if (!isSupabase) return publicUrl;
 
+    // v8.99 - STRIP QUERY PARAMS: Ensure we only process the path, not existing tokens
+    const urlWithoutParams = publicUrl.split('?')[0];
+
     try {
         const supabase = await createAdminClient();
         
         let pathWithBucket = "";
-        if (publicUrl.includes('/storage/v1/object/public/')) {
-            pathWithBucket = publicUrl.split('/storage/v1/object/public/')[1];
-        } else if (publicUrl.includes('/storage/v1/object/authenticated/')) {
-            pathWithBucket = publicUrl.split('/storage/v1/object/authenticated/')[1];
+        if (urlWithoutParams.includes('/storage/v1/object/public/')) {
+            pathWithBucket = urlWithoutParams.split('/storage/v1/object/public/')[1];
+        } else if (urlWithoutParams.includes('/storage/v1/object/authenticated/')) {
+            pathWithBucket = urlWithoutParams.split('/storage/v1/object/authenticated/')[1];
         } else {
             // Fallback: try to extract after /object/
-            pathWithBucket = publicUrl.split('/storage/v1/object/')[1];
+            pathWithBucket = urlWithoutParams.split('/storage/v1/object/')[1];
+
             // Remove the first segment (which might be 'public' or 'authenticated' if not caught above)
             const segments = pathWithBucket.split('/');
             if (['public', 'authenticated'].includes(segments[0])) {
@@ -85,4 +89,52 @@ export async function signDocumentUrls(documents: any): Promise<any> {
     }
 
     return documents;
+}
+
+/**
+ * Uploads a file (buffer or base64) to a Supabase bucket.
+ * @param bucket - The destination bucket name
+ * @param path - The destination path within the bucket
+ * @param file - The file content as Buffer, ArrayBuffer, or base64 string
+ * @param contentType - The MIME type of the file
+ */
+export async function uploadFile(
+    bucket: string,
+    path: string,
+    file: Buffer | ArrayBuffer | string,
+    contentType: string = 'application/pdf'
+) {
+    try {
+        const supabase = await createAdminClient();
+        
+        let uploadData: Buffer | ArrayBuffer;
+        if (typeof file === 'string' && file.includes(';base64,')) {
+            // Extract actual base64 content if it's a data URL
+            const base64Content = file.split(';base64,')[1];
+            uploadData = Buffer.from(base64Content, 'base64');
+        } else if (typeof file === 'string') {
+            uploadData = Buffer.from(file, 'base64');
+        } else {
+            uploadData = file;
+        }
+
+        const { data, error } = await supabase.storage
+            .from(bucket)
+            .upload(path, uploadData, {
+                contentType,
+                upsert: true
+            });
+
+        if (error) {
+            console.error(`[Storage] Upload failed for ${path}:`, error.message);
+            throw error;
+        }
+
+        // Return the public URL or internal path
+        const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
+        return urlData.publicUrl;
+    } catch (err) {
+        console.error('[Storage] Unexpected upload error:', err);
+        throw err;
+    }
 }

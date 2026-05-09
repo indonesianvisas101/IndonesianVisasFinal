@@ -133,13 +133,15 @@ export default function SecureDocViewer() {
                                     <Stack direction="row" spacing={1}>
                                         <Button 
                                             size="small" 
-                                            variant="contained" 
-                                            startIcon={<DownloadIcon />}
+                                            variant={doc.status === 'SIGNED' || !doc.isInternal ? "contained" : "outlined"} 
+                                            color={doc.status === 'SIGNED' ? "success" : "primary"}
+                                            startIcon={doc.isInternal && doc.status !== 'SIGNED' ? <VisibilityIcon /> : <DownloadIcon />}
                                             onClick={() => window.open(doc.url, '_blank')}
                                         >
-                                            View / Download
+                                            {doc.isInternal ? (doc.status === 'SIGNED' ? 'View Agreement' : 'Review & Sign') : 'View / Download'}
                                         </Button>
                                     </Stack>
+
                                 </Paper>
                             )) : (
                                 <Alert severity="info" sx={{ borderRadius: 2 }}>

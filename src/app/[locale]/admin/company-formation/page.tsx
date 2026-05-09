@@ -22,7 +22,8 @@ import {
     DialogContent,
     DialogActions,
     Stack,
-    CircularProgress
+    CircularProgress,
+    Grid
 } from '@mui/material';
 import { 
     Search as SearchIcon, 
@@ -185,20 +186,20 @@ export default function AdminCompanyFormationPage() {
                         </DialogTitle>
                         <DialogContent>
                             <Grid container spacing={4} sx={{ mt: 1 }}>
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>APPLICANT INFORMATION</Typography>
                                     <Typography variant="body1"><b>Name:</b> {selectedRequest.applicantName}</Typography>
                                     <Typography variant="body1"><b>Email:</b> {selectedRequest.applicantEmail}</Typography>
                                     <Typography variant="body1"><b>Phone:</b> {selectedRequest.applicantPhone}</Typography>
                                     <Typography variant="body1"><b>NPWP:</b> {selectedRequest.taxDetails?.npwp || '-'}</Typography>
                                 </Grid>
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>CAPITAL DETAILS</Typography>
                                     <Typography variant="body1"><b>Equity:</b> Rp {Number(selectedRequest.equityCapital).toLocaleString('id-ID')}</Typography>
                                     <Typography variant="body1"><b>Deposited:</b> Rp {Number(selectedRequest.depositedCapital).toLocaleString('id-ID')}</Typography>
                                     <Typography variant="body1"><b>Address:</b> {selectedRequest.address}</Typography>
                                 </Grid>
-                                <Grid item xs={12}>
+                                <Grid size={12}>
                                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>KBLI CODES</Typography>
                                     <Stack direction="row" spacing={1} flexWrap="wrap">
                                         {selectedRequest.kbliCodes?.map((k: any) => (
@@ -206,7 +207,7 @@ export default function AdminCompanyFormationPage() {
                                         ))}
                                     </Stack>
                                 </Grid>
-                                <Grid item xs={12}>
+                                <Grid size={12}>
                                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>DOCUMENTS</Typography>
                                     <Stack direction="row" spacing={2}>
                                         <Button startIcon={<DownloadIcon />} variant="outlined" size="small">Passport / KTP</Button>
@@ -227,7 +228,4 @@ export default function AdminCompanyFormationPage() {
     );
 }
 
-// Simple Grid for MUI if not using full library
-function Grid({ children, container, item, xs, md, spacing, sx }: any) {
-    return <Box sx={{ display: container ? 'flex' : 'block', flexWrap: container ? 'wrap' : 'nowrap', width: item ? `${(xs/12)*100}%` : 'auto', p: spacing ? spacing * 0.5 : 0, ...sx }}>{children}</Box>;
-}
+

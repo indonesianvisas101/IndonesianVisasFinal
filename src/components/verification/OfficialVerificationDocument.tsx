@@ -33,6 +33,8 @@ interface OfficialVerificationDocumentProps {
         address?: string;
         isAgreementRequired?: boolean;
         agreementStatus?: string;
+        agreementHash?: string;
+        agreementVersion?: string;
     };
 }
 
@@ -237,6 +239,26 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
                                 </TableBody>
                             </Table>
                         </TableContainer>
+
+                        {/* DIGITAL FINGERPRINT SECTION */}
+                        {data.agreementHash && (
+                            <Box sx={{ mt: 4, p: 2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                                <Typography variant="caption" fontWeight="bold" color="text.secondary" display="block" sx={{ mb: 1, textTransform: 'uppercase', letterSpacing: 1, fontSize: '0.65rem' }}>
+                                    Digital Fingerprint (SHA-256 Integrity Hash)
+                                </Typography>
+                                <Typography variant="caption" sx={{ fontFamily: 'monospace', wordBreak: 'break-all', color: 'primary.main', fontSize: '0.65rem', lineHeight: 1 }}>
+                                    {data.agreementHash}
+                                </Typography>
+                                <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="caption" sx={{ fontSize: '0.6rem', color: '#94A3B8' }}>
+                                        Ver: {data.agreementVersion || '1.0'} • Secure Legal Archive
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ fontSize: '0.6rem', color: '#94A3B8' }}>
+                                        Signed: {data.agreementStatus === 'SIGNED' ? 'YES' : 'NO'}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        )}
                     </Grid>
                 </Grid>
 

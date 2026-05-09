@@ -10,6 +10,8 @@ import {
     Button,
     Stack,
     CircularProgress,
+    Snackbar,
+    Alert
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -58,6 +60,7 @@ export default function VerificationPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
+    const [showPinTip, setShowPinTip] = useState(false);
 
     useEffect(() => {
         const checkAdmin = async () => {
@@ -77,7 +80,12 @@ export default function VerificationPage() {
         if (slug) {
             fetch(`/api/verification?slug=${slug}`)
                 .then(async (res) => {
-                    if (res.ok) setData(await res.json());
+                    if (res.ok) {
+                        const d = await res.json();
+                        setData(d);
+                        // Trigger PIN Tip notification
+                        setShowPinTip(true);
+                    }
                     else setError("Verification record not found.");
                 })
                 .catch(() => setError("Failed to load verification data."))
@@ -257,6 +265,22 @@ export default function VerificationPage() {
                     </Typography>
                 </Box>
             </Container>
+
+            <Snackbar 
+                open={showPinTip} 
+                autoHideDuration={10000} 
+                onClose={() => setShowPinTip(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={() => setShowPinTip(false)} 
+                    severity="info" 
+                    variant="filled"
+                    sx={{ width: '100%', fontWeight: 'bold', boxShadow: '0 8px 30px rgba(0,0,0,0.15)' }}
+                >
+                    🔒 Your access PIN is your Date of Birth in DDMMYY format (e.g. 050585)
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }

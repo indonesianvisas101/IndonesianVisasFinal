@@ -28,24 +28,7 @@ export async function POST(request: Request) {
         const agreementHash = createHash('sha256').update(hashContent).digest('hex');
         const agreementVersion = 'v1.1-2024';
 
-        // 2. Update the record with signature and signed status
-        const userIp = ip || request.headers.get('x-forwarded-for')?.split(',')[0] || request.headers.get('x-real-ip') || 'unknown';
-
-        const updated = await (prisma.verification as any).update({
-            where: { id: verification.id },
-            data: {
-                agreementStatus: 'SIGNED',
-                signatureData: signature,
-                agreementSignedAt: new Date(),
-                ipAddress: userIp,
-                agreementHash,
-                agreementVersion,
-                // Keep the record valid
-                status: 'VALID' 
-            }
-        });
-        
-        // 2.5 Archive to Cloud (S3/Supabase)
+        // 2. Archive to Cloud (S3/Supabase) FIRST so we can store the URL
         let archiveUrl = null;
         if (pdfBase64) {
             try {
@@ -57,7 +40,41 @@ export async function POST(request: Request) {
             }
         }
 
-        // 3. Create an Audit Log for legal compliance
+        // 2.5 Prepare packed address with archiveUrl
+        let packedAddress = verification.address;
+        try {
+            let jsonObj: any = {};
+            if (verification.address && verification.address.trim().startsWith('{')) {
+                jsonObj = JSON.parse(verification.address);
+            } else {
+                jsonObj = { street: verification.address };
+            }
+            if (archiveUrl) jsonObj.agreementUrl = archiveUrl;
+            jsonObj.agreementHash = agreementHash;
+            jsonObj.agreementSignedAt = new Date().toISOString();
+            packedAddress = JSON.stringify(jsonObj);
+        } catch (e) {
+            console.error("Failed to pack address with agreement data", e);
+        }
+
+        // 3. Update the record
+        const userIp = ip || request.headers.get('x-forwarded-for')?.split(',')[0] || request.headers.get('x-real-ip') || 'unknown';
+
+        const updated = await (prisma.verification as any).update({
+            where: { id: verification.id },
+            data: {
+                agreementStatus: 'SIGNED',
+                signatureData: signature,
+                agreementSignedAt: new Date(),
+                ipAddress: userIp,
+                agreementHash,
+                agreementVersion,
+                address: packedAddress,
+                status: 'VALID' 
+            }
+        });
+        
+        // 4. Create an Audit Log
         await (prisma.auditLog as any).create({
             data: {
                 adminId: 'CLIENT_SIGNATURE',

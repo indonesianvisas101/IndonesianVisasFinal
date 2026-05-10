@@ -137,6 +137,8 @@ model Verification {
   ipAddress           String?
   agreementHash       String?
   agreementVersion    String?
+  isIdivPurchased     Boolean? @default(false)
+  idivPreviewExpiresAt DateTime?
   invoiceId           String?
   user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

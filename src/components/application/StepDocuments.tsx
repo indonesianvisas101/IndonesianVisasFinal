@@ -76,6 +76,10 @@ const StepDocuments = () => {
                 setError(`Passport Photo Page is strictly required for Traveler ${i + 1}.`);
                 return;
             }
+            if (!docsArray[i] || !docsArray[i].recentPhoto) {
+                setError(`Recent Photo (White Background) is strictly required for Traveler ${i + 1}.`);
+                return;
+            }
         }
 
         markStepComplete(3);

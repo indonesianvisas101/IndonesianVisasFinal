@@ -241,13 +241,29 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             const token = session?.access_token;
 
             // Pack Smart ID fields into address as JSON
-            const packedAddress = JSON.stringify({
+            let packedAddressObj: any = {
                 street: formData.address,
                 birthPlaceDate: formData.birthPlaceDate,
                 gender: formData.gender,
                 occupation: formData.occupation,
                 preferredMode: formData.preferredMode || previewCardMode || "IDIV"
-            });
+            };
+
+            // If editing, preserve agreement data
+            if (isEditing) {
+                const existing = verifications.find(v => v.id === editId);
+                if (existing && existing.address && existing.address.startsWith('{')) {
+                    try {
+                        const existingObj = JSON.parse(existing.address);
+                        // Merge important agreement fields back in
+                        if (existingObj.agreementUrl) packedAddressObj.agreementUrl = existingObj.agreementUrl;
+                        if (existingObj.agreementHash) packedAddressObj.agreementHash = existingObj.agreementHash;
+                        if (existingObj.agreementSignedAt) packedAddressObj.agreementSignedAt = existingObj.agreementSignedAt;
+                    } catch (e) {}
+                }
+            }
+            
+            const packedAddress = JSON.stringify(packedAddressObj);
 
             const payload = {
                 ...formData,
@@ -595,6 +611,27 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                             >
                                                 <QrCodeIcon />
                                             </IconButton>
+                                            {(() => {
+                                                let agreementUrl = null;
+                                                if (item.address && item.address.startsWith('{')) {
+                                                    try {
+                                                        const p = JSON.parse(item.address);
+                                                        agreementUrl = p.agreementUrl || null;
+                                                    } catch (e) {}
+                                                }
+                                                if (!agreementUrl) return null;
+                                                
+                                                return (
+                                                    <IconButton
+                                                        color="success"
+                                                        size="small"
+                                                        title="View Signed Agreement"
+                                                        onClick={() => window.open(agreementUrl, '_blank')}
+                                                    >
+                                                        <PictureAsPdfIcon fontSize="small" />
+                                                    </IconButton>
+                                                );
+                                            })()}
                                             <IconButton
                                                 color="info"
                                                 size="small"

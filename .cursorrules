@@ -10,3 +10,8 @@ If the user asks you to fix a database or seed data, DO NOT accidentally execute
 Data accessed and created from the Admin Dashboard cannot be deleted or manipulated by AI without authorization and the `BOSS_PASSPHRASE`.
 
 You belong to a multi-agent system and the rules above are an extension of the MASTER_REPORT.md Constitution.
+
+# 4. HUKUM MUTLAK DATABASE (USER MANDATE)
+Pasal 1. Haram Migrate atau hapus database.
+Pasal 2. Jika apapun keinginan admin dan akan menyebabkan penghapusan database, aturan kembali ke Pasal 1.
+Pasal 3. Aturan ini mutlak di terapkan oleh semua assisten Ai Antigravity di web ini.

@@ -59,7 +59,7 @@ export async function GET(request: Request) {
                     orderBy: { createdAt: 'desc' }
                 }),
                 prisma.verification.findFirst({
-                    where: { OR: [{ userId: uId || undefined }, { passportNumber: (app.attribution as any)?.passport }] }
+                    where: app.verificationId ? { id: app.verificationId } : { OR: [{ userId: uId || undefined }, { passportNumber: (app.attribution as any)?.passport }] }
                 })
             ]);
 
@@ -314,7 +314,7 @@ export async function POST(request: Request) {
                     
                     const guestNameFinal = guestName || (finalUserId ? (await tx.user.findUnique({ where: { id: finalUserId } }))?.name : null) || "Guest";
 
-                    const photoUrl = documents?.recentPhoto || null;
+                    const photoUrl = documents?.recentPhoto || documents?.photo || null;
                     const packedAddress = JSON.stringify({
                         street: "",
                         birthPlaceDate: attribution?.dob || "",

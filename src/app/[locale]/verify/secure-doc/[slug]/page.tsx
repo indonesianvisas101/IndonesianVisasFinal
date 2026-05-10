@@ -197,6 +197,7 @@ export default function SecureDocViewer() {
                 <form onSubmit={handleUnlock}>
                     <Stack spacing={3}>
                         <TextField
+                            id="secure-doc-pin-input"
                             fullWidth
                             label="6-Digit PIN"
                             variant="outlined"

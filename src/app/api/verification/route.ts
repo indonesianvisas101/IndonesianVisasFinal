@@ -14,10 +14,12 @@ export async function GET(request: Request) {
         const userId = searchParams.get('userId');
         const query = searchParams.get('query');
 
+        const auth = await getAdminAuth();
+        const isAdmin = auth.authorized;
+
         // Only enforce admin check if NO identifying param is provided (i.e. requesting full list)
         if (!id && !slug && !userId && !query) {
-            const auth = await getAdminAuth();
-            if (!auth.authorized) {
+            if (!isAdmin) {
                 return NextResponse.json({ error: auth.error }, { status: auth.status });
             }
         }
@@ -127,6 +129,20 @@ export async function GET(request: Request) {
             if (data.photoUrl) data.photoUrl = await getSignedUrl(data.photoUrl);
             if (data.passportNumber && data.passportNumber.startsWith('http')) {
                 data.passportNumber = await getSignedUrl(data.passportNumber);
+            }
+            
+            // REDACT SENSITIVE PII for non-admins (IDOR Protection)
+            // Public verification should only expose necessary validation details
+            if (!isAdmin) {
+                delete data.user;
+                delete data.email;
+                delete data.phoneNumber;
+                delete data.invoice;
+                delete data.accessPin; // Prevent PIN bypass on secure-doc
+                if (data.application) {
+                    delete data.application.guestEmail;
+                    delete data.application.whatsapp;
+                }
             }
         }
         
@@ -374,13 +390,17 @@ export async function DELETE(request: Request) {
 
         if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
+        }
+
         await prisma.verification.delete({
             where: { id }
         });
         
         // Audit Log
-        const auth = await getAdminAuth();
-        if (auth.authorized && auth.dbUser) {
+        if (auth.dbUser) {
             await logAdminAction(auth.dbUser.id, "DELETE_VERIFICATION", "Verification", id, {});
         }
 

@@ -533,45 +533,7 @@ export default function InvoicePage() {
                                     </Box>
                                 )}
 
-                                {/* v10.9.8 - INDEPENDENT LEGAL AGREEMENT CTA (Harden Workflow) */}
-                                {invoiceData.verification?.isAgreementRequired && invoiceData.verification?.agreementStatus !== 'SIGNED' && (
-                                    <Box 
-                                        sx={{ 
-                                            mt: 2, 
-                                            p: 3, 
-                                            bgcolor: 'rgba(145, 85, 253, 0.04)', 
-                                            border: '2px dashed #9155FD', 
-                                            borderRadius: 2,
-                                            textAlign: 'center'
-                                        }}
-                                    >
-                                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#9155FD', mb: 1.5, textTransform: 'uppercase', letterSpacing: 1 }}>
-                                            Action Required: Legal Sponsorship Agreement
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#4B5563', mb: 2, maxWidth: 400, mx: 'auto' }}>
-                                            To proceed with your application, you must sign the official sponsorship and responsibility agreement.
-                                        </Typography>
-                                        <a 
-                                            href={`/verify/agreement/${invoiceData.verification.slug}`}
-                                            style={{ 
-                                                color: '#fff', 
-                                                backgroundColor: '#9155FD',
-                                                padding: '12px 24px',
-                                                borderRadius: '8px',
-                                                textDecoration: 'none',
-                                                fontWeight: 'bold',
-                                                fontSize: '0.9rem',
-                                                display: 'inline-block',
-                                                boxShadow: '0 4px 12px rgba(145, 85, 253, 0.3)'
-                                            }}
-                                        >
-                                            SIGN This to get your VISA/KITAS
-                                        </a>
-                                    </Box>
-                                )}
-
-
-
+                                {/* v10.9.8 - GATEKEEPER MOVED ENTIRELY TO VISA LINK COLUMN */}
                                 {invoiceData.attribution?.registrationNumber && (
                                     <Box sx={{ display: 'flex', gap: 1 }}>
                                         <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 140 }}>No. Reg Immigration</Typography>
@@ -583,17 +545,57 @@ export default function InvoicePage() {
                                 )}
 
                                 {invoiceData.attribution?.visaLink && (
-                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                                         <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 140 }}>Your Link Visa</Typography>
                                         <Typography variant="body2">:</Typography>
-                                        <a 
-                                            href={invoiceData.attribution.visaLink.startsWith('http') ? invoiceData.attribution.visaLink : `https://${invoiceData.attribution.visaLink}`} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            style={{ color: '#9155FD', fontWeight: 600, textDecoration: 'none' }}
-                                        >
-                                            Click here to download
-                                        </a>
+                                        
+                                        {/* GATEKEEPER: Lock Visa Link if Agreement is Pending */}
+                                        {(() => {
+                                            const n = (visa?.name || invoiceData.visaName || invoiceData.visaId || "").toUpperCase();
+                                            const isForced = n.includes('E23A') || n.includes('E33G') || /\bD\d+/.test(n) || /\bC\d+/.test(n);
+                                            const isVerifReq = invoiceData.verification?.isAgreementRequired === true;
+                                            const requiresAgreement = isForced || isVerifReq;
+                                            const isSigned = invoiceData.verification?.agreementStatus === 'SIGNED';
+                                            const shouldLock = requiresAgreement && !isSigned;
+                                            
+                                            if (shouldLock) {
+                                                const lockHref = invoiceData.verification?.slug ? `/verify/agreement/${invoiceData.verification.slug}` : "#";
+                                                const lockOnClick = !invoiceData.verification?.slug ? (e: any) => { e.preventDefault(); alert("Verification record not found. Please contact Admin to generate your secure agreement link."); } : undefined;
+                                                
+                                                return (
+                                                    <a 
+                                                        href={lockHref}
+                                                        onClick={lockOnClick}
+                                                        style={{ 
+                                                            color: '#fff', 
+                                                            backgroundColor: '#9155FD',
+                                                            padding: '6px 16px',
+                                                            borderRadius: '6px',
+                                                            textDecoration: 'none',
+                                                            fontWeight: 'bold',
+                                                            fontSize: '0.85rem',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px',
+                                                            boxShadow: '0 4px 10px rgba(145, 85, 253, 0.3)'
+                                                        }}
+                                                    >
+                                                        ⚠️ SIGN AGREEMENT TO UNLOCK
+                                                    </a>
+                                                );
+                                            }
+                                            
+                                            return (
+                                                <a 
+                                                    href={invoiceData.attribution.visaLink.startsWith('http') ? invoiceData.attribution.visaLink : `https://${invoiceData.attribution.visaLink}`} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    style={{ color: '#9155FD', fontWeight: 800, textDecoration: 'underline' }}
+                                                >
+                                                    Click here to download
+                                                </a>
+                                            );
+                                        })()}
                                     </Box>
                                 )}
 

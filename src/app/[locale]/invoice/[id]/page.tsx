@@ -627,6 +627,29 @@ export default function InvoicePage() {
                                         </Box>
                                     </Box>
                                 )}
+                                 <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 140 }}>Digital ID Status</Typography>
+                                    <Typography variant="body2">:</Typography>
+                                    <Box sx={{ 
+                                        px: 1, 
+                                        py: 0.2, 
+                                        borderRadius: 1, 
+                                        bgcolor: upsells.idiv || invoiceData.visaId === 'IDIV' ? 'rgba(5, 150, 105, 0.1)' : 'rgba(145, 85, 253, 0.1)',
+                                        border: `1px solid ${upsells.idiv || invoiceData.visaId === 'IDIV' ? '#059669' : '#9155FD'}`,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 0.5
+                                    }}>
+                                        <Typography variant="caption" sx={{ 
+                                            fontWeight: 800, 
+                                            color: upsells.idiv || invoiceData.visaId === 'IDIV' ? '#059669' : '#9155FD',
+                                            textTransform: 'uppercase',
+                                            fontSize: '0.65rem'
+                                        }}>
+                                            {upsells.idiv || invoiceData.visaId === 'IDIV' ? 'Verified IDiv' : 'IDiv Card (Sample / Contoh)'}
+                                        </Typography>
+                                    </Box>
+                                </Box>
 
                                 {(invoiceData.invoice?.adminNotes || invoiceData.attribution?.registrationNumber || invoiceData.attribution?.visaLink) && (
                                     <Box sx={{ mt: 4 }}>
@@ -818,55 +841,6 @@ export default function InvoicePage() {
                 </Paper>
 
                 {/* v7.0 - DYNAMIC ARRIVAL CARD CTA (UPSALE) */}
-                {(!invoiceData.attribution?.arrivalCardLink && !invoiceData.attribution?.arrivalCardQr && invoiceData.visaName !== 'ARRIVAL CARD') && (
-                    <Box 
-                        sx={{ 
-                            mt: 4, 
-                            p: 3, 
-                            borderRadius: 3, 
-                            bgcolor: 'white',
-                            border: '2px solid #9155FD',
-                            boxShadow: '0 8px 24px rgba(145, 85, 253, 0.15)',
-                            position: 'relative',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {/* Decorative Background Icon */}
-                        <Box sx={{ position: 'absolute', right: -20, bottom: -20, opacity: 0.05, transform: 'rotate(-15deg)' }}>
-                            <Image src="/Favicon.webp" alt="" width={150} height={150} />
-                        </Box>
-
-                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems="center" justifyContent="space-between">
-                            <Box sx={{ flex: 1 }}>
-                                <Typography variant="h6" fontWeight="800" sx={{ color: '#1F2937', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Zap size={20} color="#9155FD" fill="#9155FD" />
-                                    Mandatory Arrival Card (e-CD) Required!
-                                </Typography>
-                                <Typography variant="body2" sx={{ color: '#4B5563', maxWidth: 500 }}>
-                                    Don't forget to secure your official Indonesian Customs Declaration (e-CD). 
-                                    It is mandatory for all international travelers entering Indonesia. Order yours now for a frictionless arrival.
-                                </Typography>
-                            </Box>
-                            <Button 
-                                variant="contained"
-                                href={`/${params.locale}/arrival-card`}
-                                sx={{ 
-                                    bgcolor: '#9155FD', 
-                                    px: 4, 
-                                    py: 1.5, 
-                                    borderRadius: 2,
-                                    fontWeight: 'bold',
-                                    textTransform: 'none',
-                                    whiteSpace: 'nowrap',
-                                    boxShadow: '0 4px 12px rgba(145, 85, 253, 0.4)',
-                                    '&:hover': { bgcolor: '#804BDF' }
-                                }}
-                            >
-                                Secure Arrival Card Now →
-                            </Button>
-                        </Stack>
-                    </Box>
-                )}
 
                 {/* v7.0 - DYNAMIC ARRIVAL CARD CTA (UPSALE) */}
                 {(!invoiceData.attribution?.arrivalCardLink && !invoiceData.attribution?.arrivalCardQr && invoiceData.visaName !== 'ARRIVAL CARD' && !upsells.arrival_card) && (
@@ -956,11 +930,14 @@ export default function InvoicePage() {
                             <Box sx={{ flex: 1 }}>
                                 <Typography variant="subtitle1" fontWeight="800" sx={{ color: '#1E1B4B', mb: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
                                     Elevate Your Mobility in Indonesia
+                                    <Box sx={{ px: 1, py: 0.2, borderRadius: 1, bgcolor: 'rgba(145, 85, 253, 0.1)', border: '1px solid #9155FD' }}>
+                                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#9155FD', fontSize: '0.6rem' }}>SAMPLE BADGE</Typography>
+                                    </Box>
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#64748B', maxWidth: 550 }}>
                                     We highly recommend the <strong>IDiv Verified Smart ID</strong> for your stay. 
                                     It digitalizes your local sponsorship and provides official, verified identification 
-                                    to simplify your nomad lifestyle and daily activities throughout the country.
+                                    to simplify your nomad lifestyle throughout the country.
                                 </Typography>
                             </Box>
                             {isPaid ? (
@@ -1034,7 +1011,7 @@ export default function InvoicePage() {
                         >
                             {(() => {
                                 const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
-                                if (cData?.isSpecial || cData?.isUnregistered) return "Process Calling Visa Payment";
+                                if (cData?.isSpecial || cData?.isUnregistered) return "Process Payment";
                                 return isCheckingOut ? "Processing..." : "Pay Now Securely";
                             })()}
                         </Button>

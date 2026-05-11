@@ -89,25 +89,33 @@ export const sendConfirmationEmail = async (to: string, data: {
 
                 <!-- TRAVEL ESSENTIALS RECOMMENDATIONS -->
                 <div style="margin-top: 40px; padding: 25px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #f8fafc;">
-                    <h3 style="margin: 0 0 15px 0; color: #1e1b4b; font-size: 18px; font-weight: 800;">Complete Your Travel Readiness</h3>
+                    <h3 style="margin: 0 0 15px 0; color: #1e1b4b; font-size: 18px; font-weight: 800;">Travel Status & Essentials</h3>
                     
-                    ${!data.hasArrivalCard ? `
+                    ${(data.hasArrivalCard || visaType.toUpperCase().includes('ARRIVAL CARD')) ? `
+                    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+                        <p style="margin: 0; font-size: 14px; color: #1e293b;"><span style="background-color: #ecfdf5; color: #059669; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-right: 8px;">✓ SECURED</span> <strong>Mandatory Arrival Card (e-CD)</strong></p>
+                    </div>
+                    ` : `
                     <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;">
                         <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 1.5;">
-                            <strong>Mandatory Arrival Card (e-CD):</strong> All travelers entering Indonesia must submit a Customs Declaration. To ensure a frictionless arrival at the airport, we highly recommend securing your official e-CD in advance.
+                            <strong>Mandatory Arrival Card (e-CD):</strong> All travelers entering Indonesia must submit a Customs Declaration. Secure your official e-CD in advance for a frictionless arrival.
                         </p>
                         <a href="${invoiceUrl}" style="color: #7c3aed; font-size: 14px; font-weight: 700; text-decoration: none;">Add to my order →</a>
                     </div>
-                    ` : ''}
+                    `}
 
-                    ${!hasIdiv ? `
+                    ${hasIdiv ? `
+                    <div>
+                        <p style="margin: 0; font-size: 14px; color: #1e293b;"><span style="background-color: #eff6ff; color: #2563eb; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-right: 8px;">✓ ACTIVE</span> <strong>Verified Mobility (IDiv Card)</strong></p>
+                    </div>
+                    ` : `
                     <div>
                         <p style="margin: 0 0 10px 0; font-size: 14px; line-height: 1.5;">
-                            <strong>Verified Mobility (IDiv Card):</strong> We highly recommend our <strong>IDiv Card</strong> to elevate your stay. It provides a verified digital identity and sponsorship profile, ensuring total peace of mind and seamless mobility throughout the country.
+                            <strong>Verified Mobility (IDiv Card):</strong> Upgrade your experience with our <strong>IDiv Card</strong> for a verified digital identity and seamless mobility throughout Indonesia.
                         </p>
                         <a href="${invoiceUrl}" style="color: #7c3aed; font-size: 14px; font-weight: 700; text-decoration: none;">Elevate my mobility →</a>
                     </div>
-                    ` : ''}
+                    `}
                 </div>
 
                 <p style="color: #64748b; font-size: 14px; margin-top: 30px; border-top: 1px solid #f1f5f9; pt: 20px;">

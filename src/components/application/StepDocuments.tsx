@@ -17,7 +17,8 @@ const StepDocuments = () => {
     const [processing, setProcessing] = useState<Record<string, boolean>>({});
     const [error, setError] = useState("");
     const [previewImage, setPreviewImage] = useState<string | null>(null);
-
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    
     const handleFileChange = async (index: number, type: 'passportPhoto'|'recentPhoto'|'proofOfAccommodation', e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
@@ -25,6 +26,7 @@ const StepDocuments = () => {
             
             setProcessing(prev => ({ ...prev, [key]: true }));
             setError("");
+            setSuccessMessage(null);
 
             try {
                 // 1. Upload immediately for Lead Intelligence
@@ -43,6 +45,8 @@ const StepDocuments = () => {
                 if (data.url) {
                     // 2. Update context with File (for local state) AND URL (for leads)
                     updateTravelerDocument(index, type, file);
+                    setSuccessMessage(`${type === 'passportPhoto' ? 'Passport' : 'Photo'} uploaded successfully!`);
+                    setTimeout(() => setSuccessMessage(null), 3000);
                     
                     // Special: Update the context state with the URL so saveLead can pick it up
                     if (index === 0) {
@@ -112,6 +116,17 @@ const StepDocuments = () => {
                 </div>
             )}
 
+            {successMessage && (
+                <motion.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-green-50 text-green-600 p-3 rounded-lg flex items-center text-sm font-bold mb-6 border border-green-200"
+                >
+                    <CheckCircle size={18} className="mr-2 text-green-600" />
+                    {successMessage}
+                </motion.div>
+            )}
+
             {Array.from({ length: numPeople }).map((_, i) => {
                 const doc = docsArray[i] || {};
                 const passportUploaded = !!doc.passportPhoto;
@@ -169,11 +184,11 @@ const StepDocuments = () => {
                                 </div>
                             </div>
 
-                            {/* Photo - Optional/Skippable */}
-                            <div className={`glass-card ${styles.uploadCard}`}>
+                            {/* Photo - REQUIRED */}
+                            <div className={`glass-card ${styles.uploadCard} ${doc.recentPhoto ? styles.uploaded : ''}`}>
                                 <div className="flex justify-between items-center mb-2">
                                     <div className="flex items-center justify-between w-full">
-                                        <label className={styles.label}>Recent Photo (White Background)</label>
+                                        <label className={styles.label}>Recent Photo (White Background) <span className="text-red-500">*Required</span></label>
                                         <button 
                                             type="button" 
                                             onClick={() => setPreviewImage(GUIDE_LINKS.photo)}
@@ -182,16 +197,32 @@ const StepDocuments = () => {
                                             <Eye size={12} /> <span className="text-[10px] font-black uppercase">Guide</span>
                                         </button>
                                     </div>
+                                    {doc.recentPhoto && <CheckCircle size={18} className="text-green-500" />}
                                 </div>
                                 <div className={styles.dropZone}>
-                                    <UploadCloud size={32} className="text-gray-400 mb-2" />
-                                    <span className="text-sm text-gray-500 mb-2">
-                                        {doc.recentPhoto ? doc.recentPhoto.name : "Click to upload (Optional)"}
-                                    </span>
+                                    {processing[`${i}-recentPhoto`] ? (
+                                        <div className="flex flex-col items-center animate-pulse">
+                                            <RefreshCcw size={32} className="text-amber-500 animate-spin mb-2" />
+                                            <span className="text-xs font-bold text-amber-600 uppercase tracking-tighter">Processing Photo...</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <UploadCloud size={32} className={`${doc.recentPhoto ? 'text-green-500' : 'text-gray-400'} mb-2`} />
+                                            <span className={`text-sm mb-2 font-medium ${doc.recentPhoto ? 'text-green-600' : 'text-gray-500'}`}>
+                                                {doc.recentPhoto ? doc.recentPhoto.name : "Click to upload Recent Photo"}
+                                            </span>
+                                            {doc.recentPhoto && (
+                                                <span className="text-[10px] text-green-500 font-bold bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
+                                                    Biometric Uploaded ✓
+                                                </span>
+                                            )}
+                                        </>
+                                    )}
                                     <input
                                         type="file"
                                         className={styles.fileInput}
                                         accept="image/*"
+                                        disabled={processing[`${i}-recentPhoto`]}
                                         onChange={(e) => handleFileChange(i, 'recentPhoto', e)}
                                     />
                                 </div>
@@ -268,9 +299,14 @@ const StepDocuments = () => {
                 <button
                     type="button"
                     onClick={handleContinue}
-                    className={`cta-accent ${styles.continueBtn} w-full justify-center`}
+                    disabled={Object.values(processing).some(v => v)}
+                    className={`cta-accent ${styles.continueBtn} w-full justify-center ${Object.values(processing).some(v => v) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                    Continue to Payment <ArrowRight size={18} className="ml-2" />
+                    {Object.values(processing).some(v => v) ? (
+                        <>Processing Documents... <RefreshCcw size={18} className="ml-2 animate-spin" /></>
+                    ) : (
+                        <>Continue to Payment <ArrowRight size={18} className="ml-2" /></>
+                    )}
                 </button>
             </div>
 

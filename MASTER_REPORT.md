@@ -1,5 +1,5 @@
 # Indonesian Visas Intelligence Report
-**Version:** 61.1.0 (Payment Gateway & UI Hardening)
+**Version:** 61.2.0 (Step 3 & Quick Apply Hardening)
 **Status:** PRODUCTION READY - HARDENED 🛡️
 **Confidentiality:** Boss Bayu Authorized
 
@@ -316,15 +316,18 @@ git push origin main
 
 ---
 
-***PHASE 105 — SECURE GATEKEEPER & PAYMENT HARDENING (MAY 10, 2026)***
+***PHASE 105 — SECURE GATEKEEPER & STEP 3 HARDENING (MAY 11, 2026)***
 
-#### Phase 105: Secure Gatekeeper & Payment Hardening (v61.1.0)
+#### Phase 105: Secure Gatekeeper & Step 3 Hardening (v61.2.0)
 - **Document Access Lock**: Finalized server-side gatekeeper on `/invoice` and `/verify/secure-doc`. Download buttons are inactive until sponsorship agreements are digitally signed.
-- **Biometric Integrity**: Hardened the verification API to filter redundant photo keys (`recentPhoto` + `photo`), ensuring a single high-quality portrait per applicant.
+- **Step 3 UI Hardening**:
+    - Implemented real-time upload spinners and "Succeed ✓" badges for Passport and Photo uploads.
+    - Added a global success notification banner for immediate user feedback.
+    - Synchronized "Continue" button state with active uploads (locks during processing) to prevent validation bypass.
+- **Quick Apply UX**: Hardened the Quick Apply modal with status labels ("Succeed ✓") and mandatory field validation.
 - **Payment Gateway Audit**:
     - Synchronized frontend/backend fee calculations (PPh 23 @ 2%, Platform @ 4%) for 100% financial accuracy.
     - Implemented UI guardrails in Step 4 to prevent accidental payment session resets.
-    - Added mandatory field validation (Name/Email/Phone) to Quick Apply flow to prevent partial data submission.
 - **Digital Archiving**: Integrated automated metadata recording for signed agreements within the `Verification` model (JSON field `address`) for permanent audit trails without schema migrations.
 - **Metadata Persistence**: The `agreementUrl`, `agreementHash`, and `agreementSignedAt` are now stored permanently within the `address` JSON field of the `Verification` record.
 - **Admin Visibility**: Added a "View Signed Agreement" (PDF icon) to the Admin Dashboard (`VerificationTab.tsx`) for instant verification of legal documents.

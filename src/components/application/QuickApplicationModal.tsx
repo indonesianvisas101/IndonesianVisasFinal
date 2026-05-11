@@ -553,6 +553,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                             ) : passportFile ? (
                                                 <>
                                                     <ShieldCheck className="text-emerald-500" size={24} />
+                                                    <div className="text-[10px] font-black text-emerald-600">Succeed ✓</div>
                                                     <div className="text-[10px] font-black truncate max-w-full px-4">{passportFile.name}</div>
                                                 </>
                                             ) : (
@@ -592,6 +593,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                             ) : photoFile ? (
                                                 <>
                                                     <ShieldCheck className="text-emerald-500" size={24} />
+                                                    <div className="text-[10px] font-black text-emerald-600">Succeed ✓</div>
                                                     <div className="text-[10px] font-black truncate max-w-full px-4">{photoFile.name}</div>
                                                 </>
                                             ) : (

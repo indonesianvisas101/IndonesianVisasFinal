@@ -267,10 +267,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
             alert("Please upload your Passport main page before applying.");
             return;
         }
-        if (!photoFile) {
-            alert("Please upload your Recent Photo before applying.");
-            return;
-        }
+        // Guard: photoFile is now optional (v61.3.1)
 
         // Guard: Missing personal info
         if (!formData.name || !formData.email || !formData.phone) {
@@ -292,8 +289,8 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
             const passportUrl = await uploadFile(passportFile, "passports");
             setUploadProgress(40);
 
-            // 2. Upload Photo (Already Optimized)
-            const photoUrl = await uploadFile(photoFile, "photos");
+            // 2. Upload Photo (Optional)
+            const photoUrl = photoFile ? await uploadFile(photoFile, "photos") : null;
             setUploadProgress(70);
 
             // 3. Process & Upload Additional
@@ -541,7 +538,10 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                         <input 
                                             type="file" 
                                             accept="image/*"
-                                            onChange={e => handlePassportSelection(e.target.files?.[0] || null)}
+                                            onChange={e => {
+                                                handlePassportSelection(e.target.files?.[0] || null);
+                                                e.target.value = ''; // Reset
+                                            }}
                                             className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                         />
                                         <div className="flex flex-col items-center justify-center text-center space-y-2">
@@ -581,7 +581,10 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                         <input 
                                             type="file" 
                                             accept="image/*"
-                                            onChange={e => handlePhotoSelection(e.target.files?.[0] || null)}
+                                            onChange={e => {
+                                                handlePhotoSelection(e.target.files?.[0] || null);
+                                                e.target.value = ''; // Reset
+                                            }}
                                             className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                         />
                                         <div className="flex flex-col items-center justify-center text-center space-y-2">

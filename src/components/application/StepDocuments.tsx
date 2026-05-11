@@ -13,7 +13,7 @@ const GUIDE_LINKS = {
 };
 
 const StepDocuments = () => {
-    const { setStep, markStepComplete, documents, updateData, numPeople, updateTravelerDocument, personalInfo } = useApplication();
+    const { setStep, markStepComplete, documents, updateData, numPeople, updateTravelerDocument, updateTravelerUrl, personalInfo } = useApplication();
     const [processing, setProcessing] = useState<Record<string, boolean>>({});
     const [error, setError] = useState("");
     const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -43,23 +43,20 @@ const StepDocuments = () => {
                 const data = await res.json();
 
                 if (data.url) {
-                    // 2. Update context with File (for local state) AND URL (for leads)
+                    // 1. Update the File object in context for local validation (shows checkmark in UI)
                     updateTravelerDocument(index, type, file);
-                    setSuccessMessage(`${type === 'passportPhoto' ? 'Passport' : 'Photo'} uploaded successfully!`);
-                    setTimeout(() => setSuccessMessage(null), 3000);
-                    
-                    // Special: Update the context state with the URL so saveLead can pick it up
+
+                    // 2. Update the Lead Intelligence fields for index 0
                     if (index === 0) {
                         if (type === 'passportPhoto') {
                             updateData('personalInfo', { ...personalInfo, passport: data.url });
                         } else if (type === 'recentPhoto') {
-                            // Update the first document entry with the URL
-                            const newDocs = [...documents];
-                            if (!newDocs[0]) newDocs[0] = { passportPhoto: null, recentPhoto: null, proofOfAccommodation: null };
-                            (newDocs[0] as any).photoUrl = data.url;
-                            updateData('documents', newDocs);
+                            updateTravelerUrl(0, 'photoUrl', data.url);
                         }
                     }
+
+                    setSuccessMessage(`${type === 'passportPhoto' ? 'Passport' : 'Photo'} uploaded successfully!`);
+                    setTimeout(() => setSuccessMessage(null), 3000);
                 }
             } catch (err) {
                 console.error("Upload error:", err);
@@ -78,11 +75,6 @@ const StepDocuments = () => {
         for (let i = 0; i < numPeople; i++) {
             if (!docsArray[i] || !docsArray[i].passportPhoto) {
                 setError(`Passport Photo Page is strictly required for Traveler ${i + 1}.`);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            if (!docsArray[i] || !docsArray[i].recentPhoto) {
-                setError(`Recent Photo (White Background) is strictly required for Traveler ${i + 1}.`);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
@@ -179,7 +171,10 @@ const StepDocuments = () => {
                                         className={styles.fileInput}
                                         accept="image/*,application/pdf"
                                         disabled={processing[`${i}-passportPhoto`]}
-                                        onChange={(e) => handleFileChange(i, 'passportPhoto', e)}
+                                        onChange={(e) => {
+                                            handleFileChange(i, 'passportPhoto', e);
+                                            e.target.value = ''; // Reset
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -188,7 +183,7 @@ const StepDocuments = () => {
                             <div className={`glass-card ${styles.uploadCard} ${doc.recentPhoto ? styles.uploaded : ''}`}>
                                 <div className="flex justify-between items-center mb-2">
                                     <div className="flex items-center justify-between w-full">
-                                        <label className={styles.label}>Recent Photo (White Background) <span className="text-red-500">*Required</span></label>
+                                        <label className={styles.label}>Recent Photo (Clear Background)</label>
                                         <button 
                                             type="button" 
                                             onClick={() => setPreviewImage(GUIDE_LINKS.photo)}
@@ -209,7 +204,7 @@ const StepDocuments = () => {
                                         <>
                                             <UploadCloud size={32} className={`${doc.recentPhoto ? 'text-green-500' : 'text-gray-400'} mb-2`} />
                                             <span className={`text-sm mb-2 font-medium ${doc.recentPhoto ? 'text-green-600' : 'text-gray-500'}`}>
-                                                {doc.recentPhoto ? doc.recentPhoto.name : "Click to upload Recent Photo"}
+                                                {doc.recentPhoto ? doc.recentPhoto.name : "Click to upload Recent Photo (Optional)"}
                                             </span>
                                             {doc.recentPhoto && (
                                                 <span className="text-[10px] text-green-500 font-bold bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
@@ -223,7 +218,10 @@ const StepDocuments = () => {
                                         className={styles.fileInput}
                                         accept="image/*"
                                         disabled={processing[`${i}-recentPhoto`]}
-                                        onChange={(e) => handleFileChange(i, 'recentPhoto', e)}
+                                        onChange={(e) => {
+                                            handleFileChange(i, 'recentPhoto', e);
+                                            e.target.value = ''; // Reset to allow re-upload of same file
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -279,7 +277,7 @@ const StepDocuments = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        <p className="text-[10px] text-slate-400 font-medium italic mt-2">* Max 7 files. PDF diutamakan (Bank Statement, Hotel, Flight).</p>
+                                        <p className="text-[10px] text-slate-400 font-medium italic mt-2">* Max 7 files. PDF Only (Bank Statement, Hotel, Flight).</p>
                                     </div>
                                 );
                             })()}

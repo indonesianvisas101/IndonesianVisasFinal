@@ -106,6 +106,7 @@ interface ApplicationContextType extends ApplicationState {
     updatePersonalInfo: (key: keyof ApplicationState['personalInfo'], value: string) => void;
     updateTraveler: (index: number, key: string, value: string) => void;
     updateTravelerDocument: (index: number, type: 'passportPhoto' | 'recentPhoto' | 'proofOfAccommodation', file: File | File[] | null) => void;
+    updateTravelerUrl: (index: number, key: string, url: string) => void;
     markStepComplete: (step: number) => void;
     resetApplication: () => void;
     // Documents
@@ -133,7 +134,7 @@ interface ApplicationContextType extends ApplicationState {
         email: string, 
         phone: string, 
         country: string, 
-        visaId: string, 
+        visaId?: string, 
         notes: string,
         priceTier?: string,
         customPrice?: number,
@@ -141,8 +142,8 @@ interface ApplicationContextType extends ApplicationState {
         arrivalDate?: string,
         documents?: {
             passport: string;
-            photo: string;
-            additional: string[];
+            photo?: string | null;
+            additional?: string[];
         }
     }) => void;
     // Addons
@@ -442,6 +443,25 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 newDocs[index] = { passportPhoto: null, recentPhoto: null, proofOfAccommodation: null };
             }
             newDocs[index] = { ...newDocs[index], [type]: file };
+
+            // AUTO-SYNC for Primary Traveler Lead Intelligence
+            let newPersonalInfo = { ...prev.personalInfo };
+            if (index === 0 && file instanceof File) {
+                // We can't set the URL here yet because it's still being uploaded
+                // But we can ensure the state is prepared
+            }
+
+            return { ...prev, documents: newDocs, personalInfo: newPersonalInfo };
+        });
+    };
+
+    const updateTravelerUrl = (index: number, key: string, url: string) => {
+        setState((prev) => {
+            const newDocs = [...(Array.isArray(prev.documents) ? prev.documents : [prev.documents])];
+            if (!newDocs[index]) {
+                newDocs[index] = { passportPhoto: null, recentPhoto: null, proofOfAccommodation: null };
+            }
+            newDocs[index] = { ...newDocs[index], [key]: url };
             return { ...prev, documents: newDocs };
         });
     };
@@ -524,7 +544,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         email: string, 
         phone: string, 
         country: string, 
-        visaId: string, 
+        visaId?: string, 
         notes: string,
         priceTier?: string,
         customPrice?: number,
@@ -532,12 +552,12 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         arrivalDate?: string,
         documents?: {
             passport: string;
-            photo: string;
-            additional: string[];
+            photo?: string | null;
+            additional?: string[];
         }
     }) => {
         const foundVisa = visas.find(v => v.id === data.visaId);
-        const visaName = foundVisa ? foundVisa.name : data.visaId;
+        const visaName = foundVisa ? foundVisa.name : (data.visaId || null);
         
         // Split name into first and last
         const nameParts = data.name.trim().split(/\s+/);
@@ -679,6 +699,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
                 updatePersonalInfo,
                 updateTraveler,
                 updateTravelerDocument,
+                updateTravelerUrl,
                 markStepComplete,
                 resetApplication,
                 userDocuments: state.userDocuments,

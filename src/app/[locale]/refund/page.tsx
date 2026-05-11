@@ -24,27 +24,27 @@ export default async function RefundPolicyPage({ params }: { params: Promise<{ l
         {
             icon: <AlertTriangle className="text-amber-500" size={32} />,
             title: "Visa Application Denial",
-            content: "If your e-VISA application is not approved by the Indonesian Government, we can provide a refund minus our 10% administration fee and the government Visa Fee."
+            content: "In the event of a denial by the Indonesian Government, the Government Visa Tax (PNBP) is strictly non-refundable. However, our Administration Fee is 90% refundable and 10% will be count as an administrative charge."
         },
         {
             icon: <Info className="text-blue-500" size={32} />,
             title: "Force Majeure",
-            content: "In the event of unforeseen circumstances beyond our control, such as natural disasters or political unrest, we reserve the right to modify or suspend our refund policy. Changes will be communicated promptly."
+            content: "For unforeseen circumstances beyond our control, such as natural disasters, we reserve the right to modify terms. Administration fees remain subject to the standard 10% non-refundable deduction."
         },
         {
             icon: <AlertTriangle className="text-red-500" size={32} />,
-            title: "Closure of Borders",
-            content: "If regulation changes affect the validity of your e-VISA (e.g., border closures) after approval and the visa expires, we are unable to provide a refund."
+            title: "Government Tax (PNBP)",
+            content: "Once the Government Visa Tax (PNBP) is paid to the authorities or if the visa is rejected, this portion of the payment is 100% non-refundable."
         },
         {
             icon: <CheckCircle2 className="text-green-500" size={32} />,
             title: "Approved E-Visa",
-            content: "Once your e-VISA has been approved by the authorities, we cannot provide a refund under any circumstances."
+            content: "Once your e-VISA has been approved by the authorities, all fees (Tax & Admin) become non-refundable as the service is fully delivered."
         },
         {
             icon: <Clock className="text-primary" size={32} />,
-            title: "Processing Status",
-            content: "If we have already sent your application to Immigration for processing and have paid the government billing, we cannot provide a refund."
+            title: "Administration Fee",
+            content: "Our administration fee is 90% refundable if requested before completion. A 10% deduction applies to cover initial verification and labor costs."
         },
         {
             icon: <CreditCard className="text-purple-500" size={32} />,
@@ -97,7 +97,7 @@ export default async function RefundPolicyPage({ params }: { params: Promise<{ l
                                     <h2 className="text-3xl font-black mode-aware-text tracking-tight">Cancellation Penalties</h2>
                                 </div>
                                 <p>
-                                    If you choose to cancel your application before it is submitted to the Indonesian authorities, a standard <strong>10% administration fee</strong> applies to the total invoice amount. This fee covers human resource allocation and initial document verification work already performed.
+                                    If you choose to cancel your application before completion, a <strong>90% refund of the Administration Fee</strong> is applicable. The remaining <strong>10% is non-refundable</strong> and is retained to cover initial document verification and administrative labor. Please note that the <strong>Government Visa Tax (PNBP)</strong> is 100% non-refundable once the application has been submitted to Immigration or if it is rejected.
                                 </p>
                             </section>
 

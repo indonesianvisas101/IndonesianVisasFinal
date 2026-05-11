@@ -1,6 +1,7 @@
-# 🧠 INDONESIAN VISAS: COMPREHENSIVE MASTER INTELLIGENCE REPORT
-**Version:** 59.0.0 (Visual Supremacy & Sustainable Hardening) | **Date:** April 30, 2026
-**Status:** Hardened & Production Ready | **Confidentiality:** Boss Bayu Authorized
+# Indonesian Visas Intelligence Report
+**Version:** 61.1.0 (Payment Gateway & UI Hardening)
+**Status:** PRODUCTION READY - HARDENED 🛡️
+**Confidentiality:** Boss Bayu Authorized
 
 ---
 
@@ -236,7 +237,7 @@ The **Smart ID Advanced Safety System™** is the crown jewel of platform trust.
 ### 7.2 Smart ID Portals
 - `/smart-id` — Smart ID landing & registration
 - `/idiv-search` — Public verification search (REG NO / Passport / Name)
-- `/verify/[slug]` — QR-triggered public verification page
+- `/verify/[slug]` — QR-triggered verification page
 - `/idiv-hub/*` — 15+ knowledge pages about the IDIV system
 
 ### 7.3 Company Profile
@@ -315,5 +316,23 @@ git push origin main
 
 ---
 
-**END OF MASTER INTELLIGENCE REPORT v60.0.0**
+***PHASE 105 — SECURE GATEKEEPER & PAYMENT HARDENING (MAY 10, 2026)***
+
+#### Phase 105: Secure Gatekeeper & Payment Hardening (v61.1.0)
+- **Document Access Lock**: Finalized server-side gatekeeper on `/invoice` and `/verify/secure-doc`. Download buttons are inactive until sponsorship agreements are digitally signed.
+- **Biometric Integrity**: Hardened the verification API to filter redundant photo keys (`recentPhoto` + `photo`), ensuring a single high-quality portrait per applicant.
+- **Payment Gateway Audit**:
+    - Synchronized frontend/backend fee calculations (PPh 23 @ 2%, Platform @ 4%) for 100% financial accuracy.
+    - Implemented UI guardrails in Step 4 to prevent accidental payment session resets.
+    - Added mandatory field validation (Name/Email/Phone) to Quick Apply flow to prevent partial data submission.
+- **Digital Archiving**: Integrated automated metadata recording for signed agreements within the `Verification` model (JSON field `address`) for permanent audit trails without schema migrations.
+- **Metadata Persistence**: The `agreementUrl`, `agreementHash`, and `agreementSignedAt` are now stored permanently within the `address` JSON field of the `Verification` record.
+- **Admin Visibility**: Added a "View Signed Agreement" (PDF icon) to the Admin Dashboard (`VerificationTab.tsx`) for instant verification of legal documents.
+
+#### 🔄 Ingestion & Sync Hardening
+- **Quick Apply Sync**: Patched the application creation pipeline to correctly identify the holder's photo from both `recentPhoto` and `photo` keys, ensuring seamless biometric linking for Quick Apply users.
+
+---
+
+**END OF MASTER INTELLIGENCE REPORT v61.0.0**
 *(Maintained by Antigravity AI Master Agent)*

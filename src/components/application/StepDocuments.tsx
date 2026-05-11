@@ -74,10 +74,12 @@ const StepDocuments = () => {
         for (let i = 0; i < numPeople; i++) {
             if (!docsArray[i] || !docsArray[i].passportPhoto) {
                 setError(`Passport Photo Page is strictly required for Traveler ${i + 1}.`);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
             if (!docsArray[i] || !docsArray[i].recentPhoto) {
                 setError(`Recent Photo (White Background) is strictly required for Traveler ${i + 1}.`);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
         }

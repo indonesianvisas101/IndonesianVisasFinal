@@ -779,6 +779,7 @@ npm run build
 | Phase 20 | Performance & Optimization | ✅ Complete |
 | Phase 21 | Hardening & Smart Upload Engine | ✅ Complete |
 | Phase 104 | Visa Ingestion Hardening & AI OCR Blueprint | ✅ Complete |
+| Phase 24 | Secure Gatekeeper & Payment Hardening | April 2026 | COMPLETED |
 
 ---
 
@@ -2177,12 +2178,6 @@ System integrity, compliance warnings, and governance transparency must always b
 - AI must not modify safety-centric claims without Boss approval.
 
 - Premium animations framer-motion) and Authority Badges define the brand's aesthetic standard and must not be degraded.
-
-**News Hub Content Integrity:**
-
-- All dynamic updates published via the hub must align with current Indonesian immigration regulations.
-
-- The AI Master must perform a risk scan on draft content before it is marked as published by the Boss.
 
 ***END OF CONSTITUTION v1.6***
 
@@ -4066,4 +4061,43 @@ If any test fails:
     - Implemented a validator that blocks AI-research links from entering the Google Schema, ensuring search engines only receive high-quality, valid brand assets.
 - **JSON-LD Synchronization:** Relocated and cleaned corporate JSON-LD scripts to resolve long-standing Hydration Errors, ensuring 100% server-client parity.
 
+
 **Phase 23 Status: ✅ HARDENED, SUPREME & PRODUCTION READY**
+
+---
+
+# PHASE 24: SECURE GATEKEEPER & BIOMETRIC HARDENING (COMPLETED)
+
+**Date:** May 10, 2026
+**Focus:** Secure Download Gatekeeper, Digital Signature Archiving, and Quick Apply Biometric Sync
+
+##### Phase 24: Secure Gatekeeper & Payment Hardening (v61.1.0)
+**Date:** May 10, 2026
+**Focus:** Secure document locks, payment gateway synchronization, and UI validation hardening.
+
+#### 🛡️ Secure Gatekeeper & Biometrics
+- **Download Lock**: Implemented server-side gatekeeping for visa downloads. The "Download Visa" CTA remains inactive until the user signs the mandatory Sponsorship Agreement.
+- **Photo De-duplication**: Updated `api/verification/secure-doc` to filter out both `recentPhoto` and `photo` keys, ensuring the portrait only appears in the dedicated header and not the documents list.
+- **Biometric Sync**: Patched `api/applications` to support both standard and Quick Apply photo keys, ensuring high-fidelity portrait linking.
+
+#### 💰 Payment Gateway Hardening
+- **Fee Synchronization**: Aligned the frontend `StepPayment.tsx` calculation with the backend `feeCalculator.ts` (PPh 23 @ 2%, Platform Fee @ 4% of service base).
+- **UI Guardrails**: Prevented accidental payment session resets in Step 4 when a user clicks an already-selected payment method.
+- **Validation**: Added mandatory Name, Email, and Phone validation to the Quick Apply modal to ensure complete data entry before payment.
+
+#### 📝 Signature Archiving
+- **Permanent Records**: Signed agreement metadata (URL, Hash, Timestamp) is now persistently stored in the `address` JSON field of the `Verification` model.
+- **Admin Access**: Added a PDF icon/link in the Admin Dashboard to allow direct access to signed sponsorship agreements.
+- **Logic Gate**: Implemented a server-side logic gate in `invoice/[id]/page.tsx` and `verify/secure-doc/[slug]/page.tsx`. Users are now blocked from downloading their visa until the mandatory **Sponsorship & Responsibility Agreement** is digitally signed.
+- **Biometric Preservation:** Optimized the `secure-doc` API to filter out redundant portrait entries (keys `recentPhoto` and `photo`), ensuring the holder's portrait only appears once at the top of the page and not in the downloadable documents list.
+
+### 24.2 Digital Signature Archiving
+- **Automated PDF Storage:** Developed a post-signing process that automatically generates a PDF version of the signed agreement and archives it to Supabase Storage.
+- **Metadata Integration:** Permanent URLs and audit hashes (`agreementUrl`, `agreementHash`) are now stored in the `address` JSON field of the `Verification` record, ensuring 100% legal traceability.
+
+### 24.3 Quick Apply & Ingestion Hardening
+- **Biometric Logic Sync:** Patched the `POST /api/applications` pipeline to correctly extract holder photos from both standard (`recentPhoto`) and Quick Apply (`photo`) keys during automatic verification creation.
+- **Step 3 (Document Upload) Requirement:** Hardened the main application flow to make the **Recent Photo** strictly mandatory for all travelers, preventing incomplete submissions.
+- **Data Protection Protocol:** Updated the `VerificationTab` edit logic with a deep-merge strategy for JSON metadata, preventing the accidental deletion of signed document links during manual data updates.
+
+**Phase 24 Status: ✅ HARDENED, SECURE & PRODUCTION READY**

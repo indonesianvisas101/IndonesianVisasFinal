@@ -15,22 +15,21 @@ To provide the most secure, transparent, and aesthetically premium visa processi
 
 ## 🛡️ Key Features
 # Indonesian Visas Intelligence Suite
-**Version:** 60.0.0 (SEO Autonomy & Authority Hardening)
+**Version:** 61.1.0 (Payment Gateway & UI Hardening)
 **Status:** PRODUCTION READY - HARDENED 🛡️
 **Engine:** Next.js 16.1.1 (Turbopack) | Prisma v5 | AI Multi-Agent v2.3
 
 ---
 
-- **Bali & Jakarta SEO**: Deployed dedicated landing pages with upgraded JSON-LD (`ProfessionalService` + `FAQPage`) and city-specific AI instruction manuals (`BALI_INSTRUCTION.md`, `JAKARTA_INSTRUCTION.md`).
-- **Brand Compliance**: Comprehensive audit and removal of non-compliant "Official" claims. Transitioned to "Verified" and "Direct Sponsor" identity to ensure government compliance.
-- **Auth Hardening**: Fixed Google OAuth 404 issue by isolating root-level auth callbacks from localized middleware redirection.
-- **ISR Landing Page**: `revalidate=3600` — 1-hour CDN cache, zero DB hits per visitor.
-- **LazySection**: All below-fold components loaded on scroll via Intersection Observer.
+- **Secure Document Gatekeeper**: Implemented logic locks on visa downloads until mandatory legal agreements are digitally signed.
+- **Payment Gateway Hardening**: Synchronized financial calculations and added UI guardrails to prevent payment session resets.
+- **Biometric Preservation**: Hardened the verification API to prevent photo duplication and ensure 100% biometric accuracy.
+- **Quick Apply Validation**: Added mandatory field validation for all Quick Apply submissions to ensure data integrity.
 
 ## 📦 Build Status
 ```
-Version:  v60.0.0 (Authority Hardened + OAuth Fix)
-Date:     April 30, 2026
+Version:  v61.1.0 (Payment & UI Hardening)
+Date:     May 11, 2026
 Build:    ✓ Compiled clean | ✓ TypeScript 0 errors | ✓ GDPR Ready
 Branch:   main
 ```

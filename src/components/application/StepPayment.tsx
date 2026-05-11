@@ -52,6 +52,7 @@ const StepPayment = () => {
     }, [country]);
 
     const handleMethodSelect = (method: string) => {
+        if (selectedMethod === method) return; // Prevent unnecessary resets
         setSelectedMethod(method);
         setShowPayPalButtons(false);
     };
@@ -122,17 +123,17 @@ const StepPayment = () => {
         }
     }
 
-    // v6.2 - PRECISION FINANCIAL CALCULATION
+    // v6.2.1 - SYNCHRONIZED FINANCIAL CALCULATION (Matches utils/feeCalculator.ts)
     const baseServiceTotal = baseAmount * numPeople;
     const governmentFeeTotal = feeAmount * numPeople;
     
-    // 1. Tax (PPh 23) 2% calculated ONLY on Base Service
+    // 1. Tax (PPh 23) 2% calculated ONLY on Visa Base Service
     const pph23Amount = Math.round(baseServiceTotal * 0.02);
     
-    // 2. Platform Fee 4% calculated on (Service + Addons + Tax) — excluding Gov Fees
-    const platformFeeAmount = Math.round((baseServiceTotal + addonsTotal + pph23Amount) * 0.04);
+    // 2. Platform Fee 4% calculated ONLY on Visa Base Service (Simplified Legal Parity)
+    const platformFeeAmount = Math.round(baseServiceTotal * 0.04);
     
-    // 3. GRAND TOTAL — Must include EVERYTHING
+    // 3. GRAND TOTAL — Service + Addons + Tax + Platform
     const grandTotal = baseServiceTotal + governmentFeeTotal + addonsTotal + pph23Amount + platformFeeAmount;
 
     const processCheckout = async () => {

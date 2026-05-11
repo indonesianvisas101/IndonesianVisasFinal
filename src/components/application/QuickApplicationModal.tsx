@@ -272,6 +272,18 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
             return;
         }
 
+        // Guard: Missing personal info
+        if (!formData.name || !formData.email || !formData.phone) {
+            alert("Please complete your name, email, and phone number.");
+            return;
+        }
+
+        // Guard: Simple email validation
+        if (!formData.email.includes('@')) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+
         setIsUploading(true);
         setUploadProgress(10);
 

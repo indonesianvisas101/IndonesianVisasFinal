@@ -109,6 +109,7 @@ export async function GET(request: Request) {
                 customAmount: app.customAmount,
                 status: app.status,
                 quantity: app.quantity || 1,
+                documents: typeof app.documents === 'string' ? JSON.parse(app.documents) : app.documents,
 
                 // Injected Intelligence: Document Readiness
                 documentReadiness: {

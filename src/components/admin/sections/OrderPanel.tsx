@@ -292,8 +292,11 @@ export default function OrderPanel() {
                                     <TableCell>
                                         {order.documents && (() => {
                                             try {
-                                                const docs = typeof order.documents === 'string' ? JSON.parse(order.documents) : order.documents;
-                                                if (!Array.isArray(docs)) return null;
+                                                let docs = typeof order.documents === 'string' ? JSON.parse(order.documents) : order.documents;
+                                                if (!Array.isArray(docs)) {
+                                                    if (typeof docs === 'object' && docs !== null) docs = [docs];
+                                                    else return null;
+                                                }
                                                 return (
                                                     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                                                         {docs.flatMap((docSet: any, travelerIndex: number) => {
@@ -442,8 +445,11 @@ export default function OrderPanel() {
                                     <Stack spacing={1}>
                                         {(() => {
                                             try {
-                                                const docs = typeof selectedOrder.documents === 'string' ? JSON.parse(selectedOrder.documents) : selectedOrder.documents;
-                                                if (!Array.isArray(docs)) return <Typography variant="caption">No documents found.</Typography>;
+                                                let docs = typeof selectedOrder.documents === 'string' ? JSON.parse(selectedOrder.documents) : selectedOrder.documents;
+                                                if (!Array.isArray(docs)) {
+                                                    if (typeof docs === 'object' && docs !== null) docs = [docs];
+                                                    else return <Typography variant="caption">No documents found.</Typography>;
+                                                }
                                                 
                                                 return docs.flatMap((docSet: any, tIdx: number) => 
                                                     Object.entries(docSet).map(([key, url]: any) => (

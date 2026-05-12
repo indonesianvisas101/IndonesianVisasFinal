@@ -1325,9 +1325,20 @@ export default function InvoicingTab() {
                                     Step 3: Uploaded Documents
                                 </Typography>
                                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                                    {Object.entries(editingInvoice.documents).flatMap(([key, urlValue]) => {
-                                        const urls = Array.isArray(urlValue) ? urlValue : [urlValue];
-                                        return urls.map((url, index) => {
+                                    {(() => {
+                                        let docsToRender = editingInvoice.documents;
+                                        if (typeof docsToRender === 'string') {
+                                            try { docsToRender = JSON.parse(docsToRender); } catch (e) { docsToRender = {}; }
+                                        }
+                                        if (Array.isArray(docsToRender)) {
+                                            // Merge array of objects into single object to reuse existing logic
+                                            docsToRender = docsToRender.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+                                        }
+                                        
+                                        return Object.entries(docsToRender || {}).flatMap(([key, urlValue]) => {
+                                            if (!urlValue) return [];
+                                            const urls = Array.isArray(urlValue) ? urlValue : [urlValue];
+                                            return urls.map((url, index) => {
                                             // Better formatting for labels (e.g. additional_1 -> Additional Doc 1)
                                             let name = key.replace(/([A-Z])/g, ' $1')
                                                          .replace(/_/g, ' ')
@@ -1349,8 +1360,9 @@ export default function InvoicingTab() {
                                                     size="small"
                                                 />
                                             );
+                                         });
                                         });
-                                    })}
+                                    })()}
                                 </Stack>
                             </Box>
                         )}

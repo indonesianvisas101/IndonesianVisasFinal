@@ -220,6 +220,12 @@ export default function InvoicePage() {
     };
 
     const handlePayNow = async () => {
+        const manualLink = invoiceData.attribution?.paymentLink;
+        if (manualLink) {
+            window.location.href = manualLink.startsWith('http') ? manualLink : `https://${manualLink}`;
+            return;
+        }
+
         setIsCheckingOut(true);
         try {
             // v3.0 Hardened: Reconstruct the computed grand total to match the UI precisely
@@ -412,7 +418,9 @@ export default function InvoicePage() {
                                         <Typography variant="caption" display="block" color="text.secondary">Address: Jl. Tibung Sari No 11, Bali</Typography>
 
                                         <Typography variant="body2" color="text.secondary" fontWeight="bold" sx={{ mt: 1.5 }}>Online Checkout</Typography>
-                                        <Typography variant="body2" fontFamily="monospace">indonesianvisas.com/payment</Typography>
+                                        <Typography variant="body2" fontFamily="monospace" sx={{ color: '#9155FD', wordBreak: 'break-all' }}>
+                                            {invoiceData.attribution?.paymentLink || "indonesianvisas.com/payment"}
+                                        </Typography>
                                     </>
                                 )}
                             </Box>

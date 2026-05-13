@@ -101,9 +101,13 @@ export default function IDivCardModern({
     const addrData = parseAddress(data?.address);
     const isJsonAddress = data?.address?.trim().startsWith('{');
 
+    // Sanitization: Ensure Passport Number doesn't show URLs
+    const rawPassport = data?.passport_number || "";
+    const sanitizedPassport = (rawPassport.startsWith('http') || !rawPassport) ? "Nihil" : rawPassport;
+
     const cardData = {
         id_number: data?.id_number || "99710024889100",
-        passport_number: data?.passport_number || "A1234567",
+        passport_number: sanitizedPassport,
         formatted_id: (data?.id_number || "99710024889100").slice(0, 14).replace(/(\d{4})(\d{4})(\d{6})/, "$1-$2-$3"),
         name: data?.name || "SARAH J. WILLIAMS",
         birth_place_date: privacyMode ? "XXXX, XX-XX-XXXX" : (addrData.birthPlaceDate || data?.birth_place_date || "LONDON, 01-01-1990"),
@@ -714,7 +718,7 @@ export default function IDivCardModern({
                                     }}>
                                         {isMounted ? (
                                             <QRCodeSVG
-                                                value={`${window.location.origin}/verify/secure-doc/${cardData.order_id}`}
+                                                value={`${window.location.origin}/verify/${cardData.order_id}`}
                                                 size={isSmart ? 85 : 100}
                                                 level="H"
                                                 includeMargin={false}

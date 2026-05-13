@@ -113,12 +113,12 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
 
     // Auto-calculate agreement requirements
     useEffect(() => {
-        if (!formData.visaType || isEditing) return;
+        if (!formData.visaType) return;
 
         const vt = formData.visaType.toUpperCase();
         
-        // Skip for B1 / VOA
-        if (vt.includes('B1') || vt.includes('VOA')) {
+        // v10.11 Hardening: B1 / VOA / e-VOA are sponsorless, so no agreement is needed.
+        if (vt.includes('B1') || vt.includes('VOA') || vt.includes('D1')) {
             setFormData(prev => ({ 
                 ...prev, 
                 isAgreementRequired: false, 
@@ -128,29 +128,31 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             return;
         }
 
-        // Logic for KITAS / D Type / C1
-        let req = false;
-        let deposit = 0;
+        // Logic for KITAS / D Type / C1 (Requires Sponsor)
+        if (!isEditing) {
+            let req = false;
+            let deposit = 0;
 
-        if (vt.includes('C1')) {
-            req = true;
-            deposit = 5000;
-        } else if (vt.includes('E33G')) {
-            req = true;
-            deposit = 7500;
-        } else if (vt.includes('KITAS') || vt.startsWith('D')) {
-            req = true;
-            deposit = 10000;
-        }
+            if (vt.includes('C1')) {
+                req = true;
+                deposit = 5000;
+            } else if (vt.includes('E33G')) {
+                req = true;
+                deposit = 7500;
+            } else if (vt.includes('KITAS') || vt.startsWith('D')) {
+                req = true;
+                deposit = 10000;
+            }
 
-        if (req) {
-            setFormData(prev => ({ 
-                ...prev, 
-                isAgreementRequired: true, 
-                agreementStatus: 'PENDING',
-                depositAmount: deposit,
-                accessPin: prev.accessPin || Math.floor(100000 + Math.random() * 900000).toString()
-            }));
+            if (req) {
+                setFormData(prev => ({ 
+                    ...prev, 
+                    isAgreementRequired: true, 
+                    agreementStatus: prev.agreementStatus === 'NONE' ? 'PENDING' : prev.agreementStatus,
+                    depositAmount: deposit,
+                    accessPin: prev.accessPin || Math.floor(100000 + Math.random() * 900000).toString()
+                }));
+            }
         }
     }, [formData.visaType, isEditing]);
 

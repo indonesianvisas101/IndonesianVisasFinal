@@ -565,12 +565,20 @@ export async function PATCH(request: Request) {
             id: targetId, status: newStatus, paymentReference, adminNotes, 
             paymentMethod, paymentStatus, guestName, guestEmail, 
             visaName, customAmount, userId, quantity, 
-            attribution 
+            attribution,
+            // v10.10 - Top-level field support for easy dashboard sync
+            paymentLink, visaLink, registrationNumber, arrivalCardLink, arrivalCardQr, internalNotes
         } = body;
 
         const visaNameFinal = visaName?.toUpperCase();
 
         if (!targetId) return NextResponse.json({ error: "ID Required" }, { status: 400 });
+
+        // Fetch existing record to merge attribution
+        const existingApp = await prisma.visaApplication.findUnique({
+            where: { id: targetId },
+            select: { attribution: true }
+        });
 
         // 1. Update Application Core Info
         const appUpdateData: any = {};
@@ -581,7 +589,21 @@ export async function PATCH(request: Request) {
         if (customAmount !== undefined) appUpdateData.customAmount = String(customAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '');
         if (userId !== undefined) appUpdateData.userId = userId ? userId : null;
         if (quantity !== undefined) appUpdateData.quantity = parseInt(String(quantity)) || 1;
-        if (attribution !== undefined) appUpdateData.attribution = attribution; // FIX: Update attribution
+        
+        // Advanced Attribution Merging
+        const mergedAttribution: any = { 
+            ...(existingApp?.attribution as any || {}), 
+            ...(attribution || {}) 
+        };
+        
+        if (paymentLink !== undefined) mergedAttribution.paymentLink = paymentLink;
+        if (visaLink !== undefined) mergedAttribution.visaLink = visaLink;
+        if (registrationNumber !== undefined) mergedAttribution.registrationNumber = registrationNumber;
+        if (arrivalCardLink !== undefined) mergedAttribution.arrivalCardLink = arrivalCardLink;
+        if (arrivalCardQr !== undefined) mergedAttribution.arrivalCardQr = arrivalCardQr;
+        if (internalNotes !== undefined) mergedAttribution.internalNotes = internalNotes;
+
+        appUpdateData.attribution = mergedAttribution;
 
         if (Object.keys(appUpdateData).length > 0) {
             await prisma.visaApplication.update({

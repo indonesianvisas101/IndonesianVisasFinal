@@ -142,9 +142,18 @@ export const generateAgreementPDF = async (data: AgreementData) => {
     doc.setFontSize(10);
     doc.setFont("times", "bold");
     doc.text("PT INDONESIAN VISAS AGENCY", margin, signatureY + 7);
-    // Placeholder for stamp/official signature if needed
+    
+    // Add Company Stamp and Signature
+    try {
+        // We'll place the stamp slightly behind the signature
+        doc.addImage("/Stempel.png", "PNG", margin - 5, signatureY + 5, 35, 35, undefined, 'FAST', -5);
+        doc.addImage("/signature.png", "PNG", margin + 12, signatureY + 15, 30, 20, undefined, 'FAST');
+    } catch (e) {
+        console.warn("Could not load stamp/signature images for PDF", e);
+    }
+
     doc.setFont("times", "normal");
-    doc.text("Authorized Administrative Officer", margin, signatureY + 35);
+    doc.text("Authorized Administrative Officer", margin, signatureY + 45);
 
     // --- 6. AUDIT TRAIL FOOTER (On Last Page) ---
     const footerY = pageHeight - 25;

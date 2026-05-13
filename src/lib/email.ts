@@ -569,10 +569,79 @@ export const sendVisaApprovedEmail = async (to: string, data: {
     visaType: string;
     downloadUrl: string;
     orderId: string;
+    invoiceUrl?: string;
+    acOrdered?: boolean;
+    idivOrdered?: boolean;
+    paymentLink?: string;
+    isSigned?: boolean;
+    verificationSlug?: string;
 }) => {
     try {
         const { applicantName, visaType, downloadUrl, orderId } = data;
-        
+        const { invoiceUrl, acOrdered, idivOrdered, paymentLink, isSigned, verificationSlug } = data;
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
+
+        // --- LOGIC GATE: Determine visa CTA ---
+        // If no visa link is pasted yet, don't show the download section
+        const hasVisaLink = !!downloadUrl;
+
+        // Visa unlock section — only shown if there IS a link
+        const visaSection = hasVisaLink ? `
+            <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
+                <p style="margin: 0; font-size: 14px; color: #0369a1; font-weight: 600;">YOUR VISA IS READY</p>
+                <p style="margin: 5px 0 20px 0; font-size: 18px; font-weight: 800; color: #0c4a6e;">Electronic Visa (e-Visa)</p>
+
+                ${!isSigned ? `
+                <div style="background-color: #fffbeb; border: 1px solid #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+                    <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: bold;">⚠️ ACTION REQUIRED TO UNLOCK VISA:</p>
+                    <p style="margin: 5px 0 0 0; color: #b45309; font-size: 13px; line-height: 1.5;">
+                        You must electronically sign the <strong>Sponsorship Agreement</strong> to unlock and download your visa. Please read the agreement carefully before signing.
+                    </p>
+                </div>
+                ` : `
+                <div style="background-color: #ecfdf5; border: 1px solid #bbf7d0; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+                    <p style="margin: 0; color: #166534; font-size: 13px; font-weight: 700;">✅ Agreement Signed — Your visa is unlocked.</p>
+                </div>
+                `}
+
+                <a href="${downloadUrl}" style="background-color: #2563eb; color: white; padding: 14px 35px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">
+                    ${isSigned ? 'Download Official Visa (PDF)' : 'Sign Agreement & Unlock Visa'}
+                </a>
+            </div>
+        ` : `
+            <div style="background-color: #fafafa; border: 1px dashed #cbd5e1; padding: 20px; border-radius: 12px; margin: 25px 0; text-align: center;">
+                <p style="margin: 0; font-size: 14px; color: #64748b;">Your visa document is being finalized. You will receive a notification as soon as it's ready for download.</p>
+            </div>
+        `;
+
+        // --- PENDING ORDERS SECTION ---
+        const hasPendingOrders = acOrdered || idivOrdered;
+        const pendingOrdersSection = hasPendingOrders ? `
+            <div style="margin: 30px 0; padding: 20px; border-radius: 12px; background-color: #fffbeb; border: 1px solid #fef3c7;">
+                <p style="margin: 0 0 12px 0; font-size: 15px; font-weight: 800; color: #92400e;">⏳ You Have Pending Orders to Complete:</p>
+                <p style="margin: 0 0 15px 0; font-size: 13px; color: #78350f; line-height: 1.5;">
+                    The following services were ordered but not yet paid. Complete your payment to activate them before your arrival.
+                </p>
+                <ul style="margin: 0 0 15px 0; padding-left: 20px; font-size: 14px; color: #78350f; line-height: 1.8;">
+                    ${acOrdered ? '<li><strong>Mandatory Arrival Card (e-CD)</strong> — Required upon arrival in Indonesia.</li>' : ''}
+                    ${idivOrdered ? '<li><strong>Verified Digital ID (IDiv Card)</strong> — Your smart identity card for Indonesia.</li>' : ''}
+                </ul>
+                ${paymentLink ? `
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="${paymentLink}" style="background-color: #f59e0b; color: white; padding: 13px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);">
+                        Complete Payment Now →
+                    </a>
+                </div>
+                ` : invoiceUrl ? `
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="${invoiceUrl}" style="background-color: #f59e0b; color: white; padding: 13px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);">
+                        Go to My Invoice & Pay →
+                    </a>
+                </div>
+                ` : ''}
+            </div>
+        ` : '';
+
         let message = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; color: #1e293b;">
                 ${getEmailHeader()}
@@ -585,25 +654,15 @@ export const sendVisaApprovedEmail = async (to: string, data: {
                 <p style="font-size: 16px; line-height: 1.6;">Dear ${applicantName},</p>
                 <p style="font-size: 16px; line-height: 1.6;">We are thrilled to announce that your <strong>${visaType}</strong> application (Ref: #${orderId.toUpperCase()}) has been <strong>OFFICIALLY APPROVED</strong> by the Indonesian Directorate General of Immigration.</p>
                 
-                <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
-                    <p style="margin: 0; font-size: 14px; color: #0369a1; font-weight: 600;">YOUR VISA IS READY</p>
-                    <p style="margin: 5px 0 20px 0; font-size: 18px; font-weight: 800; color: #0c4a6e;">Electronic Visa (e-Visa)</p>
-                    
-                    <div style="background-color: #fffbeb; border: 1px solid #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
-                        <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: bold;">⚠️ ACTION REQUIRED TO UNLOCK VISA:</p>
-                        <p style="margin: 5px 0 0 0; color: #b45309; font-size: 13px; line-height: 1.5;">
-                            You must electronically sign the <strong>Sponsorship Agreement</strong> to unlock and download your visa. Please read the agreement carefully before signing.
-                        </p>
-                    </div>
+                ${visaSection}
 
-                    <a href="${downloadUrl}" style="background-color: #2563eb; color: white; padding: 14px 35px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">Unlock & Download Visa</a>
-                </div>
+                ${pendingOrdersSection}
 
                 <div style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin: 30px 0;">
                     <p style="margin: 0; font-size: 15px; color: #1e293b; font-weight: 700;">Important Next Steps:</p>
                     <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 14px; color: #475569; line-height: 1.6;">
-                        <li><strong>Sign Agreement:</strong> Click the button above to view and sign your mandatory sponsorship agreement.</li>
-                        <li><strong>Print Your Visa:</strong> Once unlocked, we recommend carrying a printed color copy of your e-Visa.</li>
+                        ${hasVisaLink && !isSigned ? '<li><strong>Sign Agreement:</strong> Click the button above to view and sign your mandatory sponsorship agreement.</li>' : ''}
+                        <li><strong>Print Your Visa:</strong> ${isSigned || !hasVisaLink ? 'We recommend' : 'Once unlocked, we recommend'} carrying a printed color copy of your e-Visa.</li>
                         <li><strong>Check Passport:</strong> Ensure your passport matches the one used in the application.</li>
                         <li><strong>Validity:</strong> Check the "Must Enter Before" date on your visa document.</li>
                     </ul>

@@ -44,7 +44,13 @@ export async function POST(request: Request) {
                     applicantName: data.applicantName,
                     visaType: data.visaType,
                     downloadUrl: data.downloadUrl,
-                    orderId: data.orderId
+                    orderId: data.orderId,
+                    invoiceUrl: data.invoiceUrl,
+                    acOrdered: data.acOrdered,
+                    idivOrdered: data.idivOrdered,
+                    paymentLink: data.paymentLink,
+                    isSigned: data.isSigned,
+                    verificationSlug: data.verificationSlug
                 });
                 break;
             case 'APPLICATION_RECEIVED':

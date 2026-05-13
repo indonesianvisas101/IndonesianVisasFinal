@@ -284,6 +284,11 @@ export default function InvoicingTab() {
                         isPayPal: editingInvoice.paymentMethod?.toLowerCase().includes('paypal'),
                         hasIdiv: !!editFormData.attribution?.upsells?.idiv_paid || !!editFormData.attribution?.upsells?.idiv_ordered,
                         hasArrivalCard: !!editFormData.attribution?.upsells?.ac_paid || !!editFormData.attribution?.upsells?.ac_ordered,
+                        // Visa Approved extras
+                        acOrdered: !!editFormData.attribution?.upsells?.ac_ordered && !editFormData.attribution?.upsells?.ac_paid,
+                        idivOrdered: !!editFormData.attribution?.upsells?.idiv_ordered && !editFormData.attribution?.upsells?.idiv_paid,
+                        paymentLink: editFormData.paymentLink || editFormData.attribution?.paymentLink || '',
+                        isSigned: editingInvoice.verification?.agreementStatus === 'SIGNED',
                         verificationSlug: editingInvoice.verification?.slug
                     }
                 })

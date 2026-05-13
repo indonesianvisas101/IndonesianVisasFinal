@@ -95,6 +95,25 @@ export async function GET(request: Request) {
                 return { ...card, paymentStatus };
             }));
 
+        // --- STEP 2.5: No filters? Return all (List mode) ---
+        if (!email && !name) {
+            const all = await prisma.arrivalCard.findMany({
+                orderBy: { createdAt: 'desc' },
+                take: 100,
+                include: {
+                    user: {
+                        include: {
+                            invoices: { orderBy: { createdAt: 'desc' }, take: 1 }
+                        }
+                    }
+                }
+            });
+            return NextResponse.json({
+                mode: 'all',
+                results: await enrich(all)
+            });
+        }
+
         if (arrivalCards.length > 0) {
             return NextResponse.json({
                 mode: 'exact',

@@ -4101,3 +4101,40 @@ If any test fails:
 - **Data Protection Protocol:** Updated the `VerificationTab` edit logic with a deep-merge strategy for JSON metadata, preventing the accidental deletion of signed document links during manual data updates.
 
 **Phase 24 Status: ✅ HARDENED, SECURE & PRODUCTION READY**
+
+---
+
+# PHASE 25: ADVANCED SYNC & EMAIL INTELLIGENCE (COMPLETED)
+
+**Date:** May 13, 2026
+**Focus:** Fuzzy Name Matching, Automated Upsell Detection, and QR Priority Alignment
+
+### 25.1 Fuzzy Name Matching Engine (v61.4.0)
+- **Matching Algorithm:** Integrated **Jaro-Winkler Similarity** logic in `src/utils/fuzzyName.ts` to solve name discrepancies (e.g., "John Gabbedi" vs "John David Gabbedi").
+- **Admin UX:** 
+    - Upgraded the "Auto-Detect" Arrival Card sync button in the Invoicing panel.
+    - Implemented a **Fuzzy Match Dialog** that displays potential candidates with color-coded match percentages (Green ≥90%, Amber ≥80%, Red <80%).
+    - Enabled manual "Attach ✓" confirmation for high-confidence matches.
+
+### 25.2 Email Hardening: Visa Approved v2.0
+- **Agreement Gate:** The "Visa Approved" email now dynamically checks if the Sponsorship Agreement is signed. If not, the main CTA shifts to "Sign Agreement & Unlock Visa".
+- **Automated Upsell Detection:** 
+    - Added logic to detect unpaid **Arrival Cards (e-CD)** or **Digital IDs (IDiv)**.
+    - If detected, a dedicated **"Pending Orders"** section is injected into the email with a list of items to complete.
+- **Dynamic Payment Logic:** 
+    - The email now prioritizes a manual payment link (if provided by Admin) for custom gateway routing.
+    - Fallback logic ensures the user is sent to their public Invoice portal if no manual link exists.
+
+### 25.3 QR Code & Digital ID Logic Alignment
+- **QR Priority Fix:** Resolved a critical priority bug where the Invoice QR code incorrectly pointed to the raw government visa link. 
+    - **New Logic:** QR now **always** leads to the `/verify/[slug]` portal first, ensuring users encounter the mandatory agreement gate and brand portal before downloading documents.
+- **IDiv Badge Interactivity:** 
+    - The "Digital ID Status" badge in the public Invoice portal is now dynamic.
+    - **Paid:** Redirects directly to the user's verified portal.
+    - **Unpaid:** Redirects to the official IDiv sample/demo page to encourage conversion.
+
+### 25.4 PDF Export Aesthetics
+- **Branding Integrity:** Hardened `agreementPdfGenerator.ts` to automatically inject the official **Company Stamp** (`Stempel.png`) and **Officer Signature** (`signature.png`) on the final agreement export.
+- **Visual Precision:** Tuned stamp placement (X: 130, Y: 135) for a premium, professional document finish.
+
+**Phase 25 Status: ✅ HARDENED, INTELLIGENT & PRODUCTION READY**

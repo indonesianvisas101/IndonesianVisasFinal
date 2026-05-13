@@ -24,7 +24,7 @@ export default function ArrivalCardsTab() {
             const res = await fetch('/api/admin/arrival-cards');
             if (!res.ok) throw new Error("Failed to fetch arrival cards");
             const data = await res.json();
-            setCards(data);
+            setCards(data.results || []);
         } catch (err: any) {
             setError(err.message);
         } finally {

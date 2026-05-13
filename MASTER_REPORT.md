@@ -1,5 +1,5 @@
 # Indonesian Visas Intelligence Report
-**Version:** 61.2.0 (Step 3 & Quick Apply Hardening)
+**Version:** 61.4.0 (Advanced Sync & Email Intelligence)
 **Status:** PRODUCTION READY - HARDENED 🛡️
 **Confidentiality:** Boss Bayu Authorized
 
@@ -316,26 +316,24 @@ git push origin main
 
 ---
 
-***PHASE 105 — SECURE GATEKEEPER & STEP 3 HARDENING (MAY 11, 2026)***
+---
 
-#### Phase 105: Secure Gatekeeper & Step 3 Hardening (v61.2.0)
-- **Document Access Lock**: Finalized server-side gatekeeper on `/invoice` and `/verify/secure-doc`. Download buttons are inactive until sponsorship agreements are digitally signed.
-- **Step 3 UI Hardening**:
-    - Implemented real-time upload spinners and "Succeed ✓" badges for Passport and Photo uploads.
-    - Added a global success notification banner for immediate user feedback.
-    - Synchronized "Continue" button state with active uploads (locks during processing) to prevent validation bypass.
-- **Quick Apply UX**: Hardened the Quick Apply modal with status labels ("Succeed ✓") and mandatory field validation.
-- **Payment Gateway Audit**:
-    - Synchronized frontend/backend fee calculations (PPh 23 @ 2%, Platform @ 4%) for 100% financial accuracy.
-    - Implemented UI guardrails in Step 4 to prevent accidental payment session resets.
-- **Digital Archiving**: Integrated automated metadata recording for signed agreements within the `Verification` model (JSON field `address`) for permanent audit trails without schema migrations.
-- **Metadata Persistence**: The `agreementUrl`, `agreementHash`, and `agreementSignedAt` are now stored permanently within the `address` JSON field of the `Verification` record.
-- **Admin Visibility**: Added a "View Signed Agreement" (PDF icon) to the Admin Dashboard (`VerificationTab.tsx`) for instant verification of legal documents.
-
-#### 🔄 Ingestion & Sync Hardening
-- **Quick Apply Sync**: Patched the application creation pipeline to correctly identify the holder's photo from both `recentPhoto` and `photo` keys, ensuring seamless biometric linking for Quick Apply users.
+#### Phase 106: Advanced Sync & Email Intelligence (MAY 13, 2026)
+- **Fuzzy Name Matching Engine**:
+    - Integrated **Jaro-Winkler Similarity** algorithm in `src/utils/fuzzyName.ts` for matching disparate names (e.g., "John Gabbedi" vs "John David Gabbedi").
+    - Upgraded Admin Invoicing sync to support "Fuzzy Mode" with similarity score badges and manual confirmation dialog.
+- **Email Communication Hardening**:
+    - **Visa Approved Email (v2.0)**: Implemented logic gate for Sponsorship Agreement.
+    - Added **Pending Orders Section**: Automatically detects unpaid Arrival Cards (AC) or Digital IDs (IDiv) and prompts the user to complete payment.
+    - **Dynamic Payment CTA**: Prioritizes Admin's manual payment link, falling back to the standard invoice link if not provided.
+- **QR Code Logic Correction**:
+    - Fixed critical priority bug in Invoice QR generation. The QR now **always** leads to the `/verify/[slug]` portal first, ensuring users encounter the agreement gate before reaching raw government visa links.
+- **PDF Export Aesthetics**:
+    - Hardened `agreementPdfGenerator.ts` to include the official company stamp (`Stempel.png`) and Authorized Administrative Officer signature (`signature.png`) on all exported sponsorship agreements.
+- **Digital ID Interactivity**:
+    - Linked the Digital ID status badge in the invoice portal directly to the user's live verification profile (if paid) or the official product sample page (if unpaid).
 
 ---
 
-**END OF MASTER INTELLIGENCE REPORT v61.0.0**
+**END OF MASTER INTELLIGENCE REPORT v61.4.0**
 *(Maintained by Antigravity AI Master Agent)*

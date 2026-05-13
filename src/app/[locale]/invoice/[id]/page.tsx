@@ -153,22 +153,17 @@ export default function InvoicePage() {
     const displayPassport = invoiceData.passportNumber || 
         (invoiceData.attribution?.passport && !invoiceData.attribution.passport.startsWith('http') ? invoiceData.attribution.passport : null);
 
-    // v10.9 - Smart QR Logic (Prioritize Certificate Data)
+    // v10.10 - Corrected QR Logic: Invoice QR always leads to /verify/ portal first
     const getQrValue = () => {
-        // 1. Official Government QR String
-        if (invoiceData.verification?.qrCode) return invoiceData.verification.qrCode;
-        
-        // 2. Direct Visa Certificate Link
-        if (invoiceData.attribution?.visaLink) {
-            const link = invoiceData.attribution.visaLink;
-            return link.startsWith('http') ? link : `https://${link}`;
-        }
-        
-        // 3. Internal Verification Fallback
+        // 1. Always prefer the internal verification portal (client's "front door")
         if (invoiceData.verification?.slug) {
             return `https://indonesianvisas.com/verify/${invoiceData.verification.slug}`;
         }
-        
+
+        // 2. Official Government QR String (if no verify portal exists)
+        if (invoiceData.verification?.qrCode) return invoiceData.verification.qrCode;
+
+        // 3. No QR — return null (visaLink is NOT used here; it belongs inside /verify/)
         return null;
     };
     const qrValue = getQrValue();

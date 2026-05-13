@@ -50,6 +50,8 @@ export default function InvoicingTab() {
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [viewingDoc, setViewingDoc] = useState<{ url: string, name: string } | null>(null);
+    const [syncCandidates, setSyncCandidates] = useState<any[]>([]); // Fuzzy match candidates
+    const [openSyncDialog, setOpenSyncDialog] = useState(false);
     const searchParams = useSearchParams();
     const targetId = searchParams.get('id');
 
@@ -302,36 +304,64 @@ export default function InvoicingTab() {
 
     const handleSyncArrivalCard = async () => {
         const email = editFormData.guestEmail;
-        if (!email) {
-            alert("Please provide a guest email first to sync.");
+        const name  = editFormData.guestName;
+
+        if (!email && !name) {
+            alert("Please provide a guest email or name first to sync.");
             return;
         }
 
+        setLoading(true);
         try {
-            const res = await fetch(`/api/admin/arrival-cards?email=${email}`);
-            if (res.ok) {
-                const cards = await res.json();
-                if (cards && cards.length > 0) {
-                    const latest = cards[0];
-                    setEditFormData(prev => ({
-                        ...prev,
-                        arrivalCardLink: latest.documentUrl || prev.arrivalCardLink,
-                        arrivalCardQr: latest.id || prev.arrivalCardQr,
-                        attribution: { 
-                            ...prev.attribution, 
-                            arrivalCardLink: latest.documentUrl || prev.arrivalCardLink,
-                            arrivalCardQr: latest.id || prev.arrivalCardQr
-                        }
-                    }));
-                    alert(`✅ Sync Successful! Found Arrival Card for ${email}.`);
-                } else {
-                    alert("No Arrival Cards found for this email.");
-                }
+            const params = new URLSearchParams();
+            if (email) params.set('email', email);
+            if (name)  params.set('name', name);
+
+            const res = await fetch(`/api/admin/arrival-cards?${params.toString()}`);
+            if (!res.ok) throw new Error('API error');
+
+            const body = await res.json();
+            const { mode, results } = body;
+
+            if (!results || results.length === 0) {
+                alert(`❌ No Arrival Cards found for "${name || email}". Try adjusting the name/email.`);
+                return;
+            }
+
+            if (mode === 'exact') {
+                // Exact email match — attach immediately (previous behaviour)
+                const latest = results[0];
+                applyArrivalCardSync(latest);
+                alert(`✅ Exact Match! Arrival Card synced for ${email}.`);
+            } else {
+                // Fuzzy match — show confirmation dialog
+                setSyncCandidates(results);
+                setOpenSyncDialog(true);
             }
         } catch (e) {
             console.error("Sync failed", e);
             alert("Sync failed. Check terminal logs.");
+        } finally {
+            setLoading(false);
         }
+    };
+
+    const applyArrivalCardSync = (card: any) => {
+        setEditFormData(prev => ({
+            ...prev,
+            arrivalCardLink: card.documentUrl || prev.arrivalCardLink,
+            arrivalCardQr: card.id || prev.arrivalCardQr,
+            attribution: {
+                ...prev.attribution,
+                arrivalCardLink: card.documentUrl || prev.arrivalCardLink,
+                arrivalCardQr: card.id || prev.arrivalCardQr,
+                upsells: {
+                    ...prev.attribution?.upsells,
+                    ac_ordered: true
+                }
+            }
+        }));
+        setOpenSyncDialog(false);
     };
 
     const handleFileUpload = async (field: 'visaLink' | 'arrivalCardLink' | 'arrivalCardQr', file: File) => {
@@ -1428,6 +1458,75 @@ export default function InvoicingTab() {
                     documentName={viewingDoc.name} 
                 />
             )}
+
+            {/* FUZZY ARRIVAL CARD SYNC DIALOG */}
+            <Dialog open={openSyncDialog} onClose={() => setOpenSyncDialog(false)} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    🔍 Fuzzy Match Results
+                    <Typography variant="body2" color="text.secondary" sx={{ ml: 1, fontWeight: 400 }}>
+                        — Exact email not found. Select the best match below.
+                    </Typography>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Stack spacing={2}>
+                        {syncCandidates.map((card, idx) => {
+                            const cardName = card._matchedName || card.formData?.fullName || card.formData?.name || 'Unknown';
+                            const cardEmail = card.formData?.email || card.user?.email || '—';
+                            const score: number = card._fuzzyScore || 0;
+                            const scoreColor = score >= 90 ? '#059669' : score >= 80 ? '#d97706' : '#dc2626';
+
+                            return (
+                                <Box
+                                    key={card.id || idx}
+                                    sx={{
+                                        p: 2,
+                                        border: '1px solid',
+                                        borderColor: score >= 90 ? 'success.main' : score >= 80 ? 'warning.main' : 'error.light',
+                                        borderRadius: 2,
+                                        bgcolor: score >= 90 ? 'rgba(5,150,105,0.05)' : 'rgba(0,0,0,0.02)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        gap: 2
+                                    }}
+                                >
+                                    <Box>
+                                        <Typography fontWeight={800} fontSize="0.95rem">{cardName}</Typography>
+                                        <Typography variant="caption" color="text.secondary">{cardEmail}</Typography>
+                                        <Box sx={{ mt: 0.5 }}>
+                                            <Chip
+                                                label={`${score}% Match`}
+                                                size="small"
+                                                sx={{ bgcolor: scoreColor, color: '#fff', fontWeight: 800, fontSize: '0.7rem' }}
+                                            />
+                                            {card.paymentStatus && (
+                                                <Chip
+                                                    label={card.paymentStatus}
+                                                    size="small"
+                                                    variant="outlined"
+                                                    sx={{ ml: 1, fontSize: '0.7rem' }}
+                                                />
+                                            )}
+                                        </Box>
+                                    </Box>
+                                    <Button
+                                        variant="contained"
+                                        size="small"
+                                        onClick={() => applyArrivalCardSync(card)}
+                                        sx={{ minWidth: 100, fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
+                                    >
+                                        Attach ✓
+                                    </Button>
+                                </Box>
+                            );
+                        })}
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenSyncDialog(false)} color="inherit">Cancel</Button>
+                </DialogActions>
+            </Dialog>
+
         </Stack>
     );
 }

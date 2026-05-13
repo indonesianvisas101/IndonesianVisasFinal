@@ -54,8 +54,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
     const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
-    const [isOptimizingPassport, setIsOptimizingPassport] = useState(false);
-    const [isOptimizingPhoto, setIsOptimizingPhoto] = useState(false);
+
 
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
@@ -176,91 +175,37 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
         }
     }, [selectedTier, isManualPrice]);
 
-    // Helper: Convert Image to WebP
-    const convertToWebP = (file: File): Promise<File> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target?.result as string;
-                img.onload = () => {
-                    const canvas = document.createElement("canvas");
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext("2d");
-                    if (!ctx) return reject("Canvas context failed");
-                    ctx.drawImage(img, 0, 0);
-                    canvas.toBlob((blob) => {
-                        if (!blob) return reject("Conversion failed");
-                        const webpFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
-                        resolve(new File([blob], webpFileName, { type: "image/webp" }));
-                    }, "image/webp", 0.85);
-                };
-            };
-            reader.onerror = (err) => reject(err);
-        });
+    // Local WebP Conversion removed - Delegated to Smart API
+
+    // File Handlers (Optimization delegated to Smart API)
+    const handlePassportSelection = (file: File | null) => {
+        setPassportFile(file);
     };
 
-    // Real-Time Pre-Processing Handlers
-    const handlePassportSelection = async (file: File | null) => {
-        if (!file) {
-            setPassportFile(null);
-            return;
-        }
-        setIsOptimizingPassport(true);
-        try {
-            const optimized = await convertToWebP(file);
-            setPassportFile(optimized);
-        } catch (e) {
-            console.error("Passport optimization failed, using original", e);
-            setPassportFile(file); // Always fallback, never leave null
-        } finally {
-            setIsOptimizingPassport(false); // Always reset
-        }
+    const handlePhotoSelection = (file: File | null) => {
+        setPhotoFile(file);
     };
 
-    const handlePhotoSelection = async (file: File | null) => {
-        if (!file) {
-            setPhotoFile(null);
-            return;
-        }
-        setIsOptimizingPhoto(true);
-        try {
-            const optimized = await convertToWebP(file);
-            setPhotoFile(optimized);
-        } catch (e) {
-            console.error("Photo optimization failed, using original", e);
-            setPhotoFile(file); // Always fallback, never leave null
-        } finally {
-            setIsOptimizingPhoto(false); // Always reset
-        }
-    };
-
-    // Helper: Upload to Supabase
+    // Helper: Smart API Upload (Handles PDF and Image Optimization automatically)
     const uploadFile = async (file: File, folder: string) => {
-        const fileName = `${Date.now()}_${file.name}`;
-        const { data, error } = await supabase.storage
-            .from("quick_apply")
-            .upload(`${folder}/${fileName}`, file);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('bucket', 'quick_apply');
         
-        if (error) throw error;
-        
-        const { data: { publicUrl } } = supabase.storage
-            .from("quick_apply")
-            .getPublicUrl(`${folder}/${fileName}`);
-            
-        return publicUrl;
+        const res = await fetch('/api/upload/smart', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!res.ok) throw new Error("Smart Upload failed");
+        const data = await res.json();
+        return data.url;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Guard: still optimizing
-        if (isOptimizingPassport || isOptimizingPhoto) {
-            alert("Please wait, files are still being optimized...");
-            return;
-        }
+        // Guard: Files ready for smart upload
 
         // Guard: missing mandatory files
         if (!passportFile) {
@@ -293,17 +238,9 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
             const photoUrl = photoFile ? await uploadFile(photoFile, "photos") : null;
             setUploadProgress(70);
 
-            // 3. Process & Upload Additional
+            // 3. Process & Upload Additional via Smart API
             const additionalUrls = await Promise.all(additionalFiles.map(async (file) => {
-                let fileToUpload = file;
-                if (file.type.startsWith("image/")) {
-                    try {
-                        fileToUpload = await convertToWebP(file);
-                    } catch {
-                        fileToUpload = file; // fallback on error
-                    }
-                }
-                return await uploadFile(fileToUpload, "additional");
+                return await uploadFile(file, "additional");
             }));
             setUploadProgress(90);
 
@@ -534,10 +471,10 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                             <Eye size={10} /> View Guide
                                         </button>
                                     </div>
-                                    <div className={`relative border-2 border-dashed rounded-3xl p-4 transition-all ${passportFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-slate-200 dark:border-white/10 hover:border-primary/50'} ${isOptimizingPassport ? 'animate-pulse' : ''}`}>
+                                    <div className={`relative border-2 border-dashed rounded-3xl p-4 transition-all ${passportFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-slate-200 dark:border-white/10 hover:border-primary/50'}`}>
                                         <input 
                                             type="file" 
-                                            accept="image/*"
+                                            accept="image/*,application/pdf"
                                             onChange={e => {
                                                 handlePassportSelection(e.target.files?.[0] || null);
                                                 e.target.value = ''; // Reset
@@ -545,12 +482,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                             className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                         />
                                         <div className="flex flex-col items-center justify-center text-center space-y-2">
-                                            {isOptimizingPassport ? (
-                                                <>
-                                                    <Loader2 size={24} className="animate-spin text-primary" />
-                                                    <div className="text-[10px] font-black uppercase text-primary">Optimizing...</div>
-                                                </>
-                                            ) : passportFile ? (
+                                            {passportFile ? (
                                                 <>
                                                     <ShieldCheck className="text-emerald-500" size={24} />
                                                     <div className="text-[10px] font-black text-emerald-600">Succeed ✓</div>
@@ -577,7 +509,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                             <Eye size={10} /> View Guide
                                         </button>
                                     </div>
-                                    <div className={`relative border-2 border-dashed rounded-3xl p-4 transition-all ${photoFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-slate-200 dark:border-white/10 hover:border-primary/50'} ${isOptimizingPhoto ? 'animate-pulse' : ''}`}>
+                                    <div className={`relative border-2 border-dashed rounded-3xl p-4 transition-all ${photoFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-slate-200 dark:border-white/10 hover:border-primary/50'}`}>
                                         <input 
                                             type="file" 
                                             accept="image/*"
@@ -588,12 +520,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                             className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                         />
                                         <div className="flex flex-col items-center justify-center text-center space-y-2">
-                                            {isOptimizingPhoto ? (
-                                                <>
-                                                    <Loader2 size={24} className="animate-spin text-primary" />
-                                                    <div className="text-[10px] font-black uppercase text-primary">Optimizing...</div>
-                                                </>
-                                            ) : photoFile ? (
+                                            {photoFile ? (
                                                 <>
                                                     <ShieldCheck className="text-emerald-500" size={24} />
                                                     <div className="text-[10px] font-black text-emerald-600">Succeed ✓</div>
@@ -819,10 +746,10 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                             
                             <button 
                                 type="submit"
-                                disabled={isUploading || isOptimizingPassport || isOptimizingPhoto}
+                                disabled={isUploading}
                                 className={`w-full font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 text-lg
                                     ${
-                                        isUploading || isOptimizingPassport || isOptimizingPhoto
+                                        isUploading
                                             ? 'bg-slate-400 text-white opacity-60 cursor-not-allowed'
                                             : !passportFile || !photoFile
                                                 ? 'bg-amber-500 text-white hover:bg-amber-600 cursor-pointer shadow-amber-500/20'
@@ -830,9 +757,7 @@ const QuickApplicationModal: React.FC<QuickApplicationModalProps> = ({ isOpen, o
                                     }`
                                 }
                             >
-                                {isOptimizingPassport || isOptimizingPhoto ? (
-                                    <>Optimizing Files... <Loader2 size={20} className="animate-spin" /></>
-                                ) : isUploading ? (
+                                {isUploading ? (
                                     <>Processing... <Loader2 size={20} className="animate-spin" /></>
                                 ) : !passportFile ? (
                                     <>Passport Required — Upload Above</>

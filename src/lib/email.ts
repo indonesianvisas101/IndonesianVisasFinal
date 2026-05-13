@@ -588,13 +588,22 @@ export const sendVisaApprovedEmail = async (to: string, data: {
                 <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 25px; border-radius: 12px; margin: 25px 0; text-align: center;">
                     <p style="margin: 0; font-size: 14px; color: #0369a1; font-weight: 600;">YOUR VISA IS READY</p>
                     <p style="margin: 5px 0 20px 0; font-size: 18px; font-weight: 800; color: #0c4a6e;">Electronic Visa (e-Visa)</p>
-                    <a href="${downloadUrl}" style="background-color: #2563eb; color: white; padding: 14px 35px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">Download Official Visa (PDF)</a>
+                    
+                    <div style="background-color: #fffbeb; border: 1px solid #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+                        <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: bold;">⚠️ ACTION REQUIRED TO UNLOCK VISA:</p>
+                        <p style="margin: 5px 0 0 0; color: #b45309; font-size: 13px; line-height: 1.5;">
+                            You must electronically sign the <strong>Sponsorship Agreement</strong> to unlock and download your visa. Please read the agreement carefully before signing.
+                        </p>
+                    </div>
+
+                    <a href="${downloadUrl}" style="background-color: #2563eb; color: white; padding: 14px 35px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">Unlock & Download Visa</a>
                 </div>
 
                 <div style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin: 30px 0;">
                     <p style="margin: 0; font-size: 15px; color: #1e293b; font-weight: 700;">Important Next Steps:</p>
                     <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 14px; color: #475569; line-height: 1.6;">
-                        <li><strong>Print Your Visa:</strong> We recommend carrying a printed color copy of your e-Visa.</li>
+                        <li><strong>Sign Agreement:</strong> Click the button above to view and sign your mandatory sponsorship agreement.</li>
+                        <li><strong>Print Your Visa:</strong> Once unlocked, we recommend carrying a printed color copy of your e-Visa.</li>
                         <li><strong>Check Passport:</strong> Ensure your passport matches the one used in the application.</li>
                         <li><strong>Validity:</strong> Check the "Must Enter Before" date on your visa document.</li>
                     </ul>

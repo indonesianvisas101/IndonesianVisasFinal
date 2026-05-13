@@ -630,25 +630,35 @@ export default function InvoicePage() {
                                  <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                                     <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 140 }}>Digital ID Status</Typography>
                                     <Typography variant="body2">:</Typography>
-                                    <Box sx={{ 
-                                        px: 1, 
-                                        py: 0.2, 
-                                        borderRadius: 1, 
-                                        bgcolor: upsells.idiv || invoiceData.visaId === 'IDIV' ? 'rgba(5, 150, 105, 0.1)' : 'rgba(145, 85, 253, 0.1)',
-                                        border: `1px solid ${upsells.idiv || invoiceData.visaId === 'IDIV' ? '#059669' : '#9155FD'}`,
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: 0.5
-                                    }}>
-                                        <Typography variant="caption" sx={{ 
-                                            fontWeight: 800, 
-                                            color: upsells.idiv || invoiceData.visaId === 'IDIV' ? '#059669' : '#9155FD',
-                                            textTransform: 'uppercase',
-                                            fontSize: '0.65rem'
+                                    <a 
+                                        href={upsells.idiv || invoiceData.visaId === 'IDIV' 
+                                            ? (invoiceData.verification?.slug ? `/verify/${invoiceData.verification.slug}` : "#") 
+                                            : "https://indonesianvisas.com/id-indonesian-visas"}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ textDecoration: 'none' }}
+                                    >
+                                        <Box sx={{ 
+                                            px: 1, 
+                                            py: 0.2, 
+                                            borderRadius: 1, 
+                                            bgcolor: upsells.idiv || invoiceData.visaId === 'IDIV' ? 'rgba(5, 150, 105, 0.1)' : 'rgba(145, 85, 253, 0.1)',
+                                            border: `1px solid ${upsells.idiv || invoiceData.visaId === 'IDIV' ? '#059669' : '#9155FD'}`,
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                            cursor: 'pointer'
                                         }}>
-                                            {upsells.idiv || invoiceData.visaId === 'IDIV' ? 'Verified IDiv' : 'IDiv Card (Sample / Contoh)'}
-                                        </Typography>
-                                    </Box>
+                                            <Typography variant="caption" sx={{ 
+                                                fontWeight: 800, 
+                                                color: upsells.idiv || invoiceData.visaId === 'IDIV' ? '#059669' : '#9155FD',
+                                                textTransform: 'uppercase',
+                                                fontSize: '0.65rem'
+                                            }}>
+                                                {upsells.idiv || invoiceData.visaId === 'IDIV' ? 'Verified IDiv' : 'IDiv Card (Sample / Contoh)'}
+                                            </Typography>
+                                        </Box>
+                                    </a>
                                 </Box>
 
                                 {(invoiceData.invoice?.adminNotes || invoiceData.attribution?.registrationNumber || invoiceData.attribution?.visaLink) && (

@@ -299,7 +299,7 @@ export default function IDivCardModern({
                                 zIndex: 1,
                                 pointerEvents: 'none'
                             }}>
-                                <Box component="img" src="/Favicon.webp" sx={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                <Box component="img" src="/Favicon.webp" crossOrigin="anonymous" sx={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             </Box>
 
                             {/* Header */}
@@ -485,6 +485,7 @@ export default function IDivCardModern({
                                                         <Box
                                                             component="img"
                                                             src={cardData.photoUrl}
+                                                            crossOrigin="anonymous"
                                                             sx={{
                                                                 width: '100%',
                                                                 height: '100%',
@@ -613,6 +614,7 @@ export default function IDivCardModern({
                                                         <Box
                                                             component="img"
                                                             src={cardData.photoUrl}
+                                                            crossOrigin="anonymous"
                                                             sx={{
                                                                 width: '100%',
                                                                 height: '100%',

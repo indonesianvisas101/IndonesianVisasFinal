@@ -61,6 +61,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
     const [verificationMode, setVerificationMode] = useState<'linked' | 'manual'>('manual');
     const [previewCardMode, setPreviewCardMode] = useState<'IDIV' | 'IDG' | 'SMART'>('IDIV');
     const [selectedUserId, setSelectedUserId] = useState("");
+    const [isDownloading, setIsDownloading] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -1281,23 +1282,34 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                     <Button
                         variant="outlined"
                         color="primary"
-                        startIcon={<DownloadIcon />}
-                        onClick={() => downloadIDivDual('idiv-front', 'idiv-back', `IDiv-Dual-${selectedItem?.slug}`, 'png')}
+                        startIcon={isDownloading ? <CircularProgress size={16} /> : <DownloadIcon />}
+                        disabled={isDownloading}
+                        onClick={async () => {
+                            setIsDownloading(true);
+                            await downloadIDivDual('idiv-front', 'idiv-back', `IDiv-Dual-${selectedItem?.slug}`, 'png');
+                            setIsDownloading(false);
+                        }}
                     >
-                        PNG (2-Sides)
+                        {isDownloading ? 'Generating...' : 'PNG (2-Sides)'}
                     </Button>
                     <Button
                         variant="outlined"
                         color="error"
-                        startIcon={<PictureAsPdfIcon />}
-                        onClick={() => downloadIDivDual('idiv-front', 'idiv-back', `IDiv-PDF-${selectedItem?.slug}`, 'pdf')}
+                        startIcon={isDownloading ? <CircularProgress size={16} /> : <PictureAsPdfIcon />}
+                        disabled={isDownloading}
+                        onClick={async () => {
+                            setIsDownloading(true);
+                            await downloadIDivDual('idiv-front', 'idiv-back', `IDiv-PDF-${selectedItem?.slug}`, 'pdf');
+                            setIsDownloading(false);
+                        }}
                     >
-                        PDF (Full ID)
+                        {isDownloading ? 'Generating...' : 'PDF (Full ID)'}
                     </Button>
                     <Button
                         variant="outlined"
                         color="info"
                         startIcon={<ShareIcon />}
+                        disabled={isDownloading}
                         onClick={() => {
                             const url = `${window.location.origin}/verify/${selectedItem?.slug}`;
                             navigator.clipboard.writeText(url);
@@ -1306,7 +1318,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                     >
                         Share Link
                     </Button>
-                    <Button onClick={() => setOpenCardDialog(false)}>Close</Button>
+                    <Button onClick={() => setOpenCardDialog(false)} disabled={isDownloading}>Close</Button>
                 </DialogActions>
             </Dialog>
         </Stack>

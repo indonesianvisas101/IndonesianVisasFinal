@@ -1,66 +1,103 @@
-import { toPng, toJpeg } from 'html-to-image';
+import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 
 /**
- * Utility to download the IDiv card with high quality
- * @param elementId The ID of the HTML element to capture (e.g. 'idiv-front', 'idiv-back')
- * @param fileName The name for the downloaded file
- * @param format 'png' | 'jpeg' | 'pdf'
+ * Helper: Flatten a single element to a clean 2D state for capture.
+ * Returns a function to restore original styles.
  */
-export const downloadIDiv = async (
-    elementId: string, 
-    fileName: string = 'Indonesian-Visa-IDiv',
-    format: 'png' | 'jpeg' | 'pdf' = 'png'
-) => {
-    const element = document.getElementById(elementId);
-    if (!element) {
-        console.error('IDiv element not found:', elementId);
-        return;
+const flattenForCapture = (el: HTMLElement): (() => void) => {
+    // Save all transforms we need to override on the element and all parents up to body
+    const overrides: Array<{ el: HTMLElement; props: Record<string, string> }> = [];
+
+    let current: HTMLElement | null = el;
+    while (current && current !== document.body) {
+        const computed = window.getComputedStyle(current);
+        const saved: Record<string, string> = {};
+
+        // Save and reset 3D-related styles that break capture
+        const propsToReset = [
+            'transform',
+            'backfaceVisibility',
+            'WebkitBackfaceVisibility',
+            'transformStyle',
+            'WebkitTransformStyle',
+            'perspective',
+        ];
+
+        let needsOverride = false;
+        for (const prop of propsToReset) {
+            const val = (computed as any)[prop];
+            if (val && val !== 'none' && val !== 'flat' && val !== '' && val !== '0px') {
+                needsOverride = true;
+            }
+            saved[prop] = (current.style as any)[prop] || '';
+        }
+
+        if (needsOverride) {
+            overrides.push({ el: current, props: saved });
+            current.style.transform = 'none';
+            current.style.backfaceVisibility = 'visible';
+            (current.style as any).WebkitBackfaceVisibility = 'visible';
+            current.style.transformStyle = 'flat';
+            (current.style as any).WebkitTransformStyle = 'flat';
+            current.style.perspective = 'none';
+        }
+
+        current = current.parentElement;
     }
 
+    // Return restore function
+    return () => {
+        for (const { el, props } of overrides) {
+            for (const [prop, val] of Object.entries(props)) {
+                (el.style as any)[prop] = val;
+            }
+        }
+    };
+};
+
+/**
+ * Capture a single element as a PNG data URL.
+ * Handles CORS images, scaling transforms, and 3D transforms properly.
+ */
+const captureElement = async (el: HTMLElement): Promise<string> => {
+    // Use the element's natural scroll/offset dimensions (before any scaling)
+    // We read the card's own width/height defined in its style (e.g. 384px)
+    const styleWidth = parseFloat(el.style.width) || el.scrollWidth;
+    const styleHeight = parseFloat(el.style.height) || el.scrollHeight;
+
+    const restore = flattenForCapture(el);
+
     try {
-        // High quality scale (3x)
-        const options = {
+        // Wait one frame for styles to apply
+        await new Promise(r => requestAnimationFrame(r));
+
+        const dataUrl = await toPng(el, {
             pixelRatio: 3,
             backgroundColor: '#ffffff',
             cacheBust: true,
-        };
+            width: styleWidth,
+            height: styleHeight,
+            style: {
+                // Ensure the element is rendered at its true size
+                transform: 'none',
+                transformOrigin: 'top left',
+            },
+            // Prevent cross-origin issues for external images
+            fetchRequestInit: { credentials: 'omit', mode: 'cors' },
+        });
 
-        const stdWidth = element.offsetWidth;
-        const stdHeight = stdWidth / 1.58; // ALWAYS use standard ratio for export
-
-        if (format === 'png') {
-            const dataUrl = await toPng(element, { ...options, width: stdWidth, height: stdHeight });
-            const link = document.createElement('a');
-            link.download = `${fileName}.png`;
-            link.href = dataUrl;
-            link.click();
-        } 
-        else if (format === 'jpeg') {
-            const dataUrl = await toJpeg(element, { ...options, width: stdWidth, height: stdHeight, quality: 0.95 });
-            const link = document.createElement('a');
-            link.download = `${fileName}.jpg`;
-            link.href = dataUrl;
-            link.click();
-        }
-        else if (format === 'pdf') {
-            const dataUrl = await toPng(element, { ...options, width: stdWidth, height: stdHeight });
-            const pdf = new jsPDF({
-                orientation: 'landscape',
-                unit: 'px',
-                format: [stdWidth * 3, stdHeight * 3]
-            });
-            
-            pdf.addImage(dataUrl, 'PNG', 0, 0, stdWidth * 3, stdHeight * 3);
-            pdf.save(`${fileName}.pdf`);
-        }
-    } catch (error) {
-        console.error('Failed to download IDiv:', error);
+        restore();
+        return dataUrl;
+    } catch (err) {
+        restore();
+        throw err;
     }
 };
 
 /**
- * Download both sides of the IDiv card
+ * Download both sides of the IDiv card as PNG or PDF.
+ * Safely handles 3D transforms, CSS scaling, and cross-origin images.
  */
 export const downloadIDivDual = async (
     frontId: string = 'idiv-front',
@@ -73,63 +110,89 @@ export const downloadIDivDual = async (
 
     if (!frontEl || !backEl) {
         console.error('IDiv elements not found:', { frontId, backId });
+        alert('Gagal: Elemen kartu tidak ditemukan. Pastikan preview kartu sudah tampil.');
         return;
     }
 
     try {
-        const options = { pixelRatio: 3, backgroundColor: '#ffffff', cacheBust: true };
-        
-        // Temporarily override styles to fix mirroring for flat 2D capture
-        const originalTransform = backEl.style.transform;
-        const originalBackfaceVisibility = backEl.style.backfaceVisibility;
-        
-        backEl.style.transform = 'none'; 
-        backEl.style.backfaceVisibility = 'visible';
-        
-        const stdWidth = frontEl.offsetWidth;
-        const stdHeight = stdWidth / 1.58; // Standard ratio for all exports
+        // Capture front and back sequentially to avoid style conflicts
+        const frontDataUrl = await captureElement(frontEl);
+        const backDataUrl = await captureElement(backEl);
 
-        const frontDataUrl = await toPng(frontEl, { ...options, width: stdWidth, height: stdHeight });
-        const backDataUrl = await toPng(backEl, { ...options, width: stdWidth, height: stdHeight });
-
-        // Restore original flip transform
-        backEl.style.transform = originalTransform;
-        backEl.style.backfaceVisibility = originalBackfaceVisibility;
+        const cardW = parseFloat(frontEl.style.width) || frontEl.scrollWidth;
+        const cardH = parseFloat(frontEl.style.height) || frontEl.scrollHeight;
 
         if (format === 'pdf') {
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'px',
-                format: [stdWidth * 3, stdHeight * 3]
+                format: [cardW * 3, cardH * 3],
             });
-            
+
             // Page 1: Front
-            pdf.addImage(frontDataUrl, 'PNG', 0, 0, stdWidth * 3, stdHeight * 3);
-            
+            pdf.addImage(frontDataUrl, 'PNG', 0, 0, cardW * 3, cardH * 3);
+
             // Page 2: Back
-            pdf.addPage([stdWidth * 3, stdHeight * 3], 'landscape');
-            pdf.addImage(backDataUrl, 'PNG', 0, 0, stdWidth * 3, stdHeight * 3);
-            
+            pdf.addPage([cardW * 3, cardH * 3], 'landscape');
+            pdf.addImage(backDataUrl, 'PNG', 0, 0, cardW * 3, cardH * 3);
+
             pdf.save(`${fileName}.pdf`);
         } else {
-            // If PNG, we download them as two separate files or can we combine them?
-            // Let's do two separate downloads for simplicity or use a canvas to combine.
-            // But user said "Download for 2 side", suggesting a unified thing. 
-            // PDF is best for this. For PNG, let's just trigger both.
-            
+            // PNG: download front and back as two separate files
             const linkF = document.createElement('a');
             linkF.download = `${fileName}-Front.png`;
             linkF.href = frontDataUrl;
             linkF.click();
 
-            setTimeout(() => {
-                const linkB = document.createElement('a');
-                linkB.download = `${fileName}-Back.png`;
-                linkB.href = backDataUrl;
-                linkB.click();
-            }, 300);
+            await new Promise(r => setTimeout(r, 400));
+
+            const linkB = document.createElement('a');
+            linkB.download = `${fileName}-Back.png`;
+            linkB.href = backDataUrl;
+            linkB.click();
         }
-    } catch (error) {
-        console.error('Failed to download Dual IDiv:', error);
+    } catch (error: any) {
+        console.error('Gagal download IDiv:', error);
+        alert(`Gagal mengunduh kartu: ${error?.message || 'Unknown error'}.\n\nCoba refresh halaman dan buka preview kartu kembali.`);
     }
-}
+};
+
+/**
+ * Download satu sisi kartu IDiv (front atau back) saja.
+ */
+export const downloadIDiv = async (
+    elementId: string,
+    fileName: string = 'Indonesian-Visa-IDiv',
+    format: 'png' | 'jpeg' | 'pdf' = 'png'
+) => {
+    const element = document.getElementById(elementId);
+    if (!element) {
+        console.error('IDiv element not found:', elementId);
+        alert('Gagal: Elemen kartu tidak ditemukan.');
+        return;
+    }
+
+    try {
+        const dataUrl = await captureElement(element);
+        const cardW = parseFloat(element.style.width) || element.scrollWidth;
+        const cardH = parseFloat(element.style.height) || element.scrollHeight;
+
+        if (format === 'pdf') {
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'px',
+                format: [cardW * 3, cardH * 3],
+            });
+            pdf.addImage(dataUrl, 'PNG', 0, 0, cardW * 3, cardH * 3);
+            pdf.save(`${fileName}.pdf`);
+        } else {
+            const link = document.createElement('a');
+            link.download = `${fileName}.${format === 'jpeg' ? 'jpg' : 'png'}`;
+            link.href = dataUrl;
+            link.click();
+        }
+    } catch (error: any) {
+        console.error('Gagal download IDiv:', error);
+        alert(`Gagal mengunduh kartu: ${error?.message || 'Unknown error'}.`);
+    }
+};

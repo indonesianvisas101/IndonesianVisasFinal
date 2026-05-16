@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/verification-explained', '/idiv-search', '/id-guide', '/id-indonesian-visas',
         '/general-information-visa-indonesia', '/calling-visa', '/list-country', '/point-of-entry-evoa',
         '/why-b211a-or-c1-visa-is-the-most-popular-visa',
+        '/c1-visa-indonesia-complete-guide',
         ...IDIV_DOC_PATHS,
         '/visa-types/b211a-visa-indonesia', '/visa-types/visa-on-arrival-bali',
         '/visa-types/kitas-indonesia', '/visa-types/investor-visa-indonesia',
@@ -94,6 +95,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             else if (page.startsWith('/visa-types')) priority = 0.9;
             else if (page.startsWith('/indonesia-visa-guide')) priority = 0.9;
             else if (page === '/why-b211a-or-c1-visa-is-the-most-popular-visa') priority = 1.0;
+            else if (page === '/c1-visa-indonesia-complete-guide') priority = 0.9;
 
             sitemapEntries.push({
                 url: `${baseUrl}${localePrefix}${page}`,

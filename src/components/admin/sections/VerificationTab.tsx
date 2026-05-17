@@ -58,6 +58,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
     const [openDialog, setOpenDialog] = useState(false);
     const [openQRDialog, setOpenQRDialog] = useState(false);
     const [openCardDialog, setOpenCardDialog] = useState(false);
+    const [previewWithNFC, setPreviewWithNFC] = useState(false);
     const [verificationMode, setVerificationMode] = useState<'linked' | 'manual'>('manual');
     const [previewCardMode, setPreviewCardMode] = useState<'IDIV' | 'IDG' | 'SMART'>('IDIV');
     const [selectedUserId, setSelectedUserId] = useState("");
@@ -94,6 +95,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
     // Edit State
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState("");
+    const [previewUrl, setPreviewUrl] = useState("");
+    const [photoPreviewUrl, setPhotoPreviewUrl] = useState(""); // Signed URL for display only, never saved to DB
 
     // Initial Fetch & Auto-Open from Props
     useEffect(() => {
@@ -156,6 +159,39 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             }
         }
     }, [formData.visaType, isEditing]);
+
+    // v11.0.9 - LIVE PREVIEW SYNC: Always try to sign the photoUrl for the preview container
+    useEffect(() => {
+        if (!formData.photoUrl) {
+            setPreviewUrl("");
+            return;
+        }
+
+        // v11.1.4 - INTELLIGENT PREVIEW: Only skip signing for TRULY public links with tokens
+        if (formData.photoUrl.startsWith('http')) {
+            const isPublic = formData.photoUrl.includes('/public/');
+            const hasToken = formData.photoUrl.includes('token=');
+            const isBrokenSign = formData.photoUrl.includes('/object/sign/') && !hasToken;
+
+            if ((isPublic || hasToken) && !isBrokenSign) {
+                setPreviewUrl(formData.photoUrl);
+                return;
+            }
+        }
+
+        // Otherwise, ask the server to sign it (covers raw paths and authenticated links)
+        const timer = setTimeout(() => {
+            fetch(`/api/admin/sign-url?path=${encodeURIComponent(formData.photoUrl)}`)
+                .then(r => r.json())
+                .then(res => {
+                    if (res.signedUrl) setPreviewUrl(res.signedUrl);
+                    else setPreviewUrl(formData.photoUrl); // Fallback
+                })
+                .catch(() => setPreviewUrl(formData.photoUrl));
+        }, 500); // Small debounce
+
+        return () => clearTimeout(timer);
+    }, [formData.photoUrl]);
 
     const fetchUsers = async () => {
         try {
@@ -379,6 +415,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         setVerificationMode('manual');
         setIsEditing(false);
         setEditId("");
+        setPhotoPreviewUrl("");
     };
 
     const handleEdit = (item: any) => {
@@ -439,6 +476,22 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
             setVerificationMode('manual');
         }
         setOpenDialog(true);
+        
+        // v13.0 - LIVE PREVIEW REFRESH: Sign URL for preview display only.
+        // CRITICAL: Do NOT update formData.photoUrl with signed URL — only use it for display.
+        // The database must always store the clean relative path, not an expiring signed URL.
+        if (item.photoUrl) {
+            try {
+                fetch(`/api/admin/sign-url?path=${encodeURIComponent(item.photoUrl)}`)
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.signedUrl) {
+                            setPhotoPreviewUrl(res.signedUrl);
+                        }
+                    })
+                    .catch(e => console.error("Auto-sign failed", e));
+            } catch (e) {}
+        }
     };
 
     const handleUserSelect = (userId: string) => {
@@ -892,7 +945,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                 <Box
                                     sx={{
                                         width: 80,
-                                        height: 80,
+                                        height: 100,
                                         bgcolor: 'grey.100',
                                         borderRadius: 1,
                                         display: 'flex',
@@ -902,21 +955,149 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                         border: '1px solid #eee'
                                     }}
                                 >
-                                    {formData.photoUrl ? (
-                                        <img src={formData.photoUrl} alt="Portrait" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    {previewUrl ? (
+                                        previewUrl.toLowerCase().split('?')[0].endsWith('.pdf') ? (
+                                            <Box sx={{ textAlign: 'center', p: 1 }}>
+                                                <Typography variant="h4">📄</Typography>
+                                                <Typography variant="caption" sx={{ fontSize: '10px' }}>PDF FILE</Typography>
+                                            </Box>
+                                        ) : (
+                                            <img 
+                                                src={previewUrl} 
+                                                alt="Portrait" 
+                                                referrerPolicy="no-referrer"
+                                                crossOrigin="anonymous"
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                onError={(e) => {
+                                                    console.warn("Preview image failed to load:", previewUrl);
+                                                }}
+                                            />
+                                        )
                                     ) : (
-                                        <Typography variant="caption">No Photo</Typography>
+                                        <Typography variant="caption" color="text.secondary">No Photo</Typography>
                                     )}
                                 </Box>
                                 <Stack spacing={1} flex={1}>
-                                    <TextField
-                                        label="Photo URL"
-                                        fullWidth
-                                        size="small"
-                                        value={formData.photoUrl}
-                                        onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
-                                        placeholder="https://... / path/to/image.jpg"
-                                    />
+                                    <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
+                                        <TextField
+                                            label="Photo URL"
+                                            fullWidth
+                                            size="small"
+                                            value={formData.photoUrl}
+                                            onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
+                                            placeholder="https://... / path/to/image.jpg"
+                                        />
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            size="small"
+                                            startIcon={<RefreshIcon />}
+                                            sx={{ textTransform: 'none', whiteSpace: 'nowrap' }}
+                                            onClick={async () => {
+                                                setLoading(true);
+                                                try {
+                                                    // v11.1.7 - SERVICE-AWARE SYNC
+                                                    let foundPhoto = "";
+                                                    let foundPassport = "";
+                                                    const targetName = formData.fullName.toLowerCase();
+
+                                                    const isImage = (url: any) => {
+                                                        if (typeof url !== 'string') return false;
+                                                        const cleanUrl = url.split('?')[0].toLowerCase();
+                                                        return cleanUrl.endsWith('.webp') || cleanUrl.endsWith('.jpg') || cleanUrl.endsWith('.jpeg') || cleanUrl.endsWith('.png');
+                                                    };
+
+                                                    // PRIORITY 1: Use Invoice ID if filled (Most Accurate)
+                                                    // PRIORITY 2: Use User ID
+                                                    // PRIORITY 3: Use Full Name
+                                                    let searchParam = "";
+                                                    if (formData.invoiceId) searchParam = `query=${encodeURIComponent(formData.invoiceId)}`;
+                                                    else if (selectedUserId) searchParam = `userId=${selectedUserId}`;
+                                                    else if (formData.fullName) searchParam = `query=${encodeURIComponent(formData.fullName)}`;
+                                                    else if (formData.slug) searchParam = `query=${formData.slug.split('-').slice(0,2).join(' ')}`;
+                                                    
+                                                    if (!searchParam) {
+                                                        alert("No identifying data to sync. Please fill Name, Invoice ID, or Link to a User.");
+                                                        return;
+                                                    }
+
+                                                    const res = await fetch(`/api/applications?${searchParam}`);
+                                                    const apps = await res.json();
+                                                    
+                                                    if (!apps || apps.length === 0) {
+                                                        alert("No matching application found. Ensure the Invoice ID or Name is correct.");
+                                                        return;
+                                                    }
+
+                                                    // Sort apps: latest first, but prioritize ones that have documents
+                                                    const sortedApps = [...apps].sort((a, b) => {
+                                                        const aHasDocs = a.documents ? 1 : 0;
+                                                        const bHasDocs = b.documents ? 1 : 0;
+                                                        if (aHasDocs !== bHasDocs) return bHasDocs - aHasDocs;
+                                                        return new Date(b.appliedAt || 0).getTime() - new Date(a.appliedAt || 0).getTime();
+                                                    });
+
+                                                    for (const app of sortedApps) {
+                                                        const travelers = Array.isArray(app.travelers) ? app.travelers : [];
+                                                        let docs = app.documents;
+                                                        if (typeof docs === 'string') try { docs = JSON.parse(docs); } catch (e) {}
+                                                        const docArray = Array.isArray(docs) ? docs : (docs ? [docs] : []);
+
+                                                        // Scan each traveler to find the name match
+                                                        for (let i = 0; i < travelers.length; i++) {
+                                                            const t = travelers[i];
+                                                            const tFullName = `${t.firstName || ''} ${t.lastName || ''}`.trim().toLowerCase();
+                                                            const guestName = (app.guestName || "").toLowerCase();
+
+                                                            // Check if this traveler matches our verification record
+                                                            const isMatch = tFullName.includes(targetName) || targetName.includes(tFullName) || guestName.includes(targetName);
+
+                                                            if (isMatch) {
+                                                                const tDoc = docArray[i] || docArray[0] || {};
+                                                                const facePhoto = tDoc.recentPhoto || tDoc.photo || tDoc.portrait || tDoc.user_photo;
+                                                                
+                                                                if (facePhoto && !foundPhoto && isImage(facePhoto)) {
+                                                                    foundPhoto = facePhoto;
+                                                                }
+
+                                                                const tPass = tDoc.passport || tDoc.passportNumber || tDoc.passport_scan || t.passport;
+                                                                if (tPass && !foundPassport) foundPassport = tPass;
+                                                            }
+                                                        }
+
+                                                        // Fallback to attribution if it's a Quick Apply and name matches
+                                                        if (!foundPhoto && (app.guestName || "").toLowerCase().includes(targetName)) {
+                                                            const attr = app.attribution || {};
+                                                            const p = attr.recentPhoto || attr.photo || attr.photoUrl;
+                                                            if (p && isImage(p)) foundPhoto = p;
+                                                            if (!foundPassport) foundPassport = attr.passport || attr.passportNumber;
+                                                        }
+
+                                                        if (foundPhoto && foundPassport) break;
+                                                    }
+
+                                                    if (foundPhoto || foundPassport) {
+                                                        setFormData(prev => ({ 
+                                                            ...prev, 
+                                                            photoUrl: (foundPhoto && typeof foundPhoto === 'string') ? foundPhoto : prev.photoUrl,
+                                                            passportNumber: (foundPassport && typeof foundPassport === 'string' && !foundPassport.startsWith('http')) 
+                                                                ? foundPassport 
+                                                                : prev.passportNumber
+                                                        }));
+                                                        alert("Personal data synced successfully!");
+                                                    } else {
+                                                        alert("No suitable data found for this specific person.");
+                                                    }
+                                                } catch (e) {
+                                                    alert("Sync failed: " + (e as any).message);
+                                                } finally {
+                                                    setLoading(false);
+                                                }
+                                            }}
+                                        >
+                                            Sync from App
+                                        </Button>
+                                    </Stack>
                                     
                                     <Stack direction="row" spacing={1}>
                                         <Button
@@ -934,6 +1115,12 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                 onChange={async (e) => {
                                                     const file = e.target.files?.[0];
                                                     if (!file) return;
+
+                                                    // v11.2.0 - HARDENED UPLOAD: Only allow real images, block PDFs/Docs
+                                                    if (!file.type.startsWith('image/')) {
+                                                        alert("Only image files (JPG, PNG, WEBP) are allowed. PDFs are strictly prohibited for photo uploads.");
+                                                        return;
+                                                    }
                                                     
                                                     setLoading(true);
                                                     try {
@@ -944,11 +1131,27 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                             img.onload = async () => {
                                                                 const canvas = document.createElement('canvas');
                                                                 // Standard Portrait Aspect Ratio or Square
-                                                                const size = 800; 
-                                                                canvas.width = size;
-                                                                canvas.height = size;
+                                                                const maxWidth = 800;
+                                                                const maxHeight = 1000;
+                                                                let width = img.width;
+                                                                let height = img.height;
+
+                                                                if (width > height) {
+                                                                    if (width > maxWidth) {
+                                                                        height *= maxWidth / width;
+                                                                        width = maxWidth;
+                                                                    }
+                                                                } else {
+                                                                    if (height > maxHeight) {
+                                                                        width *= maxHeight / height;
+                                                                        height = maxHeight;
+                                                                    }
+                                                                }
+
+                                                                canvas.width = width;
+                                                                canvas.height = height;
                                                                 const ctx = canvas.getContext('2d');
-                                                                ctx?.drawImage(img, 0, 0, size, size);
+                                                                ctx?.drawImage(img, 0, 0, width, height);
                                                                 
                                                                 const webpData = canvas.toDataURL('image/webp', 0.8);
                                                                 
@@ -974,11 +1177,10 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
 
                                                                 if (error) throw error;
 
-                                                                const { data: { publicUrl } } = supabase.storage
-                                                                    .from('documents')
-                                                                    .getPublicUrl(fileName);
-
-                                                                setFormData(prev => ({ ...prev, photoUrl: publicUrl }));
+                                                                // v13.0 - HARDENING: Save the clean relative path, not the public URL.
+                                                                // Public URLs expire. Storing the path ensures sign-on-the-fly always works.
+                                                                const cleanRelativePath = `documents/${fileName}`;
+                                                                setFormData(prev => ({ ...prev, photoUrl: cleanRelativePath }));
                                                                 setLoading(false);
                                                                 alert("Photo uploaded and converted to WebP successfully!");
                                                             };
@@ -1174,20 +1376,20 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                     title="Click to download QR Code"
                                 >
                                     <QRCodeCanvas
-                                        value={`${window.location.origin}/verify/${selectedItem.slug}`}
+                                        value={`${window.location.origin}/verify/${selectedItem.slug || selectedItem.id}`}
                                         size={256}
                                         level={"H"}
                                         ref={qrRef}
                                     />
                                 </Box>
                                 <Typography variant="caption" sx={{ mt: 1, color: 'text.secondary', fontSize: '0.75rem' }}>
-                                    Click QR code to download
+                                    Click QR code to download image
                                 </Typography>
                                 <Typography variant="h6" fontWeight="bold" sx={{ mt: 3, mb: 1 }}>
                                     {selectedItem.fullName}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary" fontFamily="monospace">
-                                    {selectedItem.slug}
+                                    Code: {selectedItem.slug || selectedItem.id}
                                 </Typography>
                                 <Chip
                                     label={selectedItem.status}
@@ -1203,15 +1405,36 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                         )}
                     </Box>
                 </DialogContent>
-                <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+                <DialogActions sx={{ justifyContent: 'center', pb: 3, flexWrap: 'wrap', gap: 1 }}>
                     <Button
                         variant="contained"
+                        color="success"
+                        startIcon={<RemoveRedEyeIcon />}
+                        onClick={() => window.open(`/verify/${selectedItem?.slug || selectedItem?.id}`, '_blank')}
+                    >
+                        Open Verify Page
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="primary"
                         startIcon={<DownloadIcon />}
                         onClick={downloadQR}
                     >
-                        Download Image
+                        Download QR
                     </Button>
-                    <Button onClick={() => setOpenQRDialog(false)}>Close</Button>
+                    <Button
+                        variant="outlined"
+                        color="info"
+                        startIcon={<ShareIcon />}
+                        onClick={() => {
+                            const url = `${window.location.origin}/verify/${selectedItem?.slug || selectedItem?.id}`;
+                            navigator.clipboard.writeText(url);
+                            alert("Verification link copied to clipboard!");
+                        }}
+                    >
+                        Share Link
+                    </Button>
+                    <Button onClick={() => setOpenQRDialog(false)} color="inherit">Close</Button>
                 </DialogActions>
             </Dialog>
 
@@ -1249,8 +1472,12 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
 
                                     return (
                                         <IDivCardModern
+                                            idPrefix="modal"
                                             mode={previewCardMode as any}
                                             variant={previewCardMode === 'IDG' ? 'purple' : 'purple'}
+                                            autoRotate={false}
+                                            showActions={false}
+                                            hasNFC={previewWithNFC}
                                             data={{
                                                 id_number: selectedItem.id,
                                                 passport_number: selectedItem.passportNumber,
@@ -1264,7 +1491,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                 issue_date: selectedItem.issuedDate ? new Date(selectedItem.issuedDate).toLocaleDateString() : 'N/A',
                                                 address: parsedData.address,
                                                 order_id: selectedItem.slug || "N/A",
-                                                photoUrl: selectedItem.photoUrl,
+                                                photoUrl: selectedItem.photoUrl || "",
                                                 sponsor: "INDONESIAN VISAS AGENCY"
                                             }}
                                         />
@@ -1274,6 +1501,17 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                 <Typography variant="caption" sx={{ mt: 3, color: 'text.secondary', textAlign: 'center' }}>
                                     Standard IDiv Digital Format (KTP Style)
                                 </Typography>
+
+                                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', bgcolor: 'rgba(3,105,161,0.04)', p: 1, borderRadius: 2, border: '1px solid rgba(3,105,161,0.1)' }}>
+                                    <FormControlLabel
+                                        control={<Switch checked={previewWithNFC} onChange={(e) => setPreviewWithNFC(e.target.checked)} color="primary" />}
+                                        label={
+                                            <Typography variant="body2" fontWeight="bold" color="primary">
+                                                Enable NFC Feature (Premium Variant)
+                                            </Typography>
+                                        }
+                                    />
+                                </Box>
                             </>
                         )}
                     </Box>
@@ -1286,7 +1524,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                         disabled={isDownloading}
                         onClick={async () => {
                             setIsDownloading(true);
-                            await downloadIDivDual('idiv-front', 'idiv-back', `IDiv-Dual-${selectedItem?.slug}`, 'png');
+                            await downloadIDivDual('modal-idiv-front', 'modal-idiv-back', `IDiv-Dual-${selectedItem?.slug}`, 'png');
                             setIsDownloading(false);
                         }}
                     >
@@ -1299,7 +1537,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                         disabled={isDownloading}
                         onClick={async () => {
                             setIsDownloading(true);
-                            await downloadIDivDual('idiv-front', 'idiv-back', `IDiv-PDF-${selectedItem?.slug}`, 'pdf');
+                            await downloadIDivDual('modal-idiv-front', 'modal-idiv-back', `IDiv-PDF-${selectedItem?.slug}`, 'pdf');
                             setIsDownloading(false);
                         }}
                     >

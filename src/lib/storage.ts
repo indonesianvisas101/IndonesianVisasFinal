@@ -9,38 +9,60 @@ import { createAdminClient } from '@/utils/supabase/admin';
 export async function getSignedUrl(publicUrl: string, expiresIn: number = 3600): Promise<string> {
     if (!publicUrl) return publicUrl;
 
-    // Support both /public/ and /authenticated/ patterns
-    const isSupabase = publicUrl.includes('.supabase.co/storage/v1/object/');
-    if (!isSupabase) return publicUrl;
+    // Strip expired/contaminated signed URLs down to a raw storage path
+    if (publicUrl.startsWith('http') && publicUrl.includes('supabase.co/storage/v1/object/')) {
+        try {
+            const urlObj = new URL(publicUrl);
+            const objectPath = urlObj.pathname.split('/storage/v1/object/')[1];
+            if (objectPath) {
+                const parts = objectPath.split('/');
+                if (['public', 'authenticated', 'sign'].includes(parts[0])) parts.shift();
+                publicUrl = parts.join('/');
+            }
+        } catch {}
+    }
 
-    // v8.99 - STRIP QUERY PARAMS: Ensure we only process the path, not existing tokens
-    const urlWithoutParams = publicUrl.split('?')[0];
+    // v10.9.9 - SMART BUCKET DISCOVERY
+    // If it's a raw path (doesn't start with http), construct a pseudo-Supabase URL to trigger the signing logic
+    let targetUrl = publicUrl;
+    if (!publicUrl.startsWith('http')) {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const knownBuckets = ['applications', 'documents', 'quick_apply', 'verifications'];
+        const firstSegment = publicUrl.split('/')[0];
+
+        if (knownBuckets.includes(firstSegment)) {
+            targetUrl = `${supabaseUrl}/storage/v1/object/sign/${publicUrl}`;
+        } else {
+            // Default to documents bucket if uncertain
+            targetUrl = `${supabaseUrl}/storage/v1/object/sign/documents/${publicUrl}`;
+        }
+    }
+
+    const isSupabase = targetUrl.includes('.supabase.co/storage/v1/object/');
+    if (!isSupabase) return targetUrl;
+
+    const urlWithoutParams = targetUrl.split('?')[0];
 
     try {
         const supabase = await createAdminClient();
         
         let pathWithBucket = "";
-        if (urlWithoutParams.includes('/storage/v1/object/public/')) {
-            pathWithBucket = urlWithoutParams.split('/storage/v1/object/public/')[1];
-        } else if (urlWithoutParams.includes('/storage/v1/object/authenticated/')) {
-            pathWithBucket = urlWithoutParams.split('/storage/v1/object/authenticated/')[1];
-        } else {
-            // Fallback: try to extract after /object/
-            pathWithBucket = urlWithoutParams.split('/storage/v1/object/')[1];
-
-            // Remove the first segment (which might be 'public' or 'authenticated' if not caught above)
-            const segments = pathWithBucket.split('/');
-            if (['public', 'authenticated'].includes(segments[0])) {
-                segments.shift();
-                pathWithBucket = segments.join('/');
+        if (urlWithoutParams.includes('/storage/v1/object/')) {
+            // v11.1.3 - ULTIMATE EXTRACTOR: Look for the segment after the type (public/sign/authenticated)
+            const parts = urlWithoutParams.split('/storage/v1/object/')[1].split('/');
+            // If first part is a known type, skip it to get to the bucket
+            if (['public', 'authenticated', 'sign'].includes(parts[0])) {
+                parts.shift();
             }
+            pathWithBucket = parts.join('/');
+        } else {
+            // Handle raw paths
+            pathWithBucket = targetUrl.startsWith('/') ? targetUrl.substring(1) : targetUrl;
         }
 
-        if (!pathWithBucket) return publicUrl;
+        if (!pathWithBucket || !pathWithBucket.includes('/')) return targetUrl;
 
         const firstSlashIndex = pathWithBucket.indexOf('/');
-        if (firstSlashIndex === -1) return publicUrl;
-
         const bucket = pathWithBucket.substring(0, firstSlashIndex);
         const path = decodeURIComponent(pathWithBucket.substring(firstSlashIndex + 1));
 
@@ -49,17 +71,27 @@ export async function getSignedUrl(publicUrl: string, expiresIn: number = 3600):
             .createSignedUrl(path, expiresIn);
 
         if (error) {
-            // v8.98 - SPEED PROTECTION: Immediately return original URL on common missing errors
-            if (error.message.includes('Object not found') || error.message.includes('Bad Gateway')) {
-                return publicUrl;
+            // v13.0 - SMART FALLBACK: If not found and bucket is 'documents', retry with 'verifications/' prefix
+            if ((error.message.includes('Object not found') || error.message.includes('not_found')) && bucket === 'documents' && !path.startsWith('verifications/')) {
+                const fallbackPath = `verifications/${path}`;
+                console.log(`[Storage] Retrying with verifications/ prefix: ${fallbackPath}`);
+                const { data: fallback, error: fallbackError } = await supabase.storage
+                    .from(bucket)
+                    .createSignedUrl(fallbackPath, expiresIn);
+                if (!fallbackError && fallback?.signedUrl) {
+                    return fallback.signedUrl;
+                }
             }
-            console.error(`[Storage] Failed to create signed URL for ${publicUrl}:`, error.message);
-            return publicUrl;
+            if (error.message.includes('Object not found') || error.message.includes('Bad Gateway')) {
+                return targetUrl;
+            }
+            console.error(`[Storage] Failed to create signed URL for ${targetUrl}:`, error.message);
+            return targetUrl;
         }
 
         return data.signedUrl;
     } catch (err) {
-        return publicUrl;
+        return targetUrl;
     }
 }
 
@@ -69,8 +101,16 @@ export async function getSignedUrl(publicUrl: string, expiresIn: number = 3600):
 export async function signDocumentUrls(documents: any): Promise<any> {
     if (!documents) return documents;
     
-    // If it's a string, try to sign it
+    // If it's a string, check if it's JSON or a URL
     if (typeof documents === 'string') {
+        if (documents.trim().startsWith('{') || documents.trim().startsWith('[')) {
+            try {
+                const parsed = JSON.parse(documents);
+                return await signDocumentUrls(parsed);
+            } catch (e) {
+                return await getSignedUrl(documents);
+            }
+        }
         return await getSignedUrl(documents);
     }
 

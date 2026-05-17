@@ -22,19 +22,44 @@ interface DocumentViewerProps {
     documentUrl: string;
     documentName: string;
     documentType?: string;
+    isPartnerView?: boolean;
+    partnerName?: string;
+    ipAddress?: string;
 }
 
-export default function DocumentViewer({ open, onClose, documentUrl, documentName, documentType }: DocumentViewerProps) {
+export default function DocumentViewer({ open, onClose, documentUrl, documentName, documentType, isPartnerView, partnerName, ipAddress }: DocumentViewerProps) {
     const [loading, setLoading] = useState(true);
     const [converting, setConverting] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(15);
+    const [isHidden, setIsHidden] = useState(false);
     const [notification, setNotification] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({
         open: false,
         message: '',
         severity: 'success'
     });
+
+    React.useEffect(() => {
+        if (!isPartnerView || !open || isHidden) return;
+        
+        setTimeLeft(15);
+        setIsHidden(false);
+
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    setIsHidden(true);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [open, isPartnerView, isHidden]);
     
     // Support signed URLs by stripping parameters for extension check
-    const cleanUrl = documentUrl.split('?')[0].split('#')[0].toLowerCase();
+    const cleanUrl = typeof documentUrl === 'string' ? documentUrl.split('?')[0].split('#')[0].toLowerCase() : '';
     const isImage = documentType?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|avif)$/i.test(cleanUrl);
     const isPdf = documentType === 'application/pdf' || cleanUrl.endsWith('.pdf');
 
@@ -131,13 +156,21 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                     {isImage ? <ImageIcon size={20} className="text-primary" /> : <FileText size={20} className="text-red-500" />}
                     <Typography variant="subtitle1" fontWeight="black">{documentName}</Typography>
                 </Stack>
-                <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {isPartnerView && !isHidden && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'rgba(239, 68, 68, 0.1)', px: 1.5, py: 0.5, borderRadius: '12px', mr: 2 }}>
+                            <Typography variant="caption" sx={{ color: '#ef4444', fontWeight: 'bold' }}>
+                                Auto-hiding in {timeLeft}s
+                            </Typography>
+                        </Box>
+                    )}
                     <IconButton 
                         color="inherit" 
                         href={documentUrl} 
                         target="_blank" 
-                        sx={{ mr: 1, opacity: 0.6, '&:hover': { opacity: 1 } }}
+                        sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
                         title="Open in new tab"
+                        disabled={isHidden}
                     >
                         <ExternalLink size={20} />
                     </IconButton>
@@ -157,13 +190,59 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                 )}
                 
                 {isImage && (
-                    <img 
-                        src={documentUrl} 
-                        alt={documentName} 
-                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-                        onLoad={() => setLoading(false)}
-                        onError={() => setLoading(false)}
-                    />
+                    <Box sx={{ position: 'relative', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <img 
+                            src={documentUrl} 
+                            alt={documentName} 
+                            style={{ 
+                                maxWidth: '100%', 
+                                maxHeight: '100%', 
+                                objectFit: 'contain',
+                                filter: isHidden ? 'blur(15px) grayscale(100%)' : 'none',
+                                transition: 'filter 0.3s ease'
+                            }}
+                            onLoad={() => setLoading(false)}
+                            onError={() => setLoading(false)}
+                        />
+
+                        {/* Dynamic Watermark Overlay */}
+                        {isPartnerView && !isHidden && (
+                            <Box sx={{
+                                position: 'absolute',
+                                inset: 0,
+                                pointerEvents: 'none',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(3, 1fr)',
+                                opacity: 0.15,
+                                transform: 'rotate(-30deg) scale(1.2)',
+                                color: '#ef4444',
+                                fontWeight: 900,
+                                fontSize: '10px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden'
+                            }}>
+                                {Array.from({ length: 15 }).map((_, i) => (
+                                    <span key={i} className="select-none p-4">
+                                        {partnerName || 'VERIFIED PARTNER'} | {ipAddress || '127.0.0.1'} | {new Date().toISOString().split('T')[0]}
+                                    </span>
+                                ))}
+                            </Box>
+                        )}
+
+                        {/* Hidden State Overlay */}
+                        {isHidden && (
+                            <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', bgcolor: 'rgba(0,0,0,0.6)', color: 'white', zIndex: 10 }}>
+                                <AlertCircle size={48} style={{ opacity: 0.5, marginBottom: 16 }} />
+                                <Typography variant="h6" fontWeight="bold">Session Expired</Typography>
+                                <Typography variant="caption" sx={{ opacity: 0.7, maxWidth: 300, textAlign: 'center', mt: 1 }}>
+                                    For security purposes, sensitive document previews automatically expire after 15 seconds. Please re-authenticate to view again.
+                                </Typography>
+                                <Button variant="contained" sx={{ mt: 3, borderRadius: '20px', fontWeight: 'bold' }} onClick={onClose}>
+                                    Close Preview
+                                </Button>
+                            </Box>
+                        )}
+                    </Box>
                 )}
 
                 {isPdf && (

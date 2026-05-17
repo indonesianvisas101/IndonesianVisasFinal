@@ -220,7 +220,8 @@ export async function GET(request: Request) {
                 user: linkedUser || {
                     name: app.guestName || "Guest",
                     email: app.guestEmail || "-"
-                }
+                },
+                documents: typeof app.documents === 'string' ? JSON.parse(app.documents) : app.documents
             };
         });
 
@@ -610,6 +611,28 @@ export async function PATCH(request: Request) {
                 where: { id: targetId },
                 data: appUpdateData
             });
+
+            // v10.9.7 - SYNC PHOTO TO VERIFICATION
+            // If the updated application has a recentPhoto in documents, sync it to the linked verification
+            const updatedDocs = appUpdateData.documents || mergedAttribution?.documents;
+            const photoToSync = updatedDocs?.recentPhoto || updatedDocs?.photo || mergedAttribution?.recentPhoto || arrivalCardQr; 
+            
+            // Note: arrivalCardQr is often used as a generic "link" field in the UI for photo/IDiv
+            
+            if (photoToSync && typeof photoToSync === 'string' && photoToSync.startsWith('http')) {
+                // Find linked verification
+                const app = await prisma.visaApplication.findUnique({ 
+                    where: { id: targetId }, 
+                    select: { verificationId: true, userId: true } 
+                });
+
+                if (app?.verificationId) {
+                    await (prisma.verification as any).update({
+                        where: { id: app.verificationId },
+                        data: { photoUrl: photoToSync }
+                    });
+                }
+            }
         }
 
         // 2. Update Linked Invoice (if exists)

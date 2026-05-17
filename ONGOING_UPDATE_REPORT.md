@@ -778,8 +778,9 @@ npm run build
 
 | Phase 20 | Performance & Optimization | ✅ Complete |
 | Phase 21 | Hardening & Smart Upload Engine | ✅ Complete |
+| Phase 24 | Secure Gatekeeper & Payment Hardening | ✅ Complete |
 | Phase 104 | Visa Ingestion Hardening & AI OCR Blueprint | ✅ Complete |
-| Phase 24 | Secure Gatekeeper & Payment Hardening | April 2026 | COMPLETED |
+| Phase 105 | Sponsor Agreement Signature Gating & Invoice UI | ✅ Complete |
 
 ---
 

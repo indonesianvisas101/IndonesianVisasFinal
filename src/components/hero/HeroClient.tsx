@@ -6,7 +6,7 @@ import { useApplication } from "../application/ApplicationContext";
 import { runWhenIdle } from "@/utils/scheduler";
 import dynamic from "next/dynamic";
 import Link from "next/link"; 
-import { ArrowRight, ShieldCheck, Zap, Info, Copy, Check, X } from "lucide-react"; 
+import { ArrowRight, ShieldCheck, Zap, Info, Copy, Check, X, Nfc, Smartphone } from "lucide-react"; 
 import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import { formatNavLink } from "@/utils/seo";
 import { useParams } from "next/navigation";
@@ -434,6 +434,46 @@ export const HeroSteps = ({ title, labels, dict, onQuickApply }: HeroStepsProps)
     };
 
     const [activePopup, setActivePopup] = React.useState<StaticPopupInfo | null>(null);
+    const [nfcState, setNfcState] = React.useState<'idle' | 'scanning' | 'unsupported' | 'error'>('idle');
+
+    const handleTapSponsorID = async () => {
+        setNfcState('scanning');
+        
+        if (typeof window !== 'undefined' && 'NDEFReader' in window) {
+            try {
+                const ndef = new (window as any).NDEFReader();
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                    setNfcState('idle');
+                }, 7000);
+
+                await ndef.scan({ signal: controller.signal });
+                
+                ndef.addEventListener("reading", ({ message }: any) => {
+                    clearTimeout(timeoutId);
+                    const record = message.records[0];
+                    if (record && record.recordType === "url") {
+                        const textDecoder = new TextDecoder();
+                        const url = textDecoder.decode(record.data);
+                        setTimeout(() => {
+                            window.location.href = url;
+                        }, 500);
+                    }
+                });
+            } catch (error: any) {
+                if (error.name === 'AbortError') return;
+                console.error("NFC reading failed:", error);
+                setNfcState('error');
+            }
+        } else {
+            // Show scanning effect for 2.5s on desktop/unsupported devices for UI demo
+            setTimeout(() => {
+                setNfcState('unsupported');
+            }, 2500);
+        }
+    };
 
     const handleStepClick = (step: number) => {
         const stepPopups = getStepPopups(dict?.hero?.steps || {});
@@ -505,20 +545,34 @@ export const HeroSteps = ({ title, labels, dict, onQuickApply }: HeroStepsProps)
                 <Link 
                     href={formatNavLink(locale, "/check-status")} 
                     prefetch={true}
-                    className="flex-1 flex items-center justify-center px-3 py-2.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/20 rounded-xl transition-all"
+                    className="flex-1 flex items-center justify-center px-1.5 sm:px-3 py-2.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/20 rounded-xl transition-all"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">Check Order</span>
+                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider text-center">Check Order</span>
                 </Link>
 
                 <Link 
                     href={formatNavLink(locale, "/idiv-search")} 
                     prefetch={true}
-                    className="flex-1 flex items-center justify-center px-3 py-2.5 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-xl transition-all"
+                    className="flex-1 flex items-center justify-center px-1.5 sm:px-3 py-2.5 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-xl transition-all"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <span className="text-[10px] font-black text-primary uppercase tracking-wider">Search IDIV</span>
+                    <span className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-wider text-center">Search IDIV</span>
                 </Link>
+
+                <button 
+                    suppressHydrationWarning
+                    onClick={(e) => { e.stopPropagation(); handleTapSponsorID(); }}
+                    className="flex-1 flex items-center justify-center gap-1 px-1.5 sm:px-3 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded-xl transition-all group relative overflow-hidden"
+                >
+                    {nfcState === 'scanning' && (
+                        <div className="absolute inset-0 bg-blue-500/20 animate-pulse" />
+                    )}
+                    <Nfc size={12} className={`text-blue-600 shrink-0 ${nfcState === 'scanning' ? 'animate-ping' : 'group-hover:animate-pulse'} relative z-10`} />
+                    <span className="text-[9px] sm:text-[10px] font-black text-blue-600 uppercase tracking-wider whitespace-nowrap relative z-10">
+                        {nfcState === 'scanning' ? 'Scanning...' : 'Tap Sponsor ID'}
+                    </span>
+                </button>
             </div>
 
             <CentralInfoPopup 
@@ -526,6 +580,90 @@ export const HeroSteps = ({ title, labels, dict, onQuickApply }: HeroStepsProps)
                 onClose={() => setActivePopup(null)} 
                 info={activePopup} 
             />
+
+            {/* NFC Interaction Modal */}
+            <AnimatePresence>
+                {nfcState !== 'idle' && (
+                    <Portal>
+                        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-5">
+                            <m.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                                onClick={() => setNfcState('idle')}
+                            />
+                            <m.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                className="bg-white rounded-[24px] w-full max-w-sm overflow-hidden relative z-10 shadow-2xl flex flex-col items-center text-center p-8"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <button 
+                                    onClick={() => setNfcState('idle')}
+                                    className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all"
+                                >
+                                    <X size={20} />
+                                </button>
+
+                                {nfcState === 'scanning' && (
+                                    <>
+                                        <div className="relative w-24 h-24 mb-6 flex items-center justify-center">
+                                            <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-75"></div>
+                                            <div className="absolute inset-4 bg-blue-200 rounded-full animate-pulse opacity-75"></div>
+                                            <div className="relative bg-blue-500 text-white p-4 rounded-full shadow-lg shadow-blue-500/30">
+                                                <Smartphone size={32} />
+                                            </div>
+                                        </div>
+                                        <h3 className="text-xl font-black text-slate-800 mb-2">Ready to Scan</h3>
+                                        <p className="text-sm text-slate-500 leading-relaxed">
+                                            Hold your Sponsor ID card near the back of your phone to instantly access your secure portal.
+                                        </p>
+                                    </>
+                                )}
+
+                                {nfcState === 'unsupported' && (
+                                    <>
+                                        <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+                                            <Nfc size={28} />
+                                        </div>
+                                        <h3 className="text-lg font-black text-slate-800 mb-2">NFC Not Supported</h3>
+                                        <p className="text-sm text-slate-500 leading-relaxed mb-6">
+                                            Your current device or browser does not support Web NFC. Please use the QR code alternative on your card.
+                                        </p>
+                                        <Link 
+                                            href={formatNavLink(locale, "/check-status")}
+                                            onClick={() => setNfcState('idle')}
+                                            className="w-full py-3 bg-slate-900 text-white text-sm font-bold rounded-xl shadow-md hover:bg-primary transition-all flex justify-center items-center"
+                                        >
+                                            Verify Manually
+                                        </Link>
+                                    </>
+                                )}
+
+                                {nfcState === 'error' && (
+                                    <>
+                                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+                                            <X size={28} />
+                                        </div>
+                                        <h3 className="text-lg font-black text-slate-800 mb-2">Scan Interrupted</h3>
+                                        <p className="text-sm text-slate-500 leading-relaxed mb-6">
+                                            We couldn't read your card. Please align it with your phone's camera module and try again.
+                                        </p>
+                                        <button 
+                                            onClick={() => handleTapSponsorID()}
+                                            className="w-full py-3 bg-blue-500 text-white text-sm font-bold rounded-xl shadow-md hover:bg-blue-600 transition-all flex justify-center items-center"
+                                        >
+                                            Try Again
+                                        </button>
+                                    </>
+                                )}
+                            </m.div>
+                        </div>
+                    </Portal>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -53,6 +53,27 @@ const Zap = ({ size = 24, color = "currentColor", fill = "none", ...props }: any
     </svg>
 );
 
+const FileText = ({ size = 24, color = "currentColor", ...props }: any) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        {...props}
+    >
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <polyline points="10 9 9 9 8 9" />
+    </svg>
+);
+
 
 
 export default function InvoicePage() {
@@ -556,8 +577,9 @@ export default function InvoicePage() {
                                         {(() => {
                                             const n = (visa?.name || invoiceData.visaName || invoiceData.visaId || "").toUpperCase();
                                             const isForced = n.includes('E23A') || n.includes('E33G') || /\bD\d+/.test(n) || /\bC\d+/.test(n);
+                                            const isB1VOA = n.includes('B1 VOA') || n.includes('B1 - VOA') || n === 'B1';
                                             const isVerifReq = invoiceData.verification?.isAgreementRequired === true;
-                                            const requiresAgreement = isForced || isVerifReq;
+                                            const requiresAgreement = (isForced || isVerifReq || invoiceData.verification?.agreementStatus === 'PENDING') && !isB1VOA;
                                             const isSigned = invoiceData.verification?.agreementStatus === 'SIGNED';
                                             const shouldLock = requiresAgreement && !isSigned;
                                             
@@ -663,6 +685,133 @@ export default function InvoicePage() {
                                         </Box>
                                     </a>
                                 </Box>
+
+                                 {/* --- SPONSOR AGREEMENT INTEGRATED WIDGET --- */}
+                                 {(() => {
+                                     const widgetN = (visa?.name || invoiceData.visaName || invoiceData.visaId || invoiceData.verification?.visaType || "").toUpperCase();
+                                     const isWidgetB1VOA = widgetN.includes('B1 VOA') || widgetN.includes('B1 - VOA') || widgetN === 'B1';
+                                     if (isWidgetB1VOA) return null;
+                                     return invoiceData.verification ? (
+                                     <Box sx={{ 
+                                         mt: 3, 
+                                         p: 2.5, 
+                                         borderRadius: 2.5, 
+                                         border: '1.5px solid rgba(145, 85, 253, 0.2)', 
+                                         bgcolor: 'rgba(145, 85, 253, 0.02)',
+                                         boxShadow: '0 2px 10px rgba(145, 85, 253, 0.03)'
+                                     }}>
+                                         <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#9155FD', textTransform: 'uppercase', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                             <FileText size={16} color="#9155FD" /> Sponsor Agreement Status
+                                         </Typography>
+                                         
+                                         <Stack spacing={1.5}>
+                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>Verification Target:</Typography>
+                                                 <Typography variant="body2" sx={{ fontWeight: 700, color: '#1F2937', fontSize: '0.8rem' }}>
+                                                     {invoiceData.verification.fullName}
+                                                 </Typography>
+                                             </Box>
+
+                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>Requirement:</Typography>
+                                                 <Typography variant="body2" sx={{ fontWeight: 800, color: invoiceData.verification.isAgreementRequired ? '#FF9F43' : '#6B7280', fontSize: '0.8rem' }}>
+                                                     {invoiceData.verification.isAgreementRequired ? 'MANDATORY / WAJIB' : 'OPTIONAL'}
+                                                 </Typography>
+                                             </Box>
+                                             
+                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>Status:</Typography>
+                                                 <Box sx={{ 
+                                                     px: 1.5, 
+                                                     py: 0.3, 
+                                                     borderRadius: 1, 
+                                                     bgcolor: invoiceData.verification.agreementStatus === 'SIGNED' ? 'rgba(86, 202, 0, 0.12)' : 'rgba(255, 180, 0, 0.12)',
+                                                     color: invoiceData.verification.agreementStatus === 'SIGNED' ? '#56CA00' : '#FFB400',
+                                                     fontWeight: 900,
+                                                     fontSize: '0.7rem',
+                                                     textTransform: 'uppercase',
+                                                     letterSpacing: 0.5
+                                                 }}>
+                                                     {invoiceData.verification.agreementStatus || 'PENDING'}
+                                                 </Box>
+                                             </Box>
+                                             
+                                             {invoiceData.verification.agreementStatus === 'SIGNED' ? (
+                                                 <>
+                                                     <Divider sx={{ my: 0.5, borderColor: 'rgba(145, 85, 253, 0.1)' }} />
+                                                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                         <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>Signed Date:</Typography>
+                                                         <Typography variant="caption" sx={{ color: '#4B5563', fontWeight: 600 }}>
+                                                             {invoiceData.verification.agreementSignedAt 
+                                                                 ? new Date(invoiceData.verification.agreementSignedAt).toLocaleDateString('en-GB', {
+                                                                     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                                 }) 
+                                                                 : '-'}
+                                                         </Typography>
+                                                     </Box>
+                                                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                         <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>Sign IP:</Typography>
+                                                         <Typography variant="caption" sx={{ color: '#4B5563', fontFamily: 'monospace' }}>
+                                                             {invoiceData.verification.ipAddress || '-'}
+                                                         </Typography>
+                                                     </Box>
+                                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                         <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', minWidth: 60 }}>Signature:</Typography>
+                                                         <Typography variant="caption" sx={{ color: '#4B5563', fontFamily: 'monospace', wordBreak: 'break-all', textAlign: 'right', fontSize: '0.65rem', maxWidth: 160 }}>
+                                                             {invoiceData.verification.agreementHash ? `${invoiceData.verification.agreementHash.slice(0, 24)}...` : '-'}
+                                                         </Typography>
+                                                     </Box>
+                                                     
+                                                     <Button 
+                                                         variant="outlined" 
+                                                         size="small" 
+                                                         fullWidth
+                                                         onClick={() => window.open(`/verify/agreement/${invoiceData.verification.slug}`, '_blank')}
+                                                         sx={{ 
+                                                             mt: 1,
+                                                             borderColor: '#56CA00', 
+                                                             color: '#56CA00',
+                                                             textTransform: 'none',
+                                                             fontWeight: 'bold',
+                                                             fontSize: '0.75rem',
+                                                             borderRadius: 1.5,
+                                                             '&:hover': { bgcolor: 'rgba(86, 202, 0, 0.05)', borderColor: '#48B200' }
+                                                         }}
+                                                     >
+                                                         🔎 Review Signed Document (PDF)
+                                                     </Button>
+                                                 </>
+                                             ) : (
+                                                 <>
+                                                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, fontStyle: 'italic', fontSize: '0.7rem', lineHeight: 1.4 }}>
+                                                         ⚠️ Indonesian immigration regulation requires all sponsored travelers to digitally sign the Sponsorship and Responsibility Agreement before visa files can be released.
+                                                     </Typography>
+                                                     
+                                                     <Button 
+                                                         variant="contained" 
+                                                         size="medium" 
+                                                         fullWidth
+                                                         onClick={() => window.location.href = `/verify/agreement/${invoiceData.verification.slug}`}
+                                                         sx={{ 
+                                                             mt: 1,
+                                                             bgcolor: '#9155FD', 
+                                                             color: 'white',
+                                                             textTransform: 'none',
+                                                             fontWeight: 'bold',
+                                                             fontSize: '0.8rem',
+                                                             borderRadius: 1.5,
+                                                             boxShadow: '0 4px 12px rgba(145, 85, 253, 0.3)',
+                                                             '&:hover': { bgcolor: '#804BDF' }
+                                                         }}
+                                                     >
+                                                         ✍️ Read & Sign Agreement Now
+                                                     </Button>
+                                                 </>
+                                             )}
+                                         </Stack>
+                                     </Box>
+                                 ) : null;
+                                 })()}
 
                                 {(invoiceData.invoice?.adminNotes || invoiceData.attribution?.registrationNumber || invoiceData.attribution?.visaLink) && (
                                     <Box sx={{ mt: 4 }}>

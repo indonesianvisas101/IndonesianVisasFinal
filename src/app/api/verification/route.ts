@@ -4,6 +4,33 @@ import crypto from 'crypto';
 import { getAdminAuth } from '@/lib/auth-helpers';
 import { getSignedUrl } from '@/lib/storage';
 import { logAdminAction } from '@/lib/auditLogger';
+import { generateIDNumber } from '@/utils/idNumberGenerator';
+
+function cleanContaminatedPhotoUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    let clean = url;
+    if (url.startsWith('http') && url.includes('supabase.co')) {
+        try {
+            const urlObj = new URL(url);
+            const parts = urlObj.pathname.split('/object/public/')?.[1] || urlObj.pathname.split('/object/sign/')?.[1];
+            if (parts) {
+                clean = parts;
+            }
+        } catch {}
+    }
+
+    // Auto-heal missing "verifications/" folder prefix for documents bucket
+    if (typeof clean === 'string') {
+        if (clean.startsWith('documents/') && !clean.includes('documents/verifications/')) {
+            const remaining = clean.substring('documents/'.length);
+            if (!remaining.includes('/')) {
+                clean = `documents/verifications/${remaining}`;
+            }
+        }
+    }
+
+    return clean;
+}
 
 // GET /api/verification?id=... OR ?slug=...
 export async function GET(request: Request) {
@@ -38,6 +65,42 @@ export async function GET(request: Request) {
                 },
                 include: { user: true }
             });
+
+            // v12.2 - Support searchable 16-digit ID number (formatted or clean)
+            if (!verification) {
+                const cleanQuery = query.replace(/\D/g, ""); // Keep only digits
+                if (cleanQuery.length === 16) {
+                    // Fetch all verifications to resolve their deterministic ID numbers
+                    const allVerifications = await (prisma.verification as any).findMany({
+                        include: { user: true }
+                    });
+
+                    const matched = allVerifications.find((v: any) => {
+                        let birthPlaceDate = "";
+                        if (v.address && v.address.trim().startsWith('{')) {
+                            try {
+                                const parsed = JSON.parse(v.address);
+                                birthPlaceDate = parsed.birthPlaceDate || parsed.BIRTHPLACEDATE || parsed.dob || parsed.DOB || "";
+                            } catch {}
+                        }
+
+                        const generated = generateIDNumber(
+                            v.nationality || "Unknown",
+                            v.issuedDate ? new Date(v.issuedDate).toISOString() : "",
+                            birthPlaceDate,
+                            undefined,
+                            "01",
+                            (v.slug || v.id) + (v.fullName || "")
+                        );
+
+                        return generated === cleanQuery;
+                    });
+
+                    if (matched) {
+                        verification = matched;
+                    }
+                }
+            }
         }
         else if (id) {
             verification = await (prisma.verification as any).findUnique({ 
@@ -46,8 +109,13 @@ export async function GET(request: Request) {
             });
         }
         else if (slug) {
-            verification = await (prisma.verification as any).findUnique({ 
-                where: { slug },
+            verification = await (prisma.verification as any).findFirst({ 
+                where: {
+                    OR: [
+                        { slug: slug },
+                        { id: slug }
+                    ]
+                },
                 include: { user: true }
             });
         }
@@ -66,10 +134,28 @@ export async function GET(request: Request) {
             
             // Harden Photo URLs & Unpack premium fields
             const verifications = await Promise.all(verificationsRaw.map(async (v: any) => {
-                if (v.photoUrl) v.photoUrl = await getSignedUrl(v.photoUrl);
-                if (v.passportNumber && v.passportNumber.startsWith('http')) {
-                    v.passportNumber = await getSignedUrl(v.passportNumber);
+                // v11.0.1 - AUTO FALLBACK FOR LIST VIEW
+                if (!v.photoUrl && v.userId) {
+                    try {
+                        const latestApp = await prisma.visaApplication.findFirst({
+                            where: { userId: v.userId },
+                            orderBy: { appliedAt: 'desc' },
+                            select: { documents: true }
+                        });
+                        const fallbackPhoto = (latestApp?.documents as any)?.recentPhoto || (latestApp?.documents as any)?.photo;
+                        if (fallbackPhoto) v.photoUrl = fallbackPhoto;
+                    } catch (e) {}
                 }
+
+                if (v.photoUrl) {
+                    const rawPhoto = cleanContaminatedPhotoUrl(v.photoUrl);
+                    if (rawPhoto) {
+                        v.photoUrl = await getSignedUrl(rawPhoto);
+                    }
+                }
+                
+                // v11.0.7 - PASSPORT FIX: Passport number must be text/identity, not a signed image link.
+                // Removed the previous logic that signed the passport number if it started with http.
                 
                 // Unpack premium fields from JSON-packed address
                 let isIdivPurchased = false;
@@ -125,12 +211,28 @@ export async function GET(request: Request) {
         }
         
         // Harden Photo URL & Passport Document
+        // Harden Photo URL & Passport Document
         if (data) {
-            if (data.photoUrl) data.photoUrl = await getSignedUrl(data.photoUrl);
-            if (data.passportNumber && data.passportNumber.startsWith('http')) {
-                data.passportNumber = await getSignedUrl(data.passportNumber);
+            // v11.0.0 - AUTO FALLBACK TO RECENT PHOTO
+            if (!data.photoUrl) {
+                try {
+                    const latestApp = await prisma.visaApplication.findFirst({
+                        where: { userId: data.userId },
+                        orderBy: { appliedAt: 'desc' },
+                        select: { documents: true }
+                    });
+                    const fallbackPhoto = (latestApp?.documents as any)?.recentPhoto || (latestApp?.documents as any)?.photo;
+                    if (fallbackPhoto) data.photoUrl = fallbackPhoto;
+                } catch (e) { /* ignore fallback error */ }
             }
-            
+
+            if (data.photoUrl) {
+                const rawPhoto = cleanContaminatedPhotoUrl(data.photoUrl);
+                if (rawPhoto) {
+                    data.photoUrl = await getSignedUrl(rawPhoto);
+                }
+            }
+
             // REDACT SENSITIVE PII for non-admins (IDOR Protection)
             // Public verification should only expose necessary validation details
             if (!isAdmin) {
@@ -242,6 +344,7 @@ export async function POST(request: Request) {
         const passportNumberFinal = sanitize(passportNumber);
         const visaTypeFinal = sanitize(visaType);
         const nationalityFinal = sanitize(nationality);
+        const photoUrlFinal = cleanContaminatedPhotoUrl(photoUrl);
         
         // --- HARDENING: Pack premium fields into address JSON ---
         let addressFinal = address;
@@ -281,7 +384,7 @@ export async function POST(request: Request) {
                     expiresAt,
                     address: addressFinal,
                     nationality: nationalityFinal,
-                    photoUrl,
+                    photoUrl: photoUrlFinal,
                     isAgreementRequired: isAgreementRequired ?? false,
                     agreementStatus: agreementStatus || 'NONE',
                     depositAmount: (depositAmount !== undefined && depositAmount !== null) ? parseFloat(depositAmount) : null,
@@ -316,7 +419,7 @@ export async function POST(request: Request) {
                     expiresAt,
                     address: addressFinal,
                     nationality: nationalityFinal,
-                    photoUrl,
+                    photoUrl: photoUrlFinal,
                     isAgreementRequired: isAgreementRequired ?? false,
                     agreementStatus: agreementStatus || 'NONE',
                     depositAmount: (depositAmount !== undefined && depositAmount !== null) ? parseFloat(depositAmount) : null,

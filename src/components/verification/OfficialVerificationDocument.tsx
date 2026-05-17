@@ -165,7 +165,18 @@ export default function OfficialVerificationDocument({ data }: OfficialVerificat
                             position: 'relative'
                         }}>
                             {data.photoUrl ? (
-                                <img src={data.photoUrl} alt="Applicant" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <Box
+                                    component="img"
+                                    src={data.photoUrl}
+                                    alt="Applicant"
+                                    sx={{
+                                        width: '100% !important',
+                                        height: '100% !important',
+                                        objectFit: 'cover !important',
+                                        objectPosition: 'center top',
+                                        display: 'block'
+                                    }}
+                                />
                             ) : (
                                 <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#E5E7EB' }}>
                                     <Typography variant="caption" color="text.secondary">No Photo Available</Typography>

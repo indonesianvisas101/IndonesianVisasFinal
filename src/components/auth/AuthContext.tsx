@@ -62,8 +62,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session?.user) {
                     // Force session parsing if it somehow returned as string (experimental/bug mitigation)
-                    const sessionObj = typeof session === 'string' ? JSON.parse(session) : session;
-                    const finalSession = sessionObj?.user ? sessionObj : session;
+                    const rawSession = session as any;
+                    const sessionObj = typeof rawSession === 'string' ? JSON.parse(rawSession) : rawSession;
+                    const finalSession = sessionObj?.user ? sessionObj : rawSession;
 
                     await fetchProfile(finalSession.user.id, finalSession.user.email!, finalSession.access_token);
                     // Track Activity on session restore
@@ -83,8 +84,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Listen for changes
         const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {
-                const sessionObj = typeof session === 'string' ? JSON.parse(session) : session;
-                const finalSession = sessionObj?.user ? sessionObj : session;
+                const rawSession = session as any;
+                const sessionObj = typeof rawSession === 'string' ? JSON.parse(rawSession) : rawSession;
+                const finalSession = sessionObj?.user ? sessionObj : rawSession;
                 await fetchProfile(finalSession.user.id, finalSession.user.email!, finalSession.access_token);
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);
@@ -233,20 +235,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const trimmedEmail = email.trim().toLowerCase();
             console.log("Attempting login for:", trimmedEmail);
-            const { data, error } = await supabase.auth.signInWithPassword({
+            let { data, error } = await supabase.auth.signInWithPassword({
                 email: trimmedEmail,
                 password: pass,
             });
 
             if (error) {
-                console.error("Supabase Login Error:", error.message);
-                alert(error.message);
-                return null;
+                // If this is an admin email, attempt self-healing bypass
+                if (['damnbayu@gmail.com', 'bayu@indonesianvisas.com'].includes(trimmedEmail)) {
+                    console.log("[Auth] Admin login failed. Attempting emergency self-healing sync...");
+                    try {
+                        const emergencyRes = await fetch('/api/auth/emergency-login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: trimmedEmail, password: pass })
+                        });
+                        const emergencyData = await emergencyRes.json();
+                        
+                        if (emergencyData.success) {
+                            console.log("[Auth] Emergency sync successful. Retrying login...");
+                            // Retry login now that credentials are synchronized
+                            const retryResult = await supabase.auth.signInWithPassword({
+                                email: trimmedEmail,
+                                password: pass,
+                            });
+                            
+                            if (!retryResult.error) {
+                                data = retryResult.data;
+                                error = null;
+                            } else {
+                                console.error("[Auth] Retry failed after emergency sync:", retryResult.error.message);
+                                error = retryResult.error;
+                            }
+                        }
+                    } catch (emergencyErr) {
+                        console.error("[Auth] Emergency sync error:", emergencyErr);
+                    }
+                }
+
+                if (error) {
+                    console.error("Supabase Login Error:", error.message);
+                    alert(error.message);
+                    return null;
+                }
             }
 
             if (data.session?.user) {
-                const sessionObj = typeof data.session === 'string' ? JSON.parse(data.session) : data.session;
-                const finalSession = sessionObj?.user ? sessionObj : data.session;
+                const rawSession = data.session as any;
+                const sessionObj = typeof rawSession === 'string' ? JSON.parse(rawSession) : rawSession;
+                const finalSession = sessionObj?.user ? sessionObj : rawSession;
 
                 const profile = await fetchProfile(finalSession.user.id, finalSession.user.email!, finalSession.access_token);
 

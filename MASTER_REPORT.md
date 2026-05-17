@@ -1,5 +1,5 @@
 # Indonesian Visas Intelligence Report
-**Version:** 61.4.0 (Advanced Sync & Email Intelligence)
+**Version:** 61.5.0 (Sponsor Agreement Signature Gating & Invoice UI)
 **Status:** PRODUCTION READY - HARDENED 🛡️
 **Confidentiality:** Boss Bayu Authorized
 
@@ -335,5 +335,19 @@ git push origin main
 
 ---
 
-**END OF MASTER INTELLIGENCE REPORT v61.4.0**
+#### Phase 107: Sponsor Agreement Signature Gating (MAY 18, 2026)
+- **Backend API Gating (`/api/verification/secure-doc/route.ts`)**:
+    - Hardened the `secure-doc` endpoint to strictly enforce agreement signatures.
+    - If a user attempts to access secure documents via PIN but their agreement is `PENDING`, the API intercepts the request, blocks all sensitive files (Visa, Passport, Profile Photo), and exclusively returns the `Sponsorship & Responsibility Agreement (Action Required)` document.
+- **Invoice Portal Widget (`/invoice/[id]/page.tsx`)**:
+    - Embedded a premium `Sponsor Agreement Status` widget directly into the user's invoice interface.
+    - Features a dynamic status display (Pending/Signed), immigration compliance warning, and a direct CTA to "Read & Sign Agreement Now".
+    - Displays audit trails (Signed Date, Sign IP, Signature Hash) once the document is legally signed.
+    - Linked the core "Your Link Visa" CTA to these signature prerequisites.
+- **Verification Routing (`/verify/[slug]/page.tsx`)**:
+    - Improved the conditional logic for the locked verification view to trigger not only if `isAgreementRequired` is true, but also if the admin manually set the state to `PENDING`.
+
+---
+
+**END OF MASTER INTELLIGENCE REPORT v61.5.0**
 *(Maintained by Antigravity AI Master Agent)*

@@ -92,7 +92,7 @@ export default function SearchClient({ locale }: { locale: string }) {
                     transition={{ delay: 0.2 }}
                     className="max-w-2xl mx-auto text-xl mode-aware-subtext font-medium"
                 >
-                    Enter your 10-digit IDiv number or Passport number to access your real-time verification record and digital card.
+                    Enter your 10-digit IDiv Number, Reg. Number or Passport Number to access your real-time verification record and digital card.
                 </motion.p>
             </div>
 

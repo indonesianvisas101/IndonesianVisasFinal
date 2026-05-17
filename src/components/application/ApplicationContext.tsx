@@ -74,7 +74,9 @@ interface ApplicationState {
         insurance: boolean;
         vip: boolean;
         idiv: boolean; // NEW: ID Indonesian Visas
+        idivNfc: boolean; // IDiv NFC Variant
         idg: boolean; // NEW: Indonesian ID Guide
+        idgNfc: boolean; // IDg NFC Variant
         smartId: boolean; // NEW: Smart ID (KTP-style)
     };
     addons: any[];
@@ -117,7 +119,7 @@ interface ApplicationContextType extends ApplicationState {
     // Notifications
     notifications: Record<string, AppNotification[]>;
     allNotifications: AppNotification[];
-    toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId') => void;
+    toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId' | 'idivNfc' | 'idgNfc') => void;
     toggleCustomAddon: (addonId: string) => void; // NEW: Toggle dynamic addons
     pushNotification: (userId: string, message: string) => void;
     setNotifications: (userId: string, notifications: AppNotification[]) => void;
@@ -188,7 +190,9 @@ const defaultState: ApplicationState = {
         insurance: false,
         vip: false,
         idiv: false,
+        idivNfc: false,
         idg: false,
+        idgNfc: false,
         smartId: false
     },
     addons: [],
@@ -663,14 +667,22 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
-    const toggleUpsell = (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId') => {
-        setState(prev => ({
-            ...prev,
-            upsells: {
-                ...prev.upsells,
-                [key]: !prev.upsells[key]
-            }
-        }));
+    const toggleUpsell = (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId' | 'idivNfc' | 'idgNfc') => {
+        setState(prev => {
+            const nextUpsells = { ...prev.upsells };
+            nextUpsells[key] = !nextUpsells[key];
+            
+            // Mutual exclusion
+            if (key === 'idiv' && nextUpsells.idiv) nextUpsells.idivNfc = false;
+            if (key === 'idivNfc' && nextUpsells.idivNfc) nextUpsells.idiv = false;
+            if (key === 'idg' && nextUpsells.idg) nextUpsells.idgNfc = false;
+            if (key === 'idgNfc' && nextUpsells.idgNfc) nextUpsells.idg = false;
+
+            return {
+                ...prev,
+                upsells: nextUpsells
+            };
+        });
     };
 
     // NEW: Toggle dynamic addons from Admin DB

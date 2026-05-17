@@ -558,6 +558,65 @@ model Product {
   active      Boolean  @default(true)
   updatedAt   DateTime @updatedAt
   createdAt   DateTime @default(now())
-
   @@map("products")
+}
+
+// ── NFC Ecosystem & Partner Verification ──
+
+enum PartnerTrustLevel {
+  BASIC
+  VERIFIED
+  TRUSTED
+}
+
+model PartnerRegistry {
+  id            String            @id @default(uuid())
+  businessName  String
+  apiKey        String            @unique
+  trustLevel    PartnerTrustLevel @default(BASIC)
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  accessLogs    PartnerAccessLog[]
+}
+
+model PartnerAccessLog {
+  id            String            @id @default(uuid())
+  partnerId     String
+  partner       PartnerRegistry   @relation(fields: [partnerId], references: [id])
+  travelerSlug  String
+  ipAddress     String
+  userAgent     String
+  accessedAt    DateTime          @default(now())
+  accessType    String            // "STATUS_CHECK" | "PASSPORT_VIEW"
+  isSuspicious  Boolean           @default(false)
+}
+
+model AbuseAlert {
+  id            String            @id @default(uuid())
+  targetSlug    String
+  triggerIp     String
+  reason        String
+  detectedAt    DateTime          @default(now())
+  isResolved    Boolean           @default(false)
+}
+
+enum NfcCardStatus {
+  ISSUED
+  ACTIVE
+  LOST
+  DAMAGED
+  EXPIRED
+  REVOKED
+}
+
+model NfcRegistry {
+  id              String         @id @default(uuid())
+  hardwareUid     String         @unique
+  verificationId  String         // Relation to Verification
+  slug            String
+  cardStatus      NfcCardStatus  @default(ISSUED)
+  issuedAt        DateTime       @default(now())
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  reissueCount    Int            @default(0)
 }

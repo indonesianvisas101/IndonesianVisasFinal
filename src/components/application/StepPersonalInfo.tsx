@@ -13,6 +13,10 @@ const StepPersonalInfo = () => {
     const [searchCode, setSearchCode] = useState("");
     const searchInputRef = useRef<HTMLInputElement>(null);
 
+    // Duplicate Application Warning State
+    const [duplicateWarn, setDuplicateWarn] = useState<{ slug: string; fullName: string } | null>(null);
+    const [checkingDuplicate, setCheckingDuplicate] = useState(false);
+
     // Auto-detect country code from Step 1 selection
     useEffect(() => {
         if (!personalInfo.phone && country) {
@@ -79,9 +83,32 @@ const StepPersonalInfo = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleContinue = (e: React.FormEvent) => {
+    const handleContinue = async (e: React.FormEvent) => {
         e.preventDefault();
         if (validate()) {
+            setCheckingDuplicate(true);
+            try {
+                const res = await fetch('/api/verification/check-duplicate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        passportNumber: personalInfo.passport,
+                        dob: personalInfo.dob
+                    })
+                });
+                if (res.ok) {
+                    const resData = await res.json();
+                    if (resData.duplicate) {
+                        setDuplicateWarn({ slug: resData.slug, fullName: resData.fullName });
+                        setCheckingDuplicate(false);
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error("Duplicate check error:", err);
+            }
+            setCheckingDuplicate(false);
+
             markStepComplete(2);
             setStep(3);
         }
@@ -314,11 +341,112 @@ const StepPersonalInfo = () => {
                     <button type="button" onClick={handleSkip} className={`px-4 py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors`}>
                         Skip for Now (Consult with Agent)
                     </button>
-                    <button type="submit" className={`cta-accent ${styles.submitBtn}`}>
-                        Continue <ArrowRight size={18} className="ml-2" />
+                    <button type="submit" disabled={checkingDuplicate} className={`cta-accent ${styles.submitBtn}`}>
+                        {checkingDuplicate ? "Checking..." : "Continue"} <ArrowRight size={18} className="ml-2" />
                     </button>
                 </div>
             </form>
+
+            {/* Glassmorphic Duplicate Warning Modal Overlay */}
+            {duplicateWarn && (
+                <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                    backdropFilter: 'blur(10px)',
+                    zIndex: 100,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '24px'
+                }}>
+                    <div style={{
+                        backgroundColor: '#fff',
+                        borderRadius: '20px',
+                        padding: '32px 24px',
+                        width: '100%',
+                        maxWidth: '420px',
+                        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                        textAlign: 'center',
+                        border: '1px solid rgba(255, 255, 255, 0.2)'
+                    }}>
+                        <div style={{
+                            width: '64px',
+                            height: '64px',
+                            borderRadius: '50%',
+                            backgroundColor: '#fef3c7',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 20px',
+                            color: '#d97706',
+                            boxShadow: '0 0 20px rgba(251, 191, 36, 0.3)'
+                        }}>
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                        </div>
+
+                        <h4 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0f172a', marginBottom: '10px', letterSpacing: '-0.3px' }}>
+                            Existing Profile Detected
+                        </h4>
+                        
+                        <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.6, marginBottom: '28px' }}>
+                            A registered visa profile with Passport <b>{personalInfo.passport}</b> already exists under the name <b>{duplicateWarn.fullName}</b>.
+                            <br /><br />
+                            To prevent duplicate cards, would you like to update your existing data instead?
+                        </p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    window.open(`/verify/${duplicateWarn.slug}`, '_blank');
+                                    setDuplicateWarn(null);
+                                }}
+                                style={{
+                                    backgroundColor: '#0284c7',
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    fontSize: '1rem',
+                                    padding: '14px',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(2,132,199,0.25)',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                UPDATE EXISTING PROFILE
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setDuplicateWarn(null);
+                                    markStepComplete(2);
+                                    setStep(3);
+                                }}
+                                style={{
+                                    backgroundColor: '#f1f5f9',
+                                    color: '#475569',
+                                    fontWeight: 'bold',
+                                    fontSize: '1rem',
+                                    padding: '14px',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                CONTINUE AS NEW APPLICATION
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

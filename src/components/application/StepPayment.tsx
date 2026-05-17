@@ -110,7 +110,9 @@ const StepPayment = () => {
         if (upsells.insurance) addonsTotal += getAddonPrice('INSURANCE');
         if (upsells.vip) addonsTotal += getAddonPrice('VIP');
         if (upsells.idiv) addonsTotal += getAddonPrice('IDIV') * numPeople;
+        if (upsells.idivNfc) addonsTotal += 750000 * numPeople;
         if (upsells.idg) addonsTotal += getAddonPrice('IDG') * numPeople;
+        if (upsells.idgNfc) addonsTotal += 450000 * numPeople;
         if (upsells.smartId) addonsTotal += getAddonPrice('SMART_ID') * numPeople;
 
         // NEW: Add dynamic custom addons total (safe addition — does not affect existing logic)
@@ -441,10 +443,29 @@ const StepPayment = () => {
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="text-sm font-bold text-primary">
-                                +IDR {Number(addons?.find(a => a.sku === 'IDIV')?.price || 325000).toLocaleString()}
+                                +IDR {Number(addons?.find(a => a.sku === 'IDIV')?.price || 350000).toLocaleString()}
                             </span>
                             <span className="text-[10px] font-bold text-[#22c55e]">
-                                (~${Math.ceil(Number(addons?.find(a => a.sku === 'IDIV')?.price || 325000) / 16250)})
+                                (~${Math.ceil(Number(addons?.find(a => a.sku === 'IDIV')?.price || 350000) / 16250)})
+                            </span>
+                        </div>
+                    </div>
+
+                    <div
+                        className={`${styles.upsellItem} ${upsells.idivNfc ? styles.upsellActive : ''}`}
+                        onClick={() => toggleUpsell('idivNfc')}
+                        style={{ border: upsells.idivNfc ? '2px solid #0369a1' : '' }}
+                    >
+                        <div className="flex-grow">
+                            <p className="text-sm font-bold text-[#0369a1]">💳 IDiv + NFC Premium</p>
+                            <p className="text-[10px] text-[#0369a1] opacity-80">NFC contactless capabilities embedded.</p>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-[#0369a1]">
+                                +IDR 750,000
+                            </span>
+                            <span className="text-[10px] font-bold text-[#22c55e]">
+                                (~$46)
                             </span>
                         </div>
                     </div>
@@ -459,10 +480,29 @@ const StepPayment = () => {
                         </div>
                         <div className="flex flex-col items-end">
                             <span className="text-sm font-bold text-primary">
-                                +IDR {(addons?.find(a => a.sku === 'IDG')?.price || 162500).toLocaleString()}
+                                +IDR {(addons?.find(a => a.sku === 'IDG')?.price || 150000).toLocaleString()}
                             </span>
                             <span className="text-[10px] font-bold text-[#22c55e]">
-                                (~${Math.ceil((addons?.find(a => a.sku === 'IDG')?.price || 162500) / 16250)})
+                                (~${Math.ceil((addons?.find(a => a.sku === 'IDG')?.price || 150000) / 16250)})
+                            </span>
+                        </div>
+                    </div>
+
+                    <div
+                        className={`${styles.upsellItem} ${upsells.idgNfc ? styles.upsellActive : ''}`}
+                        onClick={() => toggleUpsell('idgNfc')}
+                        style={{ border: upsells.idgNfc ? '2px solid #7c3aed' : '' }}
+                    >
+                        <div className="flex-grow">
+                            <p className="text-sm font-bold text-[#7c3aed]">💜 IDg + NFC Premium</p>
+                            <p className="text-[10px] text-[#7c3aed] opacity-80">NFC contactless capabilities embedded.</p>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-[#7c3aed]">
+                                +IDR 450,000
+                            </span>
+                            <span className="text-[10px] font-bold text-[#22c55e]">
+                                (~$28)
                             </span>
                         </div>
                     </div>
@@ -591,10 +631,12 @@ const StepPayment = () => {
                     {/* Upsells List */}
                     {Object.entries(upsells).filter(([k, v]) => v).map(([k, v]) => (
                         <div key={k} className={styles.priceRow}>
-                            <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k === 'idg' ? 'Indonesian ID Guide' : k === 'smartId' ? 'Smart ID Premium' : k} Add-on</span>
+                            <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k === 'idivNfc' ? 'IDiv + NFC' : k === 'idg' ? 'Indonesian ID Guide' : k === 'idgNfc' ? 'IDg + NFC' : k === 'smartId' ? 'Smart ID Premium' : k} Add-on</span>
                             <span className="text-xs font-bold text-primary">
-                                + IDR {k === 'idiv' ? (parseCurrency(addons?.find(a => a.sku === 'IDIV')?.price || "325000") * numPeople).toLocaleString() :
-                                    k === 'idg' ? (parseCurrency(addons?.find(a => a.sku === 'IDG')?.price || "162500") * numPeople).toLocaleString() :
+                                + IDR {k === 'idiv' ? (parseCurrency(addons?.find(a => a.sku === 'IDIV')?.price || "350000") * numPeople).toLocaleString() :
+                                    k === 'idivNfc' ? (750000 * numPeople).toLocaleString() :
+                                    k === 'idg' ? (parseCurrency(addons?.find(a => a.sku === 'IDG')?.price || "150000") * numPeople).toLocaleString() :
+                                    k === 'idgNfc' ? (450000 * numPeople).toLocaleString() :
                                         k === 'smartId' ? (parseCurrency(addons?.find(a => a.sku === 'SMART_ID')?.price || "1000000") * numPeople).toLocaleString() :
                                             k === 'express' ? parseCurrency(addons?.find(a => a.sku === 'EXPRESS')?.price || "800000").toLocaleString() :
                                                 k === 'insurance' ? parseCurrency(addons?.find(a => a.sku === 'INSURANCE')?.price || "500000").toLocaleString() :

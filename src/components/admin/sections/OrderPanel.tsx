@@ -344,7 +344,7 @@ export default function OrderPanel() {
                                                 size="small" 
                                                 color="primary"
                                                 title="View Invoice"
-                                                onClick={() => router.push(formatNavLink(locale, `/invoice/${order.slug || order.id}`))}
+                                                onClick={() => router.push(formatNavLink(locale || 'en', `/${locale || 'en'}/invoice/${order.slug || order.id}`))}
                                             >
                                                 <ReceiptIcon />
                                             </IconButton>
@@ -455,6 +455,7 @@ export default function OrderPanel() {
                                                     Object.entries(docSet).map(([key, url]: any) => (
                                                         <Button
                                                             key={`${tIdx}-${key}`}
+                                                            href={`/${locale || 'en'}/invoice/${selectedOrder.id}`}
                                                             variant="outlined"
                                                             fullWidth
                                                             size="small"
@@ -490,7 +491,7 @@ export default function OrderPanel() {
                                             <Button 
                                                 variant="outlined" 
                                                 fullWidth
-                                                onClick={() => router.push(`/invoice/${selectedOrder.slug || selectedOrder.id}`)}
+                                                onClick={() => router.push(`/${locale || 'en'}/invoice/${selectedOrder.slug || selectedOrder.id}`)}
                                             >
                                                 View Live Invoice
                                             </Button>

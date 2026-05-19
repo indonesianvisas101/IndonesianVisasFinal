@@ -7,7 +7,7 @@ import Link from "next/link";
 import styles from "./StepPayment.module.css";
 import Script from "next/script";
 import { Chip, Divider, CircularProgress, Alert, Box, Typography, Button } from "@mui/material";
-import { ArrowLeft, CreditCard, Landmark, Smartphone, QrCode, Settings, CheckCircle, ShoppingCart, Send, Info, RefreshCcw, AlertCircle, Zap, ShieldCheck, ExternalLink } from "lucide-react";
+import { ArrowLeft, CreditCard, Landmark, Smartphone, QrCode, Settings, CheckCircle, ShoppingCart, Send, Info, RefreshCcw, AlertCircle, Zap, ShieldCheck, ExternalLink, UploadCloud, FileText } from "lucide-react";
 import { parseCurrency } from "@/lib/utils";
 import PayPalIntegration from "@/components/payment/PayPalIntegration";
 import { COUNTRY_DATA } from "@/constants/countries";
@@ -45,6 +45,46 @@ const StepPayment = () => {
     const [showPayPalButtons, setShowPayPalButtons] = useState(false);
     const [paymentInfo, setPaymentInfo] = useState<{ invoiceId: string, amount: number, currency: string } | null>(null);
 
+    // Manual Payment State
+    const [paymentProofUrl, setPaymentProofUrl] = useState<string | null>(null);
+    const [uploadingProof, setUploadingProof] = useState<boolean>(false);
+    const [uploadError, setUploadError] = useState<string | null>(null);
+
+    const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        
+        setUploadingProof(true);
+        setUploadError(null);
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('bucket', 'quick_apply');
+            
+            const res = await fetch('/api/upload/smart', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || "Upload failed");
+            }
+            const data = await res.json();
+            
+            if (data.url) {
+                setPaymentProofUrl(data.url);
+            }
+        } catch (err: any) {
+            console.error("Proof upload error:", err);
+            setUploadError(err.message || "Failed to upload proof. Please try again.");
+        } finally {
+            setUploadingProof(false);
+            e.target.value = ''; // Reset input
+        }
+    };
+
     // Identify Special Country for Calling Visa Flow
     const isSpecialCountry = React.useMemo(() => {
         const cData = COUNTRY_DATA.find(c => c.name === country);
@@ -55,6 +95,10 @@ const StepPayment = () => {
         if (selectedMethod === method) return; // Prevent unnecessary resets
         setSelectedMethod(method);
         setShowPayPalButtons(false);
+        if (method !== 'Manual') {
+            setPaymentProofUrl(null);
+            setUploadError(null);
+        }
     };
 
     const handleCurrencyChange = (currency: typeof CURRENCIES[0]) => {
@@ -110,6 +154,7 @@ const StepPayment = () => {
         if (upsells.insurance) addonsTotal += getAddonPrice('INSURANCE');
         if (upsells.vip) addonsTotal += getAddonPrice('VIP');
         if (upsells.idiv) addonsTotal += getAddonPrice('IDIV') * numPeople;
+        if (upsells.arrivalCard) addonsTotal += 150000 * numPeople;
         if (upsells.idivNfc) addonsTotal += 750000 * numPeople;
         if (upsells.idg) addonsTotal += getAddonPrice('IDG') * numPeople;
         if (upsells.idgNfc) addonsTotal += 450000 * numPeople;
@@ -244,7 +289,8 @@ const StepPayment = () => {
                         passportNumber: isPrimary ? personalInfo.passport : travelerData?.passport,
                         isSplitOrder: numPeople > 1,
                         orderIndex: i + 1,
-                        totalTravelers: numPeople
+                        totalTravelers: numPeople,
+                        paymentProofUrl: selectedMethod === 'Manual' ? paymentProofUrl : null
                     },
                     selectedCustomAddons: selectedCustomAddons || [], // v6.2 - Send dynamic addons
                     adminNotes: (priceTier === 'Custom' ? `[NEGOTIATED RATE: ${perPersonVisaAmount}] ` : "") +
@@ -358,9 +404,13 @@ const StepPayment = () => {
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
                         <CheckCircle size={48} className="text-green-600" />
                     </div>
-                    <h3 className="text-2xl font-bold text-primary mb-2">Application Submitted!</h3>
+                    <h3 className="text-2xl font-bold text-primary mb-2">
+                        {selectedMethod === 'Manual' ? 'Payment Proof Received!' : 'Application Submitted!'}
+                    </h3>
                     <p className="text-gray-600 mb-8 max-w-md">
-                        Thank you for submitting your application. Our team will review your documents and contact you shortly via WhatsApp or Email.
+                        {selectedMethod === 'Manual' 
+                            ? "Thank you for uploading your proof of transaction. Our team is now verifying your payment. Your application status is PENDING VERIFICATION. You will receive a confirmation email shortly."
+                            : "Thank you for submitting your application. Our team will review your documents and contact you shortly via WhatsApp or Email."}
                     </p>
                     <button onClick={handleCloseFinal} className="btn btn-primary">
                         Return to Home
@@ -466,6 +516,24 @@ const StepPayment = () => {
                             </span>
                             <span className="text-[10px] font-bold text-[#22c55e]">
                                 (~$46)
+                            </span>
+                        </div>
+                    </div>
+
+                    <div
+                        className={`${styles.upsellItem} ${upsells.arrivalCard ? styles.upsellActive : ''}`}
+                        onClick={() => toggleUpsell('arrivalCard')}
+                    >
+                        <div className="flex-grow">
+                            <p className="text-sm font-bold text-[#00bcd4]">🛬 Arrival Card (e-CD)</p>
+                            <p className="text-[10px] text-gray-500">Mandatory Customs Declaration.</p>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-bold text-[#00bcd4]">
+                                +IDR 150,000
+                            </span>
+                            <span className="text-[10px] font-bold text-[#22c55e]">
+                                (~$9)
                             </span>
                         </div>
                     </div>
@@ -631,9 +699,10 @@ const StepPayment = () => {
                     {/* Upsells List */}
                     {Object.entries(upsells).filter(([k, v]) => v).map(([k, v]) => (
                         <div key={k} className={styles.priceRow}>
-                            <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k === 'idivNfc' ? 'IDiv + NFC' : k === 'idg' ? 'Indonesian ID Guide' : k === 'idgNfc' ? 'IDg + NFC' : k === 'smartId' ? 'Smart ID Premium' : k} Add-on</span>
+                            <span className="text-xs text-gray-500 uppercase">{k === 'idiv' ? 'ID Indonesian Visa' : k === 'arrivalCard' ? 'Arrival Card (e-CD)' : k === 'idivNfc' ? 'IDiv + NFC' : k === 'idg' ? 'Indonesian ID Guide' : k === 'idgNfc' ? 'IDg + NFC' : k === 'smartId' ? 'Smart ID Premium' : k} Add-on</span>
                             <span className="text-xs font-bold text-primary">
                                 + IDR {k === 'idiv' ? (parseCurrency(addons?.find(a => a.sku === 'IDIV')?.price || "350000") * numPeople).toLocaleString() :
+                                    k === 'arrivalCard' ? (150000 * numPeople).toLocaleString() :
                                     k === 'idivNfc' ? (750000 * numPeople).toLocaleString() :
                                     k === 'idg' ? (parseCurrency(addons?.find(a => a.sku === 'IDG')?.price || "150000") * numPeople).toLocaleString() :
                                     k === 'idgNfc' ? (450000 * numPeople).toLocaleString() :
@@ -764,16 +833,71 @@ const StepPayment = () => {
                         onClick={() => handleMethodSelect('Manual')}
                     >
                         <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-600">
-                            <Send size={24} />
+                            <Landmark size={24} />
                         </div>
                         <div className={styles.methodInfo}>
-                            <p className={styles.methodName}>Consult with Expert (Pay Later)</p>
-                            <p className={styles.methodDesc}>Submit data now & verify with our agent first</p>
+                            <p className={styles.methodName}>Manual Transfer (Wise/Revolut)</p>
+                            <p className={styles.methodDesc}>Transfer to Corporate Account & Upload Proof</p>
                         </div>
                         {selectedMethod === 'Manual' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>
                 </div>
             </div>
+
+            {/* MANUAL TRANSFER UPLOAD SECTION */}
+            {selectedMethod === 'Manual' && (
+                <div className="mb-6 px-5 py-6 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-white/10 rounded-2xl animate-fade-in relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+                    <h4 className="text-lg font-bold text-primary mb-2 flex items-center gap-2">
+                        <Landmark size={20} className="text-blue-500" /> Secure Manual Transfer
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Please pay directly to our Corporate Bank Account at <a href="https://indonesianvisas.com/payment" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-bold">indonesianvisas.com/payment</a>. 
+                        Once paid, you <strong>MUST</strong> upload the proof of transaction below so we can start processing your application immediately.
+                    </p>
+
+                    {uploadError && (
+                        <div className="bg-red-50 text-red-600 p-3 rounded-lg flex items-center text-sm font-medium mb-4">
+                            <AlertCircle size={18} className="mr-2 shrink-0" />
+                            {uploadError}
+                        </div>
+                    )}
+
+                    <div className="relative border-2 border-dashed border-slate-300 dark:border-white/20 rounded-xl p-6 hover:border-blue-500 transition-all flex flex-col items-center justify-center gap-3 bg-slate-50 dark:bg-black/20 text-center min-h-[160px]">
+                        {uploadingProof ? (
+                            <div className="flex flex-col items-center animate-pulse">
+                                <RefreshCcw size={32} className="text-blue-500 animate-spin mb-2" />
+                                <span className="text-sm font-bold text-blue-600">Uploading Securely...</span>
+                            </div>
+                        ) : paymentProofUrl ? (
+                            <div className="flex flex-col items-center">
+                                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                                    <CheckCircle size={32} className="text-green-600" />
+                                </div>
+                                <span className="text-sm font-bold text-green-700">Payment Proof Attached ✓</span>
+                                <button type="button" onClick={() => setPaymentProofUrl(null)} className="mt-2 text-xs text-red-500 underline font-bold">Remove & Re-upload</button>
+                            </div>
+                        ) : (
+                            <>
+                                <input 
+                                    type="file"
+                                    accept="image/*,application/pdf"
+                                    onChange={handleProofUpload}
+                                    className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
+                                    disabled={uploadingProof}
+                                />
+                                <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-full shadow-sm flex items-center justify-center mb-1 text-blue-500">
+                                    <UploadCloud size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Click or drag receipt here to upload</p>
+                                    <p className="text-xs text-slate-500 mt-1">Supports JPG, PNG, WEBP, HEIC, PDF (Max 5MB)</p>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* 6. AGREEMENT CHECKBOX */}
             <div className="mb-6 px-4 py-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl flex items-start gap-4">
@@ -816,7 +940,7 @@ const StepPayment = () => {
                     <>
                         <button
                             onClick={processCheckout}
-                            disabled={(!selectedMethod && !isSuccess) || isSubmitting}
+                            disabled={(!selectedMethod && !isSuccess) || isSubmitting || (selectedMethod === 'Manual' && !paymentProofUrl)}
                             className={`cta-accent ${styles.submitBtn} w-full justify-center gap-3 py-5 text-lg shadow-xl shadow-amber-500/20`}
                         >
                             {isSubmitting ? (
@@ -827,7 +951,11 @@ const StepPayment = () => {
                             ) : (
                                 <>
                                     {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : <ShoppingCart size={24} />)}
-                                    <span>{selectedMethod === 'Manual' ? 'SUBMIT APPLICATION' : (selectedMethod === 'PayPal' ? 'GENERATE PAYPAL LINK' : 'COMPLETE ORDER')}</span>
+                                    <span>
+                                        {selectedMethod === 'Manual' 
+                                            ? (paymentProofUrl ? 'SUBMIT APPLICATION (PROOF ATTACHED)' : 'UPLOAD PROOF TO SUBMIT') 
+                                            : (selectedMethod === 'PayPal' ? 'GENERATE PAYPAL LINK' : 'COMPLETE ORDER')}
+                                    </span>
                                 </>
                             )}
                         </button>

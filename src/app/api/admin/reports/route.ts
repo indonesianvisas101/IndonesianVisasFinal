@@ -7,6 +7,8 @@ import { POPULAR_VISA_IDS } from '@/constants/visas';
  * Dynamic Reporting API
  * Provides real-time data for Google Sheets integration.
  */
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type');
@@ -176,4 +178,8 @@ export async function GET(req: Request) {
         console.error(`[ReportAPI] Error:`, error);
         return NextResponse.json({ error: "Failed to process production report" }, { status: 500 });
     }
+}
+
+export async function HEAD() {
+    return new NextResponse(null, { status: 200 });
 }

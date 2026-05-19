@@ -34,6 +34,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import QrCodeIcon from "@mui/icons-material/QrCode";
 import DownloadIcon from "@mui/icons-material/Download";
+import { usePathname } from "next/navigation";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import ErrorIcon from "@mui/icons-material/Error";
@@ -63,6 +64,8 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
     const [previewCardMode, setPreviewCardMode] = useState<'IDIV' | 'IDG' | 'SMART'>('IDIV');
     const [selectedUserId, setSelectedUserId] = useState("");
     const [isDownloading, setIsDownloading] = useState(false);
+    const pathname = usePathname();
+    const locale = pathname?.split('/')[1] || 'en';
 
     // Form State
     const [formData, setFormData] = useState({
@@ -387,6 +390,20 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
         }
     };
 
+    const handleViewAgreement = async (url: string) => {
+        try {
+            const res = await fetch(`/api/admin/sign-url?path=${encodeURIComponent(url)}`);
+            const data = await res.json();
+            if (data.signedUrl) {
+                window.open(data.signedUrl, '_blank');
+            } else {
+                window.open(url, '_blank');
+            }
+        } catch (e) {
+            window.open(url, '_blank');
+        }
+    };
+
     const resetForm = () => {
         setFormData({
             fullName: "",
@@ -644,7 +661,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                     color="secondary"
                                                     size="small"
                                                     title="Open User Invoice/Files"
-                                                    onClick={() => window.open(`/invoice/${item.invoiceId}`, '_blank')}
+                                                    onClick={() => window.open(`/${locale || 'en'}/invoice/${item.invoiceId}`, '_blank')}
                                                 >
                                                     <ShareIcon fontSize="small" />
                                                 </IconButton>
@@ -682,7 +699,7 @@ export default function VerificationTab({ initialUserId }: { initialUserId?: str
                                                         color="success"
                                                         size="small"
                                                         title="View Signed Agreement"
-                                                        onClick={() => window.open(agreementUrl, '_blank')}
+                                                        onClick={() => handleViewAgreement(agreementUrl)}
                                                     >
                                                         <PictureAsPdfIcon fontSize="small" />
                                                     </IconButton>

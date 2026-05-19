@@ -25,7 +25,8 @@ import {
     TableRow,
     CircularProgress,
     Stack,
-    IconButton
+    IconButton,
+    Alert
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import Image from 'next/image';
@@ -35,6 +36,14 @@ import ShareIcon from '@mui/icons-material/Share';
 import { QRCodeSVG } from 'qrcode.react';
 import Script from 'next/script';
 import { COUNTRY_DATA } from '@/constants/countries';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { PayPalProvider } from "@/components/payment/PayPalProvider";
+import PayPalIntegration from "@/components/payment/PayPalIntegration";
 // Removed problematic lucide-react import to fix Turbopack HMR bug
 const Zap = ({ size = 24, color = "currentColor", fill = "none", ...props }: any) => (
     <svg
@@ -84,6 +93,69 @@ export default function InvoicePage() {
     const [error, setError] = useState("");
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [formattedDate, setFormattedDate] = useState("");
+
+    // Payment Methods State
+    const [selectedMethod, setSelectedMethod] = useState<'DOKU' | 'PayPal' | 'Manual' | null>(null);
+    const [paymentProofUrl, setPaymentProofUrl] = useState<string | null>(null);
+    const [uploadingProof, setUploadingProof] = useState<boolean>(false);
+    const [uploadError, setUploadError] = useState<string | null>(null);
+    const [isSubmittingProof, setIsSubmittingProof] = useState<boolean>(false);
+
+    const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        setUploadingProof(true);
+        setUploadError(null);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('bucket', 'quick_apply');
+            
+            const res = await fetch('/api/upload/smart', {
+                method: 'POST',
+                body: formData
+            });
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || "Upload failed");
+            }
+            const data = await res.json();
+            if (data.url) setPaymentProofUrl(data.url);
+        } catch (err: any) {
+            console.error("Proof upload error:", err);
+            setUploadError(err.message || "Failed to upload proof. Please try again.");
+        } finally {
+            setUploadingProof(false);
+            e.target.value = '';
+        }
+    };
+
+    const handleSubmitProof = async () => {
+        if (!paymentProofUrl || !invoiceData) return;
+        setIsSubmittingProof(true);
+        try {
+            const res = await fetch('/api/applications/submit-proof', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id: invoiceData.invoice?.id || invoiceData.id, 
+                    paymentProofUrl: paymentProofUrl,
+                    status: 'PENDING VERIFICATION'
+                })
+            });
+            if (res.ok) {
+                alert("Payment Proof Submitted! Our team will verify your transaction shortly.");
+                window.location.reload();
+            } else {
+                const data = await res.json();
+                throw new Error(data.error || "Failed to update invoice");
+            }
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setIsSubmittingProof(false);
+        }
+    };
 
     useEffect(() => {
         if (invoiceData?.appliedAt) {
@@ -515,7 +587,7 @@ export default function InvoicePage() {
                                                 <Box key={k} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 1, mr: 1, px: 1, py: 0.25, bgcolor: 'rgba(145, 85, 253, 0.08)', borderRadius: 1, border: '1px solid rgba(145, 85, 253, 0.2)' }}>
                                                     <Zap size={10} color="#9155FD" />
                                                     <Typography variant="caption" sx={{ color: '#9155FD', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.65rem' }}>
-                                                        {k === 'idiv' ? 'IDIV ORDERED' : k === 'smartId' ? 'SMART ID' : k.replace(/_/g, ' ').toUpperCase()}
+                                                        {k === 'idiv' ? 'IDIV ORDERED' : k === 'arrivalCard' ? 'ARRIVAL CARD' : k === 'smartId' ? 'SMART ID' : k.replace(/_/g, ' ').toUpperCase()}
                                                     </Typography>
                                                 </Box>
                                             ));
@@ -1005,7 +1077,7 @@ export default function InvoicePage() {
                 {/* v7.0 - DYNAMIC ARRIVAL CARD CTA (UPSALE) */}
 
                 {/* v7.0 - DYNAMIC ARRIVAL CARD CTA (UPSALE) */}
-                {(!invoiceData.attribution?.arrivalCardLink && !invoiceData.attribution?.arrivalCardQr && invoiceData.visaName !== 'ARRIVAL CARD' && !upsells.arrival_card) && (
+                {(!invoiceData.attribution?.arrivalCardLink && !invoiceData.attribution?.arrivalCardQr && invoiceData.visaName !== 'ARRIVAL CARD' && !upsells.arrival_card && !upsells.arrivalCard) && (
                     <Box 
                         sx={{ 
                             mt: 4, 
@@ -1076,7 +1148,7 @@ export default function InvoicePage() {
                 )}
 
                 {/* v7.1 - IDIV CARD RECOMMENDATION (UPSALE) - Refined v7.5 */}
-                {(!upsells.idiv && invoiceData.visaId !== 'IDIV' && (invoiceData.attribution?.arrivalCardLink || invoiceData.attribution?.arrivalCardQr || upsells.arrival_card)) && (
+                {(!upsells.idiv && invoiceData.visaId !== 'IDIV' && (invoiceData.attribution?.arrivalCardLink || invoiceData.attribution?.arrivalCardQr || upsells.arrival_card || upsells.arrivalCard)) && (
                     <Box 
                         sx={{ 
                             mt: 2, 
@@ -1139,44 +1211,226 @@ export default function InvoicePage() {
                 )}
 
                 {/* ACTION BUTTONS */}
-                <Box sx={{ mt: 5, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2, '@media print': { display: 'none' } }}>
+                <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, '@media print': { display: 'none' } }}>
                     {!isPaid && (
-                        <Button
-                            variant="contained"
-                            onClick={handlePayNow}
-                            disabled={isCheckingOut || computedGrandTotal <= 0}
-                            startIcon={(() => {
-                                const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
-                                return (cData?.isSpecial || cData?.isUnregistered) ? <Zap /> : null;
-                            })()}
-                            sx={{
-                                bgcolor: (() => {
-                                    const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
-                                    return (cData?.isSpecial || cData?.isUnregistered) ? '#f59e0b' : '#00cc66';
-                                })(),
-                                px: 4,
-                                py: 1.5,
-                                fontSize: '1rem',
-                                fontWeight: 'bold',
-                                textTransform: 'none',
-                                boxShadow: (() => {
-                                    const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
-                                    return (cData?.isSpecial || cData?.isUnregistered) ? '0 4px 14px 0 rgba(245, 158, 11, 0.39)' : '0 4px 14px 0 rgba(0, 204, 102, 0.39)';
-                                })(),
-                                '&:hover': {
-                                    bgcolor: (() => {
-                                        const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
-                                        return (cData?.isSpecial || cData?.isUnregistered) ? '#d97706' : '#00b359';
-                                    })(),
-                                }
-                            }}
-                        >
-                            {(() => {
-                                const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
-                                if (cData?.isSpecial || cData?.isUnregistered) return "Process Payment";
-                                return isCheckingOut ? "Processing..." : "Pay Now Securely";
-                            })()}
-                        </Button>
+                        <PayPalProvider>
+                            <Box sx={{ width: '100%', maxWidth: '500px' }}>
+                                {/* Payment Method Selector */}
+                                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, textAlign: 'center' }}>
+                                    Select Payment Method
+                                </Typography>
+                                <Stack direction="column" spacing={2} sx={{ mb: 4 }}>
+                                    {/* DOKU Method */}
+                                    <Paper 
+                                        elevation={selectedMethod === 'DOKU' ? 3 : 0}
+                                        onClick={() => setSelectedMethod('DOKU')}
+                                        sx={{ 
+                                            p: 2, 
+                                            borderRadius: 3, 
+                                            border: selectedMethod === 'DOKU' ? '2px solid #00cc66' : '1px solid #e2e8f0',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 2,
+                                            transition: 'all 0.2s ease',
+                                            bgcolor: selectedMethod === 'DOKU' ? '#f0fdf4' : 'transparent'
+                                        }}
+                                    >
+                                        <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+                                            <CreditCardIcon />
+                                        </Box>
+                                        <Box sx={{ flexGrow: 1 }}>
+                                            <Typography variant="subtitle2" fontWeight="bold">Credit Card & Local Payments</Typography>
+                                            <Typography variant="caption" color="text.secondary">Visa, Mastercard, JCB, Amex, Local Bank</Typography>
+                                        </Box>
+                                        {selectedMethod === 'DOKU' && <CheckCircleOutlineIcon color="success" />}
+                                    </Paper>
+
+                                    {/* PayPal Method */}
+                                    <Paper 
+                                        elevation={selectedMethod === 'PayPal' ? 3 : 0}
+                                        onClick={() => setSelectedMethod('PayPal')}
+                                        sx={{ 
+                                            p: 2, 
+                                            borderRadius: 3, 
+                                            border: selectedMethod === 'PayPal' ? '2px solid #3b82f6' : '1px solid #e2e8f0',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 2,
+                                            transition: 'all 0.2s ease',
+                                            bgcolor: selectedMethod === 'PayPal' ? '#eff6ff' : 'transparent'
+                                        }}
+                                    >
+                                        <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0284c7' }}>
+                                            <CreditCardIcon />
+                                        </Box>
+                                        <Box sx={{ flexGrow: 1 }}>
+                                            <Typography variant="subtitle2" fontWeight="bold">PayPal</Typography>
+                                            <Typography variant="caption" color="text.secondary">Secure International Payment</Typography>
+                                        </Box>
+                                        {selectedMethod === 'PayPal' && <CheckCircleOutlineIcon color="primary" />}
+                                    </Paper>
+
+                                    {/* Manual Method */}
+                                    <Paper 
+                                        elevation={selectedMethod === 'Manual' ? 3 : 0}
+                                        onClick={() => setSelectedMethod('Manual')}
+                                        sx={{ 
+                                            p: 2, 
+                                            borderRadius: 3, 
+                                            border: selectedMethod === 'Manual' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 2,
+                                            transition: 'all 0.2s ease',
+                                            bgcolor: selectedMethod === 'Manual' ? '#f5f3ff' : 'transparent'
+                                        }}
+                                    >
+                                        <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563' }}>
+                                            <AccountBalanceIcon />
+                                        </Box>
+                                        <Box sx={{ flexGrow: 1 }}>
+                                            <Typography variant="subtitle2" fontWeight="bold">Manual Transfer (Wise/Revolut)</Typography>
+                                            <Typography variant="caption" color="text.secondary">Transfer directly & upload proof</Typography>
+                                        </Box>
+                                        {selectedMethod === 'Manual' && <CheckCircleOutlineIcon sx={{ color: '#8b5cf6' }} />}
+                                    </Paper>
+                                </Stack>
+
+                                {/* Action Area Based on Selection */}
+                                {selectedMethod === 'DOKU' && (
+                                    <Button
+                                        variant="contained"
+                                        onClick={handlePayNow}
+                                        fullWidth
+                                        disabled={isCheckingOut || computedGrandTotal <= 0}
+                                        startIcon={(() => {
+                                            const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                            return (cData?.isSpecial || cData?.isUnregistered) ? <Zap /> : null;
+                                        })()}
+                                        sx={{
+                                            bgcolor: (() => {
+                                                const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                                return (cData?.isSpecial || cData?.isUnregistered) ? '#f59e0b' : '#00cc66';
+                                            })(),
+                                            px: 4,
+                                            py: 2,
+                                            fontSize: '1rem',
+                                            fontWeight: 'bold',
+                                            textTransform: 'none',
+                                            borderRadius: 3,
+                                            boxShadow: (() => {
+                                                const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                                return (cData?.isSpecial || cData?.isUnregistered) ? '0 4px 14px 0 rgba(245, 158, 11, 0.39)' : '0 4px 14px 0 rgba(0, 204, 102, 0.39)';
+                                            })(),
+                                            '&:hover': {
+                                                bgcolor: (() => {
+                                                    const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                                    return (cData?.isSpecial || cData?.isUnregistered) ? '#d97706' : '#00b359';
+                                                })(),
+                                            }
+                                        }}
+                                    >
+                                        {(() => {
+                                            const cData = COUNTRY_DATA.find(c => c.name === invoiceData.attribution?.country || c.name === invoiceData.country);
+                                            if (cData?.isSpecial || cData?.isUnregistered) return "Process Payment";
+                                            return isCheckingOut ? "Processing..." : "Pay Now Securely";
+                                        })()}
+                                    </Button>
+                                )}
+
+                                {selectedMethod === 'PayPal' && (
+                                    <Box sx={{ mt: 2, p: 3, bgcolor: '#f8fafc', borderRadius: 4, border: '2px solid #003087', textAlign: 'center' }}>
+                                        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2, color: '#003087' }}>
+                                            SECURE PAYPAL CHECKOUT READY
+                                        </Typography>
+                                        <PayPalIntegration
+                                            invoiceId={invoiceData.invoice?.id || invoiceData.id}
+                                            amount={Math.ceil(computedGrandTotal / 16250)}
+                                            currency="USD"
+                                        />
+                                    </Box>
+                                )}
+
+                                {selectedMethod === 'Manual' && (
+                                    <Box sx={{ mt: 2, p: 3, bgcolor: '#f8fafc', borderRadius: 4, border: '2px solid #e2e8f0', textAlign: 'center' }}>
+                                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1, color: '#334155' }}>
+                                            Secure Manual Transfer
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
+                                            Please pay directly to our Corporate Bank Account at <a href="https://indonesianvisas.com/payment" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline', fontWeight: 'bold' }}>indonesianvisas.com/payment</a>. 
+                                            Once paid, you <strong>MUST</strong> upload the proof of transaction below.
+                                        </Typography>
+
+                                        {uploadError && (
+                                            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{uploadError}</Alert>
+                                        )}
+
+                                        <Box 
+                                            sx={{ 
+                                                border: '2px dashed #cbd5e1', 
+                                                borderRadius: 3, 
+                                                p: 4, 
+                                                bgcolor: '#f1f5f9',
+                                                position: 'relative',
+                                                transition: 'all 0.2s ease',
+                                                '&:hover': { borderColor: '#3b82f6' }
+                                            }}
+                                        >
+                                            {uploadingProof ? (
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                    <RefreshIcon sx={{ fontSize: 32, color: '#3b82f6', animation: 'spin 2s linear infinite', mb: 1 }} />
+                                                    <Typography variant="body2" fontWeight="bold" color="primary">Uploading Securely...</Typography>
+                                                </Box>
+                                            ) : paymentProofUrl ? (
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                    <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: '#dcfce3', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+                                                        <CheckCircleOutlineIcon sx={{ fontSize: 32, color: '#16a34a' }} />
+                                                    </Box>
+                                                    <Typography variant="body2" fontWeight="bold" sx={{ color: '#15803d' }}>Payment Proof Attached ✓</Typography>
+                                                    <Button size="small" sx={{ mt: 1, textTransform: 'none' }} color="error" onClick={() => setPaymentProofUrl(null)}>
+                                                        Remove & Re-upload
+                                                    </Button>
+                                                </Box>
+                                            ) : (
+                                                <>
+                                                    <input 
+                                                        type="file"
+                                                        accept="image/*,application/pdf"
+                                                        onChange={handleProofUpload}
+                                                        style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10, width: '100%' }}
+                                                        disabled={uploadingProof}
+                                                    />
+                                                    <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', mb: 2, boxShadow: 1, color: '#3b82f6' }}>
+                                                        <UploadFileIcon />
+                                                    </Box>
+                                                    <Typography variant="body2" fontWeight="bold" color="text.primary">Click or drag receipt here to upload</Typography>
+                                                    <Typography variant="caption" color="text.secondary">Supports JPG, PNG, WEBP, HEIC, PDF (Max 5MB)</Typography>
+                                                </>
+                                            )}
+                                        </Box>
+
+                                        <Button
+                                            variant="contained"
+                                            fullWidth
+                                            disabled={!paymentProofUrl || isSubmittingProof}
+                                            onClick={handleSubmitProof}
+                                            sx={{ mt: 3, py: 1.5, borderRadius: 2, textTransform: 'none', fontWeight: 'bold', bgcolor: '#8b5cf6', '&:hover': { bgcolor: '#7c3aed' } }}
+                                        >
+                                            {isSubmittingProof ? "Submitting..." : (paymentProofUrl ? "Submit Payment Proof" : "Upload Proof to Continue")}
+                                        </Button>
+                                    </Box>
+                                )}
+
+                                {!selectedMethod && (
+                                    <Typography variant="body2" sx={{ textAlign: 'center', mt: 3, color: 'text.secondary', fontWeight: 'medium' }}>
+                                        Please select a payment method above to proceed.
+                                    </Typography>
+                                )}
+                            </Box>
+                        </PayPalProvider>
                     )}
                     <Button
                         variant="outlined"

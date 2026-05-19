@@ -27,7 +27,7 @@ export async function getSignedUrl(publicUrl: string, expiresIn: number = 3600):
     let targetUrl = publicUrl;
     if (!publicUrl.startsWith('http')) {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const knownBuckets = ['applications', 'documents', 'quick_apply', 'verifications'];
+        const knownBuckets = ['applications', 'documents', 'quick_apply', 'verifications', 'agreements'];
         const firstSegment = publicUrl.split('/')[0];
 
         if (knownBuckets.includes(firstSegment)) {

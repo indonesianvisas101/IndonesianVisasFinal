@@ -359,6 +359,7 @@ export async function POST(request: Request) {
                     if (upsells.idiv) totalAddonsAmount += getDbAddonPrice('IDIV');
                     if (upsells.idg) totalAddonsAmount += getDbAddonPrice('IDG');
                     if (upsells.smartId) totalAddonsAmount += getDbAddonPrice('SMART_ID');
+                    if (upsells.arrivalCard) totalAddonsAmount += 150000;
                 }
 
                 // Handle custom dynamic addons by ID (e.g. Arrival Card)

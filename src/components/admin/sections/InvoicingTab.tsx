@@ -34,7 +34,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import Link from "next/link";
 import { VISA_DATABASE } from "@/constants/visas";
 import { supabase } from "@/lib/supabase";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import DocumentViewer from "../DocumentViewer";
 import { uploadCompressedFile } from "@/utils/ivce";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -53,6 +53,8 @@ export default function InvoicingTab() {
     const [syncCandidates, setSyncCandidates] = useState<any[]>([]); // Fuzzy match candidates
     const [openSyncDialog, setOpenSyncDialog] = useState(false);
     const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const locale = pathname?.split('/')[1] || 'en';
     const targetId = searchParams.get('id');
 
     // Form State
@@ -279,7 +281,7 @@ export default function InvoicingTab() {
                         applicantName: editFormData.guestName,
                         orderId: editingInvoice.slug || editingInvoice.id,
                         visaType: editFormData.visaName,
-                        invoiceUrl: `${window.location.origin}/invoice/${editingInvoice.slug || editingInvoice.id}`,
+                        invoiceUrl: `${window.location.origin}/${locale || 'en'}/invoice/${editingInvoice.slug || editingInvoice.id}`,
                         downloadUrl: editFormData.visaLink,
                         isPayPal: editingInvoice.paymentMethod?.toLowerCase().includes('paypal'),
                         hasIdiv: !!editFormData.attribution?.upsells?.idiv_paid || !!editFormData.attribution?.upsells?.idiv_ordered,
@@ -607,7 +609,7 @@ export default function InvoicingTab() {
                                             <IconButton
                                                 color="primary"
                                                 size="small"
-                                                href={`/invoice/${inv.id}`}
+                                                href={`/${locale || 'en'}/invoice/${inv.id}`}
                                                 target="_blank"
                                             >
                                                 <LocalPrintshopIcon />

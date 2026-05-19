@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getAdminAuth } from '@/lib/auth-helpers';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         const auth = await getAdminAuth();
@@ -31,4 +33,8 @@ export async function GET() {
         console.error("Stats fetch error:", error);
         return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
     }
+}
+
+export async function HEAD() {
+    return new NextResponse(null, { status: 200 });
 }

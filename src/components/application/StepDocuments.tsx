@@ -39,7 +39,10 @@ const StepDocuments = () => {
                     body: formData
                 });
 
-                if (!res.ok) throw new Error("Upload failed");
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || "Upload failed");
+                }
                 const data = await res.json();
 
                 if (data.url) {
@@ -58,9 +61,9 @@ const StepDocuments = () => {
                     setSuccessMessage(`${type === 'passportPhoto' ? 'Passport' : 'Photo'} uploaded successfully!`);
                     setTimeout(() => setSuccessMessage(null), 3000);
                 }
-            } catch (err) {
+            } catch (err: any) {
                 console.error("Upload error:", err);
-                setError("Failed to process document. Please try again.");
+                setError(err.message || "Failed to process document. Please try again.");
                 // Fallback to local file only if upload fails
                 updateTravelerDocument(index, type, file);
             } finally {

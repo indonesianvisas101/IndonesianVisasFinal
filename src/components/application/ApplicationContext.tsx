@@ -78,6 +78,7 @@ interface ApplicationState {
         idg: boolean; // NEW: Indonesian ID Guide
         idgNfc: boolean; // IDg NFC Variant
         smartId: boolean; // NEW: Smart ID (KTP-style)
+        arrivalCard: boolean; // NEW: Arrival Card / e-CD
     };
     addons: any[];
     selectedCustomAddons: string[]; // NEW: Dynamic addons from Admin DB
@@ -119,7 +120,7 @@ interface ApplicationContextType extends ApplicationState {
     // Notifications
     notifications: Record<string, AppNotification[]>;
     allNotifications: AppNotification[];
-    toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId' | 'idivNfc' | 'idgNfc') => void;
+    toggleUpsell: (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId' | 'idivNfc' | 'idgNfc' | 'arrivalCard') => void;
     toggleCustomAddon: (addonId: string) => void; // NEW: Toggle dynamic addons
     pushNotification: (userId: string, message: string) => void;
     setNotifications: (userId: string, notifications: AppNotification[]) => void;
@@ -193,7 +194,8 @@ const defaultState: ApplicationState = {
         idivNfc: false,
         idg: false,
         idgNfc: false,
-        smartId: false
+        smartId: false,
+        arrivalCard: false
     },
     addons: [],
     selectedCustomAddons: [], // NEW: Empty by default
@@ -667,7 +669,7 @@ export const ApplicationProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
-    const toggleUpsell = (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId' | 'idivNfc' | 'idgNfc') => {
+    const toggleUpsell = (key: 'express' | 'insurance' | 'vip' | 'idiv' | 'idg' | 'smartId' | 'idivNfc' | 'idgNfc' | 'arrivalCard') => {
         setState(prev => {
             const nextUpsells = { ...prev.upsells };
             nextUpsells[key] = !nextUpsells[key];

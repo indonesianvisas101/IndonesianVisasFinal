@@ -654,6 +654,52 @@ const StepCountryVisa = () => {
                 </div>
             </div>
 
+            {/* ARRIVAL CARD ADD-ON (NEW) */}
+            <div className="mb-8">
+                <div
+                    className={`glass-card p-6 border-2 transition-all cursor-pointer relative overflow-hidden group ${upsells.arrivalCard ? 'border-[#00bcd4] bg-[#00bcd4]/5 ring-4 ring-[#00bcd4]/10' : 'border-slate-200 dark:border-white/10'}`}
+                    onClick={() => toggleUpsell('arrivalCard')}
+                >
+                    <div className="absolute -left-10 -top-10 w-32 h-32 bg-[#00bcd4]/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                        <div className="flex items-start gap-4">
+                            <div className={`p-4 rounded-2xl transition-colors ${upsells.arrivalCard ? 'bg-[#00bcd4] text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-500'}`}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h5 className="text-xl font-bold">Mandatory Arrival Card (e-CD)</h5>
+                                    <span className="bg-[#00bcd4]/10 text-[#00bcd4] text-[10px] font-black uppercase px-2 py-0.5 rounded-full tracking-tighter">Recommended</span>
+                                </div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">
+                                    Pre-file your official Indonesian Customs Declaration (e-CD) to avoid long queues at the immigration hall. Seamless digital integration with your visa.
+                                </p>
+
+                                <div className="mt-3 flex items-center gap-4">
+                                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#00bcd4]">
+                                        <CheckCircle size={14} /> Official Entry Clearance
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400">
+                                        <Zap size={14} /> Skip the Lines
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="text-right flex flex-col items-end gap-2">
+                            <Typography variant="h5" fontWeight="900" className="text-[#00bcd4]">IDR 150,000</Typography>
+                            <Typography variant="caption" className="text-gray-400">One-time fee • Per Person</Typography>
+                            <div className="mt-3">
+                                <button className={`btn btn-sm px-6 py-2 rounded-xl border-2 font-bold transition-all ${upsells.arrivalCard ? 'bg-[#00bcd4] text-white border-[#00bcd4]' : 'border-[#00bcd4] text-[#00bcd4] hover:bg-[#00bcd4]/5'}`}>
+                                    {upsells.arrivalCard ? "Included in Order" : "Add to Order"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Action Area */}
             <div className={styles.actionArea} ref={actionAreaRef}>
                 {validationError && (

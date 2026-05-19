@@ -21,9 +21,11 @@ export async function POST(request: Request) {
         const isJPG = buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
         const isPNG = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
         const isPDF = buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46;
+        const isWEBP = buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46;
+        const isHEIC = buffer[4] === 0x66 && buffer[5] === 0x74 && buffer[6] === 0x79 && buffer[7] === 0x70;
 
-        if (!isJPG && !isPNG && !isPDF) {
-            return NextResponse.json({ error: "Invalid file type. Only JPG, PNG, and PDF are allowed." }, { status: 400 });
+        if (!isJPG && !isPNG && !isPDF && !isWEBP && !isHEIC) {
+            return NextResponse.json({ error: "Invalid file type. Only JPG, PNG, WEBP, HEIC, and PDF are allowed." }, { status: 400 });
         }
 
         let fileName = file.name;

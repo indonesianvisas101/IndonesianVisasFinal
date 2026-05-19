@@ -53,6 +53,7 @@ export default function InvoicingTab() {
     const [syncCandidates, setSyncCandidates] = useState<any[]>([]); // Fuzzy match candidates
     const [openSyncDialog, setOpenSyncDialog] = useState(false);
     const searchParams = useSearchParams();
+    const pathname = usePathname();
     const rawLocale = pathname?.split('/')[1] || 'en';
     const locale = ['admin', 'dashboard', 'verify', 'invoice', 'api', 'auth'].includes(rawLocale) ? 'en' : rawLocale;
     const targetId = searchParams.get('id');

@@ -107,20 +107,12 @@ export async function proxy(request: NextRequest) {
         const targetLocale = locales.includes(preferredLocale as any) ? preferredLocale : defaultLocale;
 
         if (targetLocale === defaultLocale) {
-            if (pathname === '/') {
-                // BEST PRACTICE: Rewrite instead of Redirect for root domain SEO
-                const url = request.nextUrl.clone();
-                url.pathname = `/${defaultLocale}`;
-                
-                const response = NextResponse.rewrite(url);
-                // We still want to handle marketing attribution on rewrites
-                return await handleMarketingAttribution(request, response);
-            } else {
-                // Redirect for inner pages to avoid production rewrite 404 bugs
-                return NextResponse.redirect(
-                    new URL(`/${defaultLocale}${pathname}`, request.url)
-                );
-            }
+            // Rewrite all default locale requests internally so the URL in browser remains clean (without /en prefix)
+            const url = request.nextUrl.clone();
+            url.pathname = `/${defaultLocale}${pathname}`;
+            
+            const response = NextResponse.rewrite(url);
+            return await handleMarketingAttribution(request, response);
         } else {
             // Redirect to other locales (id, fr, etc.)
             return NextResponse.redirect(
@@ -145,7 +137,12 @@ export async function proxy(request: NextRequest) {
     if (isDashboardOrAdmin) {
         if (!user) {
             const url = request.nextUrl.clone()
-            url.pathname = `/${pathLocale}/login`
+            const targetLocale = locales.includes(pathLocale as any) ? pathLocale : defaultLocale;
+            if (targetLocale === defaultLocale) {
+                url.pathname = '/login'
+            } else {
+                url.pathname = `/${targetLocale}/login`
+            }
             return NextResponse.redirect(url)
         }
     }
@@ -154,7 +151,14 @@ export async function proxy(request: NextRequest) {
     if (user && (pathWithoutLocale === '/login' || pathWithoutLocale === '/register')) {
         const url = request.nextUrl.clone()
         const role = user.user_metadata?.role
-        url.pathname = role === 'admin' ? `/${pathLocale}/admin` : `/${pathLocale}/dashboard`;
+        const targetLocale = locales.includes(pathLocale as any) ? pathLocale : defaultLocale;
+        const targetPath = role === 'admin' ? '/admin' : '/dashboard';
+        
+        if (targetLocale === defaultLocale) {
+            url.pathname = targetPath;
+        } else {
+            url.pathname = `/${targetLocale}${targetPath}`;
+        }
         return NextResponse.redirect(url)
     }
 

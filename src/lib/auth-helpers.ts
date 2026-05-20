@@ -1,6 +1,6 @@
 
-import { createServerClient } from "@supabase/ssr";
-import { cookies, headers } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
+import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
 
 const ADMIN_EMAILS = [
@@ -8,7 +8,6 @@ const ADMIN_EMAILS = [
 ];
 
 export async function getAdminAuth() {
-    const cookieStore = await cookies();
     const headerList = await headers();
 
     const authHeader = headerList.get("Authorization");
@@ -19,8 +18,8 @@ export async function getAdminAuth() {
 
     if (token) {
         // Option A: Use Bearer Token from Header
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabaseHeader = createClient(
+        const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+        const supabaseHeader = createSupabaseClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             {
@@ -33,25 +32,15 @@ export async function getAdminAuth() {
     }
 
     if (!user) {
-        // Option B: Fallback to Cookie
-        const supabaseCookie = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    get(name: string) { return cookieStore.get(name)?.value; },
-                    set(name: string, value: string, options: any) {
-                        try { cookieStore.set({ name, value, ...options }); } catch (e) {}
-                    },
-                    remove(name: string, options: any) {
-                        try { cookieStore.set({ name, value: "", ...options }); } catch (e) {}
-                    }
-                },
-            }
-        );
-        const { data, error } = await supabaseCookie.auth.getUser();
-        user = data.user;
-        authError = error;
+        // Option B: Fallback to Cookie using standard helper
+        try {
+            const supabaseCookie = await createClient();
+            const { data, error } = await supabaseCookie.auth.getUser();
+            user = data.user;
+            authError = error;
+        } catch (e: any) {
+            authError = e;
+        }
     }
 
     if (authError || !user) {

@@ -6,12 +6,28 @@ import { getSignedUrl } from '@/lib/storage';
 import { logAdminAction } from '@/lib/auditLogger';
 import { generateIDNumber } from '@/utils/idNumberGenerator';
 
-function cleanContaminatedPhotoUrl(url: string | null | undefined): string | null {
+function cleanContaminatedPhotoUrl(url: any): string | null {
     if (!url) return null;
     let clean = url;
-    if (url.startsWith('http') && url.includes('supabase.co')) {
+    
+    // If it's an array, take the first element
+    if (Array.isArray(clean)) {
+        clean = clean[0];
+    } else if (typeof clean === 'string' && clean.startsWith('[') && clean.endsWith(']')) {
+        // In case it was stringified array in DB
         try {
-            const urlObj = new URL(url);
+            const parsed = JSON.parse(clean);
+            if (Array.isArray(parsed)) {
+                clean = parsed[0];
+            }
+        } catch {}
+    }
+
+    if (typeof clean !== 'string') return null;
+
+    if (clean.startsWith('http') && clean.includes('supabase.co')) {
+        try {
+            const urlObj = new URL(clean);
             const parts = urlObj.pathname.split('/object/public/')?.[1] || urlObj.pathname.split('/object/sign/')?.[1];
             if (parts) {
                 clean = parts;
@@ -20,12 +36,10 @@ function cleanContaminatedPhotoUrl(url: string | null | undefined): string | nul
     }
 
     // Auto-heal missing "verifications/" folder prefix for documents bucket
-    if (typeof clean === 'string') {
-        if (clean.startsWith('documents/') && !clean.includes('documents/verifications/')) {
-            const remaining = clean.substring('documents/'.length);
-            if (!remaining.includes('/')) {
-                clean = `documents/verifications/${remaining}`;
-            }
+    if (clean.startsWith('documents/') && !clean.includes('documents/verifications/')) {
+        const remaining = clean.substring('documents/'.length);
+        if (!remaining.includes('/')) {
+            clean = `documents/verifications/${remaining}`;
         }
     }
 

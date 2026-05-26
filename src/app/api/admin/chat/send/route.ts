@@ -1,14 +1,12 @@
-import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
+import { getAdminAuth } from '@/lib/auth-helpers';
 import prisma from '@/lib/prisma';
 
 export async function POST(req: Request) {
-    const supabase = await createClient();
-
     // 1. Check Auth
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = await getAdminAuth();
+    if (!auth.authorized) {
+        return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     try {
@@ -19,41 +17,34 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
         }
 
-        // 3. Insert Message (Admin)
-        // Note: 'is_read: false' because the USER hasn't read it yet.
-        // Fix: Use Admin UUID. 'admin' string fails DB trigger casting.
-        const { error } = await supabase.from('messages').insert({
-            conversation_id,
-            senderType: user.id,
-            message,
-            is_read: false
+        // 3. Insert Message via Prisma (Bypasses RLS write, broadcasts to Supabase Realtime via DB replication)
+        const newMsg = await prisma.message.create({
+            data: {
+                conversationId: conversation_id,
+                senderType: auth.user!.id,
+                message: message,
+                isRead: false
+            }
         });
 
-        if (error) {
-            console.error("Message Insert Error:", error);
-            // Handle Trigger Error specifically if needed
-            if (error.code === 'P0001') { // Example code
-                return NextResponse.json({ error: "Database Trigger Error - Check Logs" }, { status: 500 });
-            }
-            throw error;
-        }
-
         // 4. Update Conversation Timestamp
-        await supabase
-            .from('conversations')
-            .update({ updated_at: new Date().toISOString() })
-            .eq('id', conversation_id);
+        await prisma.conversation.update({
+            where: { id: conversation_id },
+            data: { updatedAt: new Date() }
+        });
 
         // 5. Create Notification for User
-        // Fix: Use Prisma to ensure correct table/model usage
         try {
-            const { data: conv } = await supabase.from('conversations').select('user_id').eq('id', conversation_id).single();
-            if (conv && conv.user_id) {
+            const conv = await prisma.conversation.findUnique({
+                where: { id: conversation_id },
+                select: { userId: true }
+            });
+            if (conv && conv.userId) {
                 await prisma.notification.create({
                     data: {
-                        userId: conv.user_id, // Maps to userId field
+                        userId: conv.userId,
                         title: 'New Message from Support',
-                        message: message.substring(0, 100), // Preview
+                        message: message.substring(0, 100),
                         type: 'info',
                         actionLink: `/?openChat=true`,
                         actionText: 'View Chat',
@@ -62,13 +53,12 @@ export async function POST(req: Request) {
             }
         } catch (notifError) {
             console.error("Notification Creation Failed (Non-fatal):", notifError);
-            // Do not throw, allowing the message to be sent successfully
         }
 
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, messageId: newMsg.id });
 
     } catch (e: any) {
-        console.error("Admin Chat API Error:", e);
+        console.error("Admin Chat Send API Error:", e);
         return NextResponse.json({ error: e.message || 'Server Error' }, { status: 500 });
     }
 }

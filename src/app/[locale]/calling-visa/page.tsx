@@ -38,7 +38,7 @@ export default async function CallingVisaPage() {
                             <div>
                                 <h3 className="text-xl font-black text-red-900 dark:text-red-100 mb-2 uppercase">Critical Submission Policy</h3>
                                 <p className="text-red-800 dark:text-red-200 leading-relaxed font-semibold mb-4">
-                                    Unlike standard E-Visas, Calling Visas CANNOT be applied for online. All applications must be submitted OFFLINE directly to the Immigration Office.
+                                    ⚠️ **STRICT NON-REFUNDABLE POLICY:** Calling Visa applications are strictly 100% non-refundable once processing begins. This is due to the significant operational costs of our team traveling back and forth to Jakarta for manual, offline submissions and conducting mandatory physical team interviews with your Indonesian sponsor.
                                 </p>
                                 <ul className="list-disc list-inside text-red-700 dark:text-red-300 space-y-2 text-sm font-medium">
                                     <li>Applications originate in Bali but require physical submission to Central Immigration.</li>
@@ -107,7 +107,7 @@ export default async function CallingVisaPage() {
                             <div className="grid md:grid-cols-2 gap-12 relative z-10">
                                 <div>
                                     <p className="text-slate-400 mb-6 leading-relaxed">
-                                        The base application fee is <strong>$500 USD</strong>. However, for Calling Countries, 
+                                        The base application fee is <strong>$500 USD (strictly non-refundable)</strong>. This fee covers our initial manual filing, verification procedures, and multiple offline representation visits. For Calling Countries, 
                                         the **Inter-Agency Security Clearance** is the primary hurdle. Official clearance fees range from **$5,000 to $10,000 USD** depending on nationality and profile depth.
                                     </p>
                                     <div className="p-4 bg-white/10 rounded-2xl border border-white/10">
@@ -118,7 +118,7 @@ export default async function CallingVisaPage() {
                                 </div>
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                                        <span className="text-sm opacity-60">Base Visa Fee</span>
+                                        <span className="text-sm opacity-60">Base Visa Fee (Non-Refundable)</span>
                                         <span className="font-bold text-xl">$500</span>
                                     </div>
                                     <div className="flex justify-between items-center border-b border-white/10 pb-2">

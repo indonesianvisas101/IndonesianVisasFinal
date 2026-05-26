@@ -183,6 +183,24 @@ export async function POST(req: Request) {
             console.error("[DOKU Checkout] Failed to send reminder email:", e);
         }
 
+        // Create a Payment record in our database to track this attempt
+        try {
+            const baseId = invoiceId.includes('-') ? invoiceId.split('-').slice(0, -1).join('-') : invoiceId;
+            await prisma.payment.create({
+                data: {
+                    orderId: invoiceId, // Unique ID per payment attempt
+                    invoiceId: baseId,
+                    grossAmount: finalAmount,
+                    currency: "IDR",
+                    status: "PENDING",
+                    paymentType: "DOKU"
+                }
+            });
+            console.log(`[DOKU Checkout] Payment record initialized in DB: ${invoiceId}`);
+        } catch (dbErr: any) {
+            console.error("[DOKU Checkout] Failed to create payment record in DB:", dbErr.message);
+        }
+
         return NextResponse.json({ 
             paymentUrl,
             orderId: requestId // Unique ID per payment attempt

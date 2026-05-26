@@ -1,5 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
+import { getAdminAuth } from '@/lib/auth-helpers';
 import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 export async function DELETE(req: Request) {
     const supabase = await createClient();
@@ -12,47 +14,57 @@ export async function DELETE(req: Request) {
 
     try {
         const { id, type } = await req.json();
-
-        // 2. Client Selection (Service Role vs Standard)
-        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-        let dbClient = supabase; // Default to standard authenticated client
-
-        if (serviceRoleKey) {
-            const { createClient: createAdmin } = require('@supabase/supabase-js');
-            dbClient = createAdmin(process.env.NEXT_PUBLIC_SUPABASE_URL, serviceRoleKey);
-        } else {
-            console.warn("SUPABASE_SERVICE_ROLE_KEY missing. Attempting delete with standard authenticated client (RLS must allow this).");
+        if (!id || !type) {
+            return NextResponse.json({ error: 'Missing id or type' }, { status: 400 });
         }
 
-        // 3. Perform Delete
-        if (type === 'conversation') {
-            // Fetch conversation to check owner (or existence)
-            const { data: conv } = await dbClient.from('conversations').select('user_id').eq('id', id).single();
-            if (!conv) return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+        // 2. Check Admin Authorization
+        const adminAuth = await getAdminAuth();
+        const isAdmin = adminAuth.authorized;
 
-            // Manual Cascade: Delete messages first to avoid Foreign Key Constraint errors
-            // (If ON DELETE CASCADE is missing in DB, this solves it)
-            const { error: msgError } = await dbClient.from('messages').delete().eq('conversation_id', id);
-            if (msgError) {
-                console.error("Cascade Delete Messages Error:", msgError);
-                // We communicate this error, but depending on policy, this might fail if user can't delete others' messages.
-                // However, try to proceed to delete conversation? No, FK will block.
-                return NextResponse.json({ error: `Failed to delete messages: ${msgError.message}` }, { status: 500 });
+        // 3. Perform Delete Safely
+        if (type === 'conversation') {
+            // ONLY Admins are allowed to delete whole conversations
+            if (!isAdmin) {
+                return NextResponse.json({ error: 'Forbidden: Admins only' }, { status: 403 });
             }
+
+            // Delete messages first to avoid Foreign Key Constraint errors
+            await prisma.message.deleteMany({
+                where: { conversationId: id }
+            });
 
             // Now delete conversation
-            const { error } = await dbClient.from('conversations').delete().eq('id', id);
-            if (error) {
-                console.error("Delete Conversation Error:", error);
-                return NextResponse.json({ error: `Failed to delete conversation: ${error.message}` }, { status: 500 });
-            }
+            await prisma.conversation.delete({
+                where: { id: id }
+            });
 
         } else if (type === 'message') {
-            const { error } = await dbClient.from('messages').delete().eq('id', id);
-            if (error) {
-                console.error("Delete Message Error:", error);
-                return NextResponse.json({ error: `Failed to delete message: ${error.message}` }, { status: 500 });
+            // If standard user, verify ownership
+            if (!isAdmin) {
+                const dbMsg = await prisma.message.findUnique({
+                    where: { id: id },
+                    include: {
+                        conversation: {
+                            select: { userId: true }
+                        }
+                    }
+                });
+
+                if (!dbMsg) {
+                    return NextResponse.json({ error: 'Message not found' }, { status: 404 });
+                }
+
+                if (dbMsg.conversation.userId !== user.id) {
+                    return NextResponse.json({ error: 'Forbidden: You do not own this conversation' }, { status: 403 });
+                }
             }
+
+            // Perform message delete
+            await prisma.message.delete({
+                where: { id: id }
+            });
+
         } else {
             return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
         }

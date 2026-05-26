@@ -134,6 +134,16 @@ const nextConfig: NextConfig = {
         destination: '/:locale/services/Australia/indonesia-citizenship',
         permanent: true,
       },
+      {
+        source: '/admin/invoice/:id',
+        destination: '/invoice/:id',
+        permanent: false,
+      },
+      {
+        source: '/:locale/admin/invoice/:id',
+        destination: '/:locale/invoice/:id',
+        permanent: false,
+      },
     ];
   },
 };

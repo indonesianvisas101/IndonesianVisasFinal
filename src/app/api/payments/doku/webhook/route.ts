@@ -60,10 +60,21 @@ export async function POST(req: Request) {
             finalStatus = 'FAILED';
         }
 
-        // Update Payment Record
-        const payment = await prisma.payment.update({
+        const baseInvoiceId = invoiceId.includes('-') ? invoiceId.split('-').slice(0, -1).join('-') : invoiceId;
+
+        // Self-Healing Upsert Payment Record
+        const payment = await prisma.payment.upsert({
             where: { orderId: invoiceId },
-            data: {
+            update: {
+                status: finalStatus.toUpperCase(),
+                transactionId: transaction?.id || null,
+                paymentType: service?.id || null,
+                metadata: body as any
+            },
+            create: {
+                orderId: invoiceId,
+                invoiceId: baseInvoiceId,
+                grossAmount: order?.amount || 0,
                 status: finalStatus.toUpperCase(),
                 transactionId: transaction?.id || null,
                 paymentType: service?.id || null,
@@ -93,14 +104,21 @@ export async function POST(req: Request) {
                         }
                     });
 
+                    let accessPin: string | undefined = undefined;
+
                     // Auto-verify related Verification record on payment success
                     if (visaApp.verificationId) {
-                        await prisma.verification.update({
-                            where: { id: visaApp.verificationId },
-                            data: {
-                                status: 'VALID'
-                            }
-                        }).catch(e => console.error("Failed to update verification status on webhook", e));
+                        try {
+                            const verif = await prisma.verification.update({
+                                where: { id: visaApp.verificationId },
+                                data: {
+                                    status: 'VALID'
+                                }
+                            });
+                            if (verif.accessPin) accessPin = verif.accessPin;
+                        } catch (e) {
+                            console.error("Failed to update verification status on webhook", e);
+                        }
                     }
 
                     // Trigger Formspree Notification
@@ -129,7 +147,8 @@ export async function POST(req: Request) {
                         await sendPaymentSuccessEmail(visaApp.guestEmail!, {
                             applicantName: visaApp.guestName || 'Applicant',
                             orderId: invoice.id,
-                            invoiceUrl: invoiceUrl
+                            invoiceUrl: invoiceUrl,
+                            accessPin: accessPin
                         });
                     } catch (e) {
                         console.error("Payment success email failed", e);

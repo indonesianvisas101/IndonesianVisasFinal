@@ -101,6 +101,44 @@ export default function InvoicePage() {
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [isSubmittingProof, setIsSubmittingProof] = useState<boolean>(false);
 
+    const [checkingStatus, setCheckingStatus] = useState(false);
+    const [statusMessage, setStatusMessage] = useState<{ text: string, severity: 'success' | 'error' | 'info' | null }>({ text: "", severity: null });
+
+    const handleCheckDokuStatus = async () => {
+        setCheckingStatus(true);
+        setStatusMessage({ text: "", severity: null });
+        try {
+            const res = await fetch('/api/payments/doku/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: invoiceData.invoice?.id || invoiceData.id })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setStatusMessage({
+                    text: data.message || "Payment verified successfully!",
+                    severity: 'success'
+                });
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                setStatusMessage({
+                    text: data.message || data.error || "No completed payment found on DOKU for this invoice yet.",
+                    severity: 'info'
+                });
+            }
+        } catch (err) {
+            console.error("Status check error:", err);
+            setStatusMessage({
+                text: "Failed to connect to verification server. Please try again later.",
+                severity: 'error'
+            });
+        } finally {
+            setCheckingStatus(false);
+        }
+    };
+
     const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
         const file = e.target.files[0];
@@ -1215,6 +1253,53 @@ export default function InvoicePage() {
                     {!isPaid && (
                         <PayPalProvider>
                             <Box sx={{ width: '100%', maxWidth: '500px' }}>
+                                {/* Doku Payment Reconciliation Widget */}
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 3,
+                                        borderRadius: 3,
+                                        border: '1.5px dashed rgba(145, 85, 253, 0.3)',
+                                        bgcolor: 'rgba(145, 85, 253, 0.02)',
+                                        mb: 4,
+                                        textAlign: 'center'
+                                    }}
+                                >
+                                    <Typography variant="subtitle2" fontWeight="800" sx={{ color: '#9155FD', mb: 1, textTransform: 'uppercase' }}>
+                                        Sudah membayar via DOKU? / Already Paid?
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.8rem' }}>
+                                        Jika Anda sudah menyelesaikan pembayaran di halaman DOKU tetapi status invoice belum berubah, silakan klik tombol di bawah untuk verifikasi pembayaran Anda secara langsung.
+                                    </Typography>
+                                    
+                                    {statusMessage.severity && (
+                                        <Alert severity={statusMessage.severity} sx={{ mb: 2, borderRadius: 2, textAlign: 'left', fontSize: '0.85rem' }}>
+                                            {statusMessage.text}
+                                        </Alert>
+                                    )}
+
+                                    <Button
+                                        variant="outlined"
+                                        onClick={handleCheckDokuStatus}
+                                        disabled={checkingStatus}
+                                        fullWidth
+                                        startIcon={<RefreshIcon className={checkingStatus ? "animate-spin" : ""} />}
+                                        sx={{
+                                            borderColor: '#9155FD',
+                                            color: '#9155FD',
+                                            textTransform: 'none',
+                                            fontWeight: 'bold',
+                                            borderRadius: 2,
+                                            '&:hover': {
+                                                borderColor: '#804BDF',
+                                                bgcolor: 'rgba(145, 85, 253, 0.04)'
+                                            }
+                                        }}
+                                    >
+                                        {checkingStatus ? "Memverifikasi..." : "Verifikasi Status Pembayaran DOKU"}
+                                    </Button>
+                                </Paper>
+
                                 {/* Payment Method Selector */}
                                 <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, textAlign: 'center' }}>
                                     Select Payment Method

@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
         // 2. Fetch user profile using Prisma
         // Added a timeout-like protection by using findUnique with a specific selection to speed it up
-        const profile = await prisma.user.findUnique({
+        let profile = await prisma.user.findUnique({
             where: { id: authUser.id },
             select: {
                 id: true,
@@ -41,13 +41,36 @@ export async function GET(request: Request) {
         });
 
         if (!profile) {
-            return NextResponse.json({
-                id: authUser.id,
-                email: authUser.email,
-                role: 'user',
-                status: 'active',
-                is_fallback: true
+            // Auto-heal/create missing profile in database (e.g. from Google Sign-In)
+            const fallbackName = authUser.user_metadata?.full_name || authUser.user_metadata?.name || '';
+            const fallbackAvatar = authUser.user_metadata?.avatar_url || '';
+            const fallbackWhatsapp = authUser.user_metadata?.phone || authUser.phone || '';
+            
+            // Auto-detect admin from metadata if present
+            const isMetadataAdmin = authUser.user_metadata?.role === 'admin';
+
+            const created = await prisma.user.create({
+                data: {
+                    id: authUser.id,
+                    email: authUser.email!,
+                    name: fallbackName,
+                    avatar: fallbackAvatar,
+                    whatsapp: fallbackWhatsapp,
+                    role: isMetadataAdmin ? 'admin' : 'user',
+                    status: 'active',
+                },
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    whatsapp: true,
+                    role: true,
+                    status: true,
+                    createdAt: true,
+                    updatedAt: true
+                }
             });
+            profile = created;
         }
 
         return NextResponse.json(profile);

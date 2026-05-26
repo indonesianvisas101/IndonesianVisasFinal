@@ -44,7 +44,7 @@ export default async function RefundPolicyPage({ params }: { params: Promise<{ l
         {
             icon: <Clock className="text-primary" size={32} />,
             title: "Administration Fee",
-            content: "Our administration fee is 90% refundable if requested before completion. A 10% deduction applies to cover initial verification and labor costs."
+            content: "Our administration fee is 90% refundable if requested before completion. A 10% deduction applies to cover initial verification. Note that Calling Visa applications are strictly 100% non-refundable due to manual submission and sponsor interview travel overheads."
         },
         {
             icon: <CreditCard className="text-purple-500" size={32} />,
@@ -110,7 +110,8 @@ export default async function RefundPolicyPage({ params }: { params: Promise<{ l
                                     {[
                                         "Bank transfer refunds will have the bank fee deducted from the final amount (Client bears transfer costs).",
                                         "Refund rates follow the official Indonesian bank currency rate at the time of processing.",
-                                        "Refunds are not applicable for change of mind after initial consultation and documentation start."
+                                        "Refunds are not applicable for change of mind after initial consultation and documentation start.",
+                                        "Calling Visa applications are strictly 100% non-refundable due to the high operational costs of our team traveling back and forth to Jakarta for manual submissions and face-to-face sponsor interviews."
                                     ].map((text, i) => (
                                         <li key={i} className="flex items-start gap-4">
                                             <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2.5 shrink-0" />

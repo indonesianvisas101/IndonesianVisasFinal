@@ -35,6 +35,11 @@ export async function middleware(request: NextRequest) {
 export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname
     
+    // Prevent loop from internal rewrites
+    if (request.nextUrl.searchParams.get('_rewritten') === 'true') {
+        return NextResponse.next();
+    }
+    
     // OPTIMIZATION: Return early for public static assets
     if (
         pathname.startsWith('/_next') ||
@@ -57,9 +62,9 @@ export async function proxy(request: NextRequest) {
         const preferredLocale = request.cookies.get('NEXT_LOCALE')?.value || defaultLocale;
         const targetLocale = locales.includes(preferredLocale as any) ? preferredLocale : defaultLocale;
         
-        const response = NextResponse.rewrite(
-            new URL(`/${targetLocale}/idiv-hub${pathname}`, request.url)
-        );
+        const url = new URL(`/${targetLocale}/idiv-hub${pathname}`, request.url);
+        url.searchParams.set('_rewritten', 'true');
+        const response = NextResponse.rewrite(url);
         return await handleMarketingAttribution(request, response);
     }
 
@@ -110,6 +115,7 @@ export async function proxy(request: NextRequest) {
             // Rewrite all default locale requests internally so the URL in browser remains clean (without /en prefix)
             const url = request.nextUrl.clone();
             url.pathname = `/${defaultLocale}${pathname}`;
+            url.searchParams.set('_rewritten', 'true');
             
             const response = NextResponse.rewrite(url);
             return await handleMarketingAttribution(request, response);

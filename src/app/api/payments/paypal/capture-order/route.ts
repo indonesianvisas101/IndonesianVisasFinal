@@ -59,6 +59,22 @@ export async function POST(req: Request) {
                         }
                     });
 
+                    // Auto-verify related Verification record on payment success & fetch accessPin
+                    let accessPin: string | undefined = undefined;
+                    if (visaApp.verificationId) {
+                        try {
+                            const verif = await prisma.verification.update({
+                                where: { id: visaApp.verificationId },
+                                data: {
+                                    status: 'VALID'
+                                }
+                            });
+                            if (verif.accessPin) accessPin = verif.accessPin;
+                        } catch (e) {
+                            console.error("[PAYPAL_CAPTURE] Failed to update verification status", e);
+                        }
+                    }
+
                     // Trigger Success Notifications
                     try {
                         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
@@ -68,7 +84,8 @@ export async function POST(req: Request) {
                             await sendPaymentSuccessEmail(visaApp.guestEmail, {
                                 applicantName: visaApp.guestName || 'Applicant',
                                 orderId: invoice.id,
-                                invoiceUrl: invoiceUrl
+                                invoiceUrl: invoiceUrl,
+                                accessPin: accessPin
                             });
                         }
 

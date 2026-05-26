@@ -165,9 +165,10 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
     invoiceUrl: string;
     hasIdiv?: boolean;
     hasArrivalCard?: boolean;
+    accessPin?: string;
 }) => {
     try {
-        const { applicantName, orderId, invoiceUrl } = data;
+        const { applicantName, orderId, invoiceUrl, accessPin } = data;
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://indonesianvisas.com';
         
         let message = `
@@ -178,7 +179,7 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
                     <div style="display: inline-block; background-color: #ecfdf5; color: #059669; padding: 8px 16px; border-radius: 30px; font-weight: 700; font-size: 14px; margin-bottom: 15px;">✓ PAYMENT CONFIRMED</div>
                     <h2 style="color: #1e1b4b; font-size: 24px; font-weight: 800; margin: 0;">We've Received Your Payment</h2>
                 </div>
-
+ 
                 <p style="font-size: 16px; line-height: 1.6;">Dear ${applicantName},</p>
                 <p style="font-size: 16px; line-height: 1.6;">Great news! Your payment for order <strong>#${orderId.toUpperCase()}</strong> has been successfully processed and verified. We appreciate your prompt action.</p>
                 
@@ -186,6 +187,18 @@ export const sendPaymentSuccessEmail = async (to: string, data: {
                     <p style="margin: 0; font-size: 14px; color: #166534; font-weight: 600;">NEW APPLICATION STATUS</p>
                     <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: 800; color: #166534; text-transform: uppercase;">Under Official Review</p>
                 </div>
+
+                ${accessPin ? `
+                <div style="background-color: #f3e8ff; border: 1px solid #c084fc; padding: 20px; border-radius: 12px; margin: 25px 0; text-align: center; font-family: sans-serif;">
+                    <p style="margin: 0; font-size: 13px; color: #6b21a8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">🔐 SECURITY ACCESS PIN</p>
+                    <p style="margin: 5px 0 12px 0; font-size: 14px; color: #581c87; line-height: 1.4;">
+                        Gunakan PIN Keamanan berikut untuk menandatangani <strong>Sponsorship Agreement</strong> digital Anda di portal verifikasi:
+                    </p>
+                    <p style="margin: 5px 0 0 0; font-size: 28px; font-weight: 900; color: #7c3aed; letter-spacing: 4px; font-family: monospace; background: white; display: inline-block; padding: 8px 24px; border-radius: 8px; border: 1px dashed #c084fc;">
+                        ${accessPin}
+                    </p>
+                </div>
+                ` : ''}
 
                 <p style="font-size: 16px; line-height: 1.6;">Your application has been fast-tracked to our legal processing department. Our team will now finalize the sponsorship documents and proceed with the official immigration submission.</p>
                 

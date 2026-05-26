@@ -1,16 +1,14 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { getAdminAuth } from '@/lib/auth-helpers';
 import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
     try {
-        const authClient = await createClient();
-        const { data: { user } } = await authClient.auth.getUser();
-        
-        if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const auth = await getAdminAuth();
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.status });
         }
         
         // Use Prisma to securely bypass RLS for Admin Dashboard without needing Service Role Key

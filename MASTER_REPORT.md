@@ -1,5 +1,5 @@
 # Indonesian Visas Intelligence Report
-**Version:** 61.5.0 (Sponsor Agreement Signature Gating & Invoice UI)
+**Version:** 62.0.0 (Payment Failsafe & Support Chat Hardening)
 **Status:** PRODUCTION READY - HARDENED 🛡️
 **Confidentiality:** Boss Bayu Authorized
 
@@ -349,5 +349,21 @@ git push origin main
 
 ---
 
-**END OF MASTER INTELLIGENCE REPORT v61.5.0**
+#### Phase 108: Payment Failsafe & Support Chat Hardening (MAY 27, 2026)
+- **Support Chat Security Hardening (API & Database)**:
+    - Secured all admin endpoints `/api/admin/chat/conversations`, `/api/admin/chat/messages`, `/api/admin/chat/send`, and `/api/admin/fix-chat-db` using `getAdminAuth()` to enforce strict role checks.
+    - Migrated all administrative mutations and query operations in these routes to **Prisma** to safely bypass RLS boundaries at server-side.
+    - Hardened `/api/chat/delete` to allow message deletes for standard users *only* if they own the conversation, while restricting conversation deletion to admins.
+    - Activated PostgreSQL Row-Level Security (RLS) on `conversations`, `messages`, and `users` tables, and registered them into the `supabase_realtime` publication for instant pub/sub sync.
+- **Payment Failsafe & Reconciliation (DOKU & PayPal)**:
+    - Created dynamic `/api/payments/doku/check` endpoint for live checkout status reconciliation directly with Doku servers.
+    - Implemented self-healing `payment.upsert` in Doku webhook to handle asynchronous payloads cleanly.
+    - Integrated "Check Payment Status" live interactive buttons in the Invoice Detail portal for immediate reconciliation.
+    - Standardized `accessPin` automatic generation and instant delivery in PayPal/Doku success emails.
+- **Middleware Infinite Loop Prevention**:
+    - Fixed middleware routing to prevent redirect loops when dynamically mapping root folders and locales (`_rewritten` query parameter gating).
+
+---
+
+**END OF MASTER INTELLIGENCE REPORT v62.0.0**
 *(Maintained by Antigravity AI Master Agent)*

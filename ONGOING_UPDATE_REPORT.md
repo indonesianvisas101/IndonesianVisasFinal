@@ -22,11 +22,11 @@ This master report consolidates all strategic updates, AI prompts, and system co
 
 # 🧠 INDONESIAN VISAS AI ORGANIZATION
 
-# MASTER SYSTEM DOCUMENTATION v3.1
+# MASTER SYSTEM DOCUMENTATION v3.2
 
-**Last Updated:** 2026-05-02 21:45 WIB
+**Last Updated:** 2026-05-27 06:58 WITA
 
-**Status:** Production Active — Phase 104 Complete (Visa Ingestion Hardening & AI OCR Blueprint)
+**Status:** Production Active — Phase 108 Complete (Payment Failsafe & Support Chat Hardening)
 
 **Maintained by:** Bayu Damopolii (Boss / Human Final Authority) & AntiGravity AI (Technical Hardening Lab)
 
@@ -781,6 +781,9 @@ npm run build
 | Phase 24 | Secure Gatekeeper & Payment Hardening | ✅ Complete |
 | Phase 104 | Visa Ingestion Hardening & AI OCR Blueprint | ✅ Complete |
 | Phase 105 | Sponsor Agreement Signature Gating & Invoice UI | ✅ Complete |
+| Phase 106 | Advanced Sync & Email Intelligence | ✅ Complete |
+| Phase 107 | Sponsor Agreement Signature Gating | ✅ Complete |
+| Phase 108 | Payment Failsafe & Support Chat Hardening | ✅ Complete |
 
 ---
 
@@ -4139,3 +4142,31 @@ If any test fails:
 - **Visual Precision:** Tuned stamp placement (X: 130, Y: 135) for a premium, professional document finish.
 
 **Phase 25 Status: ✅ HARDENED, INTELLIGENT & PRODUCTION READY**
+
+---
+
+# PHASE 108: PAYMENT FAILSAFE & SUPPORT CHAT HARDENING (COMPLETED)
+
+**Date:** May 27, 2026
+**Focus:** Secure Admin Chat Endpoints, Strict Ownership Delete Check, Row-Level Security (RLS) Database Activation, and Payments Check/Webhook Self-healing
+
+### 108.1 Support Chat API Hardening
+- **Access Control:** All four admin API endpoints (`/api/admin/chat/conversations`, `/api/admin/chat/messages`, `/api/admin/chat/send`, and `/api/admin/fix-chat-db`) are secured using `getAdminAuth()` validation. Only verified administrators can access administrative chat data.
+- **Server Mutation Decoupling:** Re-engineered `/api/admin/chat/send` and `/api/admin/fix-chat-db` to mutate database records strictly via **Prisma** instead of the client-side Supabase client. This bypasses client-side permissions blocks securely while maintaining full database logical replication to Supabase Realtime pub/sub.
+- **Secure Conversation Deletion:** Hardened `/api/chat/delete` to enforce that standard users can only delete messages inside their own conversations (`conversation.userId === user.id`), while locking whole conversation deletion to administrators.
+
+### 108.2 Database Row-Level Security (RLS) & Realtime Publication
+- **RLS Activation:** Enabled RLS (`rowsecurity = true`) on the `conversations`, `messages`, and `users` tables in the PostgreSQL database.
+- **RLS Policies:** Applied secure policies enabling standard users to select, insert, and update only their own conversations and messages, while granting unrestricted administrative access to users with `role = 'admin'`.
+- **Realtime Pub/Sub Activation:** Registered the `conversations` and `messages` tables to the `supabase_realtime` publication using a safe PL/pgSQL block, enabling immediate and secure realtime synchronization in the support dashboard.
+
+### 108.3 Payments Failsafe & Webhook Reconciliation
+- **Doku Check Status API:** Created a new dynamic `/api/payments/doku/check` endpoint to fetch real-time invoice transaction states directly from Doku payment gateways.
+- **Interactive Check Button:** Integrated a responsive "Check Payment Status" action button on both user and admin invoice views (`/invoice/[id]`) for manual reconciliation.
+- **Self-Healing Webhook:** Hardened Doku Webhook with `payment.upsert` to self-heal and handle asynchronous webhook delivery errors securely.
+- **Access Pin Emails:** Unified Doku and PayPal payment capture loops to auto-generate `accessPin` and dispatch them instantly in success emails.
+
+### 108.4 Infinite Loop Prevention
+- **Rewrite Loop Shield:** Patched `src/middleware.ts` to block infinite rewrite redirection loops by using localized query parameters (`_rewritten=true`) on default locale routes.
+
+**Phase 108 Status: ✅ HARDENED, FAILSAFE & PRODUCTION SECURED**

@@ -241,7 +241,7 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                             </div>
                         </div>
                         <div className="md:w-1/2 flex flex-col items-center">
-                                <IDivCardModern mode="SMART" showDownload={false} showActions={false} shareUrl="https://indonesianvisas.com/ktp-id-card-smart-id" />
+                                <IDivCardModern mode="SMART" showDownload={false} showActions={false} shareUrl="https://indonesianvisas.com/ktp-id-card-smart-id" centerMobile={true} />
                                 <Button
                                     variant="outlined"
                                     startIcon={<Share2 size={18} />}
@@ -259,7 +259,7 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                    {/* IDiv Explained Section */}
                    <div className="mt-1 bg-blue-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-none flex flex-col md:flex-row items-center gap-12">
                         <div className="md:w-1/2 flex flex-col items-center">
-                                <IDivCardModern showDownload={false} showActions={false} shareUrl="https://indonesianvisas.com/id-indonesian-visas" />
+                                <IDivCardModern showDownload={false} showActions={false} shareUrl="https://indonesianvisas.com/id-indonesian-visas" centerMobile={true} />
                                 <Button
                                     variant="outlined"
                                     startIcon={<Share2 size={18} />}
@@ -305,7 +305,7 @@ const SafetyGuard = ({ dict }: { dict?: any }) => {
                    {/* IDg Explained Section (New) */}
                    <div className="mt-1 bg-purple-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-white/10 p-8 md:p-12 rounded-b-[2.9rem] flex flex-col md:flex-row-reverse items-center gap-12">
                         <div className="md:w-1/2 flex flex-col items-center">
-                                <IDivCardModern mode="IDG" variant="purple" showDownload={false} showActions={false} shareUrl="https://indonesianvisas.com/id-guide" />
+                                <IDivCardModern mode="IDG" variant="purple" showDownload={false} showActions={false} shareUrl="https://indonesianvisas.com/id-guide" centerMobile={true} />
                                 <Button
                                     variant="outlined"
                                     startIcon={<Share2 size={18} />}

@@ -46,6 +46,7 @@ interface IDivCardProps {
     idPrefix?: string;
     hasNFC?: boolean;
     isSample?: boolean;
+    centerMobile?: boolean;
 }
 
 export default function IDivCardModern({
@@ -59,7 +60,8 @@ export default function IDivCardModern({
     shareUrl,
     idPrefix = '',
     hasNFC = false,
-    isSample = false
+    isSample = false,
+    centerMobile = false
 }: IDivCardProps) {
     const [isFlipped, setIsFlipped] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
@@ -256,12 +258,16 @@ export default function IDivCardModern({
                     sx={{
                         position: 'absolute',
                         top: 0,
-                        left: 0,
+                        left: centerMobile ? '50%' : 0,
                         width: `${CARD_W}px`,
                         height: `${CARD_H}px`,
-                        transformOrigin: 'top left',
+                        transformOrigin: centerMobile ? 'top center' : 'top left',
                     }}
-                    style={{ transform: `scale(${cardScale})` }}
+                    style={{
+                        transform: centerMobile
+                            ? `translateX(-50%) scale(${cardScale})`
+                            : `scale(${cardScale})`
+                    }}
                     suppressHydrationWarning
                 >
                     <motion.div

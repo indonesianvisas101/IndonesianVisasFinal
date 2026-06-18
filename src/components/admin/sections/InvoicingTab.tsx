@@ -106,7 +106,8 @@ export default function InvoicingTab() {
         arrivalCardLink: "", // New
         arrivalCardQr: "", // New
         attribution: {} as any,
-        verificationAddress: ""
+        verificationAddress: "",
+        paymentMethod: ""
     });
 
     useEffect(() => {
@@ -431,6 +432,7 @@ export default function InvoicingTab() {
                 arrivalCardLink: fullData.arrivalCardLink || fullData.attribution?.arrivalCardLink || '',
                 arrivalCardQr: fullData.arrivalCardQr || fullData.attribution?.arrivalCardQr || '',
                 attribution: fullData.attribution || {}, // PRESERVE ALL (including upsells)
+                paymentMethod: fullData.paymentMethod || linkedInvoice.paymentMethod || '',
                 verificationAddress: (() => {
                     const addr = fullData.verification?.address || '';
                     if (addr.startsWith('{')) {
@@ -565,7 +567,20 @@ export default function InvoicingTab() {
                                         </TableCell>
                                         <TableCell>
                                             <Typography variant="body2">{inv.visaName || inv.visaId}</Typography>
-                                            <Stack direction="row" spacing={0.5} mt={0.5}>
+                                            <Stack direction="row" spacing={0.5} mt={0.5} alignItems="center" flexWrap="wrap">
+                                                {inv.paymentMethod && (
+                                                    <Chip 
+                                                        label={inv.paymentMethod} 
+                                                        size="small" 
+                                                        sx={{ 
+                                                            height: 16, 
+                                                            fontSize: '0.6rem', 
+                                                            fontWeight: 'bold', 
+                                                            bgcolor: inv.paymentMethod === 'Inquiry' ? 'warning.light' : 'action.selected',
+                                                            color: inv.paymentMethod === 'Inquiry' ? 'warning.contrastText' : 'text.primary'
+                                                        }}
+                                                    />
+                                                )}
                                                 {inv.customAmount && (
                                                     <Typography variant="caption" color="primary" sx={{ mr: 1 }}>Custom: {inv.customAmount}</Typography>
                                                 )}
@@ -1211,6 +1226,19 @@ export default function InvoicingTab() {
                                 <MenuItem value="PAID">Paid (Additional)</MenuItem>
                             </TextField>
                         </Stack>
+
+                        <TextField
+                            select
+                            label="Payment Method"
+                            fullWidth
+                            value={editFormData.paymentMethod || ""}
+                            onChange={(e) => setEditFormData({ ...editFormData, paymentMethod: e.target.value })}
+                        >
+                            <MenuItem value="PayPal">PayPal</MenuItem>
+                            <MenuItem value="DOKU">Doku</MenuItem>
+                            <MenuItem value="Manual">Wise / Stripe / Revolut (Manual)</MenuItem>
+                            <MenuItem value="Inquiry">Submit Inquiry</MenuItem>
+                        </TextField>
 
                         <TextField
                             label="Payment Reference"

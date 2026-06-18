@@ -107,8 +107,8 @@ export default async function CallingVisaPage() {
                             <div className="grid md:grid-cols-2 gap-12 relative z-10">
                                 <div>
                                     <p className="text-slate-400 mb-6 leading-relaxed">
-                                        The base application fee is <strong>$500 USD (strictly non-refundable)</strong>. This fee covers our initial manual filing, verification procedures, and multiple offline representation visits. For Calling Countries, 
-                                        the **Inter-Agency Security Clearance** is the primary hurdle. Official clearance fees range from **$5,000 to $10,000 USD** depending on nationality and profile depth.
+                                        The base application fee is <strong>$600 USD (strictly non-refundable)</strong>. This fee covers our initial manual filing, verification procedures, and multiple offline representation visits. For Calling Countries,
+                                        the **Inter-Agency Security Clearance** is the primary hurdle. Official clearance fees range from **$2,000 to $3,000 USD** depending on nationality and profile depth.
                                     </p>
                                     <div className="p-4 bg-white/10 rounded-2xl border border-white/10">
                                         <p className="text-xs uppercase font-black text-primary mb-1">Approval Probability</p>
@@ -119,33 +119,33 @@ export default async function CallingVisaPage() {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
                                         <span className="text-sm opacity-60">Base Visa Fee (Non-Refundable)</span>
-                                        <span className="font-bold text-xl">$500</span>
+                                        <span className="font-bold text-xl">$600</span>
                                     </div>
                                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
                                         <span className="text-sm opacity-60">Gov. Security Clearance</span>
-                                        <span className="font-bold text-sm italic">$5,000 - $10,000</span>
+                                        <span className="font-bold text-sm italic">$2,000 - $3,000</span>
                                     </div>
                                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
                                         <span className="text-sm opacity-60">Return Ticket Deposit</span>
                                         <span className="font-bold text-sm italic">100% Refundable</span>
                                     </div>
                                     <div className="text-[10px] opacity-40 italic mt-2">
-                                       * Security deposit is equivalent to a full return flight cost, held by the sponsor agency.
+                                        * Security deposit is equivalent to a full return flight cost, held by the sponsor agency.
                                     </div>
                                 </div>
                             </div>
 
                             {/* CTAs Inside Card */}
                             <div className="mt-12 flex flex-col sm:flex-row gap-4 border-t border-white/10 pt-8 relative z-10">
-                                <Link 
-                                    href="/services/C1" 
+                                <Link
+                                    href="/services/C1"
                                     className="flex-1 bg-primary text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 group"
                                 >
                                     Apply for C1 Visa
                                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                 </Link>
-                                <Link 
-                                    href="/services" 
+                                <Link
+                                    href="/services"
                                     className="flex-1 bg-white/10 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center hover:bg-white/20 transition-all border border-white/10"
                                 >
                                     Explore All Services

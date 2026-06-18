@@ -321,14 +321,48 @@ export default function AIMasterTab() {
                 return;
             }
 
-            const data = await res.json();
-
             if (!res.ok) {
-                throw new Error(data.error || `API error: ${res.status}`);
+                let errMsg = `API error: ${res.status}`;
+                try {
+                    const errData = await res.json();
+                    errMsg = errData.error || errMsg;
+                } catch (e) {
+                    try {
+                        const errText = await res.text();
+                        errMsg = errText || errMsg;
+                    } catch (e2) {}
+                }
+                throw new Error(errMsg);
             }
 
-            const aiText = data.text || '✅ Command executed successfully.';
-            setMessages(prev => [...prev, { role: 'assistant', content: aiText }]);
+            if (!res.body) {
+                throw new Error('No response body received from server.');
+            }
+
+            // Append assistant placeholder
+            setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedContent = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                accumulatedContent += decoder.decode(value, { stream: true });
+                setMessages(prev => {
+                    const next = [...prev];
+                    if (next.length > 0 && next[next.length - 1].role === 'assistant') {
+                        next[next.length - 1] = {
+                            ...next[next.length - 1],
+                            content: accumulatedContent
+                        };
+                    }
+                    return next;
+                });
+                scrollChatToBottom();
+            }
 
             // Auto-refresh data after command might have run
             fetchData();

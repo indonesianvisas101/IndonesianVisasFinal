@@ -24,7 +24,7 @@ export async function GET(request: Request) {
             if (id) {
                 // Use safe parameterized queryRaw
                 rawApps = await prisma.$queryRaw`
-                    SELECT a.*, i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
+                    SELECT a.*, i.id as "invoiceId", i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
                            i."serviceFee", i."gatewayFee", i."pph23Amount",
                            v.price as "dbVisaPrice", v.fee as "dbVisaFee"
                     FROM "visa_applications" a
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
                 `;
             } else {
                 rawApps = await prisma.$queryRaw`
-                    SELECT a.*, i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
+                    SELECT a.*, i.id as "invoiceId", i.status as "paymentStatus", i.amount as "invoiceAmount", i."paymentReference", i."adminNotes", i.quantity as "invoiceQuantity",
                            i."serviceFee", i."gatewayFee", i."pph23Amount",
                            v.price as "dbVisaPrice", v.fee as "dbVisaFee"
                     FROM "visa_applications" a
@@ -129,6 +129,7 @@ export async function GET(request: Request) {
 
                 // Injected Invoice Data (for real-time sync)
                 invoice: {
+                    id: app.invoiceId,
                     status: app.paymentStatus,
                     amount: app.invoiceAmount,
                     paymentReference: app.paymentReference,

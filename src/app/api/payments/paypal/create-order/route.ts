@@ -14,11 +14,29 @@ export async function POST(req: Request) {
         // Create PayPal Order
         const paypalOrder = await createPayPalOrder(Number(amount), currency, invoiceId);
 
+        // Try to find the invoice by ID or Application ID/Slug to ensure a valid relation
+        let invoice = await prisma.invoice.findUnique({
+            where: { id: invoiceId }
+        });
+
+        if (!invoice) {
+            const app = await prisma.visaApplication.findFirst({
+                where: { OR: [{ id: invoiceId }, { slug: invoiceId }] }
+            });
+            if (app) {
+                invoice = await prisma.invoice.findFirst({
+                    where: { applicationId: app.id }
+                });
+            }
+        }
+
+        const finalInvoiceId = invoice ? invoice.id : null;
+
         // Record the payment attempt in Database
         await prisma.payment.create({
             data: {
                 orderId: paypalOrder.id,
-                invoiceId: invoiceId,
+                invoiceId: finalInvoiceId,
                 grossAmount: Number(amount),
                 currency: currency,
                 paymentType: 'PAYPAL',

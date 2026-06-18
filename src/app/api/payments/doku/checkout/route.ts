@@ -60,11 +60,27 @@ export async function POST(req: Request) {
         const rawEmail = customerDetails.email?.trim() || "";
         const finalEmail = rawEmail.includes('@') ? rawEmail.substring(0, 50) : "no-reply@indonesianvisas.com";
 
-        // Robust Amount Parsing (Remove dots/commas to prevent 159.000 becoming 159)
-        const cleanAmount = typeof amount === 'string' 
-            ? amount.replace(/[.,]/g, '') 
-            : String(amount);
-        const finalAmount = Math.round(Number(cleanAmount));
+        // Robust Amount Parsing:
+        // Handle Prisma Decimal string (e.g. "1210000.00") and user formatted string (e.g. "1.210.000")
+        let finalAmount: number;
+        if (typeof amount === 'number') {
+            finalAmount = Math.round(amount);
+        } else {
+            const amountStr = String(amount).trim();
+            // If it's a standard decimal string (e.g., "1210000.00" or "350000.00")
+            if (amountStr.includes('.') && amountStr.indexOf('.') === amountStr.lastIndexOf('.') && !amountStr.includes(',')) {
+                const parts = amountStr.split('.');
+                if (parts[1].length <= 2) {
+                    finalAmount = Math.round(parseFloat(amountStr));
+                } else {
+                    // It's probably thousand separator, e.g. "1.210.000"
+                    finalAmount = Math.round(Number(amountStr.replace(/\./g, '')));
+                }
+            } else {
+                // Remove thousand separators (dots or commas) and parse
+                finalAmount = Math.round(Number(amountStr.replace(/[,.]/g, '')));
+            }
+        }
 
         // Prepare Request Body
         const requestBody = {
@@ -135,6 +151,8 @@ export async function POST(req: Request) {
 
         const paymentUrl = dokuData.response.payment.url;
 
+        let invoice: any = null;
+
         // NEW: Trigger Payment Reminder Email
         try {
             const { sendPaymentReminderEmail } = await import('@/lib/email');
@@ -144,7 +162,7 @@ export async function POST(req: Request) {
 
             // Fetch application name/visa for the email
             // We try to find by Invoice ID first
-            let invoice = await prisma.invoice.findUnique({
+            invoice = await prisma.invoice.findUnique({
                 where: { id: baseId }
             });
 
@@ -186,17 +204,18 @@ export async function POST(req: Request) {
         // Create a Payment record in our database to track this attempt
         try {
             const baseId = invoiceId.includes('-') ? invoiceId.split('-').slice(0, -1).join('-') : invoiceId;
+            const finalInvoiceId = invoice ? invoice.id : baseId;
             await prisma.payment.create({
                 data: {
                     orderId: invoiceId, // Unique ID per payment attempt
-                    invoiceId: baseId,
+                    invoiceId: finalInvoiceId,
                     grossAmount: finalAmount,
                     currency: "IDR",
                     status: "PENDING",
                     paymentType: "DOKU"
                 }
             });
-            console.log(`[DOKU Checkout] Payment record initialized in DB: ${invoiceId}`);
+            console.log(`[DOKU Checkout] Payment record initialized in DB: ${invoiceId} for invoice ${finalInvoiceId}`);
         } catch (dbErr: any) {
             console.error("[DOKU Checkout] Failed to create payment record in DB:", dbErr.message);
         }

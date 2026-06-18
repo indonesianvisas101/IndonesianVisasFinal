@@ -263,6 +263,11 @@ export default function OrderPanel() {
                                         <Typography variant="body2" fontWeight="bold">
                                             {order.customAmount ? order.customAmount : "Standard"}
                                         </Typography>
+                                        {order.paymentMethod && (
+                                            <Typography variant="caption" color="text.secondary" display="block">
+                                                Via: {order.paymentMethod}
+                                            </Typography>
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         <Chip
@@ -432,6 +437,12 @@ export default function OrderPanel() {
                                             <Grid size={6}>
                                                 <Typography variant="caption" color="text.secondary">Amount Paid</Typography>
                                                 <Typography variant="body2" fontWeight="bold">{selectedOrder.customAmount || "Standard Price"}</Typography>
+                                            </Grid>
+                                            <Grid size={6}>
+                                                <Typography variant="caption" color="text.secondary">Payment Method</Typography>
+                                                <Typography variant="body2" fontWeight="bold" sx={{ color: selectedOrder.paymentMethod === 'Inquiry' ? 'warning.main' : 'text.primary' }}>
+                                                    {selectedOrder.paymentMethod || "N/A"}
+                                                </Typography>
                                             </Grid>
                                         </Grid>
                                     </Box>

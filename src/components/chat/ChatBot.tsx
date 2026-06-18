@@ -233,12 +233,20 @@ export default function ChatBot() {
 
             if (!response.ok) throw new Error(response.statusText);
 
-            const data = await response.json();
-            const aiText = data.text || '✅ Command executed.';
-            setMessages(prev => prev.map(m => m.id === assistantMsgId
-                ? { ...m, content: aiText, isMasterMode: true }
-                : m
-            ));
+            if (!response.body) throw new Error('No response body');
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedContent = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                accumulatedContent += decoder.decode(value, { stream: true });
+                setMessages(prev => prev.map(m => m.id === assistantMsgId
+                    ? { ...m, content: accumulatedContent, isMasterMode: true }
+                    : m
+                ));
+            }
         } catch (error) {
             console.error("Master Mode error:", error);
             setMessages(prev => prev.map(m => m.id === assistantMsgId

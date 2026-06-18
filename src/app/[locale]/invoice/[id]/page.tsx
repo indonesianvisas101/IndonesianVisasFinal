@@ -237,6 +237,21 @@ export default function InvoicePage() {
         fetchInvoice();
     }, [id]);
 
+    useEffect(() => {
+        if (invoiceData) {
+            const method = (invoiceData.invoice?.paymentMethod || invoiceData.paymentMethod || '').toUpperCase();
+            if (method.includes('PAYPAL')) {
+                setSelectedMethod('PayPal');
+            } else if (method.includes('DOKU')) {
+                setSelectedMethod('DOKU');
+            } else if (method.includes('MANUAL') || method.includes('WISE') || method.includes('STRIPE') || method.includes('REVOLUT')) {
+                setSelectedMethod('Manual');
+            } else {
+                setSelectedMethod('DOKU'); // Default fallback so payment buttons are immediately visible
+            }
+        }
+    }, [invoiceData]);
+
     const handlePrint = () => {
         window.print();
     };
@@ -273,8 +288,9 @@ export default function InvoicePage() {
     const upsells = invoiceData.attribution?.upsells || {};
 
     // v10.8 - Hardened isPaid Logic (Case-Insensitive & Comprehensive)
+    const normalizedInvoiceStatus = (invoiceData.invoice?.status || '').toLowerCase();
     const normalizedStatus = (invoiceData.status || '').toLowerCase();
-    const isPaid = [
+    const isPaid = normalizedInvoiceStatus === 'paid' || [
         "paid", "active", "review by agent", "on going", 
         "preparing for submission", "submited", "process by immigration", 
         "approved", "completed"
@@ -382,7 +398,7 @@ export default function InvoicePage() {
                     customerDetails: {
                         name: invoiceData.guestName || invoiceData.user?.name || "Client",
                         email: invoiceData.guestEmail || invoiceData.user?.email || "support@indonesianvisas.com",
-                        phone: invoiceData.guestPhone || invoiceData.user?.phone || ""
+                        phone: invoiceData.attribution?.phone || invoiceData.user?.whatsapp || invoiceData.user?.phone || ""
                     }
                 })
             });

@@ -92,10 +92,14 @@ const StepPayment = () => {
     }, [country]);
 
     const handleMethodSelect = (method: string) => {
-        if (selectedMethod === method) return; // Prevent unnecessary resets
-        setSelectedMethod(method);
+        let finalMethod = method;
+        if (method === 'DOKU' && isSpecialCountry) {
+            finalMethod = 'DOKU_CALLING_VISA';
+        }
+        if (selectedMethod === finalMethod) return; // Prevent unnecessary resets
+        setSelectedMethod(finalMethod);
         setShowPayPalButtons(false);
-        if (method !== 'Manual') {
+        if (finalMethod !== 'Manual') {
             setPaymentProofUrl(null);
             setUploadError(null);
         }
@@ -369,7 +373,7 @@ const StepPayment = () => {
                 return;
             }
 
-            if (selectedMethod === 'Manual' || !selectedMethod) {
+            if (selectedMethod === 'Manual' || selectedMethod === 'Inquiry' || !selectedMethod) {
                 markStepComplete(4);
                 setIsSuccess(true);
             }
@@ -405,12 +409,14 @@ const StepPayment = () => {
                         <CheckCircle size={48} className="text-green-600" />
                     </div>
                     <h3 className="text-2xl font-bold text-primary mb-2">
-                        {selectedMethod === 'Manual' ? 'Payment Proof Received!' : 'Application Submitted!'}
+                        {selectedMethod === 'Manual' ? 'Payment Proof Received!' : (selectedMethod === 'Inquiry' ? 'Inquiry Submitted!' : 'Application Submitted!')}
                     </h3>
                     <p className="text-gray-600 mb-8 max-w-md">
                         {selectedMethod === 'Manual' 
                             ? "Thank you for uploading your proof of transaction. Our team is now verifying your payment. Your application status is PENDING VERIFICATION. You will receive a confirmation email shortly."
-                            : "Thank you for submitting your application. Our team will review your documents and contact you shortly via WhatsApp or Email."}
+                            : (selectedMethod === 'Inquiry'
+                                ? "Thank you for submitting your inquiry. An agent will review your application and contact you via WhatsApp or Email to coordinate payment and processing."
+                                : "Thank you for submitting your application. Our team will review your documents and contact you shortly via WhatsApp or Email.")}
                     </p>
                     <button onClick={handleCloseFinal} className="btn btn-primary">
                         Return to Home
@@ -815,7 +821,7 @@ const StepPayment = () => {
                     </button>
 
                     <button
-                        className={`${styles.methodOption} ${selectedMethod === 'DOKU' ? styles.selected : ''}`}
+                        className={`${styles.methodOption} ${(selectedMethod === 'DOKU' || selectedMethod === 'DOKU_CALLING_VISA') ? styles.selected : ''}`}
                         onClick={() => handleMethodSelect('DOKU')}
                     >
                         <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-600">
@@ -825,7 +831,7 @@ const StepPayment = () => {
                             <p className={styles.methodName}>Local Bank, QRIS, Visa/Master Card, JCB & Amex</p>
                             <p className={styles.methodDesc}>Secure Local & Intl Payment gateway</p>
                         </div>
-                        {selectedMethod === 'DOKU' && <CheckCircle size={20} className="text-accent ml-auto" />}
+                        {(selectedMethod === 'DOKU' || selectedMethod === 'DOKU_CALLING_VISA') && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>
 
                     <button
@@ -836,10 +842,24 @@ const StepPayment = () => {
                             <Landmark size={24} />
                         </div>
                         <div className={styles.methodInfo}>
-                            <p className={styles.methodName}>Manual Transfer (Wise/Revolut)</p>
+                            <p className={styles.methodName}>Wise / Stripe / Revolut</p>
                             <p className={styles.methodDesc}>Transfer to Corporate Account & Upload Proof</p>
                         </div>
                         {selectedMethod === 'Manual' && <CheckCircle size={20} className="text-accent ml-auto" />}
+                    </button>
+
+                    <button
+                        className={`${styles.methodOption} ${selectedMethod === 'Inquiry' ? styles.selected : ''}`}
+                        onClick={() => handleMethodSelect('Inquiry')}
+                    >
+                        <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                            <FileText size={24} />
+                        </div>
+                        <div className={styles.methodInfo}>
+                            <p className={styles.methodName}>Submit Inquiry (Pay Later)</p>
+                            <p className={styles.methodDesc}>Submit application now and coordinate payment via chat support</p>
+                        </div>
+                        {selectedMethod === 'Inquiry' && <CheckCircle size={20} className="text-accent ml-auto" />}
                     </button>
                 </div>
             </div>
@@ -903,7 +923,7 @@ const StepPayment = () => {
             <div className="mb-6 px-4 py-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl flex items-start gap-4">
                 <Info size={20} className="text-amber-600 mt-0.5 flex-shrink-0" />
                 <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-400 font-medium">
-                    By making this payment, you agree that you have read and accepted our <Link href="/terms-and-conditions" className="underline font-bold">Terms & Conditions</Link> and <Link href="/refund" className="underline font-bold">Refund Policy</Link>.
+                    By {selectedMethod === 'Inquiry' ? 'submitting this inquiry' : 'making this payment'}, you agree that you have read and accepted our <Link href="/terms-and-conditions" className="underline font-bold">Terms & Conditions</Link> and <Link href="/refund" className="underline font-bold">Refund Policy</Link>.
                 </p>
             </div>
 
@@ -950,11 +970,11 @@ const StepPayment = () => {
                                 </>
                             ) : (
                                 <>
-                                    {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : <ShoppingCart size={24} />)}
+                                    {selectedMethod === 'Manual' ? <Send size={24} /> : (selectedMethod === 'PayPal' ? <CreditCard size={24} /> : (selectedMethod === 'Inquiry' ? <Send size={24} /> : <ShoppingCart size={24} />))}
                                     <span>
                                         {selectedMethod === 'Manual' 
                                             ? (paymentProofUrl ? 'SUBMIT APPLICATION (PROOF ATTACHED)' : 'UPLOAD PROOF TO SUBMIT') 
-                                            : (selectedMethod === 'PayPal' ? 'GENERATE PAYPAL LINK' : 'COMPLETE ORDER')}
+                                            : (selectedMethod === 'PayPal' ? 'GENERATE PAYPAL LINK' : (selectedMethod === 'Inquiry' ? 'SUBMIT INQUIRY (PAY LATER)' : 'COMPLETE ORDER'))}
                                     </span>
                                 </>
                             )}

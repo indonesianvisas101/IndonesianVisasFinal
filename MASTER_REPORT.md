@@ -1,5 +1,5 @@
 # Indonesian Visas Intelligence Report
-**Version:** 62.0.0 (Payment Failsafe & Support Chat Hardening)
+**Version:** 63.0.0 (Payment Reliability & Invoice Gateway Hardening)
 **Status:** PRODUCTION READY - HARDENED 🛡️
 **Confidentiality:** Boss Bayu Authorized
 
@@ -362,8 +362,24 @@ git push origin main
     - Standardized `accessPin` automatic generation and instant delivery in PayPal/Doku success emails.
 - **Middleware Infinite Loop Prevention**:
     - Fixed middleware routing to prevent redirect loops when dynamically mapping root folders and locales (`_rewritten` query parameter gating).
+ 
+---
+
+#### Phase 109: Payment Reliability & Invoice Gateway Hardening (JUNE 18, 2026)
+- **Flexible ID Resolution (Doku & PayPal)**:
+    - Patched `/api/payments/doku/checkout` and `/api/payments/paypal/create-order` to resolve the real `Invoice.id` by querying the DB if they receive an Application ID or Slug. This prevents foreign key constraint crashes on the `payments` table.
+- **Invoice ID return in Applications API**:
+    - Updated `/api/applications` to select and return `invoiceId` on the invoice details data returned to the client.
+- **Auto-Initialization of Payment Methods**:
+    - Integrated a React `useEffect` hook on the `/invoice/[id]` page that reads the payment method of the invoice from the database and automatically selects it on the UI on load, falling back to Doku.
+- **Granular isPaid Check**:
+    - Strengthened `isPaid` on the invoice page to also verify `invoiceData.invoice?.status === 'paid'` case-insensitively.
+- **Step 4 "Submit Inquiry" Button**:
+    - Restored the "Submit Inquiry" CTA button in the visa application Step 4 payment funnel, allowing users to submit without immediate payment, while keeping it fully synchronized with the admin dashboard panel.
+- **Wise / Stripe / Revolut rebranding**:
+    - Updated manual payment method branding in Step 4 to "Wise / Stripe / Revolut".
 
 ---
 
-**END OF MASTER INTELLIGENCE REPORT v62.0.0**
+**END OF MASTER INTELLIGENCE REPORT v63.0.0**
 *(Maintained by Antigravity AI Master Agent)*

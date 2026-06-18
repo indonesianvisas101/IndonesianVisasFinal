@@ -4170,3 +4170,23 @@ If any test fails:
 - **Rewrite Loop Shield:** Patched `src/middleware.ts` to block infinite rewrite redirection loops by using localized query parameters (`_rewritten=true`) on default locale routes.
 
 **Phase 108 Status: ✅ HARDENED, FAILSAFE & PRODUCTION SECURED**
+
+---
+
+# PHASE 109: PAYMENT RELIABILITY & INVOICE GATEWAY HARDENING (COMPLETED)
+
+**Date:** June 18, 2026
+**Focus:** Unpaid Invoice Checkout Reliability, Flexible Invoice ID Resolution, and Step 4 Payment Selection Sync
+
+### 109.1 Invoice Page Payment Reliability
+- **Flexible ID Resolution (Doku & PayPal):** Re-engineered the `/api/payments/doku/checkout` and `/api/payments/paypal/create-order` endpoints to dynamically resolve and search for the correct `Invoice` record (by Invoice ID, Application ID, or Application Slug) before performing the `prisma.payment.create` call. This completely eliminates foreign key constraint violations that occurred when the client sent the application ID/slug instead of the invoice ID.
+- **Invoice ID return in Applications API:** Patched `/api/applications` route to select and return `i.id as "invoiceId"` in the dynamic queries, ensuring the frontend live invoice page receives the exact Invoice ID from the database.
+- **Auto-Initialization of Payment Methods:** Added a React `useEffect` hook to `/invoice/[id]` page to read the database-defined payment method (DOKU, PayPal, Manual) and auto-select it in the UI on load, with a fallback default to DOKU. This eliminates friction and makes the checkout buttons immediately active.
+- **Granular isPaid Check:** Strengthened the `isPaid` check to also inspect `invoiceData.invoice?.status === 'paid'` case-insensitively, securing instant payment status reconciliation.
+
+### 109.2 Step 4 Payment Funnel Integration
+- **Submit Inquiry (Pay Later):** Added the long-awaited "Submit Inquiry" CTA to Step 4 of the application flow, allowing users to submit without immediate payment, while keeping it synchronized with the admin dashboard panels.
+- **Wise / Stripe / Revolut:** Renamed the manual payment choice to "Wise / Stripe / Revolut" for premium branding.
+- **TypeScript & Build Verification:** Ensured 100% compilation success via `npx tsc --noEmit` and successfully committed and pushed the changes to `origin main`.
+
+**Phase 109 Status: ✅ HARDENED, RELIABLE & PRODUCTION DEPLOYED**

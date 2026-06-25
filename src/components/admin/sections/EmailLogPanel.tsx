@@ -20,9 +20,11 @@ import {
     DialogContent,
     DialogActions,
     Button,
-    Divider
+    Divider,
+    Alert,
+    CircularProgress
 } from '@mui/material';
-import { Mail, Search, Eye, RefreshCw } from 'lucide-react';
+import { Mail, Search, Eye, RefreshCw, Send } from 'lucide-react';
 
 export default function EmailLogPanel() {
     const [logs, setLogs] = useState<any[]>([]);
@@ -31,6 +33,13 @@ export default function EmailLogPanel() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedLog, setSelectedLog] = useState<any | null>(null);
+
+    // Compose state
+    const [composeTo, setComposeTo] = useState("");
+    const [composeSubject, setComposeSubject] = useState("");
+    const [composeBody, setComposeBody] = useState("");
+    const [sendingEmail, setSendingEmail] = useState(false);
+    const [sendResult, setSendResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
     const fetchLogs = async () => {
         setLoading(true);
@@ -51,6 +60,55 @@ export default function EmailLogPanel() {
         fetchLogs();
     }, []);
 
+    const handleSendEmail = async () => {
+        if (!composeTo.trim() || !composeSubject.trim() || !composeBody.trim()) {
+            setSendResult({ type: 'error', message: 'Please fill in all fields: To, Subject, and Message.' });
+            return;
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(composeTo.trim())) {
+            setSendResult({ type: 'error', message: 'Please enter a valid email address.' });
+            return;
+        }
+
+        setSendingEmail(true);
+        setSendResult(null);
+
+        try {
+            const res = await fetch('/api/admin/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'FREE_TEXT',
+                    email: composeTo.trim(),
+                    data: {
+                        subject: composeSubject.trim(),
+                        body: composeBody.trim()
+                    }
+                })
+            });
+
+            if (res.ok) {
+                setSendResult({ type: 'success', message: `✅ Email successfully sent to ${composeTo.trim()}` });
+                // Clear form
+                setComposeTo('');
+                setComposeSubject('');
+                setComposeBody('');
+                // Refresh log
+                await fetchLogs();
+            } else {
+                const err = await res.json();
+                setSendResult({ type: 'error', message: `❌ Failed to send: ${err.error || 'Unknown error'}` });
+            }
+        } catch (err: any) {
+            setSendResult({ type: 'error', message: `❌ Error: ${err.message}` });
+        } finally {
+            setSendingEmail(false);
+        }
+    };
+
     const filteredLogs = logs.filter(log => 
         log.recipient.toLowerCase().includes(searchQuery.toLowerCase()) ||
         log.subject.toLowerCase().includes(searchQuery.toLowerCase())
@@ -58,6 +116,75 @@ export default function EmailLogPanel() {
 
     return (
         <Box>
+            {/* === COMPOSE & SEND EMAIL SECTION === */}
+            <Paper sx={{ mb: 3, p: 3, border: '1px solid', borderColor: 'primary.100', borderRadius: 3 }}>
+                <Box display="flex" alignItems="center" gap={1} mb={2.5}>
+                    <Box sx={{ p: 1, bgcolor: 'primary.50', borderRadius: 2, display: 'flex', alignItems: 'center' }}>
+                        <Send size={20} className="text-primary" />
+                    </Box>
+                    <Box>
+                        <Typography variant="h6" fontWeight="bold">Compose & Send Email</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                            Send a branded email directly from the Indonesian Visas system to any customer.
+                        </Typography>
+                    </Box>
+                </Box>
+
+                <Box display="flex" flexDirection="column" gap={2}>
+                    <TextField
+                        label="To (Customer Email)"
+                        type="email"
+                        size="small"
+                        fullWidth
+                        value={composeTo}
+                        onChange={(e) => { setComposeTo(e.target.value); setSendResult(null); }}
+                        placeholder="customer@example.com"
+                        InputProps={{
+                            startAdornment: <Mail size={16} className="mr-2 text-gray-400" />
+                        }}
+                    />
+                    <TextField
+                        label="Subject"
+                        size="small"
+                        fullWidth
+                        value={composeSubject}
+                        onChange={(e) => { setComposeSubject(e.target.value); setSendResult(null); }}
+                        placeholder="e.g. Your Application Update — Indonesian Visas"
+                    />
+                    <TextField
+                        label="Message"
+                        size="small"
+                        fullWidth
+                        multiline
+                        rows={6}
+                        value={composeBody}
+                        onChange={(e) => { setComposeBody(e.target.value); setSendResult(null); }}
+                        placeholder={"Dear [Customer Name],\n\nWe are writing to inform you...\n\nBest regards,\nIndonesian Visas Team"}
+                        helperText="Plain text. Line breaks are preserved. The email will be wrapped in the official Indonesian Visas branded template automatically."
+                    />
+
+                    {sendResult && (
+                        <Alert severity={sendResult.type} onClose={() => setSendResult(null)} sx={{ borderRadius: 2 }}>
+                            {sendResult.message}
+                        </Alert>
+                    )}
+
+                    <Box display="flex" justifyContent="flex-end">
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleSendEmail}
+                            disabled={sendingEmail || !composeTo || !composeSubject || !composeBody}
+                            startIcon={sendingEmail ? <CircularProgress size={16} color="inherit" /> : <Send size={16} />}
+                            sx={{ borderRadius: 2, fontWeight: 700, textTransform: 'none', px: 4 }}
+                        >
+                            {sendingEmail ? 'Sending...' : 'Send Email'}
+                        </Button>
+                    </Box>
+                </Box>
+            </Paper>
+
+            {/* === EMAIL LOG TABLE === */}
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <Typography variant="h5" fontWeight="bold">Email Communication Logs</Typography>
                 <Button 

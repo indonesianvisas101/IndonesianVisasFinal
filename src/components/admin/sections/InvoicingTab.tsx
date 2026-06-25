@@ -265,7 +265,7 @@ export default function InvoicingTab() {
         }
     };
 
-    const handleManualEmail = async (type: 'APPLICATION_RECEIVED' | 'PAYMENT_CONFIRMED' | 'INVOICE_SETTLED' | 'VISA_APPROVED') => {
+    const handleManualEmail = async (type: 'APPLICATION_RECEIVED' | 'PAYMENT_CONFIRMED' | 'INVOICE_SETTLED' | 'VISA_APPROVED' | 'PAYMENT_REMINDER') => {
         if (!editingInvoice) return;
         
         const confirmMsg = `Send ${type.replace(/_/g, ' ')} email to ${editFormData.guestEmail}?`;
@@ -284,6 +284,8 @@ export default function InvoicingTab() {
                         orderId: editingInvoice.slug || editingInvoice.id,
                         visaType: editFormData.visaName,
                         invoiceUrl: `${window.location.origin}/${locale || 'en'}/invoice/${editingInvoice.slug || editingInvoice.id}`,
+                        paymentUrl: `${window.location.origin}/${locale || 'en'}/invoice/${editingInvoice.slug || editingInvoice.id}`,
+                        amount: editFormData.customAmount ? `IDR ${Number(editFormData.customAmount).toLocaleString('id-ID')}` : 'See Invoice',
                         downloadUrl: editFormData.visaLink,
                         isPayPal: editingInvoice.paymentMethod?.toLowerCase().includes('paypal'),
                         hasIdiv: !!editFormData.attribution?.upsells?.idiv_paid || !!editFormData.attribution?.upsells?.idiv_ordered,
@@ -1354,6 +1356,24 @@ export default function InvoicingTab() {
                                         sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, boxShadow: 'none', bgcolor: '#2563eb' }}
                                     >
                                         Send Visa Approved!
+                                    </Button>
+                                </Grid>
+                                <Grid size={{ xs: 12 }}>
+                                    <Button 
+                                        fullWidth 
+                                        size="small" 
+                                        variant="contained" 
+                                        onClick={() => handleManualEmail('PAYMENT_REMINDER')}
+                                        sx={{ 
+                                            borderRadius: 2, 
+                                            textTransform: 'none', 
+                                            fontWeight: 700, 
+                                            boxShadow: 'none',
+                                            bgcolor: '#ea580c',
+                                            '&:hover': { bgcolor: '#c2410c' }
+                                        }}
+                                    >
+                                        💳 Request Payment — Send Invoice Link to Customer
                                     </Button>
                                 </Grid>
                             </Grid>

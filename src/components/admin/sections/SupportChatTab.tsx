@@ -44,7 +44,12 @@ interface Conversation {
         email: string;
         avatar?: string;
     };
-    lastMessage?: string;
+    lastMessage?: {
+        message: string;
+        senderType: string;
+        created_at: string;
+    } | null;
+    hasUnreadFromUser?: boolean;
     unreadCount?: number;
 }
 
@@ -409,6 +414,7 @@ export default function SupportChatTab() {
                                             selected={selectedConvId === conv.id}
                                             onClick={() => setSelectedConvId(conv.id)}
                                             alignItems="flex-start"
+                                            sx={conv.hasUnreadFromUser && selectedConvId !== conv.id ? { bgcolor: 'rgba(99, 102, 241, 0.05)' } : {}}
                                         >
                                             <ListItemAvatar>
                                                 <Avatar src={conv.user?.avatar} alt={conv.user?.name}>
@@ -417,20 +423,49 @@ export default function SupportChatTab() {
                                             </ListItemAvatar>
                                             <ListItemText
                                                 primary={
-                                                    <Box display="flex" justifyContent="space-between">
-                                                        <Typography variant="subtitle2" fontWeight="bold">
+                                                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                                                        <Typography variant="subtitle2" fontWeight={conv.hasUnreadFromUser ? 800 : 'bold'} sx={{ color: conv.hasUnreadFromUser ? 'primary.main' : 'text.primary' }}>
                                                             {conv.user?.name || `Guest (${conv.user_id.slice(0, 4)})`}
                                                         </Typography>
-                                                        <Typography variant="caption" color="text.secondary">
-                                                            {formatDate(conv.updated_at)}
-                                                        </Typography>
+                                                        <Box display="flex" alignItems="center" gap={0.5}>
+                                                            {conv.hasUnreadFromUser && selectedConvId !== conv.id && (
+                                                                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0 }} />
+                                                            )}
+                                                            <Typography variant="caption" color="text.secondary">
+                                                                {formatDate(conv.updated_at)}
+                                                            </Typography>
+                                                        </Box>
                                                     </Box>
                                                 }
                                                 secondary={
-                                                    <Typography variant="body2" color="text.secondary" noWrap>
-                                                        {conv.status === 'open' ? <span className="text-green-600 font-bold mr-1">●</span> : null}
-                                                        {conv.user?.email || "No email linked"}
-                                                    </Typography>
+                                                    <Box>
+                                                        <Typography variant="body2" color="text.secondary" noWrap sx={{ fontSize: '0.75rem' }}>
+                                                            {conv.status === 'open' ? <span className="text-green-600 font-bold mr-1">●</span> : null}
+                                                            {conv.user?.email || "No email linked"}
+                                                        </Typography>
+                                                        {conv.lastMessage && (
+                                                            <Typography
+                                                                variant="caption"
+                                                                noWrap
+                                                                sx={{
+                                                                    display: 'block',
+                                                                    color: conv.hasUnreadFromUser ? 'text.primary' : 'text.secondary',
+                                                                    fontWeight: conv.hasUnreadFromUser ? 600 : 400,
+                                                                    fontSize: '0.72rem',
+                                                                    mt: 0.25
+                                                                }}
+                                                            >
+                                                                {conv.lastMessage.senderType === 'admin' || conv.lastMessage.senderType === 'ADMIN'
+                                                                    ? `You: `
+                                                                    : conv.lastMessage.senderType === 'system'
+                                                                    ? ''
+                                                                    : `Customer: `}
+                                                                {conv.lastMessage.message?.startsWith('[FILE]')
+                                                                    ? '📎 Attachment'
+                                                                    : conv.lastMessage.message?.slice(0, 55) + (conv.lastMessage.message?.length > 55 ? '...' : '')}
+                                                            </Typography>
+                                                        )}
+                                                    </Box>
                                                 }
                                             />
                                         </ListItemButton>

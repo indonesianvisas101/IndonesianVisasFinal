@@ -21,19 +21,35 @@ export async function GET(req: Request) {
                         email: true,
                         avatar: true
                     }
+                },
+                // Include last message for sidebar preview
+                messages: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 1,
+                    select: {
+                        message: true,
+                        senderType: true,
+                        createdAt: true
+                    }
                 }
             }
         });
 
-        // Prisma relationships are camelCase, map to match the previous response format if needed
-        // Or the frontend can use it directly if they expect camelCase, but since they
-        // previously used supabase we might need to map snake_case dates.
+        // Map to flat format compatible with the frontend
         const mappedData = conversations.map((c: any) => ({
             ...c,
             updated_at: c.updatedAt,
             created_at: c.createdAt,
             user_id: c.userId,
-            is_read: c.isRead
+            is_read: c.isRead,
+            // Expose last message for sidebar preview
+            lastMessage: c.messages && c.messages.length > 0 ? {
+                message: c.messages[0].message,
+                senderType: c.messages[0].senderType,
+                created_at: c.messages[0].createdAt
+            } : null,
+            // Flag if last message is from user (unread indicator)
+            hasUnreadFromUser: c.messages && c.messages.length > 0 && c.messages[0].senderType === 'user'
         }));
 
         return NextResponse.json(mappedData);

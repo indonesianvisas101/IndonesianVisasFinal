@@ -78,8 +78,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       images: [`${APP_URL}/OG_IMAGE.webp`]
     },
     icons: {
-      icon: "/favicon.ico",
-      apple: "/apple-touch-icon.png",
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/Favicon.webp", type: "image/webp", sizes: "512x512" },
+      ],
+      apple: [
+        { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      ],
+      shortcut: "/favicon.ico",
     }
   };
 }

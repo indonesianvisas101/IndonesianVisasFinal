@@ -20,6 +20,7 @@ import { Box } from "@mui/material";
 const inter = Inter({
   subsets: ["latin"],
   display: 'swap',
+  preload: true,  // preload WOFF2 in the document head
 });
 
 // Centralized Canonical Root

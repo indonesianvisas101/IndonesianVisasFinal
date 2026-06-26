@@ -20,6 +20,17 @@ export default function HeroGlobe() {
 
     // Load world data
     useEffect(() => {
+        // Inject a preload hint for the world data file so the browser fetches it early
+        const existingLink = document.head.querySelector('link[href="/world-110m.json"]');
+        if (!existingLink) {
+            const preloadLink = document.createElement('link');
+            preloadLink.rel = 'prefetch';
+            preloadLink.as = 'fetch';
+            preloadLink.href = '/world-110m.json';
+            preloadLink.crossOrigin = 'anonymous';
+            document.head.appendChild(preloadLink);
+        }
+
         const loadWorldData = async () => {
             try {
                 // Pre-warm the fetch with priority

@@ -38,6 +38,42 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
         severity: 'success'
     });
 
+    const [resolvedUrl, setResolvedUrl] = useState(documentUrl);
+
+    React.useEffect(() => {
+        const resolve = async () => {
+            if (!documentUrl) return;
+
+            // Check if it's already a full URL that doesn't need signing
+            const isFullUrl = documentUrl.startsWith('http') && (documentUrl.includes('?token=') || !documentUrl.includes('supabase.co/storage'));
+            if (isFullUrl) {
+                setResolvedUrl(documentUrl);
+                setLoading(false);
+                return;
+            }
+
+            setLoading(true);
+            try {
+                const res = await fetch(`/api/admin/sign-url?path=${encodeURIComponent(documentUrl)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setResolvedUrl(data.url || documentUrl);
+                } else {
+                    setResolvedUrl(documentUrl);
+                }
+            } catch (e) {
+                console.error("Error resolving document url", e);
+                setResolvedUrl(documentUrl);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (open) {
+            resolve();
+        }
+    }, [documentUrl, open]);
+
     React.useEffect(() => {
         if (!isPartnerView || !open || isHidden) return;
         
@@ -59,12 +95,12 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
     }, [open, isPartnerView, isHidden]);
     
     // Support signed URLs by stripping parameters for extension check
-    const cleanUrl = typeof documentUrl === 'string' ? documentUrl.split('?')[0].split('#')[0].toLowerCase() : '';
+    const cleanUrl = typeof resolvedUrl === 'string' ? resolvedUrl.split('?')[0].split('#')[0].toLowerCase() : '';
     const isImage = documentType?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|avif)$/i.test(cleanUrl);
     const isPdf = documentType === 'application/pdf' || cleanUrl.endsWith('.pdf');
 
     const handleDownload = async () => {
-        if (!documentUrl) return;
+        if (!resolvedUrl) return;
         
         // Only convert if it's an image (excluding PDF)
         const isConvertible = isImage && !isPdf;
@@ -85,7 +121,7 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                 const response = await fetch('/api/admin/convert', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: documentUrl, name: documentName }),
+                    body: JSON.stringify({ url: resolvedUrl, name: documentName }),
                     signal: controller.signal
                 });
                 
@@ -120,7 +156,7 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                 
                 // Fallback to original download
                 const link = document.createElement('a');
-                link.href = documentUrl;
+                link.href = resolvedUrl;
                 link.download = documentName;
                 link.target = "_blank";
                 document.body.appendChild(link);
@@ -132,7 +168,7 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
         } else {
             // Normal download for PDF
             const link = document.createElement('a');
-            link.href = documentUrl;
+            link.href = resolvedUrl;
             link.download = documentName;
             link.target = "_blank";
             document.body.appendChild(link);
@@ -166,7 +202,7 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                     )}
                     <IconButton 
                         color="inherit" 
-                        href={documentUrl} 
+                        href={resolvedUrl} 
                         target="_blank" 
                         sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
                         title="Open in new tab"
@@ -192,7 +228,7 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                 {isImage && (
                     <Box sx={{ position: 'relative', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <img 
-                            src={documentUrl} 
+                            src={resolvedUrl} 
                             alt={documentName} 
                             style={{ 
                                 maxWidth: '100%', 
@@ -248,7 +284,7 @@ export default function DocumentViewer({ open, onClose, documentUrl, documentNam
                 {isPdf && (
                     <Box sx={{ width: '100%', height: '100%', display: 'flex' }}>
                         <iframe 
-                            src={`https://docs.google.com/viewer?url=${encodeURIComponent(documentUrl)}&embedded=true`}
+                            src={`https://docs.google.com/viewer?url=${encodeURIComponent(resolvedUrl)}&embedded=true`}
                             style={{ width: '100%', height: '100%', border: 'none' }}
                             onLoad={() => setLoading(false)}
                             title="PDF Viewer"

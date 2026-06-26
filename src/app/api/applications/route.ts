@@ -9,6 +9,9 @@ import { calculateOrderFees } from '@/utils/feeCalculator';
 import { getAdminAuth, getWorkerOrAdminAuth } from '@/lib/auth-helpers';
 import { signDocumentUrls } from '@/lib/storage';
 
+// Always fetch fresh data — never use cached response for staff dashboards
+export const dynamic = 'force-dynamic';
+
 // GET /api/applications?userId=... OR ?id=... OR ?slug=... OR (no params for all)
 export async function GET(request: Request) {
     try {
@@ -183,11 +186,14 @@ export async function GET(request: Request) {
             }
         }
 
-        query += ` ORDER BY "appliedAt" DESC`;
+        query += ` ORDER BY "appliedAt" DESC LIMIT 200`;
 
-        const applications: any[] = await prisma.$queryRawUnsafe(query, ...params);
+        // Run applications + users + invoices in parallel — 3→1 round-trips
+        const [applications, allUsers] = await Promise.all([
+            prisma.$queryRawUnsafe(query, ...params) as Promise<any[]>,
+            prisma.user.findMany({ select: { id: true, name: true, email: true } })
+        ]);
 
-        const allUsers = await prisma.user.findMany({ select: { id: true, name: true, email: true } });
         const userMap = new Map<string, any>(allUsers.map((u: any) => [u.id, u]));
 
         const appIds = applications.map((a: any) => a.id);
@@ -236,15 +242,11 @@ export async function GET(request: Request) {
             };
         });
 
-        // Harden Document URLs for the entire list
-        const hardenedApps = await Promise.all(mappedApps.map(async (app) => {
-            if (app.documents) {
-                app.documents = await signDocumentUrls(app.documents);
-            }
-            return app;
-        }));
-
-        return NextResponse.json(hardenedApps);
+        // --- v8.40 OPTIMIZATION: Return mappedApps directly without bulk signing to eliminate network/storage latency ---
+        // Documents will be signed dynamically on-demand inside DocumentViewer.
+        return NextResponse.json(mappedApps, {
+            headers: { 'Cache-Control': 'no-store' }
+        });
 
     } catch (error) {
         console.error('Error fetching applications:', error);

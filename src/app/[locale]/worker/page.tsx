@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -120,8 +120,10 @@ export default function WorkerDashboardPage() {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const currentDrawerWidth = isSidebarCollapsed ? 80 : DRAWER_WIDTH;
 
-    // Global loading state
-    const [globalLoading, setGlobalLoading] = useState(false);
+    // Global loading state — only true on initial load, not background refresh
+    const [globalLoading, setGlobalLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false); // silent background refresh indicator
+    const dataLoadedRef = useRef(false); // prevents duplicate initial fetch
 
     // Document Viewer state
     const [viewingDoc, setViewingDoc] = useState<{ url: string; name: string } | null>(null);
@@ -175,9 +177,9 @@ export default function WorkerDashboardPage() {
     }, [routerActiveTab]);
 
     // Data Loaders
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async () => {
         try {
-            const res = await fetch("/api/applications");
+            const res = await fetch("/api/applications", { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
                 setOrders(data || []);
@@ -187,11 +189,11 @@ export default function WorkerDashboardPage() {
             console.error("Failed to fetch applications", e);
         }
         return [];
-    };
+    }, []);
 
-    const fetchArrivalCards = async () => {
+    const fetchArrivalCards = useCallback(async () => {
         try {
-            const res = await fetch("/api/admin/arrival-cards");
+            const res = await fetch("/api/admin/arrival-cards", { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
                 setArrivalCards(data.results || []);
@@ -199,11 +201,11 @@ export default function WorkerDashboardPage() {
         } catch (e) {
             console.error("Failed to fetch arrival cards", e);
         }
-    };
+    }, []);
 
-    const fetchConversations = async () => {
+    const fetchConversations = useCallback(async () => {
         try {
-            const res = await fetch("/api/admin/chat/conversations");
+            const res = await fetch("/api/admin/chat/conversations", { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
                 setConversations(data || []);
@@ -213,11 +215,13 @@ export default function WorkerDashboardPage() {
             console.error("Failed to fetch conversations", e);
         }
         return [];
-    };
+    }, []);
 
     // Calculate Stats from fetched data
-    const refreshAllData = async () => {
-        setGlobalLoading(true);
+    const refreshAllData = useCallback(async (silent = false) => {
+        if (!silent) setGlobalLoading(true);
+        else setIsRefreshing(true);
+
         const [ordersList, convsList] = await Promise.all([
             fetchOrders(),
             fetchConversations(),
@@ -236,13 +240,21 @@ export default function WorkerDashboardPage() {
             myCases: myCasesCount
         });
         setGlobalLoading(false);
-    };
+        setIsRefreshing(false);
+        dataLoadedRef.current = true;
+    }, [fetchOrders, fetchConversations, fetchArrivalCards, user?.email]);
 
     useEffect(() => {
         if (user && (user.role === "worker" || user.role === "admin")) {
-            refreshAllData();
+            if (!dataLoadedRef.current) {
+                // Initial load — show spinner
+                refreshAllData(false);
+            } else {
+                // User changed (e.g. re-auth) — silent refresh
+                refreshAllData(true);
+            }
         }
-    }, [user]);
+    }, [user, refreshAllData]);
 
     // Realtime Supabase Listeners
     useEffect(() => {
@@ -429,12 +441,16 @@ export default function WorkerDashboardPage() {
         }
     };
 
-    if (authLoading || !user) {
+    if (authLoading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" width="100%">
                 <CircularProgress />
             </Box>
         );
+    }
+
+    if (!user) {
+        return null; // Route protection redirects in useEffect — render nothing briefly
     }
 
     // Sidebar navigation items
@@ -605,9 +621,15 @@ export default function WorkerDashboardPage() {
                 transition: "width 0.3s",
                 bgcolor: "background.default"
             }}>
+                {/* Loading indicators */}
                 {globalLoading && (
                     <Box sx={{ position: "fixed", top: "82px", left: { md: currentDrawerWidth }, right: 0, zIndex: 1100 }}>
                         <LinearProgress />
+                    </Box>
+                )}
+                {!globalLoading && isRefreshing && (
+                    <Box sx={{ position: "fixed", top: "82px", left: { md: currentDrawerWidth }, right: 0, zIndex: 1100 }}>
+                        <LinearProgress color="success" sx={{ opacity: 0.5 }} />
                     </Box>
                 )}
 
@@ -696,7 +718,7 @@ export default function WorkerDashboardPage() {
                                     <Typography variant="h4" fontWeight="bold">Application Explorer</Typography>
                                     <Typography variant="body1" color="text.secondary">Review traveler documents, upload official e-visas, or update statuses.</Typography>
                                 </div>
-                                <Button variant="outlined" startIcon={<RefreshIcon />} onClick={refreshAllData}>Refresh</Button>
+                                <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => refreshAllData(true)}>Refresh</Button>
                             </Box>
 
                             {/* Search and Filters */}
@@ -981,7 +1003,7 @@ export default function WorkerDashboardPage() {
                                     <Typography variant="h4" fontWeight="bold">Arrival Cards (e-CD)</Typography>
                                     <Typography variant="body1" color="text.secondary">Manage customs declarations and arrival submissions.</Typography>
                                 </div>
-                                <Button variant="outlined" startIcon={<RefreshIcon />} onClick={refreshAllData}>Refresh</Button>
+                                <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => refreshAllData(true)}>Refresh</Button>
                             </Box>
 
                             <TableContainer component={Paper} variant="outlined">

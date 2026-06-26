@@ -6,7 +6,7 @@ import { useApplication } from "../application/ApplicationContext";
 import { runWhenIdle } from "@/utils/scheduler";
 import dynamic from "next/dynamic";
 import Link from "next/link"; 
-import { ArrowRight, ShieldCheck, Zap, Info, Copy, Check, X, Nfc, Smartphone } from "lucide-react"; 
+import { ArrowRight, ShieldCheck, Zap, Info, Copy, Check, X, Nfc, Smartphone, ChevronRight } from "lucide-react"; 
 import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import { formatNavLink } from "@/utils/seo";
 import { useParams } from "next/navigation";
@@ -668,7 +668,114 @@ export const HeroSteps = ({ title, labels, dict, onQuickApply }: HeroStepsProps)
     );
 };
 
-// 4. Main Hero Client Entry
+// 4. Partner Agency Image Banner
+function HeroPartnerCards() {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    return (
+        <>
+            {/* Partner Image — clickable */}
+            <button
+                onClick={() => setIsOpen(true)}
+                className="mt-3 w-full rounded-2xl overflow-hidden hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer group relative"
+                aria-label="View our official partner agencies"
+            >
+                <img
+                    src="/images/hero/Partner.webp"
+                    alt="Official Partners: All Indonesia, e-VISA, E-Visa on Arrival"
+                    className="w-full h-auto object-contain"
+                    loading="eager"
+                    fetchPriority="low"
+                    decoding="async"
+                />
+                <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors rounded-2xl" />
+            </button>
+
+            {/* Popup Modal */}
+            <LazyMotion features={domAnimation}>
+            <AnimatePresence>
+                {isOpen && (
+                    <Portal>
+                        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-5">
+                            <m.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                                onClick={() => setIsOpen(false)}
+                            />
+                            <m.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                                className="bg-white dark:bg-slate-900 rounded-[24px] w-full max-w-sm overflow-hidden relative z-10 shadow-2xl"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                {/* Header */}
+                                <div className="bg-gradient-to-br from-[#4B0082] to-[#6D28D9] p-6 relative">
+                                    <button
+                                        onClick={() => setIsOpen(false)}
+                                        className="absolute top-4 right-4 p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                    <div className="mb-3">
+                                        <img
+                                            src="/images/hero/Partner.webp"
+                                            alt="Official Partners"
+                                            className="w-full h-auto object-contain rounded-xl bg-white p-2"
+                                        />
+                                    </div>
+                                    <h3 className="text-white font-black text-lg leading-tight">Official Agency Partners</h3>
+                                    <p className="text-white/80 text-sm mt-1">Certified Indonesian Immigration Network</p>
+                                </div>
+
+                                {/* Body */}
+                                <div className="p-6">
+                                    <div className="space-y-3 mb-4">
+                                        <div className="flex gap-3 items-start">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#4B0082] mt-2 shrink-0" />
+                                            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                                                <span className="font-bold text-slate-800 dark:text-white">All Indonesia</span> — Nationwide immigration network covering all 34 provinces with local sponsorship &amp; on-ground support.
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-3 items-start">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#4B0082] mt-2 shrink-0" />
+                                            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                                                <span className="font-bold text-slate-800 dark:text-white">e-VISA</span> — Official electronic visa issuer for B211A, C1 Business, and D-series KITAS permits.
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-3 items-start">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#4B0082] mt-2 shrink-0" />
+                                            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                                                <span className="font-bold text-slate-800 dark:text-white">EVOA</span> — Certified E-Visa on Arrival processor for 97 countries at 9 major Indonesian airports.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5 mb-5">
+                                        {['Direct Sponsor', 'Zero Intermediaries', 'No.1 Visa Agency in Indonesia', 'Since 2010'].map(tag => (
+                                            <span key={tag} className="text-[10px] font-bold px-2 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">{tag}</span>
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={() => setIsOpen(false)}
+                                        className="w-full py-3 rounded-xl bg-gradient-to-r from-[#4B0082] to-[#6D28D9] text-white font-bold text-sm shadow-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                                    >
+                                        Got it <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            </m.div>
+                        </div>
+                    </Portal>
+                )}
+            </AnimatePresence>
+            </LazyMotion>
+        </>
+    );
+}
+
+// 5. Main Hero Client Entry
 export default function HeroClient({ title, subtitle, description, steps, stats, dict }: any) {
     const [isQuickApplyOpen, setIsQuickApplyOpen] = React.useState(false);
 
@@ -702,6 +809,7 @@ export default function HeroClient({ title, subtitle, description, steps, stats,
                             dict={dict}
                             onQuickApply={() => setIsQuickApplyOpen(true)}
                         />
+                        <HeroPartnerCards />
                     </div>
                 </div>
             </div>

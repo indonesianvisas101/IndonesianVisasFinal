@@ -246,11 +246,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       {/* Just below hero — minimal delay */}
       <ApplyExtend dict={dict} />
 
-      <LazySection minHeight="600px" rootMargin="200px">
+      <LazySection minHeight="600px" rootMargin="400px">
         <ServicesPreview dict={dict} />
       </LazySection>
 
-      <LazySection minHeight="500px" rootMargin="150px">
+      <LazySection minHeight="500px" rootMargin="400px">
         <GCIWrapper dict={dict} />
       </LazySection>
 

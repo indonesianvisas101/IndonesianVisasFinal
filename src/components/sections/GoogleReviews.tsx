@@ -186,6 +186,24 @@ const GoogleReviews = ({ variant = 'default', showHeader = true, className = "",
             <div className={`text-center text-gray-400 ${isCompact ? 'text-xs mt-3' : 'text-sm mt-4'}`}>
                 {t.swipe_hint || "← Swipe to see more →"}
             </div>
+
+            {!isCompact && (
+                <div className="flex justify-center mt-6">
+                    <a
+                        href="https://g.page/r/CWW-M_sUPr68EAE/review"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-[#4B0082] to-[#3d006b] hover:from-[#3d006b] hover:to-[#2a0050] text-white font-bold rounded-full px-6 py-3 text-sm transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-purple-900/20 group"
+                        aria-label="Leave a review on Google"
+                    >
+                        <Star size={16} fill="currentColor" className="text-yellow-400" />
+                        <span>{t.review_cta || "Review Us on Google"}</span>
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 opacity-80 group-hover:translate-x-0.5 transition-transform" fill="currentColor">
+                            <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 0 1-6.033-6.032 6.033 6.033 0 0 1 6.033-6.032c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0 0 12.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z"/>
+                        </svg>
+                    </a>
+                </div>
+            )}
         </div>
     );
 };

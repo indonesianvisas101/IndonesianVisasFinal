@@ -147,6 +147,9 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                             <Link href={formatNavLink(locale, "/faq")} className={styles.navLink} onClick={closeMobileMenu}>
                                 {headerDict.faq || "FAQ"}
                             </Link>
+                            <Link href={formatNavLink(locale, "/contact")} className={styles.navLink} onClick={closeMobileMenu}>
+                                {headerDict.contact_page || "Contact"}
+                            </Link>
 
                             {user && (
                                 <>

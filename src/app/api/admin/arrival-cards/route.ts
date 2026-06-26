@@ -3,7 +3,9 @@ import prisma from '@/lib/prisma';
 import { getWorkerOrAdminAuth } from '@/lib/auth-helpers';
 import { nameSimilarity } from '@/utils/fuzzyName';
 
-const FUZZY_THRESHOLD = 75; // Minimum similarity % to be considered a match
+export const dynamic = 'force-dynamic';
+
+const FUZZY_THRESHOLD = 75;
 
 export async function GET(request: Request) {
     try {
@@ -44,7 +46,6 @@ export async function GET(request: Request) {
         let fuzzyResults: any[] = [];
 
         if (arrivalCards.length === 0 && name && name.trim().length > 2) {
-            // Fetch recent arrival cards (last 500) and filter client-side via fuzzy
             const allCards = await prisma.arrivalCard.findMany({
                 orderBy: { createdAt: 'desc' },
                 take: 500,
@@ -73,27 +74,46 @@ export async function GET(request: Request) {
                 }
             }
 
-            // Sort by highest similarity first
             fuzzyResults.sort((a, b) => b._fuzzyScore - a._fuzzyScore);
         }
 
-        // --- STEP 3: Enrich payment status for all results ---
-        const enrich = async (cards: any[]) =>
-            Promise.all(cards.map(async (card) => {
-                const cardEmail = card.formData?.email || card.user?.email;
-                let paymentStatus = card.user?.invoices?.[0]?.status || 'UNKNOWN';
+        // --- STEP 3: Batch enrich payment status (NO N+1) ---
+        const batchEnrich = async (cards: any[]) => {
+            if (cards.length === 0) return cards;
 
-                if (paymentStatus === 'UNKNOWN' && cardEmail) {
-                    const latestApp = await prisma.visaApplication.findFirst({
-                        where: { guestEmail: cardEmail },
-                        include: { invoices: { orderBy: { createdAt: 'desc' }, take: 1 } },
-                        orderBy: { appliedAt: 'desc' }
-                    });
-                    paymentStatus = latestApp?.invoices?.[0]?.status || 'UNPAID';
+            // Collect all unique emails from cards (from formData or linked user)
+            const emails = [...new Set(
+                cards.map(c => c.formData?.email || c.user?.email).filter(Boolean)
+            )] as string[];
+
+            // Single batch query: get the latest invoice per email across all apps
+            const latestInvoicesByEmail = await prisma.visaApplication.findMany({
+                where: { guestEmail: { in: emails } },
+                include: { invoices: { orderBy: { createdAt: 'desc' }, take: 1 } },
+                orderBy: { appliedAt: 'desc' },
+                distinct: ['guestEmail']
+            });
+
+            // Build email → paymentStatus map
+            const paymentMap = new Map<string, string>();
+            for (const app of latestInvoicesByEmail) {
+                const appEmail = app.guestEmail;
+                const invStatus = app.invoices?.[0]?.status;
+                if (appEmail && invStatus) {
+                    paymentMap.set(appEmail, invStatus);
                 }
+            }
 
+            return cards.map(card => {
+                const cardEmail = card.formData?.email || card.user?.email;
+                // Use user's inline invoice first, then batch-fetched payment status
+                const paymentStatus =
+                    card.user?.invoices?.[0]?.status ||
+                    (cardEmail ? paymentMap.get(cardEmail) : undefined) ||
+                    'UNPAID';
                 return { ...card, paymentStatus };
-            }));
+            });
+        };
 
         // --- STEP 2.5: No filters? Return all (List mode) ---
         if (!email && !name) {
@@ -110,28 +130,31 @@ export async function GET(request: Request) {
             });
             return NextResponse.json({
                 mode: 'all',
-                results: await enrich(all)
-            });
+                results: await batchEnrich(all)
+            }, { headers: { 'Cache-Control': 'no-store' } });
         }
 
         if (arrivalCards.length > 0) {
             return NextResponse.json({
                 mode: 'exact',
-                results: await enrich(arrivalCards)
-            });
+                results: await batchEnrich(arrivalCards)
+            }, { headers: { 'Cache-Control': 'no-store' } });
         }
 
         if (fuzzyResults.length > 0) {
             return NextResponse.json({
                 mode: 'fuzzy',
-                results: await enrich(fuzzyResults)
-            });
+                results: await batchEnrich(fuzzyResults)
+            }, { headers: { 'Cache-Control': 'no-store' } });
         }
 
-        return NextResponse.json({ mode: 'none', results: [] });
+        return NextResponse.json({ mode: 'none', results: [] }, {
+            headers: { 'Cache-Control': 'no-store' }
+        });
 
     } catch (error: any) {
         console.error("Admin Fetch Arrival Cards Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+

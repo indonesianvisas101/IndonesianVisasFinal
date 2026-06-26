@@ -40,7 +40,6 @@ import {
 } from "@mui/icons-material";
 import RevenueChart from "./RevenueChart";
 import { useApplication } from "@/components/application/ApplicationContext";
-import { sendAdminAlert } from "@/app/actions/sendAdminAlert";
 
 interface DashboardTabProps {
     user: any;
@@ -143,7 +142,7 @@ export default function DashboardTab({
                             createdAt: new Date().toISOString()
                         }, ...prev];
                     });
-                    sendAdminAlert(title, `Service '${key}' is offline and auto-recovery failed.`);
+                    console.warn(`[ADMIN ALERT] ${title} — Service '${key}' is offline and auto-recovery failed.`);
                 }
             }
         };

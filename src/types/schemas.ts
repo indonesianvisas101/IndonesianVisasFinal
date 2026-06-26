@@ -21,6 +21,7 @@ export const ApplicationSchema = z.object({
     addonsAmount: z.string().optional(),
     upsells: z.any().optional(),
     selectedCustomAddons: z.array(z.string()).optional(),
+    discountPct: z.number().min(0).max(100).optional().default(0),
 });
 
 export const MultiApplicationSchema = z.object({

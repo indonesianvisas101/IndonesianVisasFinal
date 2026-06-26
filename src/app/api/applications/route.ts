@@ -266,7 +266,8 @@ export async function POST(request: Request) {
                     userId, visaId, visaName, status,
                     guestName: rawGuestName, guestEmail, guestAddress: rawGuestAddress, paymentMethod, customAmount,
                     verificationId, appliedAt, visaAmount, addonsAmount,
-                    paymentReference, adminNotes, documents, attribution, quantity, upsells, selectedCustomAddons
+                    paymentReference, adminNotes, documents, attribution, quantity, upsells, selectedCustomAddons,
+                    discountPct
                 } = body;
 
                 // Normalization & Sanitization: Default to Uppercase and strip HTML tags (TS safe)
@@ -353,28 +354,43 @@ export async function POST(request: Request) {
                 };
 
                 let totalAddonsAmount = 0;
+                // Build itemized addon breakdown for invoice display
+                const addonBreakdown: Record<string, number> = {};
+
                 if (upsells) {
-                    if (upsells.express) totalAddonsAmount += getDbAddonPrice('EXPRESS');
-                    if (upsells.insurance) totalAddonsAmount += getDbAddonPrice('INSURANCE');
-                    if (upsells.vip) totalAddonsAmount += getDbAddonPrice('VIP');
-                    if (upsells.idiv) totalAddonsAmount += getDbAddonPrice('IDIV');
-                    if (upsells.idg) totalAddonsAmount += getDbAddonPrice('IDG');
-                    if (upsells.smartId) totalAddonsAmount += getDbAddonPrice('SMART_ID');
-                    if (upsells.arrivalCard) totalAddonsAmount += 150000;
+                    const expressPrice = upsells.express ? getDbAddonPrice('EXPRESS') : 0;
+                    const insurancePrice = upsells.insurance ? getDbAddonPrice('INSURANCE') : 0;
+                    const vipPrice = upsells.vip ? getDbAddonPrice('VIP') : 0;
+                    const idivPrice = upsells.idiv ? getDbAddonPrice('IDIV') : 0;
+                    const idgPrice = upsells.idg ? getDbAddonPrice('IDG') : 0;
+                    const smartIdPrice = upsells.smartId ? getDbAddonPrice('SMART_ID') : 0;
+                    const arrivalCardPrice = upsells.arrivalCard ? 150000 : 0;
+
+                    if (expressPrice > 0) { totalAddonsAmount += expressPrice; addonBreakdown.express = expressPrice; }
+                    if (insurancePrice > 0) { totalAddonsAmount += insurancePrice; addonBreakdown.insurance = insurancePrice; }
+                    if (vipPrice > 0) { totalAddonsAmount += vipPrice; addonBreakdown.vip = vipPrice; }
+                    if (idivPrice > 0) { totalAddonsAmount += idivPrice; addonBreakdown.idiv = idivPrice; }
+                    if (idgPrice > 0) { totalAddonsAmount += idgPrice; addonBreakdown.idg = idgPrice; }
+                    if (smartIdPrice > 0) { totalAddonsAmount += smartIdPrice; addonBreakdown.smartId = smartIdPrice; }
+                    if (arrivalCardPrice > 0) { totalAddonsAmount += arrivalCardPrice; addonBreakdown.arrivalCard = arrivalCardPrice; }
                 }
 
                 // Handle custom dynamic addons by ID (e.g. Arrival Card)
                 if (selectedCustomAddons && Array.isArray(selectedCustomAddons)) {
                     for (const addonId of selectedCustomAddons) {
                         const customAddon = dbAddons.find((a: any) => a.id === addonId);
-                        if (customAddon) totalAddonsAmount += Number(customAddon.price);
+                        if (customAddon) {
+                            totalAddonsAmount += Number(customAddon.price);
+                            addonBreakdown[customAddon.sku?.toLowerCase() || customAddon.id] = Number(customAddon.price);
+                        }
                     }
                 }
 
                 const baseServiceAmount = customAmount ? parseFloat(String(customAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '')) : 0;
                 const visaAmt = visaAmount ? parseFloat(String(visaAmount).replace(/\./g, '').replace(/[^0-9.-]+/g, '')) : baseServiceAmount;
-                
-                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(visaAmt, paymentMethod || 'Manual', totalAddonsAmount);
+                const discountPctValue = typeof discountPct === 'number' ? discountPct : parseFloat(String(discountPct || '0')) || 0;
+
+                const { serviceFee, gatewayFee, pph23Amount, discountAmount, totalAmount } = calculateOrderFees(visaAmt, paymentMethod || 'Manual', totalAddonsAmount, discountPctValue);
 
                 // Construct Rich Summary for Admin (Steps 1-4)
                 const attributionSummary = attribution ? 
@@ -458,6 +474,23 @@ ${adminNotes || 'No additional notes provided.'}
                         updatedAt: now
                     }
                 });
+
+                // Patch attribution to include addonBreakdown + discountPct for invoice display
+                if (Object.keys(addonBreakdown).length > 0 || discountPctValue > 0) {
+                    const existingAttr = (attribution || {}) as any;
+                    await tx.visaApplication.update({
+                        where: { id: application.id },
+                        data: {
+                            attribution: {
+                                ...existingAttr,
+                                upsells: existingAttr.upsells || {},
+                                addonBreakdown,
+                                discountPct: discountPctValue,
+                                discountAmount
+                            }
+                        }
+                    });
+                }
 
                 createdData.push({ application, invoice, slug, actor, richSummary, verificationSlug: activeVerifSlug });
             }
@@ -570,7 +603,9 @@ export async function PATCH(request: Request) {
             visaName, customAmount, userId, quantity, 
             attribution,
             // v10.10 - Top-level field support for easy dashboard sync
-            paymentLink, visaLink, registrationNumber, arrivalCardLink, arrivalCardQr, internalNotes
+            paymentLink, visaLink, registrationNumber, arrivalCardLink, arrivalCardQr, internalNotes,
+            // Invoice Enhancement: discount support
+            discountPct
         } = body;
 
         const visaNameFinal = visaName?.toUpperCase();
@@ -605,6 +640,7 @@ export async function PATCH(request: Request) {
         if (arrivalCardLink !== undefined) mergedAttribution.arrivalCardLink = arrivalCardLink;
         if (arrivalCardQr !== undefined) mergedAttribution.arrivalCardQr = arrivalCardQr;
         if (internalNotes !== undefined) mergedAttribution.internalNotes = internalNotes;
+        if (discountPct !== undefined) mergedAttribution.discountPct = parseFloat(String(discountPct)) || 0;
 
         appUpdateData.attribution = mergedAttribution;
 
@@ -671,7 +707,16 @@ export async function PATCH(request: Request) {
                     addonsAmount = 0;
                 }
 
-                const { serviceFee, gatewayFee, pph23Amount, totalAmount } = calculateOrderFees(visaAmount, methodToUse, addonsAmount);
+                // Apply discount from attribution (set via admin panel)
+                const finalDiscountPct = discountPct !== undefined
+                    ? parseFloat(String(discountPct)) || 0
+                    : parseFloat(String(mergedAttribution.discountPct || 0)) || 0;
+
+                const { serviceFee, gatewayFee, pph23Amount, discountAmount, totalAmount } = calculateOrderFees(visaAmount, methodToUse, addonsAmount, finalDiscountPct);
+
+                // Persist discount values to attribution for invoice display
+                mergedAttribution.discountPct = finalDiscountPct;
+                mergedAttribution.discountAmount = discountAmount;
                 
                 dataToUpdate.amount = totalAmount;
                 dataToUpdate.serviceFee = serviceFee;

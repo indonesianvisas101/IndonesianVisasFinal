@@ -284,8 +284,22 @@ export default function InvoicePage() {
     const gatewayFee = Number(invoiceData.invoice?.gatewayFee || 0);
     const computedGrandTotal = Number(invoiceData.invoice?.amount || 0);
     
+    // v11.0 - Discount & Addon Breakdown (stored in attribution, no re-calculation)
+    const discountPct = Number(invoiceData.attribution?.discountPct || 0);
+    const discountAmount = Number(invoiceData.attribution?.discountAmount || 0);
+    const addonBreakdown: Record<string, number> = invoiceData.attribution?.addonBreakdown || {};
+
+    // v11.0 - Consistent human-readable Invoice Number
+    const rawInvoiceId = invoiceData.invoice?.id || invoiceData.id || id || '';
+    const formatInvoiceNumber = (raw: string): string => {
+        const clean = raw.replace(/-/g, '').toUpperCase().slice(0, 8);
+        return `INV-${clean}`;
+    };
+    const invoiceNumber = formatInvoiceNumber(rawInvoiceId);
+
     // Upsells are purely for display badges now, amount is already in Grand Total
     const upsells = invoiceData.attribution?.upsells || {};
+
 
     // v10.8 - Hardened isPaid Logic (Case-Insensitive & Comprehensive)
     const normalizedInvoiceStatus = (invoiceData.invoice?.status || '').toLowerCase();
@@ -459,8 +473,8 @@ export default function InvoicePage() {
                             <Typography variant="h3" fontWeight="bold" sx={{ color: '#9155FD', letterSpacing: 1, textTransform: 'uppercase' }}>
                                 INVOICE
                             </Typography>
-                            <Typography variant="subtitle1" sx={{ color: '#9155FD', fontWeight: 600 }}>
-                                #{id.slice(-6).toUpperCase()}
+                            <Typography variant="subtitle1" sx={{ color: '#9155FD', fontWeight: 700, letterSpacing: 0.5 }}>
+                                {invoiceNumber}
                             </Typography>
                             <Box sx={{ mt: 2 }}>
                                 <Typography variant="body2" color="text.secondary">Date Issued:</Typography>
@@ -957,13 +971,45 @@ export default function InvoicePage() {
                                                 ORDER DETAILS
                                             </Typography>
 
-                                            <Stack spacing={1.5} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #E5E7EB' }}>
+                                        <Stack spacing={1.5} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #E5E7EB' }}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <Typography variant="body2">Base Processing:</Typography>
                                                     <Typography variant="body2" fontWeight="700">IDR {baseProcessing.toLocaleString()}</Typography>
                                                 </Box>
 
-                                                {addonsTotal > 0 && (
+                                                {/* Per-item addon breakdown */}
+                                                {addonBreakdown.idiv > 0 && (
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', pl: 2 }}>
+                                                        <Typography variant="body2" color="text.secondary">↳ IDiv Card (Smart ID):</Typography>
+                                                        <Typography variant="body2" fontWeight="600" color="text.secondary">IDR {addonBreakdown.idiv.toLocaleString()}</Typography>
+                                                    </Box>
+                                                )}
+                                                {addonBreakdown.arrivalCard > 0 && (
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', pl: 2 }}>
+                                                        <Typography variant="body2" color="text.secondary">↳ Arrival Card (e-CD):</Typography>
+                                                        <Typography variant="body2" fontWeight="600" color="text.secondary">IDR {addonBreakdown.arrivalCard.toLocaleString()}</Typography>
+                                                    </Box>
+                                                )}
+                                                {addonBreakdown.express > 0 && (
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', pl: 2 }}>
+                                                        <Typography variant="body2" color="text.secondary">↳ Express Processing:</Typography>
+                                                        <Typography variant="body2" fontWeight="600" color="text.secondary">IDR {addonBreakdown.express.toLocaleString()}</Typography>
+                                                    </Box>
+                                                )}
+                                                {addonBreakdown.insurance > 0 && (
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', pl: 2 }}>
+                                                        <Typography variant="body2" color="text.secondary">↳ Travel Insurance:</Typography>
+                                                        <Typography variant="body2" fontWeight="600" color="text.secondary">IDR {addonBreakdown.insurance.toLocaleString()}</Typography>
+                                                    </Box>
+                                                )}
+                                                {addonBreakdown.vip > 0 && (
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', pl: 2 }}>
+                                                        <Typography variant="body2" color="text.secondary">↳ VIP Service:</Typography>
+                                                        <Typography variant="body2" fontWeight="600" color="text.secondary">IDR {addonBreakdown.vip.toLocaleString()}</Typography>
+                                                    </Box>
+                                                )}
+                                                {/* Fallback: Show total add-ons if no itemized breakdown */}
+                                                {addonsTotal > 0 && Object.keys(addonBreakdown).length === 0 && (
                                                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                         <Typography variant="body2">Add-On Services:</Typography>
                                                         <Typography variant="body2" fontWeight="700">IDR {addonsTotal.toLocaleString()}</Typography>
@@ -980,6 +1026,18 @@ export default function InvoicePage() {
                                                     <Typography variant="body2">Payment Fee:</Typography>
                                                     <Typography variant="body2" fontWeight="700">IDR {gatewayFee.toLocaleString()}</Typography>
                                                 </Box>
+
+                                                {/* Discount row — only shown if discount > 0 */}
+                                                {discountAmount > 0 && (
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', bgcolor: '#f0fdf4', px: 1.5, py: 0.75, borderRadius: 1.5, border: '1px solid #bbf7d0' }}>
+                                                        <Typography variant="body2" sx={{ color: '#166534', fontWeight: 700 }}>
+                                                            🏷️ Discount ({discountPct}%):
+                                                        </Typography>
+                                                        <Typography variant="body2" fontWeight="800" sx={{ color: '#16a34a' }}>
+                                                            - IDR {discountAmount.toLocaleString()}
+                                                        </Typography>
+                                                    </Box>
+                                                )}
                                             </Stack>
 
                                             <Box sx={{ textAlign: 'right', mt: 0.5 }}>

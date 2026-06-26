@@ -97,6 +97,7 @@ export default function InvoicingTab() {
         guestEmail: "",
         visaName: "",
         customAmount: "",
+        discountPct: "0", // Discount percentage (0-100)
         userId: "",
         description: "", // We'll keep this for the "Public Description" field mapping
         registrationNumber: "", // New
@@ -221,7 +222,8 @@ export default function InvoicingTab() {
                 },
                 body: JSON.stringify({
                     id: editingInvoice.id,
-                    ...editFormData
+                    ...editFormData,
+                    discountPct: parseFloat(editFormData.discountPct) || 0
                 })
             });
 
@@ -435,6 +437,7 @@ export default function InvoicingTab() {
                 arrivalCardQr: fullData.arrivalCardQr || fullData.attribution?.arrivalCardQr || '',
                 attribution: fullData.attribution || {}, // PRESERVE ALL (including upsells)
                 paymentMethod: fullData.paymentMethod || linkedInvoice.paymentMethod || '',
+                discountPct: String(fullData.attribution?.discountPct || '0'),
                 verificationAddress: (() => {
                     const addr = fullData.verification?.address || '';
                     if (addr.startsWith('{')) {
@@ -934,13 +937,33 @@ export default function InvoicingTab() {
                             onChange={(e) => setEditFormData({ ...editFormData, visaName: e.target.value })}
                         />
 
-                        <TextField
-                            label="Invoice Amount (IDR)"
-                            fullWidth
-                            placeholder="e.g. 5000000"
-                            value={editFormData.customAmount}
-                            onChange={(e) => setEditFormData({ ...editFormData, customAmount: e.target.value })}
-                        />
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                            <TextField
+                                label="Invoice Amount (IDR)"
+                                fullWidth
+                                placeholder="e.g. 5000000"
+                                value={editFormData.customAmount}
+                                onChange={(e) => setEditFormData({ ...editFormData, customAmount: e.target.value })}
+                            />
+                            <TextField
+                                label="Discount (%)"
+                                placeholder="0"
+                                type="number"
+                                sx={{ minWidth: 130 }}
+                                inputProps={{ min: 0, max: 100, step: 1 }}
+                                value={editFormData.discountPct}
+                                onChange={(e) => {
+                                    const val = Math.min(100, Math.max(0, parseFloat(e.target.value) || 0));
+                                    setEditFormData({ ...editFormData, discountPct: String(val) });
+                                }}
+                                helperText={
+                                    parseFloat(editFormData.discountPct) > 0 && editFormData.customAmount
+                                        ? `- IDR ${Math.round(parseFloat(editFormData.customAmount.replace(/\./g, '').replace(/[^0-9.-]/g, '')) * parseFloat(editFormData.discountPct) / 100).toLocaleString('id-ID')}`
+                                        : "0 = no discount"
+                                }
+                                FormHelperTextProps={{ sx: { color: parseFloat(editFormData.discountPct) > 0 ? 'success.main' : 'text.secondary', fontWeight: 600 } }}
+                            />
+                        </Stack>
 
                         <TextField
                             label="Invoice Description (Public)"

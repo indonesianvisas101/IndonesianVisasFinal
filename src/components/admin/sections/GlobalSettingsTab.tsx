@@ -4,9 +4,16 @@
 import React, { useState, useEffect } from 'react';
 import { 
     Box, Card, Typography, Button, TextField, Stack, Switch, FormControlLabel,
-    Divider, CircularProgress, Alert
+    Divider, CircularProgress, Alert, IconButton
 } from '@mui/material';
-import { Save as SaveIcon, Refresh as RefreshIcon, NotificationsActive as NotificationIcon } from '@mui/icons-material';
+import { 
+    Save as SaveIcon, 
+    Refresh as RefreshIcon, 
+    NotificationsActive as NotificationIcon,
+    Email as EmailIcon,
+    Add as AddIcon,
+    Delete as DeleteIcon
+} from '@mui/icons-material';
 
 export default function GlobalSettingsTab() {
     const [settings, setSettings] = useState<any[]>([]);
@@ -20,6 +27,12 @@ export default function GlobalSettingsTab() {
         stayTime: 10000
     });
     const [popupEnabled, setPopupEnabled] = useState(false);
+
+    // Master Email settings state
+    const [forwardEmails, setForwardEmails] = useState<string[]>([]);
+    const [newEmail, setNewEmail] = useState('');
+    const [emailsEnabled, setEmailsEnabled] = useState(false);
+    const [emailError, setEmailError] = useState('');
 
     useEffect(() => {
         fetchSettings();
@@ -37,6 +50,19 @@ export default function GlobalSettingsTab() {
                 if (popup) {
                     setPopupConfig(JSON.parse(popup.value));
                     setPopupEnabled(popup.isEnabled);
+                }
+
+                const forwardSetting = data.find((s: any) => s.key === 'MASTER_FORWARD_EMAILS');
+                if (forwardSetting) {
+                    setEmailsEnabled(forwardSetting.isEnabled);
+                    try {
+                        const parsed = JSON.parse(forwardSetting.value);
+                        if (Array.isArray(parsed)) {
+                            setForwardEmails(parsed);
+                        }
+                    } catch (e) {
+                        setForwardEmails(forwardSetting.value ? forwardSetting.value.split(',') : []);
+                    }
                 }
             }
         } catch (e) {
@@ -61,6 +87,61 @@ export default function GlobalSettingsTab() {
             if (res.ok) alert("Settings saved successfully!");
         } catch (e) {
             console.error("Save error", e);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleAddEmail = () => {
+        setEmailError('');
+        const trimmed = newEmail.trim().toLowerCase();
+        if (!trimmed) return;
+
+        // Basic email regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmed)) {
+            setEmailError('Please enter a valid email address.');
+            return;
+        }
+
+        if (forwardEmails.includes(trimmed)) {
+            setEmailError('This email is already in the list.');
+            return;
+        }
+
+        if (forwardEmails.length >= 10) {
+            setEmailError('You can add a maximum of 10 forwarding emails.');
+            return;
+        }
+
+        setForwardEmails([...forwardEmails, trimmed]);
+        setNewEmail('');
+    };
+
+    const handleRemoveEmail = (email: string) => {
+        setForwardEmails(forwardEmails.filter(e => e !== email));
+    };
+
+    const handleSaveEmails = async () => {
+        setSaving(true);
+        try {
+            const res = await fetch('/api/admin/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    key: 'MASTER_FORWARD_EMAILS',
+                    value: JSON.stringify(forwardEmails),
+                    isEnabled: emailsEnabled
+                })
+            });
+            if (res.ok) {
+                alert("Master email settings saved successfully!");
+            } else {
+                throw new Error("Failed to save settings");
+            }
+        } catch (e) {
+            console.error("Save error", e);
+            alert("Failed to save master email settings");
         } finally {
             setSaving(false);
         }
@@ -164,8 +245,114 @@ export default function GlobalSettingsTab() {
                 </Stack>
             </Card>
 
+            <Card sx={{ p: 4, borderRadius: 4 }}>
+                <Stack spacing={3}>
+                    <Box display="flex" alignItems="center" gap={2} mb={1}>
+                        <EmailIcon color="primary" />
+                        <Typography variant="h6" fontWeight="bold">Email Master forwarding</Typography>
+                    </Box>
+                    <Divider />
+
+                    <FormControlLabel
+                        control={
+                            <Switch 
+                                checked={emailsEnabled} 
+                                onChange={(e) => setEmailsEnabled(e.target.checked)} 
+                                color="primary"
+                            />
+                        }
+                        label={<Typography fontWeight="bold">Enable Order & Complaint Forwarding</Typography>}
+                    />
+
+                    <Stack spacing={2} sx={{ opacity: emailsEnabled ? 1 : 0.5 }}>
+                        <Typography variant="body2" color="text.secondary">
+                            All incoming orders and customer complaints will be automatically forwarded to the emails configured below (Max 10 emails).
+                        </Typography>
+
+                        <Stack direction="row" spacing={1} alignItems="flex-start">
+                            <TextField
+                                label="Forwarding Email Address"
+                                size="small"
+                                fullWidth
+                                disabled={!emailsEnabled}
+                                value={newEmail}
+                                onChange={(e) => {
+                                    setNewEmail(e.target.value);
+                                    if (emailError) setEmailError('');
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleAddEmail();
+                                    }
+                                }}
+                                error={!!emailError}
+                                helperText={emailError}
+                                placeholder="example@domain.com"
+                            />
+                            <Button
+                                variant="contained"
+                                startIcon={<AddIcon />}
+                                disabled={!emailsEnabled || !newEmail}
+                                onClick={handleAddEmail}
+                                sx={{ py: 1, px: 3, height: '40px', borderRadius: 2 }}
+                            >
+                                Add
+                            </Button>
+                        </Stack>
+
+                        {forwardEmails.length > 0 && (
+                            <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3, p: 2, bgcolor: 'action.hover' }}>
+                                <Typography variant="subtitle2" fontWeight="bold" mb={1} color="text.secondary">
+                                    Configured Recipients ({forwardEmails.length}/10):
+                                </Typography>
+                                <Stack spacing={1}>
+                                    {forwardEmails.map((email) => (
+                                        <Box 
+                                            key={email} 
+                                            display="flex" 
+                                            justifyContent="space-between" 
+                                            alignItems="center" 
+                                            sx={{ 
+                                                p: 1.5, 
+                                                bgcolor: 'background.paper', 
+                                                borderRadius: 2, 
+                                                border: '1px solid', 
+                                                borderColor: 'divider' 
+                                            }}
+                                        >
+                                            <Typography variant="body2" fontWeight="bold">{email}</Typography>
+                                            <IconButton 
+                                                size="small" 
+                                                color="error" 
+                                                disabled={!emailsEnabled}
+                                                onClick={() => handleRemoveEmail(email)}
+                                            >
+                                                <DeleteIcon fontSize="small" />
+                                            </IconButton>
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            </Box>
+                        )}
+                    </Stack>
+
+                    <Box mt={2}>
+                        <Button 
+                            variant="contained" 
+                            startIcon={<SaveIcon />} 
+                            onClick={handleSaveEmails}
+                            disabled={saving}
+                            sx={{ bgcolor: '#1a1a1a', color: 'white', px: 4, py: 1.5, borderRadius: 3 }}
+                        >
+                            {saving ? 'Saving...' : 'Save Email Configuration'}
+                        </Button>
+                    </Box>
+                </Stack>
+            </Card>
+
             <Alert severity="info" sx={{ borderRadius: 3 }}>
-                The Global Info Popup will appear with a 4-second delay for all users and auto-close after 10 seconds.
+                The Global Info Popup and Master Email List configurations are applied site-wide.
             </Alert>
         </Stack>
     );

@@ -46,7 +46,7 @@ export default function ContactPageClient({ dict, locale = "en" }: ContactPageCl
                 : { formType: "Complaint", ...complaintData };
 
             const response = await fetch(
-                `https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_CONTACT_ID || "xbdlnjka"}`,
+                `/api/contact`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },

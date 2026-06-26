@@ -369,15 +369,43 @@ export const sendAdminOrderNotification = async (data: {
         `;
 
         const emailSubject = `NEW ORDER: ${applicantName} - ${visaType}`;
+        
+        // Fetch additional master forward emails
+        const masterForwardSetting = await prisma.globalSetting.findUnique({
+            where: { key: 'MASTER_FORWARD_EMAILS' }
+        });
+        
+        const recipientEmails = ['indonesianvisas@gmail.com'];
+        if (masterForwardSetting?.isEnabled && masterForwardSetting.value) {
+            try {
+                const parsed = JSON.parse(masterForwardSetting.value);
+                if (Array.isArray(parsed)) {
+                    parsed.forEach(email => {
+                        const trimmed = email.trim().toLowerCase();
+                        if (trimmed && !recipientEmails.includes(trimmed)) {
+                            recipientEmails.push(trimmed);
+                        }
+                    });
+                }
+            } catch (e) {
+                masterForwardSetting.value.split(',').forEach(email => {
+                    const trimmed = email.trim().toLowerCase();
+                    if (trimmed && !recipientEmails.includes(trimmed)) {
+                        recipientEmails.push(trimmed);
+                    }
+                });
+            }
+        }
+
         await resend.emails.send({
             from: 'Indonesian Visas System <system@indonesianvisas.agency>',
-            to: ['indonesianvisas@gmail.com'],
+            to: recipientEmails,
             subject: emailSubject,
             html: message,
         });
         
         await prisma.emailLog.create({
-            data: { recipient: 'indonesianvisas@gmail.com', subject: emailSubject, content: message, status: 'SENT' }
+            data: { recipient: recipientEmails.join(', '), subject: emailSubject, content: message, status: 'SENT' }
         }).catch(e => console.error("Failed to log sent email", e));
         
         return { success: true };

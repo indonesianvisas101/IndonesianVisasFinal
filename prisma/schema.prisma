@@ -620,3 +620,18 @@ model NfcRegistry {
   revokedAt       DateTime?
   reissueCount    Int            @default(0)
 }
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  type      String   @default("inquiry") // "inquiry" or "complaint"
+  name      String?
+  email     String
+  whatsapp  String
+  category  String?  // Category for complaints: Payment, Visa Application, Refund, Services, Others
+  message   String
+  status    String   @default("PENDING") // PENDING, RESOLVED
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("contact_messages")
+}

@@ -24,6 +24,7 @@ import AIMasterTab from "@/components/admin/sections/AIMasterTab";
 import ImmigrationUpdatesTab from "@/components/admin/sections/ImmigrationUpdatesTab";
 import MarketingTab from "@/components/admin/sections/MarketingTab";
 import AddonsTab from "@/components/admin/sections/AddonsTab";
+import MessagePanel from "@/components/admin/sections/MessagePanel";
 import { generatePDF } from "@/lib/pdf-export";
 
 import Link from "@mui/material/Link";
@@ -134,7 +135,7 @@ import { sendAdminAlert } from "@/app/actions/sendAdminAlert"; // Smart Alert Sy
 const DRAWER_WIDTH = 260;
 const COLLAPSED_WIDTH = 80;
 
-type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master' | 'orders' | 'updates' | 'marketing' | 'finance' | 'email_logs' | 'addons' | 'global_settings';
+type TabType = 'dashboard' | 'visas' | 'users' | 'settings' | 'popular_visas' | 'verification' | 'company_services' | 'invoicing' | 'support' | 'logs' | 'arrival_cards' | 'ai_master' | 'orders' | 'updates' | 'marketing' | 'finance' | 'email_logs' | 'addons' | 'global_settings' | 'message_panel';
 
 // Main Content Component (Logic moved here)
 function AdminDashboardContent() {
@@ -576,6 +577,7 @@ function AdminDashboardContent() {
                 {[
                     { key: 'dashboard', label: 'Overview', icon: <DashboardIcon /> },
                     { key: 'support', label: 'Support Chat', icon: <MessageIcon />, badge: allNotifications.filter(n => !n.isRead).length },
+                    { key: 'message_panel', label: 'Message Panel', icon: <MailIcon /> },
                     { key: 'users', label: 'User Management', icon: <PeopleIcon /> },
                     { key: 'verification', label: 'Verification', icon: <VerifiedUserIcon /> },
                     { key: 'visas', label: 'Visa Database', icon: <DescriptionIcon /> },
@@ -917,6 +919,13 @@ function AdminDashboardContent() {
                             setUsersList={setUsersList}
                             addDocument={addDocument}
                         />
+                    )}
+
+                    {/* --- MESSAGE PANEL (COMPLAINTS) TAB --- */}
+                    {activeTab === 'message_panel' && (
+                        <Box sx={{ animation: 'fadeIn 0.5s ease' }}>
+                            <MessagePanel />
+                        </Box>
                     )}
 
                 </Box>

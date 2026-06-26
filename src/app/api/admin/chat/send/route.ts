@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getAdminAuth } from '@/lib/auth-helpers';
+import { getWorkerOrAdminAuth } from '@/lib/auth-helpers';
 import prisma from '@/lib/prisma';
 
 export async function POST(req: Request) {
     // 1. Check Auth
-    const auth = await getAdminAuth();
+    const auth = await getWorkerOrAdminAuth();
     if (!auth.authorized) {
         return NextResponse.json({ error: auth.error }, { status: auth.status });
     }

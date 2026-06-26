@@ -10,7 +10,7 @@ export interface UserProfile {
     email: string;
     whatsapp: string;
     avatar?: string;
-    role: 'user' | 'admin';
+    role: 'user' | 'admin' | 'worker';
     status?: 'active' | 'deleted'; // New
     joinedAt: string;
     // Enhanced Profile
@@ -150,7 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         name: data.name || '',
                         email: data.email,
                         whatsapp: data.whatsapp || '',
-                        role: rawRole as 'user' | 'admin',
+                        role: rawRole as 'user' | 'admin' | 'worker',
                         joinedAt: data.createdAt || data.created_at || new Date().toISOString(),
                         avatar: data.avatar,
                         status: data.status as 'active',

@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getAdminAuth } from '@/lib/auth-helpers';
+import { getWorkerOrAdminAuth } from '@/lib/auth-helpers';
 import { nameSimilarity } from '@/utils/fuzzyName';
 
 const FUZZY_THRESHOLD = 75; // Minimum similarity % to be considered a match
 
 export async function GET(request: Request) {
     try {
-        const { authorized, error, status } = await getAdminAuth();
+        const { authorized, error, status } = await getWorkerOrAdminAuth();
         if (!authorized) return NextResponse.json({ error }, { status });
 
         const { searchParams } = new URL(request.url);

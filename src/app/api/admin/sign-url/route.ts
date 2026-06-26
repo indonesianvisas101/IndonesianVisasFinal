@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSignedUrl } from '@/lib/storage';
-import { getAdminAuth } from '@/lib/auth-helpers';
+import { getWorkerOrAdminAuth } from '@/lib/auth-helpers';
 
 /**
  * API to sign a storage path on the fly for admin previews.
@@ -8,7 +8,7 @@ import { getAdminAuth } from '@/lib/auth-helpers';
  */
 export async function GET(request: Request) {
     try {
-        const auth = await getAdminAuth();
+        const auth = await getWorkerOrAdminAuth();
         if (!auth.authorized) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }

@@ -151,7 +151,7 @@ const Header = ({ dict, locale }: { dict?: any; locale: string }) => {
                             {user && (
                                 <>
                                     <Link
-                                        href={user.role === 'admin' ? formatNavLink(locale, "/admin") : formatNavLink(locale, `/${user.name ? user.name.toLowerCase().replace(/\s+/g, '_') : 'profile'}`)}
+                                        href={user.role === 'admin' ? formatNavLink(locale, "/admin") : (user.role === 'worker' ? formatNavLink(locale, "/worker") : formatNavLink(locale, `/${user.name ? user.name.toLowerCase().replace(/\s+/g, '_') : 'profile'}`))}
                                         className={styles.navLink}
                                         onClick={closeMobileMenu}
                                     >

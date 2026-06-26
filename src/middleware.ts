@@ -104,7 +104,7 @@ export async function proxy(request: NextRequest) {
     // We do this BEFORE potentially slow Supabase calls
     const checkPath = pathnameIsMissingLocale ? pathname : pathWithoutLocale;
     const isPublic = isPublicRoute(checkPath);
-    const isDashboardOrAdmin = checkPath.startsWith('/dashboard') || checkPath.startsWith('/admin');
+    const isDashboardOrAdminOrWorker = checkPath.startsWith('/dashboard') || checkPath.startsWith('/admin') || checkPath.startsWith('/worker');
 
     // 4. Handle Missing Locale
     if (pathnameIsMissingLocale) {
@@ -133,14 +133,14 @@ export async function proxy(request: NextRequest) {
     let user = null;
     let response = NextResponse.next();
 
-    if (isDashboardOrAdmin || !isPublic) {
+    if (isDashboardOrAdminOrWorker || !isPublic) {
         const sessionData = await updateSession(request);
         user = sessionData.user;
         response = sessionData.response;
     }
 
     // 6. Security Enforcement
-    if (isDashboardOrAdmin) {
+    if (isDashboardOrAdminOrWorker) {
         if (!user) {
             const url = request.nextUrl.clone()
             const targetLocale = locales.includes(pathLocale as any) ? pathLocale : defaultLocale;
@@ -158,7 +158,7 @@ export async function proxy(request: NextRequest) {
         const url = request.nextUrl.clone()
         const role = user.user_metadata?.role
         const targetLocale = locales.includes(pathLocale as any) ? pathLocale : defaultLocale;
-        const targetPath = role === 'admin' ? '/admin' : '/dashboard';
+        const targetPath = role === 'admin' ? '/admin' : (role === 'worker' ? '/worker' : '/dashboard');
         
         if (targetLocale === defaultLocale) {
             url.pathname = targetPath;

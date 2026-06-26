@@ -6,7 +6,7 @@ import { logAdminAction } from '@/lib/auditLogger';
 import { createClient } from '@/utils/supabase/server'; // Use server client
 import { sendConfirmationEmail, sendAdminOrderNotification } from '@/lib/email';
 import { calculateOrderFees } from '@/utils/feeCalculator';
-import { getAdminAuth } from '@/lib/auth-helpers';
+import { getAdminAuth, getWorkerOrAdminAuth } from '@/lib/auth-helpers';
 import { signDocumentUrls } from '@/lib/storage';
 
 // GET /api/applications?userId=... OR ?id=... OR ?slug=... OR (no params for all)
@@ -16,6 +16,16 @@ export async function GET(request: Request) {
         const userId = searchParams.get('userId');
         const id = searchParams.get('id');
         const slug = searchParams.get('slug');
+
+        // Guard: listing all orders requires staff access
+        if (!id && !slug && !userId) {
+            const supabase = await createClient();
+            const { data: { user: authUser } } = await supabase.auth.getUser();
+            if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            const dbUser = await prisma.user.findUnique({ where: { id: authUser.id }, select: { role: true } });
+            const isStaff = dbUser?.role === 'admin' || dbUser?.role === 'worker';
+            if (!isStaff) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         // 1. GET SINGLE INVOICE (Detailed) - By ID OR Slug
         if (id || slug) {
@@ -593,8 +603,8 @@ ${adminNotes || 'No additional notes provided.'}
 // PATCH /api/applications (Update Application/Invoice)
 export async function PATCH(request: Request) {
     try {
-        const { authorized, error, status } = await getAdminAuth();
-        if (!authorized) return NextResponse.json({ error }, { status });
+        const auth = await getWorkerOrAdminAuth();
+        if (!auth.authorized) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
         const body = await request.json();
         const { 
@@ -607,6 +617,13 @@ export async function PATCH(request: Request) {
             // Invoice Enhancement: discount support
             discountPct
         } = body;
+
+        // Security: Workers cannot edit invoice amounts or discounts
+        if (auth.dbUser?.role === 'worker') {
+            if (customAmount !== undefined || discountPct !== undefined) {
+                return NextResponse.json({ error: 'Forbidden: Workers cannot modify pricing' }, { status: 403 });
+            }
+        }
 
         const visaNameFinal = visaName?.toUpperCase();
 
@@ -735,13 +752,8 @@ export async function PATCH(request: Request) {
         }
 
         // 3. Audit Log
-        const authData = await getAdminAuth();
-        if (authData.dbUser) {
-            await logAdminAction(
-                authData.dbUser.id,
-                "UPDATE_APPLICATION",
-                "Application",
-                targetId,
+        if (auth.dbUser) {
+            await logAdminAction(auth.dbUser.id, 'UPDATE_APPLICATION', 'Application', targetId,
                 { ...appUpdateData, paymentStatus, paymentReference, adminNotes }
             );
         }

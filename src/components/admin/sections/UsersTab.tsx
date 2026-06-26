@@ -195,7 +195,7 @@ export default function UsersTab({ usersList, setUsersList, addDocument }: Users
                                     </TableCell>
                                     <TableCell>
                                         <Chip label={user.role || 'user'} size="small" 
-                                            color={user.role === 'admin' ? 'secondary' : 'default'} />
+                                            color={user.role === 'admin' ? 'secondary' : (user.role === 'worker' ? 'primary' : 'default')} />
                                     </TableCell>
                                     <TableCell>
                                         {user.isVerified ? <VerifiedUserIcon color="success" fontSize="small" /> : "-"}
@@ -232,6 +232,7 @@ export default function UsersTab({ usersList, setUsersList, addDocument }: Users
                                     <TextField label="Role" select fullWidth value={editingUser?.role || 'user'}
                                         onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}>
                                         <MenuItem value="user">User</MenuItem>
+                                        <MenuItem value="worker">Worker / Staff</MenuItem>
                                         <MenuItem value="admin">Administrator</MenuItem>
                                     </TextField>
                                 </Grid>

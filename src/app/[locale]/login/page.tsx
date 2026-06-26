@@ -44,8 +44,10 @@ const LoginPage = () => {
         const trimmedEmail = email.trim().toLowerCase();
         const profile = await login(trimmedEmail, password);
         if (profile) {
-            if (profile.role === 'admin' && trimmedEmail === 'damnbayu@gmail.com') {
+            if (profile.role === 'admin') {
                 router.push(formatNavLink(locale, "/admin"));
+            } else if (profile.role === 'worker') {
+                router.push(formatNavLink(locale, "/worker"));
             } else {
                 router.push(formatNavLink(locale, "/dashboard"));
             }

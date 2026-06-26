@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getAdminAuth } from '@/lib/auth-helpers';
+import { getWorkerOrAdminAuth } from '@/lib/auth-helpers';
 import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
     try {
-        const auth = await getAdminAuth();
+        const auth = await getWorkerOrAdminAuth();
         if (!auth.authorized) {
             return NextResponse.json({ error: auth.error }, { status: auth.status });
         }
